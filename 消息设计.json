@@ -1,0 +1,43 @@
+{
+    "lwp": "/r/IDLSend/send",
+    "headers": {
+        "mid": "4250007f 0"
+    },
+    "body": [{
+        "uuid": "1606206034756401",
+        "conversationId": "417067671:1055288007",
+        "type": 1,
+        "creatorType": 1,
+        "content": {
+            "contentType": 1,
+            "textContent": {
+                "text": "[单挑]"
+            },
+            "atOpenIds": {}
+        },
+        "nickName": "高万里"
+    }]
+} 
+{
+    "headers": {
+        "mid": "93e50021 0",
+        "sid": "0b86f6af5fbcbeb70fc12664379e43f8f39d4070e842"
+    },
+    "lwp": "/s/sync",
+    "body": {
+        "1": {
+            "1": 28,
+            "2": 28,
+            "3": 1606206054473,
+            "4": 0,
+            "5": 0,
+            "6": [{
+                "1": 1008,
+                "2": "hAG0NDE3MDY3NjcxOjEwNTUyODgwMDcCzwAABRGSO8h1CIIBAAICDbgxMDU1Mjg4MDA3XzU1NzMwMjU5NzQzODk=",
+                "3": 3
+            }],
+            "7": 1606181641706034,
+            "8": 1606206054454
+        }
+    }
+}
