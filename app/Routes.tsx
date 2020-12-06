@@ -17,108 +17,108 @@
 */
 // @material-ui/icons
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import Dashboard from "@material-ui/icons/Dashboard";
-import Person from "@material-ui/icons/Person";
-import LibraryBooks from "@material-ui/icons/LibraryBooks";
-import BubbleChart from "@material-ui/icons/BubbleChart";
-import LocationOn from "@material-ui/icons/LocationOn";
-import Notifications from "@material-ui/icons/Notifications";
-import Unarchive from "@material-ui/icons/Unarchive";
-import Language from "@material-ui/icons/Language";
+import Dashboard from '@material-ui/icons/Dashboard';
+import Person from '@material-ui/icons/Person';
+import LibraryBooks from '@material-ui/icons/LibraryBooks';
+import BubbleChart from '@material-ui/icons/BubbleChart';
+import LocationOn from '@material-ui/icons/LocationOn';
+import Notifications from '@material-ui/icons/Notifications';
+import Unarchive from '@material-ui/icons/Unarchive';
+import Language from '@material-ui/icons/Language';
 // core components/views for Admin layout
-import Entertain from "./views/Entertain/Entertain"
-import DashboardPage from "./views/Dashboard/Dashboard";
-import UserProfile from "./views/UserProfile/UserProfile";
-import TableList from "./views/TableList/TableList";
-import Typography from "./views/Typography/Typography";
-import Icons from "./views/Icons/Icons";
-import Maps from "./views/Maps/Maps";
-import NotificationsPage from "./views/Notifications/Notifications";
-import UpgradeToPro from "./views/UpgradeToPro/UpgradeToPro";
+import Entertain from './views/Entertain/Entertain';
+import DashboardPage from './views/Dashboard/Dashboard';
+import UserProfile from './views/UserProfile/UserProfile';
+import TableList from './views/TableList/TableList';
+import Typography from './views/Typography/Typography';
+import Icons from './views/Icons/Icons';
+import Maps from './views/Maps/Maps';
+import NotificationsPage from './views/Notifications/Notifications';
+import UpgradeToPro from './views/UpgradeToPro/UpgradeToPro';
 // core components/views for RTL layout
-import RTLPage from "./views/RTLPage/RTLPage";
+import RTLPage from './views/RTLPage/RTLPage';
 
 const dashboardRoutes = [
   {
-    path: "/entertain",
-    name: "在线聊天",
-    rtlName: "لوحة القيادة",
+    path: '/entertain',
+    name: '在线聊天',
+    rtlName: 'لوحة القيادة',
     icon: QuestionAnswerIcon,
     component: Entertain,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/dashboard",
-    name: "仪表板",
-    rtlName: "لوحة القيادة",
+    path: '/dashboard',
+    name: '仪表板',
+    rtlName: 'لوحة القيادة',
     icon: Dashboard,
     component: DashboardPage,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/user",
-    name: "用户资料",
-    rtlName: "ملف تعريفي للمستخدم",
+    path: '/user',
+    name: '用户资料',
+    rtlName: 'ملف تعريفي للمستخدم',
     icon: Person,
     component: UserProfile,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/table",
-    name: "表格清单",
-    rtlName: "قائمة الجدول",
-    icon: "content_paste",
+    path: '/table',
+    name: '表格清单',
+    rtlName: 'قائمة الجدول',
+    icon: 'content_paste',
     component: TableList,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/typography",
-    name: "版式",
-    rtlName: "طباعة",
+    path: '/typography',
+    name: '版式',
+    rtlName: 'طباعة',
     icon: LibraryBooks,
     component: Typography,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/icons",
-    name: "图标",
-    rtlName: "الرموز",
+    path: '/icons',
+    name: '图标',
+    rtlName: 'الرموز',
     icon: BubbleChart,
     component: Icons,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/maps",
-    name: "地图",
-    rtlName: "خرائط",
+    path: '/maps',
+    name: '地图',
+    rtlName: 'خرائط',
     icon: LocationOn,
     component: Maps,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/notifications",
-    name: "通知",
-    rtlName: "إخطارات",
+    path: '/notifications',
+    name: '通知',
+    rtlName: 'إخطارات',
     icon: Notifications,
     component: NotificationsPage,
-    layout: "/admin"
+    layout: '/admin',
   },
   {
-    path: "/rtl-page",
-    name: "RTL 支持",
-    rtlName: "پشتیبانی از راست به چپ",
+    path: '/rtl-page',
+    name: 'RTL 支持',
+    rtlName: 'پشتیبانی از راست به چپ',
     icon: Language,
     component: RTLPage,
-    layout: "/rtl"
+    layout: '/rtl',
   },
   {
-    path: "/upgrade-to-pro",
-    name: "Upgrade To PRO",
-    rtlName: "التطور للاحترافية",
+    path: '/upgrade-to-pro',
+    name: 'Upgrade To PRO',
+    rtlName: 'التطور للاحترافية',
     icon: Unarchive,
     component: UpgradeToPro,
-    layout: "/admin"
-  }
+    layout: '/admin',
+  },
 ];
 
 export default dashboardRoutes;
