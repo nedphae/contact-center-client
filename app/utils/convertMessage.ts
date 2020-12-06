@@ -12,28 +12,28 @@
 //         }
 //     }
 // }
-import { Message } from "../chat/state/reducer";
+import { Message } from '../chat/state/reducer';
 
 function convertSystemMessage(message: Message) {
-  if (message.type === "system") {
-    message.from._id = "system";
+  if (message.type === 'system') {
+    message.from._id = 'system';
     message.from.originUsername = message.from.username;
-    message.from.username = "乌贼娘殿下";
-    message.from.avatar = require("../chat/assets/images/wuzeiniang.gif");
-    message.from.tag = "system";
+    message.from.username = '乌贼娘殿下';
+    message.from.avatar = require('../chat/assets/images/wuzeiniang.gif');
+    message.from.tag = 'system';
 
     const content = JSON.parse(message.content);
     switch (content.command) {
-      case "roll": {
+      case 'roll': {
         message.content = `掷出了${content.value}点 (上限${content.top}点)`;
         break;
       }
-      case "rps": {
+      case 'rps': {
         message.content = `使出了 ${content.value}`;
         break;
       }
       default: {
-        message.content = "不支持的指令";
+        message.content = '不支持的指令';
       }
     }
   }

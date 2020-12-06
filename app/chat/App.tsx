@@ -1,22 +1,22 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
-import { hot } from "react-hot-loader";
-import { useSelector } from "react-redux";
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { hot } from 'react-hot-loader';
+import { useSelector } from 'react-redux';
 
-import "./assets/styles/normalize.less";
-import "./assets/styles/iconfont.less";
+import './assets/styles/normalize.less';
+import './assets/styles/iconfont.less';
 
-import Style from "./App.less";
-import { isMobile } from "../utils/ua";
-import { State } from "./state/reducer";
+import Style from './App.less';
+import { isMobile } from '../utils/ua';
+import { State } from './state/reducer';
 
-import LoginAndRegister from "./modules/LoginAndRegister/LoginAndRegister";
-import Sidebar from "./modules/Sidebar/Sidebar";
-import FunctionBarAndLinkmanList from "./modules/FunctionBarAndLinkmanList/FunctionBarAndLinkmanList";
-import UserInfo from "./modules/UserInfo";
-import GroupInfo from "./modules/GroupInfo";
-import { ShowUserOrGroupInfoContext } from "./context";
-import Chat from "./modules/Chat/Chat";
-import inobounce from "../utils/inobounce";
+import LoginAndRegister from './modules/LoginAndRegister/LoginAndRegister';
+import Sidebar from './modules/Sidebar/Sidebar';
+import FunctionBarAndLinkmanList from './modules/FunctionBarAndLinkmanList/FunctionBarAndLinkmanList';
+import UserInfo from './modules/UserInfo';
+import GroupInfo from './modules/GroupInfo';
+import { ShowUserOrGroupInfoContext } from './context';
+import Chat from './modules/Chat/Chat';
+import inobounce from '../utils/inobounce';
 
 /**
  * 获取窗口宽度百分比
@@ -38,14 +38,14 @@ function getWidthPercent() {
   return width;
 }
 
-function getWidthPercent_v2(){
-  let width = 0.96
-  return width
+function getWidthPercent_v2() {
+  const width = 0.96;
+  return width;
 }
 
-function getHeightPercent_v2(){
-  let height = 0.85
-  return height
+function getHeightPercent_v2() {
+  const height = 0.85;
+  return height;
 }
 
 /**
@@ -99,7 +99,7 @@ function App() {
     () => ({
       backgroundImage: `url(${backgroundImage})`,
       backgroundSize: `${backgroundWidth}px ${backgroundHeight}px`,
-      backgroundRepeat: "no-repeat"
+      backgroundRepeat: 'no-repeat',
     }),
     [backgroundImage, backgroundWidth, backgroundHeight]
   );
@@ -112,7 +112,7 @@ function App() {
       // left: `${((1 - width) / 2) * 100}%`,
       left: `2%`,
       // top: `${((1 - height) / 2) * 100}%`
-      top: `11%`
+      top: `11%`,
     }),
     [width, height]
   );
@@ -120,13 +120,11 @@ function App() {
   // 模糊背景样式
   const blurStyle = useMemo(
     () => ({
-      backgroundPosition: `${(-(1 - width) * window.innerWidth) / 2}px ${(-(
-        1 - height
-      ) *
-        window.innerHeight) /
-        2}px`,
+      backgroundPosition: `${(-(1 - width) * window.innerWidth) / 2}px ${
+        (-(1 - height) * window.innerHeight) / 2
+      }px`,
       ...style,
-      ...childStyle
+      ...childStyle,
     }),
     [width, height, style, childStyle]
   );
@@ -146,7 +144,7 @@ function App() {
       showGroupInfo(group: React.SetStateAction<any>) {
         setGroupInfo(group);
         toggleGroupInfoDialog(true);
-      }
+      },
     }),
     []
   );

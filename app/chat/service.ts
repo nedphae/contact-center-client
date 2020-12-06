@@ -2,7 +2,7 @@ import fetch from '../utils/fetch';
 import { User } from './state/reducer';
 
 function saveUsername(username: string) {
-    window.localStorage.setItem('username', username);
+  window.localStorage.setItem('username', username);
 }
 
 /**
@@ -14,29 +14,26 @@ function saveUsername(username: string) {
  * @param environment 环境信息
  */
 export async function register(
-    username: string,
-    password: string,
-    os: string,
-    browser: string,
-    environment: string,
+  username: string,
+  password: string,
+  os: string,
+  browser: string,
+  environment: string
 ) {
-    const [err, user] = await fetch(
-        'register',
-        {
-            username,
-            password,
-            os,
-            browser,
-            environment,
-        },
-    );
+  const [err, user] = await fetch('register', {
+    username,
+    password,
+    os,
+    browser,
+    environment,
+  });
 
-    if (err) {
-        return null;
-    }
+  if (err) {
+    return null;
+  }
 
-    saveUsername(user.username);
-    return user;
+  saveUsername(user.username);
+  return user;
 }
 
 /**
@@ -48,29 +45,26 @@ export async function register(
  * @param environment 环境信息
  */
 export async function login(
-    username: string,
-    password: string,
-    os: string,
-    browser: string,
-    environment: string,
+  username: string,
+  password: string,
+  os: string,
+  browser: string,
+  environment: string
 ) {
-    const [err, user] = await fetch(
-        'login',
-        {
-            username,
-            password,
-            os,
-            browser,
-            environment,
-        },
-    );
+  const [err, user] = await fetch('login', {
+    username,
+    password,
+    os,
+    browser,
+    environment,
+  });
 
-    if (err) {
-        return null;
-    }
+  if (err) {
+    return null;
+  }
 
-    saveUsername(user.username);
-    return user;
+  saveUsername(user.username);
+  return user;
 }
 
 /**
@@ -81,28 +75,28 @@ export async function login(
  * @param environment 环境信息
  */
 export async function loginByToken(
-    token: string,
-    os: string,
-    browser: string,
-    environment: string,
+  token: string,
+  os: string,
+  browser: string,
+  environment: string
 ) {
-    const [err, user] = await fetch(
-        'loginByToken',
-        {
-            token,
-            os,
-            browser,
-            environment,
-        },
-        { toast: false },
-    );
+  const [err, user] = await fetch(
+    'loginByToken',
+    {
+      token,
+      os,
+      browser,
+      environment,
+    },
+    { toast: false }
+  );
 
-    if (err) {
-        return null;
-    }
+  if (err) {
+    return null;
+  }
 
-    saveUsername(user.username);
-    return user;
+  saveUsername(user.username);
+  return user;
 }
 
 /**
@@ -112,11 +106,11 @@ export async function loginByToken(
  * @param environment 环境信息
  */
 export async function guest(os: string, browser: string, environment: string) {
-    const [err, res] = await fetch('guest', { os, browser, environment });
-    if (err) {
-        return null;
-    }
-    return res;
+  const [err, res] = await fetch('guest', { os, browser, environment });
+  if (err) {
+    return null;
+  }
+  return res;
 }
 
 /**
@@ -124,8 +118,8 @@ export async function guest(os: string, browser: string, environment: string) {
  * @param avatar 新头像链接
  */
 export async function changeAvatar(avatar: string) {
-    const [error] = await fetch('changeAvatar', { avatar });
-    return !error;
+  const [error] = await fetch('changeAvatar', { avatar });
+  return !error;
 }
 
 /**
@@ -134,11 +128,11 @@ export async function changeAvatar(avatar: string) {
  * @param newPassword 新密码
  */
 export async function changePassword(oldPassword: string, newPassword: string) {
-    const [error] = await fetch('changePassword', {
-        oldPassword,
-        newPassword,
-    });
-    return !error;
+  const [error] = await fetch('changePassword', {
+    oldPassword,
+    newPassword,
+  });
+  return !error;
 }
 
 /**
@@ -146,10 +140,10 @@ export async function changePassword(oldPassword: string, newPassword: string) {
  * @param username 新用户名
  */
 export async function changeUsername(username: string) {
-    const [error] = await fetch('changeUsername', {
-        username,
-    });
-    return !error;
+  const [error] = await fetch('changeUsername', {
+    username,
+  });
+  return !error;
 }
 
 /**
@@ -158,8 +152,8 @@ export async function changeUsername(username: string) {
  * @param name 新名字
  */
 export async function changeGroupName(groupId: string, name: string) {
-    const [error] = await fetch('changeGroupName', { groupId, name });
-    return !error;
+  const [error] = await fetch('changeGroupName', { groupId, name });
+  return !error;
 }
 
 /**
@@ -168,8 +162,8 @@ export async function changeGroupName(groupId: string, name: string) {
  * @param name 新头像
  */
 export async function changeGroupAvatar(groupId: string, avatar: string) {
-    const [error] = await fetch('changeGroupAvatar', { groupId, avatar });
-    return !error;
+  const [error] = await fetch('changeGroupAvatar', { groupId, avatar });
+  return !error;
 }
 
 /**
@@ -177,8 +171,8 @@ export async function changeGroupAvatar(groupId: string, avatar: string) {
  * @param name 群组名
  */
 export async function createGroup(name: string) {
-    const [, group] = await fetch('createGroup', { name });
-    return group;
+  const [, group] = await fetch('createGroup', { name });
+  return group;
 }
 
 /**
@@ -186,8 +180,8 @@ export async function createGroup(name: string) {
  * @param groupId 群组id
  */
 export async function deleteGroup(groupId: string) {
-    const [error] = await fetch('deleteGroup', { groupId });
-    return !error;
+  const [error] = await fetch('deleteGroup', { groupId });
+  return !error;
 }
 
 /**
@@ -195,8 +189,8 @@ export async function deleteGroup(groupId: string) {
  * @param groupId 群组id
  */
 export async function joinGroup(groupId: string) {
-    const [, group] = await fetch('joinGroup', { groupId });
-    return group;
+  const [, group] = await fetch('joinGroup', { groupId });
+  return group;
 }
 
 /**
@@ -204,8 +198,8 @@ export async function joinGroup(groupId: string) {
  * @param groupId 群组id
  */
 export async function leaveGroup(groupId: string) {
-    const [error] = await fetch('leaveGroup', { groupId });
-    return !error;
+  const [error] = await fetch('leaveGroup', { groupId });
+  return !error;
 }
 
 /**
@@ -213,8 +207,8 @@ export async function leaveGroup(groupId: string) {
  * @param userId 目标用户id
  */
 export async function addFriend(userId: string) {
-    const [, user] = await fetch<User>('addFriend', { userId });
-    return user;
+  const [, user] = await fetch<User>('addFriend', { userId });
+  return user;
 }
 
 /**
@@ -222,8 +216,8 @@ export async function addFriend(userId: string) {
  * @param userId 目标用户id
  */
 export async function deleteFriend(userId: string) {
-    const [err] = await fetch('deleteFriend', { userId });
-    return !err;
+  const [err] = await fetch('deleteFriend', { userId });
+  return !err;
 }
 
 /**
@@ -231,8 +225,10 @@ export async function deleteFriend(userId: string) {
  * @param linkmanIds 要获取消息的联系人数组
  */
 export async function getLinkmansLastMessages(linkmanIds: string[]) {
-    const [, groupMessages] = await fetch('getLinkmansLastMessages', { linkmans: linkmanIds });
-    return groupMessages;
+  const [, groupMessages] = await fetch('getLinkmansLastMessages', {
+    linkmans: linkmanIds,
+  });
+  return groupMessages;
 }
 
 /**
@@ -240,9 +236,15 @@ export async function getLinkmansLastMessages(linkmanIds: string[]) {
  * @param linkmanId 联系人id
  * @param existCount 客户端已有消息条数
  */
-export async function getLinkmanHistoryMessages(linkmanId: string, existCount: number) {
-    const [, messages] = await fetch('getLinkmanHistoryMessages', { linkmanId, existCount });
-    return messages;
+export async function getLinkmanHistoryMessages(
+  linkmanId: string,
+  existCount: number
+) {
+  const [, messages] = await fetch('getLinkmanHistoryMessages', {
+    linkmanId,
+    existCount,
+  });
+  return messages;
 }
 
 /**
@@ -250,8 +252,10 @@ export async function getLinkmanHistoryMessages(linkmanId: string, existCount: n
  * @param existCount 客户端已有消息条数
  */
 export async function getDefaultGroupHistoryMessages(existCount: number) {
-    const [, messages] = await fetch('getDefaultGroupHistoryMessages', { existCount });
-    return messages;
+  const [, messages] = await fetch('getDefaultGroupHistoryMessages', {
+    existCount,
+  });
+  return messages;
 }
 
 /**
@@ -259,8 +263,8 @@ export async function getDefaultGroupHistoryMessages(existCount: number) {
  * @param keywords 关键字
  */
 export async function search(keywords: string) {
-    const [, result] = await fetch('search', { keywords });
-    return result;
+  const [, result] = await fetch('search', { keywords });
+  return result;
 }
 
 /**
@@ -268,8 +272,8 @@ export async function search(keywords: string) {
  * @param keywords 关键字
  */
 export async function searchExpression(keywords: string) {
-    const [, result] = await fetch('searchExpression', { keywords });
-    return result;
+  const [, result] = await fetch('searchExpression', { keywords });
+  return result;
 }
 
 /**
@@ -279,7 +283,7 @@ export async function searchExpression(keywords: string) {
  * @param content 消息内容
  */
 export async function sendMessage(to: string, type: string, content: string) {
-    return fetch('sendMessage', { to, type, content });
+  return fetch('sendMessage', { to, type, content });
 }
 
 /**
@@ -287,8 +291,8 @@ export async function sendMessage(to: string, type: string, content: string) {
  * @param messageId 要删除的消息id
  */
 export async function deleteMessage(messageId: string) {
-    const [err] = await fetch('deleteMessage', { messageId });
-    return !err;
+  const [err] = await fetch('deleteMessage', { messageId });
+  return !err;
 }
 
 /**
@@ -296,16 +300,16 @@ export async function deleteMessage(messageId: string) {
  * @param groupId 目标群id
  */
 export async function getGroupOnlineMembers(groupId: string) {
-    const [, members] = await fetch('getGroupOnlineMembers', { groupId });
-    return members;
+  const [, members] = await fetch('getGroupOnlineMembers', { groupId });
+  return members;
 }
 
 /**
  * 获取默认群组的在线用户列表
  */
 export async function getDefaultGroupOnlineMembers() {
-    const [, members] = await fetch('getDefaultGroupOnlineMembers');
-    return members;
+  const [, members] = await fetch('getDefaultGroupOnlineMembers');
+  return members;
 }
 
 /**
@@ -313,8 +317,8 @@ export async function getDefaultGroupOnlineMembers() {
  * @param username 目标用户名
  */
 export async function sealUser(username: string) {
-    const [err] = await fetch('sealUser', { username });
-    return !err;
+  const [err] = await fetch('sealUser', { username });
+  return !err;
 }
 
 /**
@@ -322,8 +326,8 @@ export async function sealUser(username: string) {
  * @param ip ip地址
  */
 export async function sealIp(ip: string) {
-    const [err] = await fetch('sealIp', { ip });
-    return !err;
+  const [err] = await fetch('sealIp', { ip });
+  return !err;
 }
 
 /**
@@ -331,16 +335,16 @@ export async function sealIp(ip: string) {
  * @param userId 用户id
  */
 export async function sealUserOnlineIp(userId: string) {
-    const [err] = await fetch('sealUserOnlineIp', { userId });
-    return !err;
+  const [err] = await fetch('sealUserOnlineIp', { userId });
+  return !err;
 }
 
 /**
  * 获取封禁用户列表
  */
 export async function getSealList() {
-    const [, sealList] = await fetch('getSealList');
-    return sealList;
+  const [, sealList] = await fetch('getSealList');
+  return sealList;
 }
 
 /**
@@ -348,8 +352,8 @@ export async function getSealList() {
  * @param username 目标用户名
  */
 export async function resetUserPassword(username: string) {
-    const [, res] = await fetch('resetUserPassword', { username });
-    return res;
+  const [, res] = await fetch('resetUserPassword', { username });
+  return res;
 }
 
 /**
@@ -358,8 +362,8 @@ export async function resetUserPassword(username: string) {
  * @param tag 标签
  */
 export async function setUserTag(username: string, tag: string) {
-    const [err] = await fetch('setUserTag', { username, tag });
-    return !err;
+  const [err] = await fetch('setUserTag', { username, tag });
+  return !err;
 }
 
 /**
@@ -367,6 +371,6 @@ export async function setUserTag(username: string, tag: string) {
  * @param userId 用户id
  */
 export async function getUserIps(userId: string) {
-    const [, res] = await fetch('getUserIps', { userId });
-    return res;
+  const [, res] = await fetch('getUserIps', { userId });
+  return res;
 }

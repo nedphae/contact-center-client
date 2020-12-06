@@ -4,6 +4,7 @@
 
 import path from 'path';
 import webpack from 'webpack';
+import LessPluginAutoPrefix from 'less-plugin-autoprefix';
 import { dependencies as externals } from '../app/package.json';
 
 export default {
@@ -19,6 +20,45 @@ export default {
           options: {
             cacheDirectory: true,
           },
+        },
+      },
+      {
+        test: /\.less$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 2,
+              modules: {
+                localIdentName: '[local]--[hash:base64:5]',
+              },
+            },
+          },
+          {
+            loader: 'less-loader',
+            options: {
+              lessOptions: {
+                plugins: [
+                  new LessPluginAutoPrefix({
+                    enable: true,
+                    options: {
+                      browsers: ['last 3 versions'],
+                    },
+                  }),
+                ],
+              },
+              sourceMap: false,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(mp3)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 4096,
+          name: '[name].[hash:8].[ext]',
         },
       },
     ],
