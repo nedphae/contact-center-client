@@ -1,43 +1,43 @@
-import React from "react";
+import React from 'react';
 // react plugin for creating charts
-import ChartistGraph from "react-chartist";
+import ChartistGraph from 'react-chartist';
 // @material-ui/core
-import { makeStyles } from "@material-ui/core/styles";
-import Icon from "@material-ui/core/Icon";
+import { makeStyles } from '@material-ui/core/styles';
+import Icon from '@material-ui/core/Icon';
 // @material-ui/icons
-import Store from "@material-ui/icons/Store";
-import Warning from "@material-ui/icons/Warning";
-import DateRange from "@material-ui/icons/DateRange";
-import LocalOffer from "@material-ui/icons/LocalOffer";
-import Update from "@material-ui/icons/Update";
-import ArrowUpward from "@material-ui/icons/ArrowUpward";
-import AccessTime from "@material-ui/icons/AccessTime";
-import Accessibility from "@material-ui/icons/Accessibility";
-import BugReport from "@material-ui/icons/BugReport";
-import Code from "@material-ui/icons/Code";
-import Cloud from "@material-ui/icons/Cloud";
+import Store from '@material-ui/icons/Store';
+import Warning from '@material-ui/icons/Warning';
+import DateRange from '@material-ui/icons/DateRange';
+import LocalOffer from '@material-ui/icons/LocalOffer';
+import Update from '@material-ui/icons/Update';
+import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import AccessTime from '@material-ui/icons/AccessTime';
+import Accessibility from '@material-ui/icons/Accessibility';
+import BugReport from '@material-ui/icons/BugReport';
+import Code from '@material-ui/icons/Code';
+import Cloud from '@material-ui/icons/Cloud';
 // core components
-import GridItem from "../../components/Grid/GridItem";
-import GridContainer from "../../components/Grid/GridContainer";
-import Table from "../../components/Table/Table";
-import Tasks from "../../components/Tasks/Tasks";
-import CustomTabs from "../../components/CustomTabs/CustomTabs";
-import Danger from "../../components/Typography/Danger";
-import Card from "../../components/Card/Card";
-import CardHeader from "../../components/Card/CardHeader";
-import CardIcon from "../../components/Card/CardIcon";
-import CardBody from "../../components/Card/CardBody";
-import CardFooter from "../../components/Card/CardFooter";
+import GridItem from '../../components/Grid/GridItem';
+import GridContainer from '../../components/Grid/GridContainer';
+import Table from '../../components/Table/Table';
+import Tasks from '../../components/Tasks/Tasks';
+import CustomTabs from '../../components/CustomTabs/CustomTabs';
+import Danger from '../../components/Typography/Danger';
+import Card from '../../components/Card/Card';
+import CardHeader from '../../components/Card/CardHeader';
+import CardIcon from '../../components/Card/CardIcon';
+import CardBody from '../../components/Card/CardBody';
+import CardFooter from '../../components/Card/CardFooter';
 
-import { bugs, website, server } from "../../variables/general";
+import { bugs, website, server } from '../../variables/general';
 
 import {
   dailySalesChart,
   emailsSubscriptionChart,
-  completedTasksChart
-} from "../../variables/charts";
+  completedTasksChart,
+} from '../../variables/charts';
 
-import styles from "../../assets/jss/material-dashboard-react/views/dashboardStyle";
+import styles from '../../assets/jss/material-dashboard-react/views/dashboardStyle';
 
 const useStyles = makeStyles(styles);
 
@@ -49,7 +49,7 @@ export default function Dashboard() {
         <GridItem xs={12} sm={6} md={3}>
           <Card>
             <CardHeader color="warning" stats icon>
-              <CardIcon color="warning" >
+              <CardIcon color="warning">
                 <Icon>content_copy</Icon>
               </CardIcon>
               <p className={classes.cardCategory}>Used Space</p>
@@ -62,7 +62,7 @@ export default function Dashboard() {
                 <Danger>
                   <Warning />
                 </Danger>
-                <a href="#pablo" onClick={e => e.preventDefault()}>
+                <a href="#pablo" onClick={(e) => e.preventDefault()}>
                   Get more space
                 </a>
               </div>
@@ -138,7 +138,7 @@ export default function Dashboard() {
               <p className={classes.cardCategory}>
                 <span className={classes.successText}>
                   <ArrowUpward className={classes.upArrowCardCategory} /> 55%
-                </span>{" "}
+                </span>{' '}
                 increase in today sales.
               </p>
             </CardBody>
@@ -202,7 +202,7 @@ export default function Dashboard() {
             headerColor="primary"
             tabs={[
               {
-                tabName: "Bugs",
+                tabName: 'Bugs',
                 tabIcon: BugReport,
                 tabContent: (
                   <Tasks
@@ -210,10 +210,10 @@ export default function Dashboard() {
                     tasksIndexes={[0, 1, 2, 3]}
                     tasks={bugs}
                   />
-                )
+                ),
               },
               {
-                tabName: "Website",
+                tabName: 'Website',
                 tabIcon: Code,
                 tabContent: (
                   <Tasks
@@ -221,10 +221,10 @@ export default function Dashboard() {
                     tasksIndexes={[0, 1]}
                     tasks={website}
                   />
-                )
+                ),
               },
               {
-                tabName: "Server",
+                tabName: 'Server',
                 tabIcon: Cloud,
                 tabContent: (
                   <Tasks
@@ -232,8 +232,8 @@ export default function Dashboard() {
                     tasksIndexes={[0, 1, 2]}
                     tasks={server}
                   />
-                )
-              }
+                ),
+              },
             ]}
           />
         </GridItem>
@@ -248,12 +248,12 @@ export default function Dashboard() {
             <CardBody>
               <Table
                 tableHeaderColor="warning"
-                tableHead={["ID", "Name", "Salary", "Country"]}
+                tableHead={['ID', 'Name', 'Salary', 'Country']}
                 tableData={[
-                  ["1", "Dakota Rice", "$36,738", "Niger"],
-                  ["2", "Minerva Hooper", "$23,789", "Curaçao"],
-                  ["3", "Sage Rodriguez", "$56,142", "Netherlands"],
-                  ["4", "Philip Chaney", "$38,735", "Korea, South"]
+                  ['1', 'Dakota Rice', '$36,738', 'Niger'],
+                  ['2', 'Minerva Hooper', '$23,789', 'Curaçao'],
+                  ['3', 'Sage Rodriguez', '$56,142', 'Netherlands'],
+                  ['4', 'Philip Chaney', '$38,735', 'Korea, South'],
                 ]}
               />
             </CardBody>

@@ -1,8 +1,13 @@
-import React, { /* useState */ } from 'react';
+import React /* useState */ from 'react';
 // import Loading from 'react-loading';
 
 import Style from './Expression.less';
-import { Tabs, TabPane, TabContent, ScrollableInkTabBar } from '../../components/Tabs';
+import {
+  Tabs,
+  TabPane,
+  TabContent,
+  ScrollableInkTabBar,
+} from '../../components/Tabs';
 import expressions from '../../../utils/expressions';
 // import Input from '../../components/Input';
 // import Button from '../../components/Button';
@@ -11,14 +16,14 @@ import expressions from '../../../utils/expressions';
 // import { addParam } from '../../../utils/url';
 
 interface ExpressionProps {
-    onSelectText: (expression: string) => void;
-    onSelectImage: (expression: string) => void;
+  onSelectText: (expression: string) => void;
+  onSelectImage: (expression: string) => void;
 }
 
 function Expression(props: ExpressionProps) {
-    const { onSelectText/* , onSelectImage */ } = props;
+  const { onSelectText /* , onSelectImage */ } = props;
 
-    /*
+  /*
     const [keywords, setKeywords] = useState('');
     const [searchLoading, toggleSearchLoading] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
@@ -40,29 +45,29 @@ function Expression(props: ExpressionProps) {
     }
     */
 
-    const renderDefaultExpression = (
-        <div className={Style.defaultExpression}>
-            {expressions.default.map((e, index) => (
-                <div
-                    className={Style.defaultExpressionBlock}
-                    key={e}
-                    data-name={e}
-                    onClick={(event) => onSelectText(event.currentTarget.dataset.name!)}
-                    role="button"
-                >
-                    <div
-                        className={Style.defaultExpressionItem}
-                        style={{
-                            backgroundPosition: `left ${-30 * index}px`,
-                            backgroundImage: `url(${require('../../assets/images/baidu.png')})`,
-                        }}
-                    />
-                </div>
-            ))}
+  const renderDefaultExpression = (
+    <div className={Style.defaultExpression}>
+      {expressions.default.map((e, index) => (
+        <div
+          className={Style.defaultExpressionBlock}
+          key={e}
+          data-name={e}
+          onClick={(event) => onSelectText(event.currentTarget.dataset.name!)}
+          role="button"
+        >
+          <div
+            className={Style.defaultExpressionItem}
+            style={{
+              backgroundPosition: `left ${-30 * index}px`,
+              backgroundImage: `url(${require('../../assets/images/baidu.png')})`,
+            }}
+          />
         </div>
-    );
+      ))}
+    </div>
+  );
 
-    /*
+  /*
     function handleClickExpression(e) {
         const $target = e.target;
         const url = addParam($target.src, {
@@ -106,22 +111,22 @@ function Expression(props: ExpressionProps) {
     );
     */
 
-    return (
-        <div className={Style.expression}>
-            <Tabs
-                defaultActiveKey="default"
-                renderTabBar={() => <ScrollableInkTabBar />}
-                renderTabContent={() => <TabContent />}
-            >
-                <TabPane tab="默认表情" key="default">
-                    {renderDefaultExpression}
-                </TabPane>
-                {/* <TabPane tab="搜索表情包" key="search">
+  return (
+    <div className={Style.expression}>
+      <Tabs
+        defaultActiveKey="default"
+        renderTabBar={() => <ScrollableInkTabBar />}
+        renderTabContent={() => <TabContent />}
+      >
+        <TabPane tab="默认表情" key="default">
+          {renderDefaultExpression}
+        </TabPane>
+        {/* <TabPane tab="搜索表情包" key="search">
                     {renderSearchExpression}
                 </TabPane> */}
-            </Tabs>
-        </div>
-    );
+      </Tabs>
+    </div>
+  );
 }
 
 export default Expression;

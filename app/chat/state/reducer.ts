@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { isMobile } from "../../utils/ua";
-import getData from "../localStorage";
+import { isMobile } from '../../utils/ua';
+import getData from '../localStorage';
 import {
   Action,
   ActionTypes,
@@ -13,9 +13,9 @@ import {
   UpdateMessagePayload,
   AddLinkmanMessagePayload,
   UpdateUserInfoPayload,
-  DeleteMessagePayload
-} from "./action";
-import getFriendId from "../../utils/getFriendId";
+  DeleteMessagePayload,
+} from './action';
+import getFriendId from '../../utils/getFriendId';
 
 /** 聊天消息 */
 export interface Message {
@@ -169,7 +169,7 @@ function getMessagesMap(messages: Message[]) {
 function deleteObjectKeys<T>(obj: T, keys: string[]): T {
   let entries = Object.entries(obj);
   const keysSet = new Set(keys);
-  entries = entries.filter(entry => !keysSet.has(entry[0]));
+  entries = entries.filter((entry) => !keysSet.has(entry[0]));
   return entries.reduce((result: any, entry) => {
     const [k, v] = entry;
     result[k] = v;
@@ -203,8 +203,8 @@ function initLinkmanFields(linkman: Linkman, type: string) {
  * @param group 群组
  */
 function transformGroup(group: Linkman): Linkman {
-  initLinkmanFields(group, "group");
-  group.creator = group.creator || "";
+  initLinkmanFields(group, 'group');
+  group.creator = group.creator || '';
   group.onlineMembers = [];
   return group;
 }
@@ -221,14 +221,14 @@ function transformFriend(friend: Linkman): Linkman {
     name: to.username,
     avatar: to.avatar,
     // @ts-ignore
-    createTime: friend.createTime
+    createTime: friend.createTime,
   };
-  initLinkmanFields((transformedFriend as unknown) as Linkman, "friend");
+  initLinkmanFields((transformedFriend as unknown) as Linkman, 'friend');
   return transformedFriend as Linkman;
 }
 
 function transformTemporary(temporary: Linkman): Linkman {
-  initLinkmanFields(temporary, "temporary");
+  initLinkmanFields(temporary, 'temporary');
   return temporary;
 }
 
@@ -236,7 +236,7 @@ const localStorage = getData();
 const initialState: State = {
   user: null as any,
   linkmans: {},
-  focus: "",
+  focus: '',
   connect: false,
   status: {
     loginRegisterDialogVisible: false,
@@ -252,8 +252,8 @@ const initialState: State = {
     selfVoiceSwitch: localStorage.selfVoiceSwitch,
     tagColorMode: localStorage.tagColorMode,
     sidebarVisible: !isMobile,
-    functionBarAndLinkmanListVisible: !isMobile
-  }
+    functionBarAndLinkmanListVisible: !isMobile,
+  },
 };
 
 function reducer(state: State = initialState, action: Action): State {
@@ -261,13 +261,13 @@ function reducer(state: State = initialState, action: Action): State {
     case ActionTypes.Connect: {
       return {
         ...state,
-        connect: true
+        connect: true,
       };
     }
     case ActionTypes.Disconnect: {
       return {
         ...state,
-        connect: false
+        connect: false,
       };
     }
 
@@ -277,16 +277,16 @@ function reducer(state: State = initialState, action: Action): State {
       return {
         ...state,
         user: {
-          _id: "",
-          username: "",
-          avatar: "",
-          tag: "",
-          isAdmin: false
+          _id: '',
+          username: '',
+          avatar: '',
+          tag: '',
+          isAdmin: false,
         },
         linkmans: {
-          [group._id]: group
+          [group._id]: group,
         },
-        focus: group._id
+        focus: group._id,
       };
     }
 
@@ -298,14 +298,14 @@ function reducer(state: State = initialState, action: Action): State {
         tag,
         groups,
         friends,
-        isAdmin
+        isAdmin,
       } = action.payload as SetUserPayload;
       // @ts-ignore
       const linkmans: Linkman[] = [
         ...groups.map(transformGroup as any),
-        ...friends.map(transformFriend as any)
+        ...friends.map(transformFriend as any),
       ];
-      linkmans.forEach(linkman => {
+      linkmans.forEach((linkman) => {
         let existMessages = {};
         if (state.linkmans[linkman._id]) {
           existMessages = state.linkmans[linkman._id].messages;
@@ -326,10 +326,10 @@ function reducer(state: State = initialState, action: Action): State {
           username,
           avatar,
           tag,
-          isAdmin
+          isAdmin,
         },
         linkmans: getLinkmansMap(linkmans),
-        focus
+        focus,
       };
     }
 
@@ -340,8 +340,8 @@ function reducer(state: State = initialState, action: Action): State {
         // @ts-ignore
         user: {
           ...state.user,
-          ...payload
-        }
+          ...payload,
+        },
       };
     }
 
@@ -349,8 +349,8 @@ function reducer(state: State = initialState, action: Action): State {
       return {
         ...initialState,
         status: {
-          ...state.status
-        }
+          ...state.status,
+        },
       };
     }
 
@@ -360,8 +360,8 @@ function reducer(state: State = initialState, action: Action): State {
         // @ts-ignore
         user: {
           ...state.user,
-          avatar: action.payload as string
-        }
+          avatar: action.payload as string,
+        },
       };
     }
 
@@ -393,10 +393,10 @@ function reducer(state: State = initialState, action: Action): State {
           [focus]: {
             ...state.linkmans[focus],
             messages: reserveMessages,
-            unread: 0
-          }
+            unread: 0,
+          },
         },
-        focus
+        focus,
       };
     }
 
@@ -407,15 +407,15 @@ function reducer(state: State = initialState, action: Action): State {
 
       let transformedLinkman = linkman;
       switch (linkman.type) {
-        case "group": {
+        case 'group': {
           transformedLinkman = transformGroup(linkman);
           break;
         }
-        case "friend": {
+        case 'friend': {
           transformedLinkman = transformFriend(linkman);
           break;
         }
-        case "temporary": {
+        case 'temporary': {
           transformedLinkman = transformTemporary(linkman);
           transformedLinkman.unread = 1;
           break;
@@ -429,9 +429,9 @@ function reducer(state: State = initialState, action: Action): State {
         ...state,
         linkmans: {
           ...state.linkmans,
-          [linkman._id]: transformedLinkman
+          [linkman._id]: transformedLinkman,
         },
-        focus
+        focus,
       };
     }
 
@@ -441,13 +441,13 @@ function reducer(state: State = initialState, action: Action): State {
         action.payload as string
       );
       const linkmanIds = Object.keys(linkmans);
-      const focus = linkmanIds.length > 0 ? linkmanIds[0] : "";
+      const focus = linkmanIds.length > 0 ? linkmanIds[0] : '';
       return {
         ...state,
         linkmans: {
-          ...linkmans
+          ...linkmans,
         },
-        focus
+        focus,
       };
     }
 
@@ -455,14 +455,14 @@ function reducer(state: State = initialState, action: Action): State {
       const linkmanMessages = action.payload as SetLinkmansLastMessagesPayload;
       const { linkmans } = state;
       const newState = { ...state, linkmans: {} };
-      Object.keys(linkmanMessages).forEach(linkmanId => {
+      Object.keys(linkmanMessages).forEach((linkmanId) => {
         // @ts-ignore
         newState.linkmans[linkmanId] = {
           ...linkmans[linkmanId],
           messages: {
             ...linkmans[linkmanId].messages,
-            ...getMessagesMap(linkmanMessages[linkmanId])
-          }
+            ...getMessagesMap(linkmanMessages[linkmanId]),
+          },
         };
       });
       return newState;
@@ -479,10 +479,10 @@ function reducer(state: State = initialState, action: Action): State {
             ...state.linkmans[payload.linkmanId],
             messages: {
               ...messagesMap,
-              ...state.linkmans[payload.linkmanId].messages
-            }
-          }
-        }
+              ...state.linkmans[payload.linkmanId].messages,
+            },
+          },
+        },
       };
     }
 
@@ -500,11 +500,11 @@ function reducer(state: State = initialState, action: Action): State {
             ...state.linkmans[payload.linkmanId],
             messages: {
               ...state.linkmans[payload.linkmanId].messages,
-              [payload.message._id]: payload.message
+              [payload.message._id]: payload.message,
             },
-            unread
-          }
-        }
+            unread,
+          },
+        },
       };
     }
 
@@ -527,9 +527,9 @@ function reducer(state: State = initialState, action: Action): State {
           ...state.linkmans,
           [linkmanId]: {
             ...state.linkmans[linkmanId],
-            messages
-          }
-        }
+            messages,
+          },
+        },
       };
     }
 
@@ -541,9 +541,9 @@ function reducer(state: State = initialState, action: Action): State {
           ...state.linkmans,
           [payload.linkmanId]: {
             ...state.linkmans[payload.linkmanId],
-            [payload.key]: payload.value
-          }
-        }
+            [payload.key]: payload.value,
+          },
+        },
       };
     }
 
@@ -557,15 +557,15 @@ function reducer(state: State = initialState, action: Action): State {
             state.linkmans[payload.linkmanId].messages,
             payload.messageId
           ),
-          [payload.value._id]: payload.value
+          [payload.value._id]: payload.value,
         };
       } else {
         messages = {
           ...state.linkmans[payload.linkmanId].messages,
           [payload.messageId]: {
             ...state.linkmans[payload.linkmanId].messages[payload.messageId],
-            ...payload.value
-          }
+            ...payload.value,
+          },
         };
       }
 
@@ -575,9 +575,9 @@ function reducer(state: State = initialState, action: Action): State {
           ...state.linkmans,
           [payload.linkmanId]: {
             ...state.linkmans[payload.linkmanId],
-            messages
-          }
-        }
+            messages,
+          },
+        },
       };
     }
 
@@ -587,8 +587,8 @@ function reducer(state: State = initialState, action: Action): State {
         ...state,
         status: {
           ...state.status,
-          [payload.key]: payload.value
-        }
+          [payload.key]: payload.value,
+        },
       };
     }
 

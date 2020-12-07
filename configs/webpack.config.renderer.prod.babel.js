@@ -175,7 +175,11 @@ export default merge(baseConfig, {
       // Common Image Formats
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
-        use: 'url-loader',
+        loader: 'url-loader',
+        options: {
+          limit: 4096,
+          name: '[name].[hash:8].[ext]',
+        },
       },
     ],
   },

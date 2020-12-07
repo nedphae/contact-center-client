@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { hot } from 'react-hot-loader';
 import { useSelector } from 'react-redux';
 
 import './assets/styles/normalize.less';
@@ -174,4 +173,4 @@ function App() {
   );
 }
 
-export default hot(module)(App);
+export default App;
