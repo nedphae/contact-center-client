@@ -9,7 +9,7 @@ import config from '../../../config/client';
 import setCssVariable from '../../../utils/setCssVariable';
 import Message from '../../components/Message';
 import useAction from '../../hooks/useAction';
-import { State } from '../../state/reducer';
+import { RootState } from '../../../store';
 import uploadFile from '../../../utils/uploadFile';
 import readDiskFile from '../../../utils/readDiskFile';
 import playSound from '../../../utils/playSound';
@@ -35,26 +35,34 @@ function Setting(props: SettingProps) {
   const { visible, onClose } = props;
 
   const action = useAction();
-  const soundSwitch = useSelector((state: State) => state.status.soundSwitch);
+  const soundSwitch = useSelector(
+    (state: RootState) => state.chat.status.soundSwitch
+  );
   const notificationSwitch = useSelector(
-    (state: State) => state.status.notificationSwitch
+    (state: RootState) => state.chat.status.notificationSwitch
   );
-  const voiceSwitch = useSelector((state: State) => state.status.voiceSwitch);
+  const voiceSwitch = useSelector(
+    (state: RootState) => state.chat.status.voiceSwitch
+  );
   const selfVoiceSwitch = useSelector(
-    (state: State) => state.status.selfVoiceSwitch
+    (state: RootState) => state.chat.status.selfVoiceSwitch
   );
-  const sound = useSelector((state: State) => state.status.sound);
-  const theme = useSelector((state: State) => state.status.theme);
-  const primaryColor = useSelector((state: State) => state.status.primaryColor);
+  const sound = useSelector((state: RootState) => state.chat.status.sound);
+  const theme = useSelector((state: RootState) => state.chat.status.theme);
+  const primaryColor = useSelector(
+    (state: RootState) => state.chat.status.primaryColor
+  );
   const primaryTextColor = useSelector(
-    (state: State) => state.status.primaryTextColor
+    (state: RootState) => state.chat.status.primaryTextColor
   );
   const backgroundImage = useSelector(
-    (state: State) => state.status.backgroundImage
+    (state: RootState) => state.chat.status.backgroundImage
   );
-  const aero = useSelector((state: State) => state.status.aero);
-  const userId = useSelector((state: State) => state.user!._id);
-  const tagColorMode = useSelector((state: State) => state.status.tagColorMode);
+  const aero = useSelector((state: RootState) => state.chat.status.aero);
+  const userId = useSelector((state: RootState) => state.chat.user!._id);
+  const tagColorMode = useSelector(
+    (state: RootState) => state.chat.status.tagColorMode
+  );
 
   const [backgroundLoading, toggleBackgroundLoading] = useState(false);
 

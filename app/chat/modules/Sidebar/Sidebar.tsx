@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 import socket from '../../socket';
-import { State } from '../../state/reducer';
+import { RootState } from '../../../store';
 import useIsLogin from '../../hooks/useIsLogin';
 import Avatar from '../../components/Avatar';
 import Tooltip from '../../components/Tooltip';
@@ -25,15 +25,17 @@ let Setting: any = null;
 
 function Sidebar() {
   const sidebarVisible = useSelector(
-    (state: State) => state.status.sidebarVisible
+    (state: RootState) => state.chat.status.sidebarVisible
   );
   const action = useAction();
   const isLogin = useIsLogin();
-  const isConnect = useSelector((state: State) => state.connect);
+  const isConnect = useSelector((state: RootState) => state.chat.connect);
   const isAdmin = useSelector(
-    (state: State) => state.user && state.user.isAdmin
+    (state: RootState) => state.chat.user && state.chat.user.isAdmin
   );
-  const avatar = useSelector((state: State) => state.user && state.user.avatar);
+  const avatar = useSelector(
+    (state: RootState) => state.chat.user && state.chat.user.avatar
+  );
 
   const [timestamp, setTimestamp] = useState(0);
   const [selfInfoDialogVisible, toggleSelfInfoDialogVisible] = useState(false);
@@ -47,7 +49,6 @@ function Sidebar() {
   useEffect(() => {
     (async () => {
       if (selfInfoDialogVisible && !SelfInfo) {
-        // @ts-ignore
         const selfInfoModule = await import(
           /* webpackChunkName: "self-info" */ './SelfInfo'
         );
@@ -55,7 +56,6 @@ function Sidebar() {
         setTimestamp(Date.now());
       }
       if (settingDialogVisible && !Setting) {
-        // @ts-ignore
         const settingModule = await import(
           /* webpackChunkName: "setting" */ './Setting'
         );

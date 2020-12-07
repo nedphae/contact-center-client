@@ -8,7 +8,7 @@ import socket from '../../socket';
 import Dialog from '../../components/Dialog';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
-import { State } from '../../state/reducer';
+import { RootState } from '../../../store';
 import readDiskFile from '../../../utils/readDiskFile';
 import uploadFile from '../../../utils/uploadFile';
 import config from '../../../config/client';
@@ -27,9 +27,11 @@ function SelfInfo(props: SelfInfoProps) {
   const { visible, onClose } = props;
 
   const action = useAction();
-  const userId = useSelector((state: State) => state.user!._id);
-  const avatar = useSelector((state: State) => state.user!.avatar);
-  const primaryColor = useSelector((state: State) => state.status.primaryColor);
+  const userId = useSelector((state: RootState) => state.chat.user!._id);
+  const avatar = useSelector((state: RootState) => state.chat.user!.avatar);
+  const primaryColor = useSelector(
+    (state: RootState) => state.chat.status.primaryColor
+  );
   const [loading, toggleLoading] = useState(false);
   const [cropper, setCropper] = useState({
     enable: false,

@@ -6,7 +6,7 @@ import './assets/styles/iconfont.less';
 
 import Style from './App.less';
 import { isMobile } from '../utils/ua';
-import { State } from './state/reducer';
+import { RootState } from '../store';
 
 import LoginAndRegister from './modules/LoginAndRegister/LoginAndRegister';
 import Sidebar from './modules/Sidebar/Sidebar';
@@ -65,7 +65,7 @@ function getHeightPercent() {
 
 function App() {
   const backgroundImage = useSelector(
-    (state: State) => state.status.backgroundImage
+    (state: RootState) => state.chat.status.backgroundImage
   );
   const $app = useRef<any>(null);
 

@@ -4,6 +4,8 @@ import { AppContainer as ReactHotAppContainer } from 'react-hot-loader';
 import { history, configuredStore } from './store';
 import './app.global.css';
 
+import 'assets/css/material-dashboard-react.css?v=1.8.0';
+
 const store = configuredStore();
 
 const AppContainer = process.env.PLAIN_HMR ? Fragment : ReactHotAppContainer;

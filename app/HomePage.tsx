@@ -31,8 +31,6 @@ import Auth from './layouts/Auth';
 import Authorized from './components/Authorized/Authorized';
 // import AuthorizedRoute from "./components/Authorized/AuthorizedRoute"
 
-import './assets/css/material-dashboard-react.css?v=1.8.0';
-
 type Props = {
   store: Store;
   history: History;
