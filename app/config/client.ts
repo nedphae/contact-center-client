@@ -2,7 +2,7 @@
 const MB = 1024 * 1024;
 
 export default {
-  server: process.env.NODE_ENV === 'development' ? '//localhost:8080' : '',
+  server: 'http://localhost:8080',
 
   maxImageSize: MB * 3,
   maxBackgroundImageSize: MB * 5,

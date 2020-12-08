@@ -1,5 +1,6 @@
 import axios from 'axios';
-import tokenConfig from '../config/tokenConfig.json';
+import tokenConfig from '../config/tokenConfig';
+import { saveToken, OauthToken } from '../electron/jwtStorage';
 
 /**
  * 配置全局的 header 和过滤器
@@ -31,18 +32,7 @@ const parseParams = (uri: string, params: any) => {
   return uri;
 };
 
-interface OauthToken {
-  access_token: string;
-  token_type: string;
-  refresh_token: string;
-  expires_in: number;
-  scope: string;
-  organizationId: number;
-  jti: string;
-}
-
-export async function oauthLogin<T = any>(param: LoginParamsType) {
-  console.log(param);
+export async function oauthLogin(param: LoginParamsType): Promise<string> {
   const oauthParam: OauthParams = {
     grant_type: tokenConfig.oauth.grant_type,
     org_id: param.org_id,
@@ -53,9 +43,11 @@ export async function oauthLogin<T = any>(param: LoginParamsType) {
     tokenConfig.oauth.oauthHost + tokenConfig.oauth.oauthPath,
     oauthParam
   );
-  console.log(url);
   const result = await axios.post<OauthToken>(url, null, {
-    headers: tokenConfig.headers,
+    headers: {
+      Authorization: tokenConfig.headers.Authorization,
+    },
   });
-  console.log(result.data);
+  saveToken(result.data);
+  return result.data.access_token;
 }

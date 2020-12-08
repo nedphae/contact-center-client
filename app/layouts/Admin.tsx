@@ -1,29 +1,29 @@
-import React from "react";
-import { Switch, Route, Redirect } from "react-router-dom";
+import React from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 // creates a beautiful scrollbar
-import PerfectScrollbar from "perfect-scrollbar";
-import "perfect-scrollbar/css/perfect-scrollbar.css";
+import PerfectScrollbar from 'perfect-scrollbar';
+import 'perfect-scrollbar/css/perfect-scrollbar.css';
 // @material-ui/core components
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles';
 // core components
-import Navbar from "../components/Navbars/Navbar";
+import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
-import Sidebar from "../components/Sidebar/Sidebar";
-import FixedPlugin from "../components/FixedPlugin/FixedPlugin";
+import Sidebar from '../components/Sidebar/Sidebar';
+import FixedPlugin from '../components/FixedPlugin/FixedPlugin';
 
-import routes from "../routes";
+import routes from '../routes';
 
-import styles from "../assets/jss/material-dashboard-react/layouts/adminStyle";
+import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
-import bgImage from "../assets/img/sidebar-2.jpg";
-import logo from "../assets/img/reactlogo.png";
+import bgImage from '../assets/img/sidebar-2.jpg';
+import logo from '../assets/img/reactlogo.png';
 
 let ps: PerfectScrollbar;
 
 const switchRoutes = (
   <Switch>
     {routes.map((prop, key) => {
-      if (prop.layout === "/admin") {
+      if (prop.layout === '/admin') {
         return (
           <Route
             path={prop.layout + prop.path}
@@ -47,27 +47,27 @@ export default function Admin({ ...rest }) {
   const mainPanel = React.createRef<HTMLDivElement>();
   // states and functions
   const [image, setImage] = React.useState(bgImage);
-  const [color, setColor] = React.useState("blue");
-  const [fixedClasses, setFixedClasses] = React.useState("dropdown show");
+  const [color, setColor] = React.useState('blue');
+  const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const handleImageClick = (image: React.SetStateAction<string>) => {
-    setImage(image);
+  const handleImageClick = (selectImage: React.SetStateAction<string>) => {
+    setImage(selectImage);
   };
-  const handleColorClick = (color: React.SetStateAction<string>) => {
-    setColor(color);
+  const handleColorClick = (selectColor: React.SetStateAction<string>) => {
+    setColor(selectColor);
   };
   const handleFixedClick = () => {
-    if (fixedClasses === "dropdown") {
-      setFixedClasses("dropdown show");
+    if (fixedClasses === 'dropdown') {
+      setFixedClasses('dropdown show');
     } else {
-      setFixedClasses("dropdown");
+      setFixedClasses('dropdown');
     }
   };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
   const getRoute = () => {
-    return window.location.pathname !== "/admin/maps";
+    return window.location.pathname !== '/admin/maps';
   };
   const resizeFunction = () => {
     if (window.innerWidth >= 960) {
@@ -76,20 +76,20 @@ export default function Admin({ ...rest }) {
   };
   // initialize and destroy the PerfectScrollbar plugin
   React.useEffect(() => {
-    if (navigator.platform.indexOf("Win") > -1 && mainPanel.current) {
+    if (navigator.platform.indexOf('Win') > -1 && mainPanel.current) {
       ps = new PerfectScrollbar(mainPanel.current, {
         suppressScrollX: true,
-        suppressScrollY: false
+        suppressScrollY: false,
       });
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
     }
-    window.addEventListener("resize", resizeFunction);
+    window.addEventListener('resize', resizeFunction);
     // Specify how to clean up after this effect:
     return function cleanup() {
-      if (navigator.platform.indexOf("Win") > -1) {
+      if (navigator.platform.indexOf('Win') > -1) {
         ps.destroy();
       }
-      window.removeEventListener("resize", resizeFunction);
+      window.removeEventListener('resize', resizeFunction);
     };
   }, [mainPanel]);
   return (
@@ -97,7 +97,7 @@ export default function Admin({ ...rest }) {
       {/** 侧边选项卡 */}
       <Sidebar
         routes={routes}
-        logoText={"客服系统"} // 客服
+        logoText="客服系统" // 客服
         logo={logo}
         image={image}
         handleDrawerToggle={handleDrawerToggle}

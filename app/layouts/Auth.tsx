@@ -7,7 +7,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import NumberFormat from 'react-number-format';
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler } from 'react-hook-form';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -18,8 +18,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import {oauthLogin} from "../service/http"
-
+import { oauthLogin } from '../service/http';
 
 function Copyright() {
   return (
@@ -28,13 +27,12 @@ function Copyright() {
       <Link color="inherit" href="https://material-ui.com/">
         Your Website
       </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {new Date().getFullYear()}.
     </Typography>
   );
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
     display: 'flex',
@@ -92,11 +90,11 @@ export default function Auth() {
   const classes = useStyles();
   const { register, handleSubmit } = useForm<FormValues>();
 
-  const onSubmit: SubmitHandler<FormValues> = data => {
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
     // 清楚密码中的空格
-    data.org_id = Number(data.org_id.replaceAll(" ", ""))
-    oauthLogin(data)
-  }
+    data.org_id = Number(data.org_id.replaceAll(' ', ''));
+    oauthLogin(data);
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -108,8 +106,12 @@ export default function Auth() {
         <Typography component="h1" variant="h5">
           系统登陆
         </Typography>
-        <form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
-        <TextField
+        <form
+          className={classes.form}
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <TextField
             variant="outlined"
             margin="normal"
             required
@@ -122,7 +124,7 @@ export default function Auth() {
               inputComponent: NumberFormatCustom as any,
             }}
             autoComplete="organization"
-            inputRef={register({required: true, maxLength: 9})}
+            inputRef={register({ required: true, maxLength: 9 })}
           />
           <TextField
             variant="outlined"
@@ -168,7 +170,7 @@ export default function Auth() {
             </Grid>
             <Grid item>
               <Link href="#" variant="body2">
-                {"Don't have an account? Sign Up"}
+                Don't have an account? Sign Up
               </Link>
             </Grid>
           </Grid>

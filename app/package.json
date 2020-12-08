@@ -16,6 +16,11 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
+    "@types/electron-json-storage": "^4.0.0",
+    "@types/js-cookie": "^2.2.6",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/jwk-to-pem": "^2.0.0",
+    "@types/node-jose": "^1.1.5",
     "@types/react-copy-to-clipboard": "^4.3.0"
   }
 }
