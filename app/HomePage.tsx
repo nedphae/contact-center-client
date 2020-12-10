@@ -40,16 +40,15 @@ const Root = ({ store, history }: Props) => (
     <ConnectedRouter history={history}>
       <Switch>
         <Route path="/login" component={Auth} />
-        {/* <AuthorizedRoute path="/admin" authority={['admin']} component={Admin} redirectPath="/login" currentAuthority=""
-                render={() => <Redirect to={'/login'} />} /> 添加权限的路由 */}
         <Route path="/admin" component={Admin} /> {/* 原来的路由 */}
+        <Redirect from="/" to="/admin/dashboard" />
         <Authorized
           authority={['admin']}
           noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
         >
+          {/* 添加权限的路由 */}
           <Route path="/rtl" component={RTL} />
         </Authorized>
-        <Redirect from="/" to="/admin/dashboard" />
       </Switch>
     </ConnectedRouter>
   </Provider>
