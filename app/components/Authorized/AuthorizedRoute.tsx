@@ -9,7 +9,7 @@ interface AuthorizedRoutePops {
   render: (props: any) => React.ReactNode;
   redirectPath: string;
   authority: IAuthorityType;
-  [rest: string]: any
+  [rest: string]: any;
 }
 
 const AuthorizedRoute: React.SFC<AuthorizedRoutePops> = ({
@@ -21,11 +21,18 @@ const AuthorizedRoute: React.SFC<AuthorizedRoutePops> = ({
 }) => (
   <Authorized
     authority={authority}
-    noMatch={<Route {...rest} render={() => <Redirect to={{ pathname: redirectPath }} />} />}
+    noMatch={
+      <Route
+        {...rest}
+        render={() => <Redirect to={{ pathname: redirectPath }} />}
+      />
+    }
   >
     <Route
       {...rest}
-      render={(props: any) => (Component ? <Component {...props} /> : render(props))}
+      render={(props: any) =>
+        Component ? <Component {...props} /> : render(props)
+      }
     />
   </Authorized>
 );

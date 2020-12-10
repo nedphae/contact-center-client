@@ -1,15 +1,16 @@
 import axios from 'axios';
-import tokenConfig from '../config/tokenConfig';
-import { saveToken, OauthToken } from '../electron/jwtStorage';
+import { OauthToken, AccessToken } from 'app/domain/OauthToken';
+import tokenConfig from 'app/config/clientConfig';
+import { saveToken } from 'app/electron/jwtStorage';
 
 /**
  * 配置全局的 header 和过滤器
  */
 
 export interface LoginParamsType {
-  org_id: number;
-  username: string;
-  password: string;
+  readonly org_id: number;
+  readonly username: string;
+  readonly password: string;
 }
 
 interface OauthParams {
@@ -32,7 +33,7 @@ const parseParams = (uri: string, params: any) => {
   return uri;
 };
 
-export async function oauthLogin(param: LoginParamsType): Promise<string> {
+export async function oauthLogin(param: LoginParamsType): Promise<AccessToken> {
   const oauthParam: OauthParams = {
     grant_type: tokenConfig.oauth.grant_type,
     org_id: param.org_id,
@@ -40,7 +41,7 @@ export async function oauthLogin(param: LoginParamsType): Promise<string> {
     password: param.password,
   };
   const url = parseParams(
-    tokenConfig.oauth.oauthHost + tokenConfig.oauth.oauthPath,
+    tokenConfig.web.host + tokenConfig.oauth.oauthPath,
     oauthParam
   );
   const result = await axios.post<OauthToken>(url, null, {
@@ -48,6 +49,5 @@ export async function oauthLogin(param: LoginParamsType): Promise<string> {
       Authorization: tokenConfig.headers.Authorization,
     },
   });
-  saveToken(result.data);
-  return result.data.access_token;
+  return saveToken(result.data);
 }

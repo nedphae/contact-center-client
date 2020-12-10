@@ -18,7 +18,8 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { oauthLogin } from '../service/http';
+import { oauthLogin, LoginParamsType } from 'app/service/loginService';
+import clientConfig from 'app/config/clientConfig';
 
 function Copyright() {
   return (
@@ -81,19 +82,26 @@ function NumberFormatCustom(props: NumberFormatCustomProps) {
 }
 
 type FormValues = {
-  org_id: any | string | number;
-  username: string;
-  password: string;
+  org_id: string | number;
+  readonly username: string;
+  readonly password: string;
 };
 
 export default function Auth() {
   const classes = useStyles();
   const { register, handleSubmit } = useForm<FormValues>();
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     // 清楚密码中的空格
-    data.org_id = Number(data.org_id.replaceAll(' ', ''));
-    oauthLogin(data);
+    data.org_id = Number((data.org_id as string).replaceAll(' ', ''));
+    if (typeof data.org_id === 'number') {
+      const token = await oauthLogin(data as LoginParamsType);
+      // 把 token 报错到 localStorage
+      localStorage.setItem(
+        clientConfig.oauth.accessTokenName,
+        JSON.stringify(token)
+      );
+    }
   };
 
   return (

@@ -1,10 +1,10 @@
 import JwksRsa, { SigningKey, RsaSigningKey } from 'jwks-rsa';
 import jwt, { JwtHeader, VerifyCallback } from 'jsonwebtoken';
 
-import tokenConfig from '../config/tokenConfig';
+import tokenConfig from '../config/clientConfig';
 
 const jwksClient = JwksRsa({
-  jwksUri: tokenConfig.oauth.oauthHost + tokenConfig.oauth.jwks,
+  jwksUri: tokenConfig.web.host + tokenConfig.oauth.jwks,
 });
 
 export function verifyToken(token: string, callback: VerifyCallback) {

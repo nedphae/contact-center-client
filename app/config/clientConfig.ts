@@ -1,7 +1,9 @@
 export default {
+  web: {
+    host: 'http://localhost:8000',
+  },
   // jwt 配置
   oauth: {
-    oauthHost: 'http://localhost:8000',
     jwks: '/.well-known/jwks.json',
     oauthPath: '/oauth/token',
     clientId: 'user_client',

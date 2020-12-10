@@ -3,7 +3,6 @@ import { CURRENT } from './renderAuthorize';
 // eslint-disable-next-line import/no-cycle
 import PromiseRender from './PromiseRender';
 
-
 export type IAuthorityType =
   | undefined
   | string
@@ -23,7 +22,7 @@ const checkPermissions = <T, K>(
   authority: IAuthorityType,
   currentAuthority: string | string[],
   target: T,
-  Exception: K,
+  Exception: K
 ): T | K | React.ReactNode => {
   // 没有判定权限.默认查看所有
   // Retirement authority, return target;
@@ -33,7 +32,7 @@ const checkPermissions = <T, K>(
   // 数组处理
   if (Array.isArray(authority)) {
     if (Array.isArray(currentAuthority)) {
-      if (currentAuthority.some(item => authority.includes(item))) {
+      if (currentAuthority.some((item) => authority.includes(item))) {
         return target;
       }
     } else if (authority.includes(currentAuthority)) {
@@ -44,7 +43,7 @@ const checkPermissions = <T, K>(
   // string 处理
   if (typeof authority === 'string') {
     if (Array.isArray(currentAuthority)) {
-      if (currentAuthority.some(item => authority === item)) {
+      if (currentAuthority.some((item) => authority === item)) {
         return target;
       }
     } else if (authority === currentAuthority) {
@@ -54,7 +53,9 @@ const checkPermissions = <T, K>(
   }
   // Promise 处理
   if (authority instanceof Promise) {
-    return <PromiseRender<T, K> ok={target} error={Exception} promise={authority} />;
+    return (
+      <PromiseRender<T, K> ok={target} error={Exception} promise={authority} />
+    );
   }
   // Function 处理
   if (typeof authority === 'function') {
@@ -62,7 +63,9 @@ const checkPermissions = <T, K>(
       const bool = authority(currentAuthority);
       // 函数执行后返回值是 Promise
       if (bool instanceof Promise) {
-        return <PromiseRender<T, K> ok={target} error={Exception} promise={bool} />;
+        return (
+          <PromiseRender<T, K> ok={target} error={Exception} promise={bool} />
+        );
       }
       if (bool) {
         return target;
@@ -77,7 +80,11 @@ const checkPermissions = <T, K>(
 
 export { checkPermissions };
 
-function check<T, K>(authority: IAuthorityType, target: T, Exception: K): T | K | React.ReactNode {
+function check<T, K>(
+  authority: IAuthorityType,
+  target: T,
+  Exception: K
+): T | K | React.ReactNode {
   return checkPermissions<T, K>(authority, CURRENT, target, Exception);
 }
 

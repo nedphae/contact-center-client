@@ -7,8 +7,10 @@ type CurrentAuthorityType = string | string[] | (() => typeof CURRENT);
  * use  authority or getAuthority
  * @param {string|()=>String} currentAuthority
  */
-const renderAuthorize = <T>(Authorized: T): ((currentAuthority: CurrentAuthorityType) => T) => (
-  currentAuthority: CurrentAuthorityType,
+const renderAuthorize = <T>(
+  Authorized: T
+): ((currentAuthority: CurrentAuthorityType) => T) => (
+  currentAuthority: CurrentAuthorityType
 ): T => {
   if (currentAuthority) {
     if (typeof currentAuthority === 'function') {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
 import { isMobile } from '../../utils/ua';
 import getData from '../localStorage';
 import {
