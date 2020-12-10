@@ -29,6 +29,16 @@ module.exports = (api) => {
       [require('@babel/preset-react'), { development }],
     ],
     plugins: [
+      [
+        // 添加绝对路径映射
+        require.resolve('babel-plugin-module-resolver'),
+        {
+          root: ['.'],
+          alias: {
+            app: './app',
+          },
+        },
+      ],
       // Stage 0
       require('@babel/plugin-proposal-function-bind'),
 
