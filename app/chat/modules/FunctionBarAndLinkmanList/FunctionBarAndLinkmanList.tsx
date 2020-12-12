@@ -74,8 +74,9 @@ function FunctionBarAndLinkmanList() {
     }
   }
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleChange = (event: React.ChangeEvent, newValue: number) => {
     setValue(newValue);
+    event.preventDefault();
   };
 
   return (

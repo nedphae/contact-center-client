@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import './assets/styles/normalize.less';
 import './assets/styles/iconfont.less';
 
+import DetailCard from 'app/chat/modules/DetailCard/DetailCard';
 import Style from './App.less';
 import { isMobile } from '../utils/ua';
 import { RootState } from '../store';
@@ -153,9 +154,10 @@ function App() {
       <div className={Style.blur} style={blurStyle} />
       <div className={Style.child} style={childStyle}>
         <ShowUserOrGroupInfoContext.Provider value={contextValue as any}>
-          <Sidebar />
+          {/* <Sidebar /> 不需要 sidebar 设置 */}
           <FunctionBarAndLinkmanList />
           <Chat />
+          <DetailCard />
         </ShowUserOrGroupInfoContext.Provider>
       </div>
       <LoginAndRegister />

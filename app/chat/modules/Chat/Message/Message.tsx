@@ -12,7 +12,10 @@ import CodeMessage from './CodeMessage';
 import UrlMessage from './UrlMessage';
 import InviteMessage from './InviteMessage';
 import SystemMessage from './SystemMessage';
-import { getRandomColor, getPerRandomColor } from '../../../../utils/getRandomColor';
+import {
+  getRandomColor,
+  getPerRandomColor,
+} from '../../../../utils/getRandomColor';
 import config from '../../../../config/client';
 import store from '../../../state/store';
 import { ActionTypes, DeleteMessagePayload } from '../../../state/action';
@@ -24,26 +27,26 @@ import Tooltip from '../../../components/Tooltip';
 const { dispatch } = store;
 
 interface MessageProps {
-    id: string;
-    linkmanId: string;
-    isSelf: boolean;
-    userId: string;
-    avatar: string;
-    username: string;
-    originUsername: string;
-    tag: string;
-    time: string;
-    type: string;
-    content: string;
-    loading: boolean;
-    percent: number;
-    shouldScroll: boolean;
-    tagColorMode: string;
-    isAdmin?: boolean;
+  id: string;
+  linkmanId: string;
+  isSelf: boolean;
+  userId: string;
+  avatar: string;
+  username: string;
+  originUsername: string;
+  tag: string;
+  time: string;
+  type: string;
+  content: string;
+  loading: boolean;
+  percent: number;
+  shouldScroll: boolean;
+  tagColorMode: string;
+  isAdmin?: boolean;
 }
 
 interface MessageState {
-    showButtonList: boolean;
+  showButtonList: boolean;
 }
 
 /**
@@ -53,166 +56,179 @@ interface MessageState {
  */
 @pureRender
 class Message extends Component<MessageProps, MessageState> {
-    $container = createRef<HTMLDivElement>();
+  $container = createRef<HTMLDivElement>();
 
-    constructor(props: any) {
-        super(props);
-        this.state = {
-            showButtonList: false,
-        };
-    }
-
-    componentDidMount() {
-        const { shouldScroll } = this.props;
-        if (shouldScroll) {
-            this.$container.current?.scrollIntoView();
-        }
-    }
-
-    handleMouseEnter = () => {
-        const { isAdmin } = this.props;
-        if (isAdmin) {
-            this.setState({ showButtonList: true });
-        }
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      showButtonList: false,
     };
+  }
 
-    handleMouseLeave = () => {
-        const { isAdmin } = this.props;
-        if (isAdmin) {
-            this.setState({ showButtonList: false });
-        }
-    };
-
-    /**
-     * 管理员撤回消息
-     */
-    handleDeleteMessage = async () => {
-        const { id, linkmanId } = this.props;
-        const isSuccess = await deleteMessage(id);
-        if (isSuccess) {
-            dispatch({
-                type: ActionTypes.DeleteMessage,
-                payload: {
-                    linkmanId,
-                    messageId: id,
-                } as DeleteMessagePayload,
-            });
-        }
-    };
-
-    handleClickAvatar(showUserInfo: (userinfo: any) => void) {
-        const { isSelf, userId, type, username, avatar } = this.props;
-        if (!isSelf && type !== 'system') {
-            showUserInfo({
-                _id: userId,
-                username,
-                avatar,
-            });
-        }
+  componentDidMount() {
+    const { shouldScroll } = this.props;
+    if (shouldScroll) {
+      this.$container.current?.scrollIntoView();
     }
+  }
 
-    formatTime() {
-        const { time } = this.props;
-        const messageTime = new Date(time);
-        const nowTime = new Date();
-        if (Time.isToday(nowTime, messageTime)) {
-            return Time.getHourMinute(messageTime);
-        }
-        if (Time.isYesterday(nowTime, messageTime)) {
-            return `昨天 ${Time.getHourMinute(messageTime)}`;
-        }
-        return `${Time.getMonthDate(messageTime)} ${Time.getHourMinute(messageTime)}`;
+  handleMouseEnter = () => {
+    const { isAdmin } = this.props;
+    if (isAdmin) {
+      this.setState({ showButtonList: true });
     }
+  };
 
-    renderContent() {
-        const { type, content, loading, percent, originUsername } = this.props;
-        switch (type) {
-            case 'text': {
-                return <TextMessage content={content} />;
-            }
-            case 'image': {
-                return <ImageMessage src={content} loading={loading} percent={percent} />;
-            }
-            case 'code': {
-                return <CodeMessage code={content} />;
-            }
-            case 'url': {
-                return <UrlMessage url={content} />;
-            }
-            case 'invite': {
-                return <InviteMessage inviteInfo={content} />;
-            }
-            case 'system': {
-                return <SystemMessage message={content} username={originUsername} />;
-            }
-            default:
-                return <div className="unknown">不支持的消息类型</div>;
-        }
+  handleMouseLeave = () => {
+    const { isAdmin } = this.props;
+    if (isAdmin) {
+      this.setState({ showButtonList: false });
     }
+  };
 
-    render() {
-        const { isSelf, avatar, tag, tagColorMode, username } = this.props;
-        const { showButtonList } = this.state;
+  /**
+   * 管理员撤回消息
+   */
+  handleDeleteMessage = async () => {
+    const { id, linkmanId } = this.props;
+    const isSuccess = await deleteMessage(id);
+    if (isSuccess) {
+      dispatch({
+        type: ActionTypes.DeleteMessage,
+        payload: {
+          linkmanId,
+          messageId: id,
+        } as DeleteMessagePayload,
+      });
+    }
+  };
 
-        let tagColor = `rgb(${config.theme.default.primaryColor})`;
-        if (tagColorMode === 'fixedColor') {
-            tagColor = getRandomColor(tag);
-        } else if (tagColorMode === 'randomColor') {
-            tagColor = getPerRandomColor(username);
-        }
+  handleClickAvatar(showUserInfo: (userinfo: any) => void) {
+    const { isSelf, userId, type, username, avatar } = this.props;
+    if (!isSelf && type !== 'system') {
+      showUserInfo({
+        _id: userId,
+        username,
+        avatar,
+      });
+    }
+  }
 
+  formatTime() {
+    const { time } = this.props;
+    const messageTime = new Date(time);
+    const nowTime = new Date();
+    if (Time.isToday(nowTime, messageTime)) {
+      return Time.getHourMinute(messageTime);
+    }
+    if (Time.isYesterday(nowTime, messageTime)) {
+      return `昨天 ${Time.getHourMinute(messageTime)}`;
+    }
+    return `${Time.getMonthDate(messageTime)} ${Time.getHourMinute(
+      messageTime
+    )}`;
+  }
+
+  renderContent() {
+    const { type, content, loading, percent, originUsername } = this.props;
+    switch (type) {
+      case 'text': {
+        return <TextMessage content={content} />;
+      }
+      case 'image': {
         return (
-            <div className={`${Style.message} ${isSelf ? Style.self : ''}`} ref={this.$container}>
-                <ShowUserOrGroupInfoContext.Consumer>
-                    {(context) => (
-                        <Avatar
-                            className={Style.avatar}
-                            src={avatar}
-                            size={44}
-                            onClick={() => this.handleClickAvatar(context.showUserInfo)}
-                        />
-                    )}
-                </ShowUserOrGroupInfoContext.Consumer>
-                <div className={Style.right}>
-                    <div className={Style.nicknameTimeBlock}>
-                        {tag && (
-                            <span className={Style.tag} style={{ backgroundColor: tagColor }}>
-                                {tag}
-                            </span>
-                        )}
-                        <span className={Style.nickname}>{username}</span>
-                        <span className={Style.time}>{this.formatTime()}</span>
-                    </div>
-                    <div
-                        className={Style.contentButtonBlock}
-                        onMouseEnter={this.handleMouseEnter}
-                        onMouseLeave={this.handleMouseLeave}
-                    >
-                        <div className={Style.content}>{this.renderContent()}</div>
-                        {showButtonList && (
-                            <div className={Style.buttonList}>
-                                <Tooltip placement={isSelf ? 'left' : 'right'} mouseEnterDelay={0.3} overlay={<span>撤回消息</span>}>
-                                    <div>
-                                        <IconButton
-                                            className={Style.button}
-                                            icon="recall"
-                                            iconSize={16}
-                                            width={20}
-                                            height={20}
-                                            onClick={this.handleDeleteMessage}
-                                        />
-                                    </div>
-                                </Tooltip>
-                            </div>
-                        )}
-                    </div>
-                    <div className={Style.arrow} />
-                </div>
-            </div>
+          <ImageMessage src={content} loading={loading} percent={percent} />
         );
+      }
+      case 'code': {
+        return <CodeMessage code={content} />;
+      }
+      case 'url': {
+        return <UrlMessage url={content} />;
+      }
+      case 'invite': {
+        return <InviteMessage inviteInfo={content} />;
+      }
+      case 'system': {
+        return <SystemMessage message={content} username={originUsername} />;
+      }
+      default:
+        return <div className="unknown">不支持的消息类型</div>;
     }
-}
+  }
 
+  render() {
+    const { isSelf, avatar, tag, tagColorMode, username } = this.props;
+    const { showButtonList } = this.state;
+
+    let tagColor = `rgb(${config.theme.default.primaryColor})`;
+    if (tagColorMode === 'fixedColor') {
+      tagColor = getRandomColor(tag);
+    } else if (tagColorMode === 'randomColor') {
+      tagColor = getPerRandomColor(username);
+    }
+
+    return (
+      <div
+        className={`${Style.message} ${isSelf ? Style.self : ''}`}
+        ref={this.$container}
+      >
+        <ShowUserOrGroupInfoContext.Consumer>
+          {(context) => (
+            <Avatar
+              className={Style.avatar}
+              src={avatar}
+              size={44}
+              onClick={() => this.handleClickAvatar(context.showUserInfo)}
+            />
+          )}
+        </ShowUserOrGroupInfoContext.Consumer>
+        <div className={Style.right}>
+          <div className={Style.nicknameTimeBlock}>
+            {tag && (
+              <span className={Style.tag} style={{ backgroundColor: tagColor }}>
+                {tag}
+              </span>
+            )}
+            <span className={Style.nickname}>{username}</span>
+            <span className={Style.time}>{this.formatTime()}</span>
+          </div>
+          <div
+            className={Style.contentButtonBlock}
+            onMouseEnter={this.handleMouseEnter}
+            onMouseLeave={this.handleMouseLeave}
+          >
+            <div className={Style.content}>{this.renderContent()}</div>
+            {showButtonList && (
+              <div className={Style.buttonList}>
+                <Tooltip
+                  placement={isSelf ? 'left' : 'right'}
+                  mouseEnterDelay={0.3}
+                  overlay={<span>撤回消息</span>}
+                >
+                  <div>
+                    <IconButton
+                      className={Style.button}
+                      icon="recall"
+                      iconSize={16}
+                      width={20}
+                      height={20}
+                      onClick={this.handleDeleteMessage}
+                    />
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+          <div className={Style.arrow} />
+        </div>
+      </div>
+    );
+  }
+}
+/**
+ * 无法使用函数式，所以使用 redux connect
+ */
 export default connect((state: State) => ({
-    isAdmin: !!(state.user && state.user.isAdmin),
+  isAdmin: !!(state.user && state.user.isAdmin),
 }))(Message);

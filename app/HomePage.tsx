@@ -41,7 +41,7 @@ const Root = ({ store, history }: Props) => (
       <Switch>
         <Route path="/login" component={Auth} />
         <Route path="/admin" component={Admin} /> {/* 原来的路由 */}
-        <Redirect from="/" to="/admin/dashboard" />
+        <Redirect from="/" to="/admin/entertain" />
         <Authorized
           authority={['admin']}
           noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}

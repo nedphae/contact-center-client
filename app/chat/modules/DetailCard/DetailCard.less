@@ -1,0 +1,19 @@
+@import "../../assets//styles//variable.less";
+
+.container {
+    background-color: var(--primary-color-5);
+    flex: 1;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    &[data-aero=true] {
+        background-color: var(--primary-color-0);
+    }
+
+    @media @mobile {
+        background-color: var(--primary-color-7);
+    }
+}
