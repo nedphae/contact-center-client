@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /**
- * TODO: 后续将 tabs 组件化
+ * TODO: 客户信息 等的组件开发
  */
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -9,9 +9,6 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import ChatIcon from '@material-ui/icons/Chat';
-import HistoryIcon from '@material-ui/icons/History';
-import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 
 import useAero from 'app/chat/hooks/useAero';
 import Style from './DetailCard.less';
@@ -53,7 +50,7 @@ export default function DetailCard() {
   const [value, setValue] = useState(0);
   const aero = useAero();
   const style = {
-    minWidth: 'calc(100% / 3)',
+    minWidth: 'calc(100% / 4)',
   };
   const handleChange = (event: React.ChangeEvent, newValue: number) => {
     setValue(newValue);
@@ -65,27 +62,13 @@ export default function DetailCard() {
         value={value}
         onChange={handleChange}
         variant="scrollable"
-        scrollButtons="off"
+        scrollButtons="auto"
         aria-label="scrollable prevent tabs example"
       >
-        <Tab
-          style={style}
-          icon={<ChatIcon />}
-          aria-label="phone"
-          {...a11yProps(0)}
-        />
-        <Tab
-          style={style}
-          icon={<HistoryIcon />}
-          aria-label="favorite"
-          {...a11yProps(1)}
-        />
-        <Tab
-          style={style}
-          icon={<PeopleAltIcon />}
-          aria-label="person"
-          {...a11yProps(2)}
-        />
+        <Tab style={style} label="客户信息" {...a11yProps(0)} />
+        <Tab style={style} label="互动记录" {...a11yProps(1)} />
+        <Tab style={style} label="常用话术" {...a11yProps(2)} />
+        <Tab style={style} label="ERP" {...a11yProps(3)} />
       </Tabs>
       <TabPanel value={value} index={0}>
         Item One
@@ -94,6 +77,9 @@ export default function DetailCard() {
         Item Two
       </TabPanel>
       <TabPanel value={value} index={2}>
+        Item Three
+      </TabPanel>
+      <TabPanel value={value} index={3}>
         Item Three
       </TabPanel>
     </div>

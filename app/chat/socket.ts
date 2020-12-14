@@ -1,6 +1,7 @@
 import IO from 'socket.io-client';
 import platform from 'platform';
 
+import SocketHandler from 'app/service/SocketHandler';
 import config from '../config/client';
 import store from './state/store';
 import {
@@ -60,7 +61,7 @@ function socketConnect(token: string | null = null) {
 
   socket = IO(config.server, options);
 
-  socket.on('connect_error', (error: Object) => {
+  socket.on('connect_error', (error: unknown) => {
     // token 验证错误
     // 超时等
     console.info(error);

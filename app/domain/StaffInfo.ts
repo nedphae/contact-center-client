@@ -17,6 +17,8 @@ type Staff = {
   gender: string;
   createTime: Date;
   headImg: string;
+  // 个性签名
+  personalizedSignature: string;
 };
 
 type StaffGroup = {
@@ -30,7 +32,7 @@ export type StaffConfig = {
   // 客服id
   staffId: number;
   // 角色种类
-  role: number;
+  role: string;
   // 在线状态 0:off, 1:on
   onlineStatus: number;
   // 就绪状态 0: unready, 1: ready
@@ -38,5 +40,16 @@ export type StaffConfig = {
   // 繁忙状态 0: busy, 1: idle
   busyStatus: number;
 };
+
+export function configFromStaff(staff: Staff): StaffConfig {
+  return {
+    organizationId: staff.organizationId,
+    staffId: staff.id,
+    role: staff.role,
+    onlineStatus: staff.onlineStatus,
+    readyStatus: staff.readyStatus,
+    busyStatus: staff.busyStatus,
+  };
+}
 
 export default Staff;

@@ -11,8 +11,6 @@ import getData from '../../chat/localStorage';
 import setCssVariable from '../../utils/setCssVariable';
 import config from '../../config/client';
 
-import socket from '../../chat/socket';
-
 // 注册 Service Worker
 if (window.location.protocol === 'https:' && navigator.serviceWorker) {
   window.addEventListener('load', () => {
@@ -52,9 +50,6 @@ if (
 ) {
   window.Notification.requestPermission();
 }
-
-socket().disconnect();
-socket().connect();
 
 export default function Entertain() {
   return <App />;

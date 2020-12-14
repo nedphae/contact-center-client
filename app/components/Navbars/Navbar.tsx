@@ -27,7 +27,6 @@ export default function Header(props: {
   const classes = useStyles();
   function makeBrand() {
     let name;
-    debugger;
     props.routes.map(
       (prop: { layout: any; path: any; rtlName: any; name: any }) => {
         if (window.location.href.indexOf(prop.layout + prop.path) !== -1) {

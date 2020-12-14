@@ -50,6 +50,7 @@ export default function Admin({ ...rest }) {
   const [color, setColor] = React.useState('blue');
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
+
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
     setImage(selectImage);
   };

@@ -96,7 +96,7 @@ export default function Auth() {
     data.org_id = Number((data.org_id as string).replaceAll(' ', ''));
     if (typeof data.org_id === 'number') {
       const token = await oauthLogin(data as LoginParamsType);
-      // 把 token 报错到 localStorage
+      // 把 token 保存到 localStorage
       localStorage.setItem(
         clientConfig.oauth.accessTokenName,
         JSON.stringify(token)
