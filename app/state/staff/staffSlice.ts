@@ -9,6 +9,10 @@ const staffSlice = createSlice({
   reducers: {
     setStaff: (_, action) => action.payload as Staff,
     clear: () => initStaff,
+    // 已经在服务器设置了状态
+    setOnline: (staff) => {
+      staff.syncState = true;
+    },
   },
 });
 

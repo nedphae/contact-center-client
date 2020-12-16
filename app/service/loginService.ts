@@ -21,16 +21,14 @@ interface OauthParams {
 }
 
 const parseParams = (uri: string, params: any) => {
-  const paramsArray: any = [];
-  Object.keys(params).forEach(
-    (key) => params[key] && paramsArray.push(`${key}=${params[key]}`)
-  );
-  if (uri.search(/\?/) === -1) {
-    uri += `?${paramsArray.join('&')}`;
-  } else {
-    uri += `&${paramsArray.join('&')}`;
-  }
-  return uri;
+  let str = '';
+  Object.keys(params).forEach((key) => {
+    if (str !== '') {
+      str += '&';
+    }
+    str += `${key}=${encodeURIComponent(params[key])}`;
+  });
+  return `${uri}?${str}`;
 };
 
 export async function oauthLogin(param: LoginParamsType): Promise<AccessToken> {

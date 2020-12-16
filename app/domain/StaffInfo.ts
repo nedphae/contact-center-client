@@ -19,6 +19,8 @@ type Staff = {
   headImg: string;
   // 个性签名
   personalizedSignature: string;
+  // 同步状态
+  syncState: boolean;
 };
 
 type StaffGroup = {
@@ -27,10 +29,6 @@ type StaffGroup = {
 };
 
 export type StaffConfig = {
-  // 公司id
-  organizationId: number;
-  // 客服id
-  staffId: number;
   // 角色种类
   role: string;
   // 在线状态 0:off, 1:on
@@ -43,8 +41,6 @@ export type StaffConfig = {
 
 export function configFromStaff(staff: Staff): StaffConfig {
   return {
-    organizationId: staff.organizationId,
-    staffId: staff.id,
     role: staff.role,
     onlineStatus: staff.onlineStatus,
     readyStatus: staff.readyStatus,

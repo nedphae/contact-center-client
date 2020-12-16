@@ -1,7 +1,6 @@
 import IO from 'socket.io-client';
 import platform from 'platform';
 
-import SocketHandler from 'app/service/SocketHandler';
 import config from '../config/client';
 import store from './state/store';
 import {
