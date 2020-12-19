@@ -2,19 +2,22 @@
  * 客户信息
  */
 export type Customer = {
-  type: number;
+  // 客户关联的会话id
+  conversationId: number | undefined;
   // 客户 id 服务器自动设置
   userId: number;
   // 用户在企业产品中的标识
   uid: string;
   // 用户姓名
-  name: string;
+  name: string | undefined;
   // 用户邮箱
-  email: string;
+  email: string | undefined;
   // 用户手机号
-  mobile: string;
+  mobile: string | undefined;
   // vip等级 1-10
-  vipLevel: number;
+  vipLevel: number | undefined;
+  // 企业当前登录用户其他信息，JSON字符串
+  data: DetailData[] | undefined;
 };
 export type DetailData = {
   /**
@@ -47,8 +50,9 @@ export type DetailData = {
   hidden: boolean;
 };
 /**
- * 客户备注()
+ * 客户备注(客服临时备注)
  */
 export type CustomerRemark = {
   userId: number;
+  // vip
 };

@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { configStaff } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
+import { Message } from 'app/domain/Message';
 import EventInterface from './EventInterface';
 
 class SocketHandler implements EventInterface {
@@ -25,7 +26,7 @@ class SocketHandler implements EventInterface {
     // 接受同步消息
     this.socket.on('msg/sync', this.onMessage);
     // 分配客户
-    this.socket.on('assig', this.onAssignment);
+    this.socket.on('assign', this.onAssignment);
   }
 
   async onConnect(): Promise<void> {

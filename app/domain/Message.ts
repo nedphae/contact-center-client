@@ -36,11 +36,15 @@ type Content = {
   // 附件
   attachments: Attachments | undefined;
 };
+// Message 去重
+type MessagesMap = {
+  [uuid: string]: Message;
+};
 
-type Message = {
+export type Message = {
   uuid: string;
   // 会话id 十六进制 long
-  conversationId: string;
+  conversationId: number;
   // 消息来源 (服务器设置)
   from: number | undefined;
   // 消息送至
