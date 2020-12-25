@@ -1,4 +1,4 @@
-type Staff = {
+interface Staff {
   organizationId: number;
   id: number;
   // 用来获取分组 同事会话;
@@ -21,14 +21,14 @@ type Staff = {
   personalizedSignature: string;
   // 同步状态
   syncState: boolean;
-};
+}
 
-type StaffGroup = {
+interface StaffGroup {
   id: number;
   groupName: string;
-};
+}
 
-export type StaffConfig = {
+export interface StaffConfig {
   // 角色种类
   role: string;
   // 在线状态 0:off, 1:on
@@ -37,7 +37,7 @@ export type StaffConfig = {
   readyStatus: number;
   // 繁忙状态 0: busy, 1: idle
   busyStatus: number;
-};
+}
 
 export function configFromStaff(staff: Staff): StaffConfig {
   return {

@@ -5,7 +5,8 @@ import { useDispatch } from 'react-redux';
 import { configStaff } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { Message } from 'app/domain/Message';
-import EventInterface from './EventInterface';
+import { Conversation } from 'app/domain/Conversation';
+import EventInterface, { CallBack } from './EventInterface';
 
 class SocketHandler implements EventInterface {
   socket: SocketIOClient.Socket;
@@ -37,11 +38,13 @@ class SocketHandler implements EventInterface {
     this.dispatch(configStaff(this.socket));
   }
 
-  onMessage(messageRequest: WebSocketRequest<Message>): void {
+  onMessage(messageRequest: WebSocketRequest<Message>, cb: CallBack): void {
     this.dispatch(/** TODO: 处理消息的 action */ messageRequest.body);
   }
 
-  onAssignment(): void {}
+  onAssignment(conversationRequest: WebSocketRequest<Conversation>, cb: CallBack): void {
+    this.dispatch(/** TODO: 处理消息的 action */ conversationRequest.body);
+  }
 }
 
 export default (socket: SocketIOClient.Socket) => {

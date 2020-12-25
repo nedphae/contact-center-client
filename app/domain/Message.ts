@@ -2,11 +2,11 @@
  * 聊天消息不做本地存储，全部走服务器
  * 同步消息 redis，持久化消息 es
  */
-type TextContent = {
+interface TextContent {
   text: string;
-};
+}
 
-type PhotoContent = {
+interface PhotoContent {
   // 媒体id
   mediaId: string;
   // 图片名称
@@ -15,9 +15,9 @@ type PhotoContent = {
   picSize: number;
   // 图片类型
   type: number;
-};
+}
 
-type Attachments = {
+interface Attachments {
   // 媒体id
   mediaId: string;
   size: string;
@@ -25,9 +25,9 @@ type Attachments = {
   type: string;
   // 文件 路径
   url: string;
-};
+}
 
-type Content = {
+interface Content {
   contentType: number;
   // 文字
   textContent: TextContent | undefined;
@@ -35,13 +35,13 @@ type Content = {
   photoContent: PhotoContent | undefined;
   // 附件
   attachments: Attachments | undefined;
-};
+}
 // Message 去重
-type MessagesMap = {
+interface MessagesMap {
   [uuid: string]: Message;
-};
+}
 
-export type Message = {
+export interface Message {
   uuid: string;
   // 会话id 十六进制 long
   conversationId: number;
@@ -57,4 +57,4 @@ export type Message = {
   content: Content;
   // 昵称
   nickName: string;
-};
+}

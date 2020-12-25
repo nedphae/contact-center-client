@@ -1,4 +1,4 @@
-export type OauthToken = {
+export interface OauthToken {
   access_token: string;
   token_type: string;
   refresh_token: string;
@@ -6,9 +6,9 @@ export type OauthToken = {
   scope: string;
   organizationId: number;
   jti: string;
-};
+}
 
-export type AccessToken = {
+export interface AccessToken {
   organizationId: number;
   user_name: string;
   scope: string[];
@@ -16,4 +16,4 @@ export type AccessToken = {
   authorities: string[];
   jti: string;
   client_id: string;
-};
+}

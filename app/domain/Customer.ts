@@ -1,13 +1,15 @@
 /**
  * 客户信息
  */
-export type Customer = {
+export interface Customer {
   // 客户关联的会话id
   conversationId: number | undefined;
   // 客户 id 服务器自动设置
   userId: number;
   // 用户在企业产品中的标识
   uid: string;
+  // 咨询入口
+  shuntId: number;
   // 用户姓名
   name: string | undefined;
   // 用户邮箱
@@ -16,10 +18,15 @@ export type Customer = {
   mobile: string | undefined;
   // vip等级 1-10
   vipLevel: number | undefined;
+  title: string | undefined;
+  referrer: string | undefined;
+  // 来源类型
+  fromType: 'WEB' | 'IOS' | 'ANDROID' | 'WX' | 'WX_MA' | 'WB' | 'OPEN';
+  ip: string | undefined;
   // 企业当前登录用户其他信息，JSON字符串
   data: DetailData[] | undefined;
-};
-export type DetailData = {
+}
+export interface DetailData {
   /**
    * 数据项的名称
    * 用于区别不同的数据。其中real_name、mobile_phone、email为保留字段，
@@ -48,11 +55,11 @@ export type DetailData = {
    * 若不指定，默认为false不隐藏。
    */
   hidden: boolean;
-};
+}
 /**
  * 客户备注(客服临时备注)
  */
-export type CustomerRemark = {
+export interface CustomerRemark {
   userId: number;
   // vip
-};
+}
