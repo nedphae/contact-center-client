@@ -37,7 +37,7 @@ interface Content {
   attachments: Attachments | undefined;
 }
 // Message 去重
-interface MessagesMap {
+export interface MessagesMap {
   [uuid: string]: Message;
 }
 

@@ -1,5 +1,6 @@
 import { Conversation } from 'app/domain/Conversation';
 import { Customer } from 'app/domain/Customer';
+import { MessagesMap } from 'app/domain/Message';
 
 // 同事会话监控模块
 interface Group {
@@ -16,11 +17,13 @@ interface GroupMember {
 }
 
 // 客户ID 对应
-interface Linkman {
+interface Conver {
   conversation: Conversation;
   user: Customer;
   // 未读消息
   unread: number;
+  // 会话的聊天消息
+  massageList: MessagesMap;
   lastMessageTime: Date;
   lastMessage: string;
   hide: boolean;
@@ -34,6 +37,6 @@ interface Linkman {
   tag: 'important' | '' | undefined;
 }
 
-interface LinkmanMap {
-  [conversationId: number]: Linkman;
+export interface ConverMap {
+  [userId: number]: Conver;
 }
