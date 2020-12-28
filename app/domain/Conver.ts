@@ -17,15 +17,15 @@ interface GroupMember {
 }
 
 // 客户ID 对应
-interface Conver {
+export interface Conver {
   conversation: Conversation;
   user: Customer;
   // 未读消息
   unread: number;
   // 会话的聊天消息
-  massageList: MessagesMap;
-  lastMessageTime: Date;
-  lastMessage: string;
+  massageList: MessagesMap | undefined;
+  lastMessageTime: Date | undefined;
+  lastMessage: string | undefined;
   hide: boolean;
   // 会话标识
   color: 'new' | 'waitting' | 'replied';
@@ -35,6 +35,22 @@ interface Conver {
   sticky: boolean;
   // 客服打的标签
   tag: 'important' | '' | undefined;
+}
+
+export function conver(conversation: Conversation, user: Customer): Conver {
+  return {
+    conversation,
+    user,
+    unread: 0,
+    massageList: undefined,
+    lastMessageTime: undefined,
+    lastMessage: undefined,
+    hide: false,
+    color: 'new',
+    onlineStatue: 'online',
+    sticky: false,
+    tag: undefined,
+  };
 }
 
 export interface ConverMap {

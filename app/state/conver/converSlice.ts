@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { ConverMap } from 'app/domain/Conver';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ConverMap, Conver } from 'app/domain/Conver';
 
 const initConver = {} as ConverMap;
 
@@ -8,9 +8,13 @@ const messageSlice = createSlice({
   initialState: initConver,
   reducers: {
     // 设置新会话
-    newConver: (_, action) => {
-      // 根据ID设置消息
-      return action.payload as ConverMap;
+    newConver: (converMap, action: PayloadAction<Conver>) => {
+      converMap[action.payload.conversation.userId] = action.payload;
+    },
+    stickyCustomer: (converMap, action: PayloadAction<number>) => {
+      // 设置置顶
+      const conver = converMap[action.payload];
+      conver.sticky = !conver.sticky;
     },
   },
 });

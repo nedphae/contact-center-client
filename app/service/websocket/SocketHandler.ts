@@ -42,7 +42,10 @@ class SocketHandler implements EventInterface {
     this.dispatch(/** TODO: 处理消息的 action */ messageRequest.body);
   }
 
-  onAssignment(conversationRequest: WebSocketRequest<Conversation>, cb: CallBack): void {
+  onAssignment(
+    conversationRequest: WebSocketRequest<Conversation>,
+    cb: CallBack<string>
+  ): void {
     this.dispatch(/** TODO: 处理消息的 action */ conversationRequest.body);
   }
 }

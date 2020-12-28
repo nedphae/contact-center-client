@@ -1,8 +1,6 @@
 import { AppThunk, RootState } from 'app/store';
-// import from userSlice
-import { getCurrentStaff } from 'app/service/userService';
+import { getCurrentStaff } from 'app/service/infoService';
 import { configFromStaff } from 'app/domain/StaffInfo';
-import { useSelector } from 'react-redux';
 import { generateRequest, WebSocketResponse } from 'app/domain/WebSocket';
 import slice from './staffSlice';
 
