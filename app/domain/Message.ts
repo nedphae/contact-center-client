@@ -46,9 +46,9 @@ export interface Message {
   // 会话id 十六进制 long
   conversationId: number;
   // 消息来源 (服务器设置)
-  from: number | undefined;
+  from: number;
   // 消息送至
-  to: number | undefined;
+  to: number;
   // 消息类型 接收者类型
   type: number;
   // 创建者类型

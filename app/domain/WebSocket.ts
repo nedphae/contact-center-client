@@ -18,6 +18,8 @@ export interface WebSocketResponse<T> {
   body: T | undefined;
 }
 
+
+
 export function generateRequest<T>(data: T): WebSocketRequest<T> {
   // 生成消息id
   const header = { mid: uuidv4().substr(0, 8) };
