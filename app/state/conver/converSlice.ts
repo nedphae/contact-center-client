@@ -3,7 +3,7 @@ import { ConverMap, Conver } from 'app/domain/Conver';
 
 const initConver = {} as ConverMap;
 
-const messageSlice = createSlice({
+const converSlice = createSlice({
   name: 'conversation',
   initialState: initConver,
   reducers: {
@@ -19,6 +19,6 @@ const messageSlice = createSlice({
   },
 });
 
-export default messageSlice;
+export default converSlice;
 
-export const { reducer } = messageSlice;
+export const { reducer } = converSlice;
