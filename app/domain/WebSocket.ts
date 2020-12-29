@@ -18,7 +18,20 @@ export interface WebSocketResponse<T> {
   body: T | undefined;
 }
 
+export function generateResponse<T>(
+  header: Header,
+  code: number,
+  data: T | undefined
+): WebSocketResponse<T> {
+  return { header, code, body: data };
+}
 
+export function generateOKResponse<T>(
+  header: Header,
+  data: T | undefined
+): WebSocketResponse<T> {
+  return { header, code: 200, body: data };
+}
 
 export function generateRequest<T>(data: T): WebSocketRequest<T> {
   // 生成消息id

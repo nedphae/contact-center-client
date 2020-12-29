@@ -1,4 +1,5 @@
 import { AppThunk, RootState } from 'app/store';
+import { setAuthority } from 'app/utils/authority';
 import { getCurrentStaff } from 'app/service/infoService';
 import { configFromStaff } from 'app/domain/StaffInfo';
 import { generateRequest, WebSocketResponse } from 'app/domain/WebSocket';
@@ -8,7 +9,10 @@ const { setStaff, setOnline } = slice.actions;
 export const getStaff = (state: RootState) => state.user;
 
 // 异步请求
-export const setUserAsync = (): AppThunk => async (dispatch) => {
+export const setUserAsync = (role: string | string[]): AppThunk => async (
+  dispatch
+) => {
+  setAuthority(role);
   // dispatch() dispatch 等待动画
   const staff = await getCurrentStaff();
   dispatch(setStaff(staff));

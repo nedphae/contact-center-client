@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { of } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, switchMap, filter } from 'rxjs/operators';
 import _ from 'lodash';
 
 import { ConverMap, Conver } from 'app/domain/Conver';
@@ -11,6 +11,7 @@ const initConver = {} as ConverMap;
 const converSlice = createSlice({
   name: 'conversation',
   initialState: initConver,
+  // createReducer 接收一个代理状态，该状态将所有突变转换为等效的复制操作。
   reducers: {
     // 设置新会话
     newConver: (converMap, action: PayloadAction<Conver>) => {
@@ -25,11 +26,13 @@ const converSlice = createSlice({
       // 设置新消息
       of(action.payload)
         .pipe(
-          mergeMap((m) => {
-            const { from } = m;
-            return of(converMap[from]).pipe(
+          switchMap((m) => {
+            const { from } = _.valuesIn(m)[0];
+            return of(from).pipe(
+              filter((f) => f !== undefined && f !== null),
+              map((f) => converMap[f!]),
               map((c) => {
-                _.merge(c.massageList, { [m.uuid]: m });
+                _.merge(c.massageList, m);
               })
             );
           })

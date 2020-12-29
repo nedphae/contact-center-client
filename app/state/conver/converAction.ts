@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { map, filter, tap } from 'rxjs/operators';
 import _ from 'lodash';
 
-import { WebSocketRequest } from 'app/domain/WebSocket';
+import { WebSocketRequest, generateOKResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
 import { Message, MessagesMap } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
@@ -33,10 +33,10 @@ export const setNewMessage = (
       map((r) => r.body),
       filter((b) => b !== undefined),
       tap(() => {
-        cb('3');
+        cb(generateOKResponse(request.header, 'ok'));
       }),
       map((m) => {
-        return { [m?.uuid]: m } as MessagesMap;
+        return { [m!.uuid]: m } as MessagesMap;
       })
     )
     .subscribe((end) => {

@@ -3,6 +3,8 @@
  * 配置登录，验证权限
  */
 import React from 'react';
+import { useDispatch } from 'react-redux';
+
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,8 +20,11 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+
 import { oauthLogin, LoginParamsType } from 'app/service/loginService';
 import clientConfig from 'app/config/clientConfig';
+import { setUserAsync } from 'app/state/staff/staffAction';
+import { history } from 'app/store';
 
 function Copyright() {
   return (
@@ -88,6 +93,7 @@ type FormValues = {
 };
 
 export default function Auth() {
+  const dispatch = useDispatch();
   const classes = useStyles();
   const { register, handleSubmit } = useForm<FormValues>();
 
@@ -101,6 +107,12 @@ export default function Auth() {
         clientConfig.oauth.accessTokenName,
         JSON.stringify(token)
       );
+      dispatch(
+        setUserAsync(
+          token.authorities.map((role) => role.substring(5).toLowerCase())
+        )
+      );
+      history.push('/');
     }
   };
 
