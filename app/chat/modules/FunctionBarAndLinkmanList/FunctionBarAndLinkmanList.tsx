@@ -9,6 +9,7 @@ import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
+import Authorized from 'app/utils/Authorized';
 import useIsLogin from '../../hooks/useIsLogin';
 import useAction from '../../hooks/useAction';
 import FunctionBar from './FunctionBar';
@@ -121,7 +122,10 @@ function FunctionBarAndLinkmanList() {
           <LinkmanList history />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          Item Three
+          <Authorized authority={['admin']}>
+            {/* 添加权限的路由 */}
+            Item Three
+          </Authorized>
         </TabPanel>
       </div>
     </div>

@@ -46,7 +46,8 @@ export default function Header(props: {
       <Toolbar className={classes.container}>
         <div className={classes.flex}>
           {/* Here we create navbar brand, based on route name */}
-          <Button color="transparent" href="#" className={classes.title}>
+          {/* href 在本地文件下不起作用 */}
+          <Button color="transparent" href="" className={classes.title}>
             {makeBrand()}
           </Button>
         </div>

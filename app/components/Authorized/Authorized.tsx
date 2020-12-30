@@ -28,6 +28,7 @@ const Authorized: React.FunctionComponent<AuthorizedProps> = ({
       place="tc"
       color="warning"
       message="403 WARNING - 您没有权限访问此页面"
+      open
       close
     />
   ),

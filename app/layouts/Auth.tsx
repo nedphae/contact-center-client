@@ -22,7 +22,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
 import { oauthLogin, LoginParamsType } from 'app/service/loginService';
-import clientConfig from 'app/config/clientConfig';
 import { setUserAsync } from 'app/state/staff/staffAction';
 import { history } from 'app/store';
 
@@ -102,16 +101,7 @@ export default function Auth() {
     data.org_id = Number((data.org_id as string).replaceAll(' ', ''));
     if (typeof data.org_id === 'number') {
       const token = await oauthLogin(data as LoginParamsType);
-      // 把 token 保存到 localStorage
-      localStorage.setItem(
-        clientConfig.oauth.accessTokenName,
-        JSON.stringify(token)
-      );
-      dispatch(
-        setUserAsync(
-          token.authorities.map((role) => role.substring(5).toLowerCase())
-        )
-      );
+      dispatch(setUserAsync(token));
       history.push('/');
     }
   };

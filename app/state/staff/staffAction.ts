@@ -1,18 +1,27 @@
 import { AppThunk, RootState } from 'app/store';
+import clientConfig from 'app/config/clientConfig';
 import { setAuthority } from 'app/utils/authority';
 import { getCurrentStaff } from 'app/service/infoService';
 import { configFromStaff } from 'app/domain/StaffInfo';
 import { generateRequest, WebSocketResponse } from 'app/domain/WebSocket';
+import { AccessToken } from 'app/domain/OauthToken';
 import slice from './staffSlice';
 
 const { setStaff, setOnline } = slice.actions;
 export const getStaff = (state: RootState) => state.user;
 
 // 异步请求
-export const setUserAsync = (role: string | string[]): AppThunk => async (
+export const setUserAsync = (token: AccessToken): AppThunk => async (
   dispatch
 ) => {
-  setAuthority(role);
+  // 把 token 保存到 localStorage
+  localStorage.setItem(
+    clientConfig.oauth.accessTokenName,
+    JSON.stringify(token)
+  );
+  setAuthority(
+    token.authorities.map((role) => role.substring(5).toLowerCase())
+  );
   // dispatch() dispatch 等待动画
   const staff = await getCurrentStaff();
   dispatch(setStaff(staff));

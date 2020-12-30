@@ -22,13 +22,12 @@ import { ConnectedRouter } from 'connected-react-router';
 import { hot } from 'react-hot-loader/root';
 import { History } from 'history';
 import { Switch, Route, Redirect } from 'react-router-dom';
-import { Store } from './store';
 
+import { Store } from './store';
 // core components
 import Admin from './layouts/Admin';
 import RTL from './layouts/RTL';
 import Auth from './layouts/Auth';
-import Authorized from './components/Authorized/Authorized';
 // import AuthorizedRoute from "./components/Authorized/AuthorizedRoute"
 
 type Props = {
@@ -41,15 +40,9 @@ const Root = ({ store, history }: Props) => (
       <Switch>
         {/* 原来的路由 */}
         <Route path="/login" component={Auth} />
-        <Authorized
-          authority={['admin']}
-          noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
-        >
-          {/* 添加权限的路由 */}
-          <Route path="/rtl" component={RTL} />
-          <Route path="/admin" component={Admin} />
-          <Redirect from="/" to="/admin/entertain" />
-        </Authorized>
+        <Route path="/admin" component={Admin} />
+        <Route path="/rtl" component={RTL} />
+        <Redirect from="/" to="/admin/entertain" />
       </Switch>
     </ConnectedRouter>
   </Provider>
