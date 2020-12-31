@@ -19,7 +19,7 @@ import styles from "../../assets/jss/material-dashboard-react/components/sidebar
 
 const useStyles = makeStyles(styles);
 
-export default function Sidebar(props: { rtlActive?: any; open?: any; handleDrawerToggle?: any; color?: any; logo?: any; image?: any; logoText?: any; routes?: any; }) {
+export default function Sidebar(props: { rtlActive?: any; open?: any; handleDrawerToggle?: any; color?: any; logo?: any; image?: any; logoText?: any; routes?: Array; }) {
   const classes = useStyles();
   // verifies if routeName is the one active (in browser input)
   function activeRoute(routeName: string) {
@@ -28,7 +28,8 @@ export default function Sidebar(props: { rtlActive?: any; open?: any; handleDraw
   const { color, logo, image, logoText, routes } = props;
   var links = (
     <List className={classes.list}>
-      {routes.map((prop: { path: string; layout: any; icon: any | null | undefined; rtlName: React.ReactNode; name: React.ReactNode; }, key: string | number | undefined) => {
+      {/* TODO: 过滤权限 */ }
+      {routes.filter().map((prop: { path: string; layout: any; icon: any | null | undefined; rtlName: React.ReactNode; name: React.ReactNode; }, key: string | number | undefined) => {
         var activePro = " ";
         var listItemClasses;
         if (prop.path === "/upgrade-to-pro") {

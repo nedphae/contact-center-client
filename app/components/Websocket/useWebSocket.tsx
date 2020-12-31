@@ -43,7 +43,7 @@ const useWebSocket = (jwt: string) => {
     };
   }, [token]);
 
-  return { socket: socketRef.current, setToken };
+  return [socketRef.current, setToken];
 };
 
 export default useWebSocket;

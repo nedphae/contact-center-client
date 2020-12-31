@@ -122,9 +122,9 @@ function FunctionBarAndLinkmanList() {
           <LinkmanList history />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <Authorized authority={['admin']}>
-            {/* 添加权限的路由 */}
-            Item Three
+          <Authorized authority={['admin']} noMatch="非 Admin权限">
+            {/* 添加权限的Dom */}
+            Admin 时权限展示
           </Authorized>
         </TabPanel>
       </div>

@@ -14,11 +14,6 @@ export const getStaff = (state: RootState) => state.user;
 export const setUserAsync = (token: AccessToken): AppThunk => async (
   dispatch
 ) => {
-  // 把 token 保存到 localStorage
-  localStorage.setItem(
-    clientConfig.oauth.accessTokenName,
-    JSON.stringify(token)
-  );
   setAuthority(
     token.authorities.map((role) => role.substring(5).toLowerCase())
   );

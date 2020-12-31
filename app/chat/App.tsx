@@ -10,7 +10,6 @@ import { isMobile } from '../utils/ua';
 import { RootState } from '../store';
 
 import LoginAndRegister from './modules/LoginAndRegister/LoginAndRegister';
-import Sidebar from './modules/Sidebar/Sidebar';
 import FunctionBarAndLinkmanList from './modules/FunctionBarAndLinkmanList/FunctionBarAndLinkmanList';
 import UserInfo from './modules/UserInfo';
 import GroupInfo from './modules/GroupInfo';
