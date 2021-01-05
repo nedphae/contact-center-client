@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import IO from 'socket.io-client';
 
 import socketHandler from 'app/service/websocket/SocketHandler';
@@ -8,9 +8,8 @@ import config from 'app/config/client';
  * WebSocket Hook, 返回 websocket对象
  * @param jwt
  */
-const useWebSocket = (jwt: string) => {
+const useWebSocket = (token: string | null) => {
   const socketRef = useRef<SocketIOClient.Socket>();
-  const [token, setToken] = useState(jwt);
   useEffect(() => {
     const options: SocketIOClient.ConnectOpts = token
       ? {
@@ -26,24 +25,22 @@ const useWebSocket = (jwt: string) => {
       : {};
 
     if (token) {
-      options.reconnection = true;
+      socketRef.current = IO(config.server, options);
+      window.socketRef = socketRef.current;
+
+      socketHandler(socketRef.current);
     } else {
       options.reconnection = false;
     }
-
-    socketRef.current = IO(config.server, options);
-    window.socketRef = socketRef.current;
-
-    socketHandler(socketRef.current);
 
     return () => {
       if (socketRef.current !== undefined) {
         socketRef.current.disconnect();
       }
     };
-  }, [token]);
+  });
 
-  return [socketRef.current, setToken];
+  return [socketRef.current];
 };
 
 export default useWebSocket;

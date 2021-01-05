@@ -7,8 +7,9 @@ import 'perfect-scrollbar/css/perfect-scrollbar.css';
 import { makeStyles } from '@material-ui/core/styles';
 
 import useWebSocket from 'app/components/Websocket/useWebSocket';
-import { getToken } from 'app/electron/jwtStorage';
+import tokenConfig from 'app/config/clientConfig';
 // core components
+import { OauthToken } from 'app/domain/OauthToken';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -43,7 +44,7 @@ const switchRoutes = (
 
 const useStyles = makeStyles(styles);
 
-export default async function Admin({ ...rest }) {
+export default function Admin({ ...rest }) {
   // styles
   const classes = useStyles();
   // ref to help us initialize PerfectScrollbar on windows devices
@@ -53,8 +54,8 @@ export default async function Admin({ ...rest }) {
   const [color, setColor] = React.useState('blue');
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const token = await getToken();
-  const [socket, setToken] = useWebSocket(token.access_token);
+  const token = localStorage.getItem(tokenConfig.oauth.tokenName);
+  useWebSocket(token ? (JSON.parse(token) as OauthToken).access_token : null);
 
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
     setImage(selectImage);
