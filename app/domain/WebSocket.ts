@@ -28,9 +28,10 @@ export function generateResponse<T>(
 
 export function generateOKResponse<T>(
   header: Header,
-  data: T | undefined
+  data: T | undefined,
+  code = 200
 ): WebSocketResponse<T> {
-  return { header, code: 200, body: data };
+  return { header, code, body: data };
 }
 
 export function generateRequest<T>(data: T): WebSocketRequest<T> {

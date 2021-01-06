@@ -6,6 +6,7 @@ import { configStaff } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { Message } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
+import { assignmentConver, setNewMessage } from 'app/state/conver/converAction';
 import EventInterface, { CallBack } from './EventInterface';
 
 class SocketHandler implements EventInterface {
@@ -38,15 +39,18 @@ class SocketHandler implements EventInterface {
     this.dispatch(configStaff());
   }
 
-  onMessage(messageRequest: WebSocketRequest<Message>, cb: CallBack): void {
-    this.dispatch(/** TODO: 处理消息的 action */ messageRequest.body);
+  onMessage(
+    messageRequest: WebSocketRequest<Message>,
+    cb: CallBack<string>
+  ): void {
+    this.dispatch(setNewMessage(messageRequest, cb));
   }
 
   onAssignment(
     conversationRequest: WebSocketRequest<Conversation>,
     cb: CallBack<string>
   ): void {
-    this.dispatch(/** TODO: 处理消息的 action */ conversationRequest.body);
+    this.dispatch(assignmentConver(conversationRequest, cb));
   }
 }
 

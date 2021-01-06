@@ -1,4 +1,4 @@
-enum OnlineStatus {
+export enum OnlineStatus {
   OFFLINE,
   ONLINE,
   BUSY,
