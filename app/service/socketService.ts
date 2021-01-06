@@ -18,6 +18,22 @@ import { Message } from 'app/domain/Message';
 import withTimeout from 'app/utils/socketUtils';
 import { CallBack } from './websocket/EventInterface';
 
+const socketCallback = <T, R>(
+  e: string,
+  r: WebSocketRequest<T>,
+  cb: CallBack<R>
+) => {
+  const cbWithTimeout = withTimeout(
+    cb,
+    () => {
+      throw new TimeoutError();
+    },
+    // 5秒超时
+    5000
+  );
+  window.socketRef.emit(e, r, cbWithTimeout);
+};
+
 /**
  * 发送 websocket 事件，超时抛出异常
  * @param event 事件
@@ -27,19 +43,8 @@ export default function fetch<T, R>(
   event: string,
   request: WebSocketRequest<T>
 ): Observable<WebSocketResponse<R>> {
-  const boundEmit = bindCallback(
-    (e: string, r: WebSocketRequest<T>, cb: CallBack<R>) => {
-      const cbWithTimeout = withTimeout(
-        cb,
-        () => {
-          throw new TimeoutError();
-        },
-        5000
-      );
-      window.socketRef.emit(e, r, cbWithTimeout);
-    }
-  );
-  return boundEmit(event, request).pipe(
+  const boundEmit = bindCallback(socketCallback);
+  return boundEmit<T, R>(event, request).pipe(
     filter((response) => response.code === 200)
   );
 }
@@ -81,22 +86,10 @@ export function fetchWithRetry<T, R>(
   request: WebSocketRequest<T>,
   retry = 3
 ): Observable<WebSocketResponse<R>> {
-  const boundEmit = bindCallback(
-    (e: string, r: WebSocketRequest<T>, cb: CallBack<R>) => {
-      const cbWithTimeout = withTimeout(
-        cb,
-        () => {
-          throw new TimeoutError();
-        },
-        // 5秒超时
-        5000
-      );
-      window.socketRef.emit(e, r, cbWithTimeout);
-    }
-  );
+  const boundEmit = bindCallback(socketCallback);
 
   const eventObservable = of(event).pipe(
-    mergeMap((ev) => boundEmit(ev, request)),
+    mergeMap((ev) => boundEmit<T, R>(ev, request)),
     retryWhen(genericRetryStrategy(retry))
   );
 
