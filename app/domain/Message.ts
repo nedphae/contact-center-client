@@ -41,7 +41,16 @@ export interface MessagesMap {
   [uuid: string]: Message;
 }
 
-export interface Message {
+export interface MessageResponse {
+  // 雪花ID
+  seqId: number | undefined;
+  // 服务器接受时间
+  createdAt: Date | undefined;
+  // 是否 发送到服务器
+  sync: boolean | undefined;
+}
+
+export interface Message extends MessageResponse {
   uuid: string;
   // 会话id 十六进制 long
   conversationId: number;

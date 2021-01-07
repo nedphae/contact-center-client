@@ -1,13 +1,14 @@
 import { AppThunk } from 'app/store';
 import { of } from 'rxjs';
-import { map, filter, tap } from 'rxjs/operators';
+import { map, filter, tap, catchError } from 'rxjs/operators';
 
-import { WebSocketRequest, generateOKResponse } from 'app/domain/WebSocket';
+import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
 import { Message, MessagesMap } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
 import { conver } from 'app/domain/Conver';
 import { getCuntomerByUserId } from 'app/service/infoService';
+import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import slice from './converSlice';
 
 const { newConver, newMessage } = slice.actions;
@@ -24,19 +25,47 @@ export const assignmentConver = (
     const { userId } = conversation;
     const customer = await getCuntomerByUserId(userId);
     dispatch(newConver(conver(conversation, customer)));
-    cb(generateOKResponse(request.header, 'ok'));
+    cb(generateResponse(request.header, 'ok'));
   } else {
-    cb(generateOKResponse(request.header, 'ok', 400));
+    cb(generateResponse(request.header, 'request empty', 400));
   }
 };
 
 export function sendMessage(message: Message): AppThunk {
   return (dispatch) => {
-    const messagesMap = { [message.uuid]: message } as MessagesMap;
-    dispatch(newMessage(messagesMap));
+    // 发送消息到服务器
+    emitMessage(message)
+      .pipe(
+        map((r) => r.body),
+        filter((b) => b !== undefined),
+        map((mr) => {
+          // 设置服务器返回的消息序列号和消息时间
+          message.seqId = mr?.seqId;
+          message.createdAt = mr?.createdAt;
+          message.sync = true;
+          return message;
+        }),
+        catchError(() => {
+          // 如果有错误，设置消息发送失败，显示重发按钮
+          message.sync = false;
+          return of(message);
+        }),
+        map((m) => {
+          return { [m.uuid]: m } as MessagesMap;
+        })
+      )
+      .subscribe((messagesMap) => {
+        // 显示消息
+        dispatch(newMessage(messagesMap));
+      });
   };
 }
 
+/**
+ * 获取设置服务器发送的消息
+ * @param request 消息请求
+ * @param cb 回调
+ */
 export const setNewMessage = (
   request: WebSocketRequest<Message>,
   cb: CallBack<string>
@@ -44,15 +73,9 @@ export const setNewMessage = (
   of(request)
     .pipe(
       map((r) => r.body),
-      filter((b) => {
-        const result = b !== undefined;
-        if (!result) {
-          cb(generateOKResponse(request.header, 'ok', 400));
-        }
-        return result;
-      }),
+      filterUndefinedWithCb(request.header, cb),
       tap(() => {
-        cb(generateOKResponse(request.header, 'ok'));
+        cb(generateResponse(request.header, 'ok'));
       }),
       map((m) => {
         return { [m!.uuid]: m } as MessagesMap;

@@ -20,14 +20,6 @@ export interface WebSocketResponse<T> {
 
 export function generateResponse<T>(
   header: Header,
-  code: number,
-  data: T | undefined
-): WebSocketResponse<T> {
-  return { header, code, body: data };
-}
-
-export function generateOKResponse<T>(
-  header: Header,
   data: T | undefined,
   code = 200
 ): WebSocketResponse<T> {

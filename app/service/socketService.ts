@@ -12,9 +12,11 @@ import {
   WebSocketResponse,
   WebSocketRequest,
   generateRequest,
+  Header,
+  generateResponse,
 } from 'app/domain/WebSocket';
 import { StaffConfig } from 'app/domain/StaffInfo';
-import { Message } from 'app/domain/Message';
+import { Message, MessageResponse } from 'app/domain/Message';
 import withTimeout from 'app/utils/socketUtils';
 import { CallBack } from './websocket/EventInterface';
 
@@ -34,6 +36,18 @@ const socketCallback = <T, R>(
   window.socketRef.emit(e, r, cbWithTimeout);
 };
 
+const filterCode = <T>() =>
+  filter((response: WebSocketResponse<T>) => response.code === 200);
+
+export const filterUndefinedWithCb = (header: Header, cb: CallBack<string>) =>
+  filter((b) => {
+    const result = b !== undefined;
+    if (!result) {
+      cb(generateResponse(header, 'request empty', 400));
+    }
+    return result;
+  });
+
 /**
  * 发送 websocket 事件，超时抛出异常
  * @param event 事件
@@ -44,9 +58,7 @@ export default function fetch<T, R>(
   request: WebSocketRequest<T>
 ): Observable<WebSocketResponse<R>> {
   const boundEmit = bindCallback(socketCallback);
-  return boundEmit<T, R>(event, request).pipe(
-    filter((response) => response.code === 200)
-  );
+  return boundEmit<T, R>(event, request).pipe(filterCode());
 }
 
 /**
@@ -93,16 +105,16 @@ export function fetchWithRetry<T, R>(
     retryWhen(genericRetryStrategy(retry))
   );
 
-  return eventObservable.pipe(filter((response) => response.code === 200));
+  return eventObservable.pipe(filterCode());
 }
 
 /**
  * 发送聊天信息到服务器
  * @param message 聊天信息
  */
-export function sendMessage(
+export function emitMessage(
   message: Message
-): Observable<WebSocketResponse<Message>> {
+): Observable<WebSocketResponse<MessageResponse>> {
   return fetchWithRetry('msg/send', generateRequest(message));
 }
 
