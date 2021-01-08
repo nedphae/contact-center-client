@@ -32,7 +32,8 @@ const converSlice = createSlice({
               filter((f) => f !== undefined && f !== null),
               map((f) => converMap[f!]),
               map((c) => {
-                _.merge(c.massageList, m);
+                // 消息如果存在了就不在设置 change from _.merge
+                _.defaults(c.massageList, m);
               })
             );
           })

@@ -39,9 +39,12 @@ const socketCallback = <T, R>(
 const filterCode = <T>() =>
   filter((response: WebSocketResponse<T>) => response.code === 200);
 
-export const filterUndefinedWithCb = (header: Header, cb: CallBack<string>) =>
-  filter((b) => {
-    const result = b !== undefined;
+export const filterUndefinedWithCb = <T>(
+  header: Header,
+  cb: CallBack<string>
+) =>
+  filter((b: T) => {
+    const result = b !== undefined && b !== null;
     if (!result) {
       cb(generateResponse(header, 'request empty', 400));
     }
@@ -66,7 +69,7 @@ export default function fetch<T, R>(
  * @param maxRetryAttempts 最大尝试次数
  * @param scalingDuration 自增重试间隔
  */
-const genericRetryStrategy = (maxRetryAttempts = 3, scalingDuration = 1000) => <
+const genericRetryStrategy = (maxRetryAttempts = 3, scalingDuration = 5000) => <
   T
 >(
   attempts: Observable<T>
