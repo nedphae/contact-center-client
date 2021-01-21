@@ -4,7 +4,7 @@ import { stringify } from 'querystring';
 export interface StateType {
   status?: 'ok' | 'error';
   type?: string;
-  // 角色
+  /** 角色 */
   currentAuthority?: 'user' | 'guest' | 'admin';
 }
 

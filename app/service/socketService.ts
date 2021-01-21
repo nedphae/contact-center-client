@@ -6,7 +6,7 @@ import {
   TimeoutError,
   timer,
 } from 'rxjs';
-import { filter, mergeMap, retryWhen } from 'rxjs/operators';
+import { filter, mergeMap, retryWhen, delayWhen } from 'rxjs/operators';
 
 import {
   WebSocketResponse,
@@ -76,7 +76,7 @@ const genericRetryStrategy = (maxRetryAttempts = 3, scalingDuration = 5000) => <
 ) => {
   return attempts.pipe(
     // 这里 mergeMap 效果和 delayWhen 一样
-    mergeMap((error, i) => {
+    delayWhen((error, i) => {
       const retryAttempt = i + 1;
       // 如果是超时错误且没有达到最大重试次数
       if (retryAttempt < maxRetryAttempts && error instanceof TimeoutError) {

@@ -2,11 +2,11 @@ import { Conversation } from 'app/domain/Conversation';
 import { Customer } from 'app/domain/Customer';
 import { MessagesMap } from 'app/domain/Message';
 
-// 同事会话监控模块
+/** 同事会话监控模块 */
 interface Group {
-  // 分组名称
+  /** 分组名称 */
   name: string;
-  // member
+  /** member */
   member: GroupMember[];
 }
 
@@ -16,24 +16,22 @@ interface GroupMember {
   realName: string;
 }
 
-// 客户ID 对应
+/** 客户ID 对应 */
 export interface Conver {
   conversation: Conversation;
   user: Customer;
-  // 未读消息
+  /** 未读消息 */
   unread: number;
-  // 会话的聊天消息
+  /** 会话的聊天消息 */
   massageList: MessagesMap | undefined;
   lastMessageTime: Date | undefined;
   lastMessage: string | undefined;
   hide: boolean;
-  // 会话标识
+  /** 会话标识 */
   color: 'new' | 'waitting' | 'replied';
-  // 客户在线状态
-  onlineStatue: 'online' | 'offline' | 'leave';
-  // 是否置顶
+  /** 是否置顶 */
   sticky: boolean;
-  // 客服打的标签
+  /** 客服打的标签 */
   tag: 'important' | '' | undefined;
 }
 
@@ -47,7 +45,6 @@ export function conver(conversation: Conversation, user: Customer): Conver {
     lastMessage: undefined,
     hide: false,
     color: 'new',
-    onlineStatue: 'online',
     sticky: false,
     tag: undefined,
   };

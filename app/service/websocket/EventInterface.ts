@@ -8,7 +8,7 @@ export default interface EventInterface {
 
   readonly dispatch: Dispatch<any>;
 
-  // 注册ws事件侦听
+  /** 注册ws事件侦听 */
   init(): void;
 }
 

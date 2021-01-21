@@ -1,29 +1,32 @@
-/**
- * 客户信息
- */
+import { FromType } from './constant/Conversation';
+import { OnlineStatus } from './constant/Staff';
+
+/** 客户信息 */
 export interface Customer {
-  // 客户关联的会话id
+  /** 客户关联的会话id */
   conversationId: number | undefined;
-  // 客户 id 服务器自动设置
+  /** 客户 id 服务器自动设置 */
   userId: number;
-  // 用户在企业产品中的标识
+  /** 用户在企业产品中的标识 */
   uid: string;
-  // 咨询入口
+  /** 咨询入口 */
   shuntId: number;
-  // 用户姓名
+  /** 用户姓名 */
   name: string | undefined;
-  // 用户邮箱
+  /** 用户邮箱 */
   email: string | undefined;
-  // 用户手机号
+  /** 用户手机号 */
   mobile: string | undefined;
-  // vip等级 1-10
+  /** vip等级 1-10 */
   vipLevel: number | undefined;
   title: string | undefined;
   referrer: string | undefined;
-  // 来源类型
-  fromType: 'WEB' | 'IOS' | 'ANDROID' | 'WX' | 'WX_MA' | 'WB' | 'OPEN';
+  /** 来源类型 */
+  fromType: FromType;
   ip: string | undefined;
-  // 企业当前登录用户其他信息，JSON字符串
+  /** 客户在线状态 */
+  onlineStatue: OnlineStatus;
+  /** 企业当前登录用户其他信息，JSON字符串 */
   data: DetailData[] | undefined;
 }
 export interface DetailData {
@@ -34,9 +37,9 @@ export interface DetailData {
    * 保留关键字对应的数据项中，index、label属性将无效
    */
   key: string;
-  // 该数据显示的值，类型不做限定
+  /** 该数据显示的值，类型不做限定 */
   value: string;
-  // 该项数据显示的名称
+  /** 该项数据显示的名称 */
   label: string;
   /**
    * 用于排序，显示数据时数据项按index值升序排列；
@@ -56,10 +59,8 @@ export interface DetailData {
    */
   hidden: boolean;
 }
-/**
- * 客户备注(客服临时备注)
- */
+/** 客户备注(客服临时备注) */
 export interface CustomerRemark {
   userId: number;
-  // vip
+  /** vip */
 }
