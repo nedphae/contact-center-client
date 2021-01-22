@@ -97,3 +97,9 @@ export enum SolveStatus {
   /** 解决中 */
   SOLVING,
 }
+
+export enum ColorLogo {
+  NEW,
+  WAITTING,
+  REPLIED,
+}

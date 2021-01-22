@@ -29,7 +29,7 @@ export default function Sidebar(props: { rtlActive?: any; open?: any; handleDraw
   var links = (
     <List className={classes.list}>
       {/* TODO: 过滤权限 */ }
-      {routes.filter().map((prop: { path: string; layout: any; icon: any | null | undefined; rtlName: React.ReactNode; name: React.ReactNode; }, key: string | number | undefined) => {
+      {routes.filter(() => true).map((prop: { path: string; layout: any; icon: any | null | undefined; rtlName: React.ReactNode; name: React.ReactNode; }, key: string | number | undefined) => {
         var activePro = " ";
         var listItemClasses;
         if (prop.path === "/upgrade-to-pro") {

@@ -1,7 +1,23 @@
 /**
- * 聊天消息不做本地存储，全部走服务器
- * 同步消息 redis，持久化消息 es
+ * Chat messages are not stored locally, all get from the server
+ * Sync messages by redis, Persistence by ElasticSearch
  */
+export interface Message extends MessageResponse {
+  uuid: string;
+  /** Snowflake long */
+  conversationId: number;
+  /** message from, setting by server */
+  from: number | undefined;
+  /** message send to */
+  to: number | undefined;
+  /** Receiver type */
+  type: number;
+  /** Creator type */
+  creatorType: number;
+  content: Content;
+  nickName: string;
+}
+
 interface TextContent {
   text: string;
 }
@@ -50,20 +66,3 @@ export interface MessageResponse {
   sync: boolean | undefined;
 }
 
-export interface Message extends MessageResponse {
-  uuid: string;
-  /** 会话id 十六进制 long */
-  conversationId: number;
-  /** 消息来源 (服务器设置) */
-  from: number | undefined;
-  /** 消息送至 */
-  to: number | undefined;
-  /** 消息类型 接收者类型 */
-  type: number;
-  /** 创建者类型 */
-  creatorType: number;
-  /** 内容 */
-  content: Content;
-  /** 昵称 */
-  nickName: string;
-}

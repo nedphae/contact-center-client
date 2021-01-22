@@ -1,6 +1,7 @@
 import { Conversation } from 'app/domain/Conversation';
 import { Customer } from 'app/domain/Customer';
 import { MessagesMap } from 'app/domain/Message';
+import { ColorLogo } from './constant/Conversation';
 
 /** 同事会话监控模块 */
 interface Group {
@@ -28,7 +29,7 @@ export interface Conver {
   lastMessage: string | undefined;
   hide: boolean;
   /** 会话标识 */
-  color: 'new' | 'waitting' | 'replied';
+  colorLogo: ColorLogo;
   /** 是否置顶 */
   sticky: boolean;
   /** 客服打的标签 */
@@ -44,7 +45,7 @@ export function conver(conversation: Conversation, user: Customer): Conver {
     lastMessageTime: undefined,
     lastMessage: undefined,
     hide: false,
-    color: 'new',
+    colorLogo: ColorLogo.NEW,
     sticky: false,
     tag: undefined,
   };

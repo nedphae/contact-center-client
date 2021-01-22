@@ -17,24 +17,8 @@ import {
 } from 'app/domain/WebSocket';
 import { StaffConfig } from 'app/domain/StaffInfo';
 import { Message, MessageResponse } from 'app/domain/Message';
-import withTimeout from 'app/utils/socketUtils';
+import { socketCallback } from 'app/utils/socketUtils';
 import { CallBack } from './websocket/EventInterface';
-
-const socketCallback = <T, R>(
-  e: string,
-  r: WebSocketRequest<T>,
-  cb: CallBack<R>
-) => {
-  const cbWithTimeout = withTimeout(
-    cb,
-    () => {
-      throw new TimeoutError();
-    },
-    // 5秒超时
-    5000
-  );
-  window.socketRef.emit(e, r, cbWithTimeout);
-};
 
 const filterCode = <T>() =>
   filter((response: WebSocketResponse<T>) => response.code === 200);
@@ -121,6 +105,10 @@ export function emitMessage(
   return fetchWithRetry('msg/send', generateRequest(message));
 }
 
+/**
+ * 注册客服
+ * @param staffConfig staff config data
+ */
 export function register<T>(
   staffConfig: StaffConfig
 ): Observable<WebSocketResponse<T>> {
