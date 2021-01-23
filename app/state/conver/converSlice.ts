@@ -32,6 +32,8 @@ const converSlice = createSlice({
               filter((f) => f !== undefined && f !== null),
               map((f) => converMap[f!]),
               map((c) => {
+                c.lastMessageTime = _.valuesIn(m)[0].createdAt!;
+                [c.lastMessage] = _.valuesIn(m);
                 // 消息如果存在了就不在设置 change from _.merge
                 _.defaults(c.massageList, m);
               })

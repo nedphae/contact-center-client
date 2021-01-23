@@ -65,4 +65,3 @@ export interface MessageResponse {
   /** 是否 发送到服务器 */
   sync: boolean | undefined;
 }
-

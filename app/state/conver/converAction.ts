@@ -1,18 +1,43 @@
-import { AppThunk } from 'app/store';
+import { AppThunk, RootState } from 'app/store';
 import { of } from 'rxjs';
 import { map, filter, tap, catchError } from 'rxjs/operators';
+import _ from 'lodash';
 
 import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
 import { Message, MessagesMap } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
-import { conver } from 'app/domain/Conver';
+import { getConver } from 'app/domain/Conver';
 import { getCuntomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
+import { createSelector } from '@reduxjs/toolkit';
 import slice from './converSlice';
 
 const { newConver, newMessage } = slice.actions;
 export const { stickyCustomer } = slice.actions;
+
+/**
+ * 根据条件获取会话列表，并按照最后消息和置顶排序
+ * @param hide 是否是关闭的会话
+ */
+export const getLinkman = (hide = false) =>
+  createSelector(
+    (state: RootState) => state.conver,
+    (conver) =>
+      _.values(conver)
+        .filter((it) => it.hide === hide)
+        // 按时间降序
+        .sort(
+          (a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
+        )
+        // 按置顶排序
+        .sort((a, b) => {
+          let result = 0;
+          if (a.sticky) result -= 1;
+          if (b.sticky) result += 1;
+          return result;
+        })
+  );
 
 // 分配会话
 export const assignmentConver = (
@@ -24,7 +49,7 @@ export const assignmentConver = (
     // 根据分配的 conversation 获取 user
     const { userId } = conversation;
     const customer = await getCuntomerByUserId(userId);
-    dispatch(newConver(conver(conversation, customer)));
+    dispatch(newConver(getConver(conversation, customer)));
     cb(generateResponse(request.header, 'ok'));
   } else {
     cb(generateResponse(request.header, 'request empty', 400));

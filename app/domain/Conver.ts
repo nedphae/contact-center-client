@@ -1,6 +1,6 @@
 import { Conversation } from 'app/domain/Conversation';
 import { Customer } from 'app/domain/Customer';
-import { MessagesMap } from 'app/domain/Message';
+import { Message, MessagesMap } from 'app/domain/Message';
 import { ColorLogo } from './constant/Conversation';
 
 /** 同事会话监控模块 */
@@ -25,8 +25,8 @@ export interface Conver {
   unread: number;
   /** 会话的聊天消息 */
   massageList: MessagesMap | undefined;
-  lastMessageTime: Date | undefined;
-  lastMessage: string | undefined;
+  lastMessageTime: Date;
+  lastMessage: Message | undefined;
   hide: boolean;
   /** 会话标识 */
   colorLogo: ColorLogo;
@@ -36,13 +36,13 @@ export interface Conver {
   tag: 'important' | '' | undefined;
 }
 
-export function conver(conversation: Conversation, user: Customer): Conver {
+export function getConver(conversation: Conversation, user: Customer): Conver {
   return {
     conversation,
     user,
     unread: 0,
     massageList: undefined,
-    lastMessageTime: undefined,
+    lastMessageTime: new Date(),
     lastMessage: undefined,
     hide: false,
     colorLogo: ColorLogo.NEW,

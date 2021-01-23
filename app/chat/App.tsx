@@ -152,7 +152,7 @@ function App() {
     <div className={Style.app} style={style} ref={$app}>
       <div className={Style.blur} style={blurStyle} />
       <div className={Style.child} style={childStyle}>
-        <ShowUserOrGroupInfoContext.Provider value={contextValue as any}>
+        <ShowUserOrGroupInfoContext.Provider value={contextValue}>
           {/* <Sidebar /> 不需要 sidebar 设置 */}
           <FunctionBarAndLinkmanList />
           <Chat />

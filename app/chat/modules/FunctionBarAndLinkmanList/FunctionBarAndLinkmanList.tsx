@@ -19,7 +19,7 @@ import Style from './FunctionBarAndLinkmanList.less';
 import { RootState } from '../../../store';
 import useAero from '../../hooks/useAero';
 
-function a11yProps(index: any) {
+function a11yProps(index: number) {
   return {
     id: `scrollable-force-tab-${index}`,
     'aria-controls': `scrollable-force-tabpanel-${index}`,
@@ -27,7 +27,7 @@ function a11yProps(index: any) {
 }
 
 interface TabPanelProps {
-  children?: React.ReactNode;
+  children: React.ReactNode | undefined;
   index: any;
   value: any;
 }
@@ -75,7 +75,10 @@ function FunctionBarAndLinkmanList() {
     }
   }
 
-  const handleChange = (event: React.ChangeEvent, newValue: number) => {
+  const handleChange = (
+    event: React.ChangeEvent<unknown>,
+    newValue: number
+  ) => {
     setValue(newValue);
     event.preventDefault();
   };
@@ -84,7 +87,9 @@ function FunctionBarAndLinkmanList() {
     <div
       className={Style.functionBarAndLinkmanList}
       onClick={handleClick}
+      onKeyDown={handleClick}
       role="button"
+      tabIndex={0}
     >
       <div className={Style.container} {...aero}>
         {isLogin && <FunctionBar />}
@@ -116,7 +121,7 @@ function FunctionBarAndLinkmanList() {
           />
         </Tabs>
         <TabPanel value={value} index={0}>
-          <LinkmanList />
+          <LinkmanList history={false} />
         </TabPanel>
         <TabPanel value={value} index={1}>
           <LinkmanList history />
