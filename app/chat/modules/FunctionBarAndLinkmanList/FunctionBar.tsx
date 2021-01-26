@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 
 import IconButton from '../../components/IconButton';
-import Avatar from '../../components/Avatar';
+import MyAvatar from '../../components/MyAvatar';
 import {
   Tabs,
   TabPane,
@@ -93,7 +93,7 @@ function FunctionBar() {
           onClick={() => handleClick(users[i] as never)}
           role="button"
         >
-          <Avatar size={40} src={users[i].avatar} />
+          <MyAvatar size={40} src={users[i].avatar} />
           <p>{users[i].username}</p>
         </div>
       );
@@ -118,7 +118,7 @@ function FunctionBar() {
           onClick={() => handleClick(groups[i] as never)}
           role="button"
         >
-          <Avatar size={40} src={groups[i].avatar} />
+          <MyAvatar size={40} src={groups[i].avatar} />
           <div>
             <p>{groups[i].name}</p>
             <p>{groups[i].members}人</p>

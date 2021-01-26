@@ -1,17 +1,19 @@
 export enum MessageType {
   /** 系统消息 */
-  SYS,
+  SYS = '系统',
   /** 文本消息 */
-  TEXT,
+  TEXT = '文本',
   /** 图片消息 */
-  IMAGE,
+  IMAGE = '图片表情',
   /** 语音消息 */
-  VOICE,
+  VOICE = '语音',
   /** 文件消息 */
-  FILE,
+  FILE = '文件',
   /** 链接消息 */
-  LINK,
+  LINK = '链接',
 }
+
+export type MessageTypeKey = keyof typeof MessageType;
 
 /**
  * 参考钉钉设计的创建者类型

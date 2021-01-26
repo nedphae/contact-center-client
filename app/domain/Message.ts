@@ -1,3 +1,5 @@
+import { MessageTypeKey } from './constant/Message';
+
 /**
  * Chat messages are not stored locally, all get from the server
  * Sync messages by redis, Persistence by ElasticSearch
@@ -44,7 +46,7 @@ interface Attachments {
 }
 
 interface Content {
-  contentType: number;
+  contentType: MessageTypeKey;
   /** 文字 */
   textContent: TextContent | undefined;
   /** 图片 */

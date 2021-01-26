@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import Avatar from '../../components/Avatar';
+import { FromType } from 'app/domain/constant/Conversation';
+import MyAvatar from '../../components/MyAvatar';
 import Time from '../../../utils/time';
 import { RootState } from '../../../store';
 import useAction from '../../hooks/useAction';
@@ -11,9 +12,9 @@ import Style from './Linkman.less';
 import useAero from '../../hooks/useAero';
 
 interface LinkmanProps {
-  id: string;
+  id: number;
   name: string;
-  avatar: string;
+  fromType: FromType;
   /** 消息预览 */
   preview: string;
   unread: number;
@@ -21,7 +22,7 @@ interface LinkmanProps {
 }
 
 function Linkman(props: LinkmanProps) {
-  const { id, name, avatar, preview, unread, time } = props;
+  const { id, name, fromType, preview, unread, time } = props;
 
   const action = useAction();
   const focus = useSelector((state: RootState) => state.chat.focus);
@@ -52,7 +53,7 @@ function Linkman(props: LinkmanProps) {
       role="button"
       {...aero}
     >
-      <Avatar src={avatar} size={48} />
+      <MyAvatar fromType={fromType} />
       <div className={Style.container}>
         <div className={`${Style.rowContainer} ${Style.nameTimeBlock}`}>
           <p className={Style.name}>{name}</p>

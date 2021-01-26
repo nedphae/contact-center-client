@@ -1,8 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import { getLinkman } from 'app/state/conver/converAction';
-import { Linkman } from '../../state/reducer';
+import { getSession } from 'app/state/session/sessionAction';
+import { Session } from 'app/domain/Session';
+import { MessageType } from 'app/domain/constant/Message';
 import LinkmanComponent from './Linkman';
 
 import Style from './LinkmanList.less';
@@ -13,39 +14,35 @@ interface LinkmanListProps {
 
 function LinkmanList(props: LinkmanListProps) {
   const { history } = props;
-  const linkmans = useSelector(getLinkman(history));
+  const sessions = useSelector(getSession(history));
 
-  function renderLinkman(linkman: Linkman) {
-    const messages = Object.values(linkman.messages);
-    const lastMessage =
-      messages.length > 0 ? messages[messages.length - 1] : null;
+  function renderLinkman(session: Session) {
+    const { conversation, user, lastMessage } = session;
 
-    let time = new Date(linkman.createTime);
     let preview = '暂无消息';
     if (lastMessage) {
-      time = new Date(lastMessage.createTime);
-      const { type } = lastMessage;
-      preview = type === 'text' ? `${lastMessage.content}` : `[${type}]`;
-      if (linkman.type === 'group') {
-        preview = `${lastMessage.from.username}: ${preview}`;
-      }
+      const contentType = MessageType[lastMessage.content.contentType];
+      preview =
+        contentType === MessageType.TEXT
+          ? `${lastMessage.content.textContent?.text}`
+          : `[${contentType}]`;
     }
     return (
       <LinkmanComponent
-        key={linkman._id}
-        id={linkman._id}
-        name={linkman.name}
-        avatar={linkman.avatar}
+        key={conversation.id}
+        id={conversation.id}
+        name={user.name ?? user.uid}
+        fromType={conversation.fromType}
         preview={preview}
-        time={time}
-        unread={linkman.unread}
+        time={session.lastMessageTime}
+        unread={session.unread}
       />
     );
   }
 
   return (
     <div className={Style.linkmanList}>
-      {linkmans.map((linkman) => renderLinkman(linkman))}
+      {sessions.map((session) => renderLinkman(session))}
     </div>
   );
 }

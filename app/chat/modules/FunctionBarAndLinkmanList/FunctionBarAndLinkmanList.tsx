@@ -104,19 +104,19 @@ function FunctionBarAndLinkmanList() {
           <Tab
             style={style}
             icon={<ChatIcon />}
-            aria-label="phone"
+            aria-label="chat"
             {...a11yProps(0)}
           />
           <Tab
             style={style}
             icon={<HistoryIcon />}
-            aria-label="favorite"
+            aria-label="history"
             {...a11yProps(1)}
           />
           <Tab
             style={style}
             icon={<PeopleAltIcon />}
-            aria-label="person"
+            aria-label="colleague"
             {...a11yProps(2)}
           />
         </Tabs>
@@ -127,7 +127,7 @@ function FunctionBarAndLinkmanList() {
           <LinkmanList history />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <Authorized authority={['admin']} noMatch="非 Admin权限">
+          <Authorized authority={['ROLE_ADMIN']} noMatch="非 Admin权限">
             {/* 添加权限的Dom */}
             Admin 时权限展示
           </Authorized>
