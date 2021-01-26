@@ -6,7 +6,7 @@ import { configStaff } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { Message } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
-import { assignmentConver, setNewMessage } from 'app/state/conver/converAction';
+import { assignmentConver, setNewMessage } from 'app/state/session/sessionAction';
 import EventInterface, { CallBack } from './EventInterface';
 
 class SocketHandler implements EventInterface {

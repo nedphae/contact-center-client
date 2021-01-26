@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 import { History } from 'history';
 import { reducer as userReduce } from 'app/state/staff/staffSlice';
-import { reducer as converReduce } from 'app/state/conver/converSlice';
+import { reducer as sessionReduce } from 'app/state/session/sessionSlice';
 import chatReducer from './chat/state/reducer';
 
 export default function createRootReducer(history: History) {
@@ -10,6 +10,6 @@ export default function createRootReducer(history: History) {
     router: connectRouter(history),
     chat: chatReducer,
     user: userReduce,
-    conver: converReduce,
+    session: sessionReduce,
   });
 }

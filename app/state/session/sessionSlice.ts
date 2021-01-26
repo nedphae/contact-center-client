@@ -3,10 +3,10 @@ import { of } from 'rxjs';
 import { map, switchMap, filter } from 'rxjs/operators';
 import _ from 'lodash';
 
-import { ConverMap, Conver } from 'app/domain/Conver';
+import { SessionMap, Session } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 
-const initConver = {} as ConverMap;
+const initConver = {} as SessionMap;
 
 const converSlice = createSlice({
   name: 'conversation',
@@ -14,7 +14,7 @@ const converSlice = createSlice({
   // createReducer 接收一个代理状态，该状态将所有突变转换为等效的复制操作。
   reducers: {
     // 设置新会话
-    newConver: (converMap, action: PayloadAction<Conver>) => {
+    newConver: (converMap, action: PayloadAction<Session>) => {
       converMap[action.payload.conversation.userId] = action.payload;
     },
     stickyCustomer: (converMap, action: PayloadAction<number>) => {
@@ -32,7 +32,8 @@ const converSlice = createSlice({
               filter((f) => f !== undefined && f !== null),
               map((f) => converMap[f!]),
               map((c) => {
-                c.lastMessageTime = _.valuesIn(m)[0].createdAt!;
+                c.lastMessageTime =
+                  _.valuesIn(m)[0].createdAt ?? c.lastMessageTime;
                 [c.lastMessage] = _.valuesIn(m);
                 // 消息如果存在了就不在设置 change from _.merge
                 _.defaults(c.massageList, m);

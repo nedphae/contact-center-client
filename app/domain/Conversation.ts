@@ -13,11 +13,13 @@ import { CreatorType } from './constant/Message';
 export interface Conversation {
   id: number;
   organizationId: number;
+  /** 接待组id */
   fromShuntId: number;
   fromGroupId: number;
   fromIp: string;
   fromPage: string;
   fromTitle: string;
+  /** 来源类型 */
   fromType: FromType;
   inQueueTime: number;
   interaction: number;

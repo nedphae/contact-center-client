@@ -6,7 +6,7 @@ import useIsLogin from '../../hooks/useIsLogin';
 import useAction from '../../hooks/useAction';
 import Dropdown from '../../components/Dropdown';
 import IconButton from '../../components/IconButton';
-import Avatar from '../../components/Avatar';
+import MyAvatar from '../../components/MyAvatar';
 import Message from '../../components/Message';
 import { Menu, MenuItem } from '../../components/Menu';
 import { RootState } from '../../../store';
@@ -552,7 +552,7 @@ function ChatInput() {
                 onClick={() => replaceAt(member.user.username)}
                 role="button"
               >
-                <Avatar size={24} src={member.user.avatar} />
+                <MyAvatar size={24} src={member.user.avatar} />
                 <p className={Style.atText}>{member.user.username}</p>
               </div>
             ))}

@@ -15,3 +15,5 @@ export enum StaffRole {
   /** 质检 */
   QA,
 }
+
+export type StaffRoleKey = keyof typeof StaffRole;

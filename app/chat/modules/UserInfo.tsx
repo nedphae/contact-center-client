@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 
 import Style from './InfoDialog.less';
 import Dialog from '../components/Dialog';
-import Avatar from '../components/Avatar';
+import MyAvatar from '../components/MyAvatar';
 import Button from '../components/Button';
 import Message from '../components/Message';
 import { Linkman } from '../state/reducer';
@@ -137,7 +137,7 @@ function UserInfo(props: UserInfoProps) {
         {visible && user ? (
           <div className={Style.coantainer}>
             <div className={Style.header}>
-              <Avatar
+              <MyAvatar
                 size={60}
                 src={user.avatar}
                 onMouseEnter={() => toggleLargetAvatar(true)}

@@ -18,7 +18,7 @@ interface GroupMember {
 }
 
 /** 客户ID 对应 */
-export interface Conver {
+export interface Session {
   conversation: Conversation;
   user: Customer;
   /** 未读消息 */
@@ -36,7 +36,10 @@ export interface Conver {
   tag: 'important' | '' | undefined;
 }
 
-export function getConver(conversation: Conversation, user: Customer): Conver {
+export function createSession(
+  conversation: Conversation,
+  user: Customer
+): Session {
   return {
     conversation,
     user,
@@ -51,6 +54,6 @@ export function getConver(conversation: Conversation, user: Customer): Conver {
   };
 }
 
-export interface ConverMap {
-  [userId: number]: Conver;
+export interface SessionMap {
+  [userId: number]: Session;
 }

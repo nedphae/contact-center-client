@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import Dialog from '../components/Dialog';
-import Avatar from '../components/Avatar';
+import MyAvatar from '../components/MyAvatar';
 import Button from '../components/Button';
 import { RootState } from '../../store';
 import useAction from '../hooks/useAction';
@@ -57,7 +57,7 @@ function GroupInfo(props: GroupInfoProps) {
     <Dialog className={Style.infoDialog} visible={visible} onClose={onClose}>
       <div className={Style.coantainer}>
         <div className={Style.header}>
-          <Avatar
+          <MyAvatar
             size={60}
             src={group.avatar}
             onMouseEnter={() => toggleLargetAvatar(true)}

@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import socket from '../../socket';
 import { RootState } from '../../../store';
 import useIsLogin from '../../hooks/useIsLogin';
-import Avatar from '../../components/Avatar';
+import MyAvatar from '../../components/MyAvatar';
 import Tooltip from '../../components/Tooltip';
 import IconButton from '../../components/IconButton';
 import OnlineStatus from './OnlineStatus';
@@ -100,7 +100,7 @@ function Sidebar() {
     <>
       <div className={Style.sidebar} {...aero}>
         {isLogin && (
-          <Avatar
+          <MyAvatar
             className={Style.avatar}
             src={avatar!}
             onClick={() => toggleSelfInfoDialogVisible(true)}

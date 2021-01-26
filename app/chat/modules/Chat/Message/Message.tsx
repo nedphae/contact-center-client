@@ -3,7 +3,7 @@ import pureRender from 'pure-render-decorator';
 import { connect } from 'react-redux';
 
 import Style from './Message.less';
-import Avatar from '../../../components/Avatar';
+import MyAvatar from '../../../components/MyAvatar';
 import Time from '../../../../utils/time';
 import TextMessage from './TextMessage';
 import { ShowUserOrGroupInfoContext } from '../../../context';
@@ -175,7 +175,7 @@ class Message extends Component<MessageProps, MessageState> {
       >
         <ShowUserOrGroupInfoContext.Consumer>
           {(context) => (
-            <Avatar
+            <MyAvatar
               className={Style.avatar}
               src={avatar}
               size={44}

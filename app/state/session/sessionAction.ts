@@ -7,11 +7,11 @@ import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
 import { Message, MessagesMap } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
-import { getConver } from 'app/domain/Conver';
+import { createSession } from 'app/domain/Session';
 import { getCuntomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { createSelector } from '@reduxjs/toolkit';
-import slice from './converSlice';
+import slice from './sessionSlice';
 
 const { newConver, newMessage } = slice.actions;
 export const { stickyCustomer } = slice.actions;
@@ -20,9 +20,9 @@ export const { stickyCustomer } = slice.actions;
  * 根据条件获取会话列表，并按照最后消息和置顶排序
  * @param hide 是否是关闭的会话
  */
-export const getLinkman = (hide = false) =>
+export const getSession = (hide = false) =>
   createSelector(
-    (state: RootState) => state.conver,
+    (state: RootState) => state.session,
     (conver) =>
       _.values(conver)
         .filter((it) => it.hide === hide)
@@ -49,7 +49,7 @@ export const assignmentConver = (
     // 根据分配的 conversation 获取 user
     const { userId } = conversation;
     const customer = await getCuntomerByUserId(userId);
-    dispatch(newConver(getConver(conversation, customer)));
+    dispatch(newConver(createSession(conversation, customer)));
     cb(generateResponse(request.header, 'ok'));
   } else {
     cb(generateResponse(request.header, 'request empty', 400));
