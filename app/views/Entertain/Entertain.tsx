@@ -20,7 +20,6 @@ if (window.location.protocol === 'https:' && navigator.serviceWorker) {
 
 // 如果配置了前端监控, 动态加载并启动监控
 if (config.frontendMonitorAppId) {
-  // @ts-ignore
   import(/* webpackChunkName: "frontend-monitor" */ 'wpk-reporter').then(
     (module) => {
       const WpkReporter = module.default;

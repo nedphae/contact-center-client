@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { FormEvent, useRef, useState } from 'react';
 
 import IconButton from './IconButton';
 import Style from './Input.less';
@@ -24,8 +24,8 @@ function Input(props: InputProps) {
     onFocus = () => {},
   } = props;
 
-  function handleInput(e: { target: { value: string } }) {
-    onChange(e.target.value);
+  function handleInput(e: FormEvent<HTMLInputElement>) {
+    onChange(e.currentTarget.value);
   }
 
   const [lockEnter, setLockEnter] = useState(false);
@@ -57,7 +57,7 @@ function Input(props: InputProps) {
         type={type}
         value={value}
         onChange={handleInput}
-        onInput={handleInput as any}
+        onInput={handleInput}
         placeholder={placeholder}
         ref={$input}
         onKeyDown={handleKeyDown}

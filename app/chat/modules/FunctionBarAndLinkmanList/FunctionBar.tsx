@@ -77,7 +77,7 @@ function FunctionBar() {
   }
 
   function renderSearchUsers(count = 999) {
-    const { users } = searchResult as any;
+    const { users } = searchResult;
     count = Math.min(count, users.length);
 
     function handleClick(targetUser: never) {
@@ -102,7 +102,7 @@ function FunctionBar() {
   }
 
   function renderSearchGroups(count = 999) {
-    const { groups } = searchResult as any;
+    const { groups } = searchResult;
     count = Math.min(count, groups.length);
 
     function handleClick(targetGroup: never) {

@@ -32,7 +32,7 @@ export default async function readDiskFIle(
         // onfocus事件会比$input.onchange事件先触发, 因此需要延迟一段时间
         setTimeout(() => {
           if ($input.value.length === 0) {
-            resolve(null as any);
+            resolve(null);
           }
           document.body.onfocus = null;
         }, 500);

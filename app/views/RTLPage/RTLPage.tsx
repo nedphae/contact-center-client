@@ -149,7 +149,7 @@ export default function RTLPage() {
                 className="ct-chart"
                 data={dailySalesChart.data}
                 type="Line"
-                options={dailySalesChart.options as any}
+                options={dailySalesChart.options}
                 listener={dailySalesChart.animation}
               />
             </CardHeader>
@@ -176,7 +176,7 @@ export default function RTLPage() {
                 className="ct-chart"
                 data={emailsSubscriptionChart.data}
                 type="Bar"
-                options={emailsSubscriptionChart.options as any}
+                options={emailsSubscriptionChart.options}
                 responsiveOptions={emailsSubscriptionChart.responsiveOptions}
                 listener={emailsSubscriptionChart.animation}
               />
@@ -199,7 +199,7 @@ export default function RTLPage() {
                 className="ct-chart"
                 data={completedTasksChart.data}
                 type="Line"
-                options={completedTasksChart.options as any}
+                options={completedTasksChart.options}
                 listener={completedTasksChart.animation}
               />
             </CardHeader>

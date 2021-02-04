@@ -7,7 +7,7 @@ import counterReducer, {
 describe('reducers', () => {
   describe('counter', () => {
     it('should handle initial state', () => {
-      expect(counterReducer(undefined, {} as AnyAction)).toMatchSnapshot();
+      expect(counterReducer(undefined, {})).toMatchSnapshot();
     });
 
     it('should handle INCREMENT_COUNTER', () => {

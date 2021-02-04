@@ -142,7 +142,7 @@ function SelfInfo(props: SelfInfoProps) {
       className={Style.selfInfo}
       visible={visible}
       title="个人信息设置"
-      onClose={handleCloseDialog as any}
+      onClose={handleCloseDialog}
     >
       <div className={Common.container}>
         <div className={Common.block}>
@@ -152,7 +152,7 @@ function SelfInfo(props: SelfInfoProps) {
               <div className={Style.cropper}>
                 <Cropper
                   className={loading ? 'blur' : ''}
-                  ref={$cropper as any}
+                  ref={$cropper}
                   src={cropper.src}
                   style={{ width: 460, height: 460 }}
                   aspectRatio={1}

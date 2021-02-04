@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, UIEvent } from 'react';
 import { useSelector } from 'react-redux';
 
 import { RootState } from '../../../store';
@@ -38,9 +38,7 @@ function MessageList() {
   }>(null);
 
   let isFetching = false;
-  async function handleScroll(e: {
-    target: { scrollHeight: number; clientHeight: number; scrollTop: number };
-  }) {
+  async function handleScroll(e: any) {
     // Don't know why the code-view dialog will also trigger when scrolling
     if ($list.current && e.target !== $list.current) {
       return;
@@ -112,7 +110,7 @@ function MessageList() {
   return (
     <div
       className={`${Style.messageList} show-scrollbar`}
-      onScroll={handleScroll as any}
+      onScroll={handleScroll}
       ref={$list as any}
     >
       {Object.values(messages).map((message) => renderMessage(message))}

@@ -233,7 +233,7 @@ function transformTemporary(temporary: Linkman): Linkman {
 
 const localStorage = getData();
 const initialState: State = {
-  user: null as any,
+  user: null,
   linkmans: {},
   focus: '',
   connect: false,
@@ -301,8 +301,8 @@ function reducer(state: State = initialState, action: Action): State {
       } = action.payload as SetUserPayload;
       // @ts-ignore
       const linkmans: Linkman[] = [
-        ...groups.map(transformGroup as any),
-        ...friends.map(transformFriend as any),
+        ...groups.map(transformGroup),
+        ...friends.map(transformFriend),
       ];
       linkmans.forEach((linkman) => {
         let existMessages = {};

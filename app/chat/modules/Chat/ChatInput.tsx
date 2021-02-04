@@ -68,7 +68,6 @@ function ChatInput() {
   useEffect(() => {
     (async () => {
       if (expressionDialog && !Expression) {
-        // @ts-ignore
         const ExpressionModule = await import(
           /* webpackChunkName: "expression" */ './Expression'
         );
@@ -76,7 +75,6 @@ function ChatInput() {
         setTimestamp(Date.now());
       }
       if (codeEditorDialog && !CodeEditor) {
-        // @ts-ignore
         const CodeEditorModule = await import(
           /* webpackChunkName: "code-editor" */ './CodeEditor'
         );
@@ -151,7 +149,6 @@ function ChatInput() {
       loading: true,
       percent: type === 'image' ? 0 : 100,
     };
-    // @ts-ignore
     action.addLinkmanMessage(focus, message);
 
     if (selfVoiceSwitch && type === 'text') {
@@ -200,8 +197,7 @@ function ChatInput() {
       Message.warning('要发送的图片过大', 3);
       return;
     }
-
-    const ext = (image as any).type.split('/').pop().toLowerCase();
+    const ext = image.type.split('/').pop()?.toLowerCase();
     const url = URL.createObjectURL(image.result);
 
     const img = new Image();
@@ -480,7 +476,7 @@ function ChatInput() {
           trigger={['click']}
           overlay={
             <div className={Style.featureDropdown}>
-              <Menu onClick={handleFeatureMenuClick as any}>
+              <Menu onClick={handleFeatureMenuClick}>
                 <MenuItem key="huaji">发送滑稽</MenuItem>
                 <MenuItem key="image">发送图片</MenuItem>
                 <MenuItem key="code">发送代码</MenuItem>
@@ -511,7 +507,7 @@ function ChatInput() {
             maxLength={2048}
             ref={$input}
             onKeyDown={handleInputKeyDown}
-            onPaste={handlePaste as any}
+            onPaste={handlePaste}
             onCompositionStart={() => toggleInputIME(true)}
             onCompositionEnd={() => toggleInputIME(false)}
             onFocus={() => toggleInputFocus(true)}
