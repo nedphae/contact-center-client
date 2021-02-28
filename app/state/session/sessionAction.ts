@@ -23,8 +23,8 @@ export const { stickyCustomer } = slice.actions;
 export const getSession = (hide = false) =>
   createSelector(
     (state: RootState) => state.session,
-    (conver) =>
-      _.values(conver)
+    (session) =>
+      _.values(session)
         .filter((it) => it.hide === hide)
         // 按时间降序
         .sort(
