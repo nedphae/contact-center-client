@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import './assets/styles/normalize.less';
 import './assets/styles/iconfont.less';
 
-import DetailCard from 'app/chat/modules/DetailCard/DetailCard';
+import DetailCard from 'app/components/Chat/DetailCard/DetailCard';
 import Style from './App.less';
 import { isMobile } from '../utils/ua';
 import { RootState } from '../store';

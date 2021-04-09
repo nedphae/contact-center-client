@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import useAero from 'app/chat/hooks/useAero';
 import Style from './DetailCard.less';
 
-function a11yProps(index: any) {
+function a11yProps(index: number) {
   return {
     id: `scrollable-force-tab-${index}`,
     'aria-controls': `scrollable-force-tabpanel-${index}`,
@@ -21,9 +21,9 @@ function a11yProps(index: any) {
 }
 
 interface TabPanelProps {
-  children?: React.ReactNode;
-  index: any;
-  value: any;
+  children: React.ReactNode | undefined;
+  index: number;
+  value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -52,7 +52,10 @@ export default function DetailCard() {
   const style = {
     minWidth: 'calc(100% / 4)',
   };
-  const handleChange = (event: React.ChangeEvent, newValue: number) => {
+  const handleChange = (
+    event: React.ChangeEvent<unknown>,
+    newValue: number
+  ) => {
     setValue(newValue);
     event.preventDefault();
   };
@@ -69,6 +72,7 @@ export default function DetailCard() {
         <Tab style={style} label="互动记录" {...a11yProps(1)} />
         <Tab style={style} label="常用话术" {...a11yProps(2)} />
         <Tab style={style} label="ERP" {...a11yProps(3)} />
+        {/* TODO: 后面可以做成配置型的 */}
       </Tabs>
       <TabPanel value={value} index={0}>
         Item One
