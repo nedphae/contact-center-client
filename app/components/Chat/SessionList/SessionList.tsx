@@ -49,7 +49,8 @@ function TabPanel(props: TabPanelProps) {
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
-    width: '300px', // '100%', 联系人列表的宽度
+    width: '100%', // '100%', 联系人列表的宽度
+    height: '100%',
     backgroundColor: theme.palette.background.paper,
   },
 }));

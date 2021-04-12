@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useEffect, useRef } from 'react';
+
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -112,9 +113,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const MessageList = () => {
   const classes = useStyles();
+  const refOfPaper = useRef<Element>();
+  // 如果有问题 修改 userEffect 为 useLayoutEffect
+  useEffect(() => {
+    if (refOfPaper.current !== undefined) {
+      refOfPaper.current.scrollTop = refOfPaper.current?.scrollHeight;
+    }
+  });
 
   return (
-    <Paper square className={classes.paper}>
+    <Paper square className={classes.paper} ref={refOfPaper}>
       <Typography className={classes.text} variant="h5" gutterBottom>
         收件箱
       </Typography>

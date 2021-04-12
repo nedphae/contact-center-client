@@ -25,10 +25,10 @@ export default function ChatHeader() {
   const classes = useStyles();
 
   return (
-    <AppBar position="fixed" className={classes.appBar}>
+    <AppBar position="sticky" className={classes.appBar}>
       <Toolbar className={classes.toolBar}>
         <Avatar alt="Profile Picture" />
-        <Grid container spacing={0} zeroMinWidth>
+        <Grid container spacing={0}>
           <Grid item xs={9} zeroMinWidth>
             <Typography
               noWrap

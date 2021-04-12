@@ -5,6 +5,7 @@ import { history, configuredStore } from './store';
 import './app.global.css';
 
 import 'assets/css/material-dashboard-react.css?v=1.8.0';
+import './assets/css/normalize.less';
 
 const store = configuredStore();
 

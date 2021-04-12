@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
@@ -15,13 +16,46 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, BaseEmoji } from 'emoji-mart';
+import Upload from 'rc-upload';
+
+const uploadProps = {
+  action: '/upload.do',
+  multiple: false,
+  accept: '.png',
+  onStart(file: File) {
+    console.log('onStart', file, file.name);
+  },
+  onSuccess(ret: File) {
+    console.log('onSuccess', ret);
+  },
+  onError(err: File) {
+    console.log('onError', err);
+  },
+  beforeUpload(file: File, fileList: Array<File>) {
+    console.log(file, fileList);
+    return new Promise((resolve) => {
+      console.log('start check');
+      setTimeout(() => {
+        console.log('check finshed');
+        resolve(file);
+      }, 3000);
+    });
+  },
+};
 
 const useStyles = makeStyles(() =>
   createStyles({
     toolBar: {
       minHeight: 30,
+      background: 'white',
+      borderRightStyle: 'solid',
+      borderLeftStyle: 'solid',
+      borderWidth: 1,
       // 是否将按钮调中间
       // justifyContent: 'center',
+    },
+    popper: {
+      zIndex: 1,
     },
   })
 );
@@ -52,11 +86,18 @@ export default function EditorTool(props: EditorProps) {
   const addEmoji = (emojiData: BaseEmoji) => {
     const emoji = emojiData.native;
     setMessage(textMessage + emoji);
+    onClose();
   };
 
   return (
     <Toolbar className={classes.toolBar}>
-      <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
+      <Popper
+        open={open}
+        anchorEl={anchorEl}
+        placement={placement}
+        transition
+        className={classes.popper}
+      >
         {() => (
           // { TransitionProps }
           // 不使用延迟
@@ -68,7 +109,7 @@ export default function EditorTool(props: EditorProps) {
         )}
       </Popper>
       <IconButton
-        onClick={handleClick('top')}
+        onClick={handleClick('top-start')}
         aria-label="emoji"
         disabled={false}
         color="primary"
@@ -76,9 +117,11 @@ export default function EditorTool(props: EditorProps) {
       >
         <InsertEmoticonOutlinedIcon />
       </IconButton>
-      <IconButton aria-label="upload file" size="small">
-        <AttachmentOutlinedIcon />
-      </IconButton>
+      <Upload {...props}>
+        <IconButton aria-label="upload file" size="small">
+          <AttachmentOutlinedIcon />
+        </IconButton>
+      </Upload>
       <IconButton color="secondary" aria-label="upload image" size="small">
         <ImageOutlinedIcon />
       </IconButton>
