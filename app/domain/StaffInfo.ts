@@ -1,9 +1,4 @@
-export enum OnlineStatus {
-  OFFLINE,
-  ONLINE,
-  BUSY,
-  AWAY,
-}
+import { OnlineStatus } from './constant/Staff';
 
 export default interface Staff {
   organizationId: number;

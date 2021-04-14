@@ -39,8 +39,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Chat() {
   const classes = useStyles();
-  // 状态提升 设置当天聊天的消息
-  const [textMessage, setMessage] = useState('');
+
 
   return (
     <Grid container className={classes.root}>
@@ -78,13 +77,7 @@ export default function Chat() {
         >
           <MesageList />
         </Resizable>
-        {/* TODO: 需要把  EditorTool 和 Editor 这两个组件合并到一块，防止渲染 MessageList */}
-        <EditorTool textMessage={textMessage} setMessage={setMessage} />
-        <div
-          style={{ ...style, width: 'auto', height: '100%', minHeight: '60px' }}
-        >
-          <Editor textMessage={textMessage} setMessage={setMessage} />
-        </div>
+        <Editor />
       </div>
     </Grid>
   );

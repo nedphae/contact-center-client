@@ -17,6 +17,8 @@ interface GroupMember {
   realName: string;
 }
 
+export type Tag = 'important' | '' | undefined;
+
 /** 客户ID 对应 */
 export interface Session {
   conversation: Conversation;
@@ -33,7 +35,13 @@ export interface Session {
   /** 是否置顶 */
   sticky: boolean;
   /** 客服打的标签 */
-  tag: 'important' | '' | undefined;
+  tag: Tag;
+}
+
+export interface TagParamer {
+  userId: number;
+  /** 客服打的标签 */
+  tag: Tag;
 }
 
 export function createSession(

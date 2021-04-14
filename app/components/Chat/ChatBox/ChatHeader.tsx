@@ -14,6 +14,7 @@ const useStyles = makeStyles(() =>
     appBar: {
       height: 50,
       justifyContent: 'center',
+      zIndex: 'auto',
     },
     toolBar: {
       height: 50,

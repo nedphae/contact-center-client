@@ -14,7 +14,16 @@ import { createSelector } from '@reduxjs/toolkit';
 import slice from './sessionSlice';
 
 const { newConver, newMessage } = slice.actions;
-export const { stickyCustomer } = slice.actions;
+export const { stickyCustomer, tagCustomer } = slice.actions;
+
+export const getSelectedMessageList = () =>
+  createSelector(
+    (state: RootState) => {
+      const selected = state.chat.selectedSession;
+      return state.session[selected].massageList;
+    },
+    (messageList) => _.values(messageList).sort((a, b) => b.seqId - a.seqId)
+  );
 
 /**
  * 根据条件获取会话列表，并按照最后消息和置顶排序
@@ -65,14 +74,17 @@ export function sendMessage(message: Message): AppThunk {
         filter((b) => b !== undefined),
         map((mr) => {
           // 设置服务器返回的消息序列号和消息时间
-          message.seqId = mr?.seqId;
-          message.createdAt = mr?.createdAt;
-          message.sync = true;
+          if (mr !== undefined) {
+            message.seqId = mr.seqId;
+            message.createdAt = mr.createdAt;
+            message.sync = true;
+          }
           return message;
         }),
         catchError(() => {
-          // 如果有错误，设置消息发送失败，显示重发按钮
+          // 如果有错误，设置消息发送失败，显示重发按钮, 并把消息设置到最后
           message.sync = false;
+          message.seqId = Number.MAX_SAFE_INTEGER;
           return of(message);
         }),
         map((m) => {

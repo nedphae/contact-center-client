@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
-import SessionList from './SessionList/SessionList';
+import SessionList from './SessionList/SessionPanel';
 import Chat from './ChatBox/Chat';
 import DetailCard from './DetailCard/DetailCard';
 

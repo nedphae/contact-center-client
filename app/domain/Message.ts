@@ -61,7 +61,7 @@ export interface MessagesMap {
 
 export interface MessageResponse {
   /** 雪花ID */
-  seqId: number | undefined;
+  seqId: number;
   /** 服务器接受时间 */
   createdAt: Date | undefined;
   /** 是否 发送到服务器 */

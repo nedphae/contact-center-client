@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { map, switchMap, filter } from 'rxjs/operators';
 import _ from 'lodash';
 
-import { SessionMap, Session } from 'app/domain/Session';
+import { SessionMap, Session, TagParamer } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 
 const initConver = {} as SessionMap;
@@ -21,6 +21,11 @@ const converSlice = createSlice({
       // 设置置顶
       const conver = converMap[action.payload];
       conver.sticky = !conver.sticky;
+    },
+    tagCustomer: (converMap, action: PayloadAction<TagParamer>) => {
+      // 设置标签
+      const conver = converMap[action.payload.userId];
+      conver.tag = action.payload.tag;
     },
     newMessage: (converMap, action: PayloadAction<MessagesMap>) => {
       // 设置新消息

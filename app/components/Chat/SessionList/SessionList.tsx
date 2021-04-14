@@ -1,116 +1,212 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-import { makeStyles, Theme } from '@material-ui/core/styles';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import ChatIcon from '@material-ui/icons/Chat';
-import HistoryIcon from '@material-ui/icons/History';
-import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
-import Box from '@material-ui/core/Box';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import Avatar from '@material-ui/core/Avatar';
+import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
-import Authorized from 'app/utils/Authorized';
+// 联通状态图标
+import SyncAltIcon from '@material-ui/icons/SyncAlt';
+// 离线状态
+import SignalWifiOffIcon from '@material-ui/icons/SignalWifiOff';
 
-function a11yProps(index: number) {
-  return {
-    id: `scrollable-force-tab-${index}`,
-    'aria-controls': `scrollable-force-tabpanel-${index}`,
-  };
+import {
+  getSession,
+  stickyCustomer,
+  tagCustomer,
+} from 'app/state/session/sessionAction';
+import { OnlineStatus } from 'app/domain/constant/Staff';
+import { Tag } from 'app/domain/Session';
+import {
+  getSelectedSession,
+  setSelectedSession,
+} from 'app/state/chat/chatAction';
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    root: {
+      width: '100%',
+    },
+  })
+);
+
+interface SessionListProps {
+  history?: boolean;
 }
 
-interface TabPanelProps {
-  children: React.ReactNode | undefined;
-  index: any;
-  value: any;
+interface MenuState {
+  userId: number | undefined;
+  sticky: boolean;
+  tag: 'important' | '' | undefined;
 }
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+const initialState = {
+  mouseX: null,
+  mouseY: null,
+};
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`scrollable-force-tabpanel-${index}`}
-      aria-labelledby={`scrollable-force-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography component="span">{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
-
-const useStyles = makeStyles((theme: Theme) => ({
-  root: {
-    flexGrow: 1,
-    width: '100%', // '100%', 联系人列表的宽度
-    height: '100%',
-    backgroundColor: theme.palette.background.paper,
-  },
-}));
-
-export default function SessionList() {
-  const [value, setValue] = useState(0);
+function SessionList(props: SessionListProps) {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  // 默认不选取
+  const selectedSession = useSelector(getSelectedSession);
 
-  const style = {
-    minWidth: 'calc(100% / 3)',
-  };
+  const [state, setState] = useState<{
+    mouseX: null | number;
+    mouseY: null | number;
+  }>(initialState);
+  const [menuState, setMenuState] = useState<MenuState>({
+    userId: undefined,
+    sticky: false,
+    tag: undefined,
+  });
 
-  const handleChange = (
-    event: React.ChangeEvent<unknown>,
-    newValue: number
+  const { history } = props;
+  const sessions = useSelector(getSession(history));
+
+  const handleContextMenu = (
+    event: React.MouseEvent<HTMLDivElement>,
+    // 当前状态，根据当前状态生成菜单
+    currentMenuState: MenuState
   ) => {
-    setValue(newValue);
     event.preventDefault();
+    setMenuState(currentMenuState);
+    setState({
+      mouseX: event.clientX - 2,
+      mouseY: event.clientY - 4,
+    });
   };
+
+  const handleClose = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setState(initialState);
+  };
+
+  const handleListItemClick = (
+    _event: React.MouseEvent<HTMLElement, MouseEvent>,
+    index: number
+  ) => {
+    dispatch(setSelectedSession(index));
+  };
+
+  function doSticky(userId: number | undefined) {
+    if (userId !== undefined) {
+      dispatch(stickyCustomer(userId));
+    }
+  }
+
+  function doTag(userId: number | undefined, tag: Tag) {
+    if (userId !== undefined) {
+      dispatch(tagCustomer({ userId, tag })); // type TagParamer
+    }
+  }
+
+  /**
+   * 根据状态生成右键菜单
+   * @returns 右键菜单列表
+   */
+  function createMenuItem() {
+    const menuList = [];
+    if (!menuState.sticky) {
+      menuList.push(
+        <MenuItem onClick={() => doSticky(menuState.userId)}>置顶</MenuItem>
+      );
+    } else {
+      menuList.push(
+        <MenuItem onClick={() => doSticky(menuState.userId)}>取消置顶</MenuItem>
+      );
+    }
+    if (menuState.tag === undefined) {
+      menuList.push(
+        <MenuItem onClick={() => doTag(menuState.userId, 'important')}>
+          重要
+        </MenuItem>
+      );
+    } else {
+      menuList.push(
+        <MenuItem onClick={() => doTag(menuState.userId, undefined)}>
+          清除标记
+        </MenuItem>
+      );
+    }
+    return menuList;
+  }
 
   return (
     <div className={classes.root}>
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        variant="scrollable"
-        scrollButtons="off"
-        aria-label="scrollable prevent tabs example"
-      >
-        <Tab
-          style={style}
-          icon={<ChatIcon />}
-          aria-label="chat"
-          {...a11yProps(0)}
-        />
-        <Tab
-          style={style}
-          icon={<HistoryIcon />}
-          aria-label="history"
-          {...a11yProps(1)}
-        />
-        <Tab
-          style={style}
-          icon={<PeopleAltIcon />}
-          aria-label="colleague"
-          {...a11yProps(2)}
-        />
-      </Tabs>
-      <TabPanel value={value} index={0}>
-        {/* <LinkmanList history={false} /> */}
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        {/* <LinkmanList history /> */}
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <Authorized authority={['ROLE_ADMIN']} noMatch="非 Admin权限">
-          {/* 添加权限的Dom */}
-          Admin 时权限展示
-        </Authorized>
-      </TabPanel>
+      <List component="nav" aria-label="main mailbox folders">
+        {sessions.map(
+          ({ conversation, unread, lastMessage, user, sticky, tag }) => (
+            <React.Fragment key={conversation.id}>
+              <ListItem
+                button
+                selected={selectedSession === conversation.userId}
+                onClick={(event) =>
+                  handleListItemClick(event, conversation.userId)
+                }
+                // 右键菜单
+                onContextMenu={(event) =>
+                  handleContextMenu(event, {
+                    userId: conversation.userId,
+                    sticky,
+                    tag,
+                  })
+                }
+              >
+                <ListItemAvatar>
+                  {/* badgeContent 未读消息 */}
+                  <Badge badgeContent={unread} max={99} color="secondary">
+                    <Avatar />
+                  </Badge>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={user.name === undefined ? user.uid : user.name}
+                  secondary={
+                    <Typography noWrap variant="body2" color="textSecondary">
+                      {/* &nbsp;  用来充当占位符 如果没有消息时显示 */}
+                      {lastMessage === undefined ? '&nbsp;' : lastMessage}
+                    </Typography>
+                  }
+                />
+                {user.onlineStatue === OnlineStatus.ONLINE ? (
+                  <SyncAltIcon />
+                ) : (
+                  <SignalWifiOffIcon />
+                )}
+              </ListItem>
+            </React.Fragment>
+          )
+        )}
+        {/* 右键菜单 */}
+        <div onContextMenu={handleClose} style={{ cursor: 'context-menu' }}>
+          <Menu
+            keepMounted
+            open={state.mouseY !== null}
+            onClose={handleClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              state.mouseY !== null && state.mouseX !== null
+                ? { top: state.mouseY, left: state.mouseX }
+                : undefined
+            }
+          >
+            {createMenuItem()}
+          </Menu>
+        </div>
+      </List>
     </div>
   );
 }
+
+SessionList.defaultProps = {
+  history: false,
+};
+
+export default SessionList;
