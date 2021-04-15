@@ -16,14 +16,15 @@ import slice from './sessionSlice';
 const { newConver, newMessage } = slice.actions;
 export const { stickyCustomer, tagCustomer } = slice.actions;
 
-export const getSelectedMessageList = () =>
-  createSelector(
-    (state: RootState) => {
-      const selected = state.chat.selectedSession;
-      return state.session[selected].massageList;
-    },
-    (messageList) => _.values(messageList).sort((a, b) => b.seqId - a.seqId)
-  );
+export const getSelectedMessageList = (state: RootState) => {
+  const selected = state.chat.selectedSession;
+  if (selected === undefined) return [];
+  const messageListMap = state.session[selected].massageList;
+  if (messageListMap === undefined) {
+    return [];
+  }
+  return _.values(messageListMap).sort((a, b) => b.seqId - a.seqId);
+};
 
 /**
  * 根据条件获取会话列表，并按照最后消息和置顶排序

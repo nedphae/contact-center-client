@@ -16,6 +16,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import SyncAltIcon from '@material-ui/icons/SyncAlt';
 // 离线状态
 import SignalWifiOffIcon from '@material-ui/icons/SignalWifiOff';
+// 重要标记
+import StarIcon from '@material-ui/icons/Star';
 
 import {
   getSession,
@@ -116,22 +118,32 @@ function SessionList(props: SessionListProps) {
     const menuList = [];
     if (!menuState.sticky) {
       menuList.push(
-        <MenuItem onClick={() => doSticky(menuState.userId)}>置顶</MenuItem>
+        <MenuItem key="sticky" onClick={() => doSticky(menuState.userId)}>
+          置顶
+        </MenuItem>
       );
     } else {
       menuList.push(
-        <MenuItem onClick={() => doSticky(menuState.userId)}>取消置顶</MenuItem>
+        <MenuItem key="sticky" onClick={() => doSticky(menuState.userId)}>
+          取消置顶
+        </MenuItem>
       );
     }
     if (menuState.tag === undefined) {
       menuList.push(
-        <MenuItem onClick={() => doTag(menuState.userId, 'important')}>
+        <MenuItem
+          key="important"
+          onClick={() => doTag(menuState.userId, 'important')}
+        >
           重要
         </MenuItem>
       );
     } else {
       menuList.push(
-        <MenuItem onClick={() => doTag(menuState.userId, undefined)}>
+        <MenuItem
+          key="clear"
+          onClick={() => doTag(menuState.userId, undefined)}
+        >
           清除标记
         </MenuItem>
       );
@@ -175,6 +187,7 @@ function SessionList(props: SessionListProps) {
                     </Typography>
                   }
                 />
+                {menuState.tag === 'important' && <StarIcon />}
                 {user.onlineStatue === OnlineStatus.ONLINE ? (
                   <SyncAltIcon />
                 ) : (

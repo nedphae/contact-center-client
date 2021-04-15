@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import IO from 'socket.io-client';
 
 import socketHandler from 'app/service/websocket/SocketHandler';
-import config from 'app/config/client';
+import config from 'app/config/clientConfig';
 
 /**
  * WebSocket Hook, 返回 websocket对象
@@ -25,7 +25,7 @@ const useWebSocket = (token: string | null) => {
       : {};
 
     if (token) {
-      socketRef.current = IO(config.server, options);
+      socketRef.current = IO(config.web.host, options);
       window.socketRef = socketRef.current;
 
       socketHandler(socketRef.current);

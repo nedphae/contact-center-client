@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Chat() {
   const classes = useStyles();
 
-
   return (
     <Grid container className={classes.root}>
       <CssBaseline />

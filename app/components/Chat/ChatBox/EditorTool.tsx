@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
+import _ from 'lodash';
+
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import InsertEmoticonOutlinedIcon from '@material-ui/icons/InsertEmoticonOutlined';
@@ -17,31 +19,9 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import 'emoji-mart/css/emoji-mart.css';
 import { Picker, BaseEmoji } from 'emoji-mart';
 import Upload from 'rc-upload';
+import { RcFile } from 'rc-upload/lib/interface';
 
-const uploadProps = {
-  action: '/upload.do',
-  multiple: false,
-  accept: '.png',
-  onStart(file: File) {
-    console.log('onStart', file, file.name);
-  },
-  onSuccess(ret: File) {
-    console.log('onSuccess', ret);
-  },
-  onError(err: File) {
-    console.log('onError', err);
-  },
-  beforeUpload(file: File, fileList: Array<File>) {
-    console.log(file, fileList);
-    return new Promise((resolve) => {
-      console.log('start check');
-      setTimeout(() => {
-        console.log('check finshed');
-        resolve(file);
-      }, 3000);
-    });
-  },
-};
+import config from 'app/config/clientConfig';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -89,6 +69,26 @@ export default function EditorTool(props: EditorProps) {
     onClose();
   };
 
+  const imgUploadProps = {
+    action: `${config.web.host}/chat/img`,
+    multiple: true,
+    accept: 'image/png,image/gif,image/jpeg',
+    onStart(file: RcFile) {
+      console.log('onStart', file, file.name);
+    },
+    onSuccess(response: unknown, _file: RcFile, _xhr: unknown) {
+      console.log('onSuccess', response);
+      // 发送图片消息
+    },
+    onError(error: Error, _ret: any, _file: RcFile) {
+      console.log('onError', error);
+    },
+  };
+
+  const fileUploadProps = _.clone(imgUploadProps);
+  fileUploadProps.action = `${config.web.host}/chat/file`;
+  fileUploadProps.accept = '*';
+
   return (
     <Toolbar className={classes.toolBar}>
       <Popper
@@ -117,14 +117,16 @@ export default function EditorTool(props: EditorProps) {
       >
         <InsertEmoticonOutlinedIcon />
       </IconButton>
-      <Upload {...props}>
+      <Upload {...fileUploadProps}>
         <IconButton aria-label="upload file" size="small">
           <AttachmentOutlinedIcon />
         </IconButton>
       </Upload>
-      <IconButton color="secondary" aria-label="upload image" size="small">
-        <ImageOutlinedIcon />
-      </IconButton>
+      <Upload {...imgUploadProps}>
+        <IconButton color="secondary" aria-label="upload image" size="small">
+          <ImageOutlinedIcon />
+        </IconButton>
+      </Upload>
       <Tooltip title="转接">
         <IconButton color="primary" aria-label="transfer" size="small">
           <LaunchOutlinedIcon />

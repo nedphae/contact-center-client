@@ -1,6 +1,6 @@
 export default {
   web: {
-    host: 'http://localhost:8000',
+    host: 'http://localhost:9090',
   },
   // jwt 配置
   oauth: {

@@ -38,6 +38,9 @@ interface PhotoContent {
 interface Attachments {
   /** 媒体id */
   mediaId: string;
+  /** 文件名称 */
+  filename: string;
+  /** 文件大小 */
   size: string;
   /** 根据类型显示不同图标 */
   type: string;
@@ -45,7 +48,7 @@ interface Attachments {
   url: string;
 }
 
-interface Content {
+export interface Content {
   contentType: MessageTypeKey;
   /** 文字 */
   textContent: TextContent | undefined;

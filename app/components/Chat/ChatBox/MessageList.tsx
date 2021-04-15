@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { ClassNameMap } from '@material-ui/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -11,6 +12,8 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import { getSelectedMessageList } from 'app/state/session/sessionAction';
+import { Content } from 'app/domain/Message';
+import FileCard from './FileCard';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -22,12 +25,19 @@ const useStyles = makeStyles((theme: Theme) =>
       maxHeight: '100%',
       overflow: 'auto',
     },
-    messagePaper: {
+    toMessagePaper: {
       padding: 7,
       maxWidth: '90%',
       borderRadius: 10,
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopRightRadius: 0,
+    },
+    fromMessagePaper: {
+      padding: 7,
+      maxWidth: '90%',
+      borderRadius: 10,
+      // 如果是收到的消息就是 borderTopLeftRadius
+      borderTopLeftRadius: 0,
     },
     listItemAvatar: {
       marginBottom: 0,
@@ -65,10 +75,60 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+function createContent(content: Content, classes: ClassNameMap<'message'>) {
+  let element;
+  switch (content.contentType) {
+    case 'SYS': {
+      break;
+    }
+    case 'TEXT': {
+      const text = content.textContent?.text;
+      element = (
+        <ListItemText
+          primary={
+            <Typography
+              variant="body1"
+              gutterBottom
+              className={classes.message}
+            >
+              {text}
+            </Typography>
+          }
+        />
+      );
+      break;
+    }
+    case 'IMAGE': {
+      const imageUrl = content.photoContent?.mediaId;
+      const filename = content.photoContent?.filename;
+      element = <img src={imageUrl} alt={filename} />;
+      break;
+    }
+    case 'VOICE': {
+      // TODO: 生成音频
+      break;
+    }
+    case 'FILE': {
+      if (content.attachments !== undefined) {
+        const { filename, size, url } = content.attachments;
+        element = <FileCard filename={filename} fileSize={size} url={url} />;
+      }
+      break;
+    }
+    case 'LINK': {
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+  return element;
+}
+
 const MessageList = () => {
   const classes = useStyles();
   const refOfPaper = useRef<Element>();
-  const messages = useSelector(getSelectedMessageList());
+  const messages = useSelector(getSelectedMessageList);
 
   // 如果有问题 修改 userEffect 为 useLayoutEffect
   useEffect(() => {
@@ -79,22 +139,29 @@ const MessageList = () => {
 
   return (
     <Paper square className={classes.paper} ref={refOfPaper}>
-      <Typography className={classes.text} variant="h5" gutterBottom>
-        收件箱
-      </Typography>
       <List className={classes.list}>
-        {messages.map(({ uuid, nickName, createdAt, content }) => (
+        {messages.map(({ uuid, nickName, createdAt, content, from, to }) => (
           <React.Fragment key={uuid}>
             <ListItem alignItems="flex-start">
-              <ListItemAvatar className={classes.listItemAvatar}>
-                <Avatar alt="Profile Picture" />
-              </ListItemAvatar>
+              {/* 接受到的消息的头像 */}
+              {from !== undefined && (
+                <ListItemAvatar className={classes.listItemAvatar}>
+                  <Avatar alt="Profile Picture" />
+                </ListItemAvatar>
+              )}
               {/* justify="flex-end" 如果是收到的消息就不设置这个 */}
-              <Grid container justify="flex-end">
+              <Grid
+                container
+                justify={from !== undefined ? 'flex-start' : 'flex-end'}
+              >
                 <Grid item xs={12}>
                   <ListItemText
                     primary={
-                      <Grid container alignItems="center" justify="flex-end">
+                      <Grid
+                        container
+                        alignItems="center"
+                        justify={from !== undefined ? 'flex-start' : 'flex-end'}
+                      >
                         {/* justify="flex-end" */}
                         <Typography
                           variant="subtitle1"
@@ -114,23 +181,23 @@ const MessageList = () => {
                     }
                   />
                 </Grid>
-                <Paper elevation={4} className={classes.messagePaper}>
-                  <ListItemText
-                    primary={
-                      <Typography
-                        variant="body1"
-                        gutterBottom
-                        className={classes.message}
-                      >
-                        {content.textContent?.text}
-                      </Typography>
-                    }
-                  />
+                <Paper
+                  elevation={4}
+                  className={
+                    from !== undefined
+                      ? classes.fromMessagePaper
+                      : classes.toMessagePaper
+                  }
+                >
+                  {createContent(content, classes)}
                 </Paper>
               </Grid>
-              <ListItemAvatar className={classes.listItemAvatar}>
-                <Avatar alt="Profile Picture" />
-              </ListItemAvatar>
+              {/* 发送的消息的头像 */}
+              {to !== undefined && (
+                <ListItemAvatar className={classes.listItemAvatar}>
+                  <Avatar alt="Profile Picture" />
+                </ListItemAvatar>
+              )}
             </ListItem>
           </React.Fragment>
         ))}

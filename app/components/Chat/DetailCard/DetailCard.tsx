@@ -10,7 +10,6 @@ import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-import useAero from 'app/chat/hooks/useAero';
 import Style from './DetailCard.less';
 
 function a11yProps(index: number) {
@@ -48,7 +47,6 @@ function TabPanel(props: TabPanelProps) {
 
 export default function DetailCard() {
   const [value, setValue] = useState(0);
-  const aero = useAero();
   const style = {
     minWidth: 'calc(100% / 4)',
   };
@@ -60,7 +58,7 @@ export default function DetailCard() {
     event.preventDefault();
   };
   return (
-    <div className={Style.container} {...aero}>
+    <div className={Style.container}>
       <Tabs
         value={value}
         onChange={handleChange}
