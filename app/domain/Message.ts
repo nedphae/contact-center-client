@@ -1,4 +1,4 @@
-import { MessageTypeKey } from './constant/Message';
+import { CreatorType, MessageTypeKey } from './constant/Message';
 
 /**
  * Chat messages are not stored locally, all get from the server
@@ -7,17 +7,17 @@ import { MessageTypeKey } from './constant/Message';
 export interface Message extends MessageResponse {
   uuid: string;
   /** Snowflake long */
-  conversationId: number;
+  conversationId?: number;
   /** message from, setting by server */
-  from: number | undefined;
+  from?: number;
   /** message send to */
-  to: number | undefined;
+  to?: number;
   /** Receiver type */
-  type: number;
+  type: CreatorType;
   /** Creator type */
-  creatorType: number;
+  creatorType: CreatorType;
   content: Content;
-  nickName: string;
+  nickName?: string;
 }
 
 interface TextContent {
@@ -51,11 +51,11 @@ interface Attachments {
 export interface Content {
   contentType: MessageTypeKey;
   /** 文字 */
-  textContent: TextContent | undefined;
+  textContent?: TextContent;
   /** 图片 */
-  photoContent: PhotoContent | undefined;
+  photoContent?: PhotoContent;
   /** 附件 */
-  attachments: Attachments | undefined;
+  attachments?: Attachments;
 }
 /** Message 去重 */
 export interface MessagesMap {
@@ -64,9 +64,9 @@ export interface MessagesMap {
 
 export interface MessageResponse {
   /** 雪花ID */
-  seqId: number;
+  seqId?: number;
   /** 服务器接受时间 */
-  createdAt: Date | undefined;
+  createdAt?: Date;
   /** 是否 发送到服务器 */
-  sync: boolean | undefined;
+  sync?: boolean;
 }

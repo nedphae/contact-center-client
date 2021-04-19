@@ -27,8 +27,13 @@ const useStyles = makeStyles(() =>
   })
 );
 
-export default function Editor() {
-  // 状态提升 设置当天聊天的消息
+interface SelectedProps {
+  selectedSession: number | undefined;
+}
+
+export default function Editor(selected: SelectedProps) {
+  const { selectedSession } = selected;
+  // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
   const [textMessage, setMessage] = useState('');
   const classes = useStyles();
 
@@ -39,30 +44,36 @@ export default function Editor() {
   return (
     <>
       {/* TODO: 需要把  EditorTool 和 Editor 这两个组件合并到一块，防止渲染 MessageList */}
-      <EditorTool textMessage={textMessage} setMessage={setMessage} />
+      {selectedSession && (
+        <EditorTool textMessage={textMessage} setMessage={setMessage} />
+      )}
       <div
         style={{ ...style, width: 'auto', height: '100%', minHeight: '60px' }}
       >
-        <TextareaAutosize
-          className={classes.textarea}
-          aria-label="maximum height"
-          placeholder="请输入消息..."
-          onChange={handleTextChange}
-          value={textMessage}
-          rowsMin={2}
-        />
-        <Button
-          // 是否可用，通过 TextareaAutosize 判断
-          disabled={textMessage === ''}
-          variant="contained"
-          color="primary"
-          endIcon={<Icon>send</Icon>}
-        >
-          Send
-        </Button>
-        <Button style={{ minWidth: 50 }} variant="outlined">
-          关闭
-        </Button>
+        {selectedSession && (
+          <>
+            <TextareaAutosize
+              className={classes.textarea}
+              aria-label="maximum height"
+              placeholder="请输入消息..."
+              onChange={handleTextChange}
+              value={textMessage}
+              rowsMin={2}
+            />
+            <Button
+              // 是否可用，通过 TextareaAutosize 判断
+              disabled={textMessage === ''}
+              variant="contained"
+              color="primary"
+              endIcon={<Icon>send</Icon>}
+            >
+              Send
+            </Button>
+            <Button style={{ minWidth: 50 }} variant="outlined">
+              关闭
+            </Button>
+          </>
+        )}
       </div>
     </>
   );

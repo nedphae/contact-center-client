@@ -2,15 +2,17 @@ import { AppThunk, RootState } from 'app/store';
 import { of } from 'rxjs';
 import { map, filter, tap, catchError } from 'rxjs/operators';
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
-import { Message, MessagesMap } from 'app/domain/Message';
+import { Content, Message, MessagesMap } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
 import { createSession } from 'app/domain/Session';
 import { getCuntomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { createSelector } from '@reduxjs/toolkit';
+import { CreatorType } from 'app/domain/constant/Message';
 import slice from './sessionSlice';
 
 const { newConver, newMessage } = slice.actions;
@@ -23,7 +25,12 @@ export const getSelectedMessageList = (state: RootState) => {
   if (messageListMap === undefined) {
     return [];
   }
-  return _.values(messageListMap).sort((a, b) => b.seqId - a.seqId);
+  return _.values(messageListMap).sort(
+    (a, b) =>
+      // 默认 seqId 为最大
+      (b.seqId ?? Number.MAX_SAFE_INTEGER) -
+      (a.seqId ?? Number.MAX_SAFE_INTEGER)
+  );
 };
 
 /**
@@ -66,6 +73,11 @@ export const assignmentConver = (
   }
 };
 
+/**
+ * 发送消息到服务器
+ * @param message 消息结构
+ * @returns callback
+ */
 export function sendMessage(message: Message): AppThunk {
   return (dispatch) => {
     // 发送消息到服务器
@@ -123,3 +135,28 @@ export const setNewMessage = (
       dispatch(newMessage(end));
     });
 };
+
+/**
+ * 发送文本消息到用户
+ * @param to 用户ID
+ * @param textContent 消息体
+ * @returns
+ */
+export function sendTextMessage(to: number, textContent: string): AppThunk {
+  return (dispatch) => {
+    const content: Content = {
+      contentType: 'TEXT',
+      textContent: {
+        text: textContent,
+      },
+    };
+    const message: Message = {
+      uuid: uuidv4().substr(0, 8),
+      to,
+      type: CreatorType.CUSTOMER,
+      creatorType: CreatorType.STAFF,
+      content,
+    };
+    dispatch(sendMessage(message));
+  };
+}

@@ -2,6 +2,7 @@
  * 聊天窗口设计
  */
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -9,9 +10,9 @@ import { Resizable } from 're-resizable';
 
 import Grid from '@material-ui/core/Grid';
 
+import { getSelectedSession } from 'app/state/chat/chatAction';
 import ChatHeader from './ChatHeader';
 import MesageList from './MessageList';
-import EditorTool from './EditorTool';
 import Editor from './Editor';
 
 const style = {
@@ -26,6 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
+      backgroundColor: 'white',
     },
     paper: {
       height: 140,
@@ -39,6 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Chat() {
   const classes = useStyles();
+  const selectedSession = useSelector(getSelectedSession);
 
   return (
     <Grid container className={classes.root}>
@@ -76,7 +79,7 @@ export default function Chat() {
         >
           <MesageList />
         </Resizable>
-        <Editor />
+        <Editor selectedSession={selectedSession} />
       </div>
     </Grid>
   );

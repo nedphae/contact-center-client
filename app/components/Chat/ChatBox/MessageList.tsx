@@ -135,7 +135,7 @@ const MessageList = () => {
     if (refOfPaper.current !== undefined) {
       refOfPaper.current.scrollTop = refOfPaper.current?.scrollHeight;
     }
-  });
+  }, [messages]);
 
   return (
     <Paper square className={classes.paper} ref={refOfPaper}>
