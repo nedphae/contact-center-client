@@ -1,16 +1,16 @@
 interface UrlParams {
-  [key: string]: string;
+  [key: string]: string | number | boolean;
 }
 
-// eslint-disable-next-line import/prefer-default-export
-export function addParam(url: string, params: UrlParams) {
-  let result = url;
+const addParam = (uri: string, params: UrlParams) => {
+  let str = '';
   Object.keys(params).forEach((key) => {
-    if (result.indexOf('?') === -1) {
-      result += `?${key}=${params[key]}`;
-    } else {
-      result += `&${key}=${params[key]}`;
+    if (str !== '') {
+      str += '&';
     }
+    str += `${key}=${encodeURIComponent(params[key])}`;
   });
-  return result;
-}
+  return `${uri}?${str}`;
+};
+
+export default addParam;

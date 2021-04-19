@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 
+import { sendTextMessage } from 'app/state/session/sessionAction';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -36,9 +38,16 @@ export default function Editor(selected: SelectedProps) {
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
   const [textMessage, setMessage] = useState('');
   const classes = useStyles();
+  const dispath = useDispatch();
 
   function handleTextChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
     setMessage(event.target.value);
+  }
+
+  function handleSendTextMessage() {
+    if (selectedSession && textMessage !== '') {
+      dispath(sendTextMessage(selectedSession, textMessage));
+    }
   }
 
   return (
@@ -66,6 +75,7 @@ export default function Editor(selected: SelectedProps) {
               variant="contained"
               color="primary"
               endIcon={<Icon>send</Icon>}
+              onClick={handleSendTextMessage}
             >
               Send
             </Button>

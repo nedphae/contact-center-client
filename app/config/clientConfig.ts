@@ -5,7 +5,7 @@ export default {
   // jwt 配置
   oauth: {
     jwks: '/.well-known/jwks.json',
-    oauthPath: '/oauth/token',
+    path: '/oauth/token',
     clientId: 'user_client',
     clientSecret: 'test_secret',
     grant_type: 'password',
@@ -18,5 +18,32 @@ export default {
   // clientId 配置
   headers: {
     Authorization: 'Basic dXNlcl9jbGllbnQ6dGVzdF9zZWNyZXQ=',
+  },
+  websocket: {
+    path: '/socket.io',
+  },
+  im: {
+    path: '/im',
+  },
+  bot: {
+    path: '/bot',
+  },
+  customer: {
+    path: '/customer',
+  },
+  dispatcher: {
+    path: '/dispatcher',
+  },
+  oss: {
+    path: '/oss',
+  },
+  message: {
+    path: '/message',
+  },
+  status: {
+    path: '/status',
+  },
+  staff: {
+    path: '/staff',
   },
 };

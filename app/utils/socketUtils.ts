@@ -25,6 +25,12 @@ const withTimeout = (
 
 export default withTimeout;
 
+/**
+ * websocket 回调，用来做 rxjs 的 bindCallback
+ * @param e 事件
+ * @param r 请求数据
+ * @param cb websocket回调
+ */
 export const socketCallback = <T, R>(
   e: string,
   r: WebSocketRequest<T>,

@@ -19,7 +19,6 @@ const style = {
   display: 'flex',
   // alignItems: 'center',
   justifyContent: 'center',
-  border: 'solid 1px #ddd',
   background: '#f0f0f0',
 } as const;
 
@@ -28,6 +27,8 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       flexGrow: 1,
       backgroundColor: 'white',
+      borderLeft: 'solid 1px #ddd',
+      borderRight: 'solid 1px #ddd',
     },
     paper: {
       height: 140,

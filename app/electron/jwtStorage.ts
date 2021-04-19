@@ -1,6 +1,6 @@
 import os from 'os';
 import storage from 'electron-json-storage';
-import { verifyToken } from 'app/utils/jwtUtils';
+import verifyToken from 'app/utils/jwtUtils';
 import { OauthToken, AccessToken } from 'app/domain/OauthToken';
 import tokenConfig from 'app/config/clientConfig';
 

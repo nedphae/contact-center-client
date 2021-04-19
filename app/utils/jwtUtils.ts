@@ -7,7 +7,7 @@ const jwksClient = JwksRsa({
   jwksUri: tokenConfig.web.host + tokenConfig.oauth.jwks,
 });
 
-export function verifyToken(token: string, callback: VerifyCallback) {
+export default function verifyToken(token: string, callback: VerifyCallback) {
   // 检查token是否正常
   jwt.verify(
     token,
