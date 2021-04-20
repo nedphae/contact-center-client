@@ -28,7 +28,7 @@ import { Store } from './store';
 import Admin from './layouts/Admin';
 import RTL from './layouts/RTL';
 import Auth from './layouts/Auth';
-// import AuthorizedRoute from "./components/Authorized/AuthorizedRoute"
+import Authorized from './components/Authorized/Authorized';
 
 type Props = {
   store: Store;
@@ -40,8 +40,14 @@ const Root = ({ store, history }: Props) => (
       <Switch>
         {/* 原来的路由 */}
         <Route path="/login" component={Auth} />
-        <Route path="/admin" component={Admin} />
-        <Route path="/rtl" component={RTL} />
+        <Authorized
+          authority={['admin']}
+          noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
+        >
+          {/* 添加权限的路由 */}
+          <Route path="/admin" component={Admin} />
+          <Route path="/rtl" component={RTL} />
+        </Authorized>
         <Redirect from="/" to="/admin/entertain" />
       </Switch>
     </ConnectedRouter>
