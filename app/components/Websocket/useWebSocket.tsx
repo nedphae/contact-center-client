@@ -1,15 +1,21 @@
 import { useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 import IO from 'socket.io-client';
 
-import socketHandler from 'app/service/websocket/SocketHandler';
+import SocketHandler from 'app/service/websocket/SocketHandler';
 import config from 'app/config/clientConfig';
+import { getStaffToken } from 'app/state/staff/staffAction';
 
 /**
  * WebSocket Hook, 返回 websocket对象
  * @param jwt
  */
-const useWebSocket = (token: string | null) => {
+const useWebSocket = () => {
   const socketRef = useRef<SocketIOClient.Socket>();
+  const dispatch = useDispatch();
+  const token = useSelector(getStaffToken);
+
   useEffect(() => {
     const options: SocketIOClient.ConnectOpts = token
       ? {
@@ -25,10 +31,14 @@ const useWebSocket = (token: string | null) => {
       : {};
 
     if (token) {
-      socketRef.current = IO(config.web.host, options);
+      socketRef.current = IO(
+        config.web.host + config.websocket.namespace,
+        options
+      );
       window.socketRef = socketRef.current;
 
-      socketHandler(socketRef.current);
+      const socketHandler = new SocketHandler(socketRef.current, dispatch);
+      socketHandler.init();
     } else {
       options.reconnection = false;
     }
@@ -38,7 +48,7 @@ const useWebSocket = (token: string | null) => {
         socketRef.current.disconnect();
       }
     };
-  });
+  }, [dispatch, token]);
 
   return [socketRef.current];
 };

@@ -16,4 +16,5 @@ export interface AccessToken {
   authorities: string[];
   jti: string;
   client_id: string;
+  source: string;
 }

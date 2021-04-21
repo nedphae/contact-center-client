@@ -20,7 +20,9 @@ export function saveToken(token: OauthToken): Promise<AccessToken> {
             reject(err);
           }
         });
-        return resolve(decoded as AccessToken);
+        const accessToken = decoded as AccessToken;
+        accessToken.source = token.access_token;
+        return resolve(accessToken);
       }
       return reject(err);
     });

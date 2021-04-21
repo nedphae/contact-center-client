@@ -21,6 +21,7 @@ export default {
   },
   websocket: {
     path: '/socket.io',
+    namespace: '/im/staff',
   },
   im: {
     path: '/im',

@@ -16,6 +16,7 @@ export default interface Staff {
   headImg: string | undefined;
   personalizedSignature: string;
   syncState: boolean;
+  token: string | undefined;
 }
 
 interface StaffGroup {
@@ -32,6 +33,6 @@ export interface StaffConfig {
 export function configFromStaff(staff: Staff): StaffConfig {
   return {
     role: staff.role,
-    onlineStatus: staff.onlineStatus,
+    onlineStatus: OnlineStatus.ONLINE,
   };
 }

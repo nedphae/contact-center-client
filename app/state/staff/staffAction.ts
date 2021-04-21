@@ -9,6 +9,8 @@ import slice from './staffSlice';
 const { setStaff, setOnline } = slice.actions;
 export const getStaff = (state: RootState) => state.user;
 
+export const getStaffToken = (state: RootState) => state.user.token;
+
 // 异步请求
 export const setUserAsync = (token: AccessToken): AppThunk => async (
   dispatch
@@ -18,6 +20,7 @@ export const setUserAsync = (token: AccessToken): AppThunk => async (
   );
   // dispatch() dispatch 等待动画
   const staff = await getCurrentStaff();
+  staff.token = token.source;
   dispatch(setStaff(staff));
 };
 

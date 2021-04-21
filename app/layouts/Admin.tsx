@@ -54,8 +54,7 @@ export default function Admin({ ...rest }) {
   const [color, setColor] = React.useState('blue');
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const token = localStorage.getItem(tokenConfig.oauth.tokenName);
-  useWebSocket(token ? (JSON.parse(token) as OauthToken).access_token : null);
+  useWebSocket();
 
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
     setImage(selectImage);

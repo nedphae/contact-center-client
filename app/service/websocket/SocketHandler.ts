@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dispatch } from 'redux';
-import { useDispatch } from 'react-redux';
 
 import { configStaff } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
@@ -12,7 +11,7 @@ import {
 } from 'app/state/session/sessionAction';
 import EventInterface, { CallBack } from './EventInterface';
 
-class SocketHandler implements EventInterface {
+export default class SocketHandler implements EventInterface {
   socket: SocketIOClient.Socket;
 
   dispatch: Dispatch<any>;
@@ -34,30 +33,28 @@ class SocketHandler implements EventInterface {
     this.socket.on('assign', this.onAssignment);
   }
 
-  async onConnect(): Promise<void> {
+  /**
+   * 箭头语法绑定 this
+   */
+  onConnect = () => {
     /**
      * 发送客服注册信息(在线状态等)
      * 系统初始化信息，个人设置 等
      */
     this.dispatch(configStaff());
-  }
+  };
 
-  onMessage(
+  onMessage = (
     messageRequest: WebSocketRequest<Message>,
     cb: CallBack<string>
-  ): void {
+  ) => {
     this.dispatch(setNewMessage(messageRequest, cb));
-  }
+  };
 
-  onAssignment(
+  onAssignment = (
     conversationRequest: WebSocketRequest<Conversation>,
     cb: CallBack<string>
-  ): void {
+  ) => {
     this.dispatch(assignmentConver(conversationRequest, cb));
-  }
+  };
 }
-
-export default (socket: SocketIOClient.Socket) => {
-  const socketHandler = new SocketHandler(socket, useDispatch());
-  socketHandler.init();
-};

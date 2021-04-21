@@ -17,6 +17,7 @@
 */
 
 import React from 'react';
+
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { hot } from 'react-hot-loader/root';
@@ -34,24 +35,28 @@ type Props = {
   store: Store;
   history: History;
 };
-const Root = ({ store, history }: Props) => (
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <Switch>
-        {/* 原来的路由 */}
-        <Route path="/login" component={Auth} />
-        <Authorized
-          authority={['admin']}
-          noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
-        >
+const Root = ({ store, history }: Props) => {
+  // check login
+
+  return (
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <Switch>
+          {/* 原来的路由 */}
+          <Route path="/login" component={Auth} />
           {/* 添加权限的路由 */}
-          <Route path="/admin" component={Admin} />
-          <Route path="/rtl" component={RTL} />
-        </Authorized>
-        <Redirect from="/" to="/admin/entertain" />
-      </Switch>
-    </ConnectedRouter>
-  </Provider>
-);
+          <Authorized
+            authority={['admin']}
+            noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
+          >
+            <Route path="/admin" component={Admin} />
+            <Route path="/rtl" component={RTL} />
+            <Redirect from="/" to="/admin/entertain" />
+          </Authorized>
+        </Switch>
+      </ConnectedRouter>
+    </Provider>
+  );
+};
 
 export default hot(Root);
