@@ -4,17 +4,19 @@ export interface OauthToken {
   refresh_token: string;
   expires_in: number;
   scope: string;
-  organizationId: number;
+  oid: number;
+  sid: number;
   jti: string;
 }
 
 export interface AccessToken {
-  organizationId: number;
   user_name: string;
   scope: string[];
+  oid: number;
   exp: number;
   authorities: string[];
   jti: string;
   client_id: string;
+  sid: number;
   source: string;
 }

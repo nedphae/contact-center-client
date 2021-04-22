@@ -7,9 +7,7 @@ import 'perfect-scrollbar/css/perfect-scrollbar.css';
 import { makeStyles } from '@material-ui/core/styles';
 
 import useWebSocket from 'app/components/Websocket/useWebSocket';
-import tokenConfig from 'app/config/clientConfig';
 // core components
-import { OauthToken } from 'app/domain/OauthToken';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
