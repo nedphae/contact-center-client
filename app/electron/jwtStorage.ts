@@ -128,6 +128,7 @@ export function clearToken() {
 }
 
 export async function refreshToken(): Promise<AccessToken> {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const { refresh_token, oid } = await getOauthToken();
   const oauthParam = {
     grant_type: 'refresh_token',

@@ -26,14 +26,11 @@ interface StaffGroup {
 }
 
 export interface StaffConfig {
-  /** type of role */
-  role: string;
   onlineStatus: OnlineStatus;
 }
 
-export function configFromStaff(staff: Staff): StaffConfig {
+export function configStatus(): StaffConfig {
   return {
-    role: staff.role,
     onlineStatus: OnlineStatus.ONLINE,
   };
 }

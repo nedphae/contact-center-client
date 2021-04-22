@@ -2,7 +2,7 @@
  * 权限页面
  * 配置登录，验证权限
  */
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
 
 import Avatar from '@material-ui/core/Avatar';
@@ -24,7 +24,7 @@ import Container from '@material-ui/core/Container';
 import { oauthLogin, LoginParamsType } from 'app/service/loginService';
 import { setUserAsync } from 'app/state/staff/staffAction';
 import { history } from 'app/store';
-import { getAccessToken, refreshToken } from 'app/electron/jwtStorage';
+import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 
 function Copyright() {
   return (
@@ -97,33 +97,7 @@ export default function Auth() {
   const dispatch = useDispatch();
   const classes = useStyles();
   const { register, handleSubmit } = useForm<FormValues>();
-
-  /**
-   * 自动刷新 Token
-   */
-  const getTokenCall = useCallback(async () => {
-    try {
-      const token = await getAccessToken();
-      dispatch(setUserAsync(token));
-    } catch (error) {
-      // 刷新token
-      const newToken = await refreshToken();
-      dispatch(setUserAsync(newToken));
-    }
-    // 没有任何异常就跳转
-    history.push('/');
-  }, [dispatch]);
-
-  useEffect(() => {
-    let didCancel = false;
-    if (!didCancel) {
-      getTokenCall();
-    }
-
-    return () => {
-      didCancel = true;
-    };
-  }, [dispatch, getTokenCall]);
+  useAutoLogin(true);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     // 清楚密码中的空格

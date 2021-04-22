@@ -6,7 +6,7 @@ import 'perfect-scrollbar/css/perfect-scrollbar.css';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
 
-import useWebSocket from 'app/components/Websocket/useWebSocket';
+import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
@@ -19,6 +19,7 @@ import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
 import bgImage from '../assets/img/sidebar-2.jpg';
 import logo from '../assets/img/reactlogo.png';
+import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 
 let ps: PerfectScrollbar;
 
@@ -52,6 +53,7 @@ export default function Admin({ ...rest }) {
   const [color, setColor] = React.useState('blue');
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  useAutoLogin();
   useWebSocket();
 
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
