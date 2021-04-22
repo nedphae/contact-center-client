@@ -2,11 +2,8 @@
  * Authorized 元素权限配置
  * 搭配 JWT 进行 OAuth2 认证
  */
-import React, { useEffect, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react';
 
-import { getToken, refreshToken, saveToken } from 'app/electron/jwtStorage';
-import { setUserAsync } from 'app/state/staff/staffAction';
 import Snackbar from '../Snackbar/Snackbar';
 import check, { IAuthorityType } from './CheckPermissions';
 
@@ -37,36 +34,6 @@ const Authorized: React.FunctionComponent<AuthorizedProps> = ({
     />
   ),
 }) => {
-  const dispatch = useDispatch();
-
-  const getTokenCall = useCallback(async () => {
-    try {
-      const token = await getToken();
-      try {
-        const acessToken = await saveToken(token);
-        dispatch(setUserAsync(acessToken));
-      } catch (error) {
-        // 刷新token
-        const newToken = await refreshToken();
-        dispatch(setUserAsync(newToken));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    let didCancel = false;
-
-    if (!didCancel) {
-      getTokenCall();
-    }
-
-    return () => {
-      didCancel = true;
-    };
-  }, [dispatch, getTokenCall]);
-
   const childrenRender: React.ReactNode =
     typeof children === 'undefined' ? null : children;
   const dom = check(authority, childrenRender, noMatch);

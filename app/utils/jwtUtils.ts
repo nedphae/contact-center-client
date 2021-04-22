@@ -13,10 +13,18 @@ export default function verifyToken(token: string, callback: VerifyCallback) {
     token,
     (header: JwtHeader, jwkCallback) => {
       jwksClient.getSigningKey(header.kid!, (_err: any, key: SigningKey) => {
-        const signingKey = (key as RsaSigningKey).rsaPublicKey;
-        jwkCallback(null, signingKey);
+        if (key) {
+          const signingKey = (key as RsaSigningKey).rsaPublicKey;
+          jwkCallback(null, signingKey);
+        } else {
+          jwkCallback('key undefined', undefined);
+        }
       });
     },
     callback
   );
+}
+
+export function decodeToken(token: string): unknown {
+  return jwt.decode(token);
 }

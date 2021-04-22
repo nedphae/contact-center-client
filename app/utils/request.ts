@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getToken } from 'app/electron/jwtStorage';
+import { getOauthToken, refreshToken } from 'app/electron/jwtStorage';
 import tokenConfig from 'app/config/clientConfig';
 
 const axiosInstance = axios.create({
@@ -11,12 +11,18 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     // do something before request is sent
-    const token = await getToken();
-    if (token) {
+    let acessToken;
+    try {
+      acessToken = (await getOauthToken()).access_token;
+    } catch {
+      acessToken = (await refreshToken()).source;
+    }
+
+    if (acessToken) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers.Authorization = `Bearer ${token.access_token}`;
+      config.headers.Authorization = `Bearer ${acessToken}`;
     }
     return config;
   },

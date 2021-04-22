@@ -11,22 +11,34 @@ storage.setDataPath(os.tmpdir());
 /**
  * 保存 token 并做基本的验证
  * @param token 要保存的 jwt token
+ * @param save 是否保存，否就保存至 sessionStorage
  * @returns 验证并保存过的 acess token
  */
-export function saveToken(token: OauthToken): Promise<AccessToken> {
+export function saveToken(
+  token: OauthToken,
+  save: boolean
+): Promise<AccessToken> {
   return new Promise<AccessToken>((resolve, reject) => {
     verifyToken(token.access_token, (err: unknown, decoded: unknown) => {
       if (decoded) {
-        // storage 保存整个 jwt， localStorage 保存 access_token
-        localStorage.setItem(
-          clientConfig.oauth.tokenName,
-          JSON.stringify(token)
-        );
-        storage.set(clientConfig.oauth.tokenName, token, (error) => {
-          if (error) {
-            reject(err);
-          }
-        });
+        if (save) {
+          // storage 保存整个 jwt， localStorage 保存 access_token
+          localStorage.setItem(
+            clientConfig.oauth.tokenName,
+            JSON.stringify(token)
+          );
+          storage.set(clientConfig.oauth.tokenName, token, (error) => {
+            if (error) {
+              reject(err);
+            }
+          });
+        } else {
+          // 保存到 sessionStorage
+          sessionStorage.setItem(
+            clientConfig.oauth.tokenName,
+            JSON.stringify(token)
+          );
+        }
         const accessToken = decoded as AccessToken;
         accessToken.source = token.access_token;
         return resolve(accessToken);
@@ -38,23 +50,74 @@ export function saveToken(token: OauthToken): Promise<AccessToken> {
   });
 }
 
-export function getToken(): Promise<OauthToken> {
+function getToken(isAccese = true): Promise<OauthToken | AccessToken> {
   return new Promise((resolve, reject) => {
-    // 把 token 保存到 localStorage
-    const token = localStorage.getItem(clientConfig.oauth.tokenName);
-    if (token) {
-      resolve(JSON.parse(token) as OauthToken);
+    function verifyTokenResolve(token: OauthToken) {
+      const shoudVerifyToken = isAccese
+        ? token.access_token
+        : token.refresh_token;
+      verifyToken(shoudVerifyToken, (err: unknown, decoded: unknown) => {
+        if (decoded) {
+          if (isAccese) {
+            const accessToken = decoded as AccessToken;
+            accessToken.source = token.access_token;
+            return resolve(accessToken);
+          }
+          return resolve(token);
+        }
+        return reject(err);
+      });
     }
-    storage.get(clientConfig.oauth.tokenName, (error, data) => {
-      if (error) {
-        // 没有获取到 OauthToken 也要清除权限
-        localStorage.removeItem('antd-pro-authority');
-        reject(error);
+
+    // 把 token 保存到 sessionStorage
+    let token = sessionStorage.getItem(clientConfig.oauth.tokenName);
+    if (token) {
+      verifyTokenResolve(JSON.parse(token) as OauthToken);
+    } else {
+      // 把 token 保存到 localStorage
+      token = localStorage.getItem(clientConfig.oauth.tokenName);
+      if (token) {
+        verifyTokenResolve(JSON.parse(token) as OauthToken);
+      } else {
+        storage.get(clientConfig.oauth.tokenName, (error, data) => {
+          if (error) {
+            // 没有获取到 OauthToken 也要清除权限
+            localStorage.removeItem('antd-pro-authority');
+            return reject(error);
+          }
+          localStorage.setItem(
+            clientConfig.oauth.tokenName,
+            JSON.stringify(data)
+          );
+          return verifyTokenResolve(data as OauthToken);
+        });
       }
-      localStorage.setItem(clientConfig.oauth.tokenName, JSON.stringify(data));
-      resolve(data as OauthToken);
-    });
+    }
   });
+}
+
+/**
+ * 标记类型检查
+ */
+function isOauthToken(token: OauthToken | AccessToken): token is OauthToken {
+  return (<OauthToken>token).access_token !== undefined;
+}
+
+export async function getAccessToken(): Promise<AccessToken> {
+  const token = await getToken();
+  if (!isOauthToken(token)) {
+    return token;
+  }
+  // 仅仅取消类型检查
+  return {} as AccessToken;
+}
+
+export async function getOauthToken(): Promise<OauthToken> {
+  const token = await getToken(false);
+  if (isOauthToken(token)) {
+    return token;
+  }
+  return {} as OauthToken;
 }
 
 export function clearToken() {
@@ -65,7 +128,7 @@ export function clearToken() {
 }
 
 export async function refreshToken(): Promise<AccessToken> {
-  const { refresh_token, oid } = await getToken();
+  const { refresh_token, oid } = await getOauthToken();
   const oauthParam = {
     grant_type: 'refresh_token',
     refresh_token,
@@ -80,5 +143,8 @@ export async function refreshToken(): Promise<AccessToken> {
       Authorization: clientConfig.headers.Authorization,
     },
   });
-  return saveToken(result.data);
+  return saveToken(
+    result.data,
+    sessionStorage.getItem(clientConfig.oauth.tokenName) === null
+  );
 }

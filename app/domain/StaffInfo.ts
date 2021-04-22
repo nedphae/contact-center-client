@@ -16,6 +16,7 @@ export default interface Staff {
   headImg: string | undefined;
   personalizedSignature: string;
   syncState: boolean;
+  // just for websocket
   token: string | undefined;
 }
 

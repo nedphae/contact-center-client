@@ -2,7 +2,7 @@
  * 权限页面
  * 配置登录，验证权限
  */
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Avatar from '@material-ui/core/Avatar';
@@ -24,6 +24,7 @@ import Container from '@material-ui/core/Container';
 import { oauthLogin, LoginParamsType } from 'app/service/loginService';
 import { setUserAsync } from 'app/state/staff/staffAction';
 import { history } from 'app/store';
+import { getAccessToken, refreshToken } from 'app/electron/jwtStorage';
 
 function Copyright() {
   return (
@@ -89,6 +90,7 @@ type FormValues = {
   org_id: string | number;
   readonly username: string;
   readonly password: string;
+  readonly remember: boolean;
 };
 
 export default function Auth() {
@@ -96,11 +98,38 @@ export default function Auth() {
   const classes = useStyles();
   const { register, handleSubmit } = useForm<FormValues>();
 
+  /**
+   * 自动刷新 Token
+   */
+  const getTokenCall = useCallback(async () => {
+    try {
+      const token = await getAccessToken();
+      dispatch(setUserAsync(token));
+    } catch (error) {
+      // 刷新token
+      const newToken = await refreshToken();
+      dispatch(setUserAsync(newToken));
+    }
+    // 没有任何异常就跳转
+    history.push('/');
+  }, [dispatch]);
+
+  useEffect(() => {
+    let didCancel = false;
+    if (!didCancel) {
+      getTokenCall();
+    }
+
+    return () => {
+      didCancel = true;
+    };
+  }, [dispatch, getTokenCall]);
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     // 清楚密码中的空格
     data.org_id = Number((data.org_id as string).replaceAll(' ', ''));
     if (typeof data.org_id === 'number') {
-      const token = await oauthLogin(data as LoginParamsType);
+      const token = await oauthLogin(data as LoginParamsType, data.remember);
       dispatch(setUserAsync(token));
       history.push('/');
     }
@@ -160,7 +189,13 @@ export default function Auth() {
             inputRef={register({ required: true, maxLength: 15 })}
           />
           <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
+            name="remember"
+            control={
+              <Checkbox
+                color="primary"
+                inputRef={register({ required: false })}
+              />
+            }
             label="Remember me"
           />
           <Button

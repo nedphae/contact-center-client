@@ -14,7 +14,10 @@ export interface LoginParamsType {
   readonly password: string;
 }
 
-export async function oauthLogin(param: LoginParamsType): Promise<AccessToken> {
+export async function oauthLogin(
+  param: LoginParamsType,
+  save: boolean
+): Promise<AccessToken> {
   const oauthParam = {
     grant_type: clientConfig.oauth.grant_type,
     org_id: param.org_id,
@@ -30,5 +33,5 @@ export async function oauthLogin(param: LoginParamsType): Promise<AccessToken> {
       Authorization: clientConfig.headers.Authorization,
     },
   });
-  return saveToken(result.data);
+  return saveToken(result.data, save);
 }
