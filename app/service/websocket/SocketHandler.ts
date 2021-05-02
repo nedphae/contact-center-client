@@ -31,6 +31,8 @@ export default class SocketHandler implements EventInterface {
     this.socket.on('msg/sync', this.onMessage);
     // 分配客户
     this.socket.on('assign', this.onAssignment);
+
+    // this.socket.connect();
   }
 
   /**

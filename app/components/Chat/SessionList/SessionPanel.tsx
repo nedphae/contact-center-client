@@ -106,7 +106,7 @@ export default function SessionPanel() {
         <SessionList history />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <Authorized authority={['ROLE_ADMIN']} noMatch="非 Admin权限">
+        <Authorized authority={['admin']} noMatch="非 Admin权限">
           {/* 添加权限的Dom */}
           Admin 时权限展示
         </Authorized>

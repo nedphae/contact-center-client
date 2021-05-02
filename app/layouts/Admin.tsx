@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
+import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -19,7 +20,6 @@ import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
 import bgImage from '../assets/img/sidebar-2.jpg';
 import logo from '../assets/img/reactlogo.png';
-import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 
 let ps: PerfectScrollbar;
 
