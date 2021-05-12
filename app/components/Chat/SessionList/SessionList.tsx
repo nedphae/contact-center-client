@@ -182,13 +182,13 @@ function SessionList(props: SessionListProps) {
                   primary={user.name === undefined ? user.uid : user.name}
                   secondary={
                     <Typography noWrap variant="body2" color="textSecondary">
-                      {/* &nbsp;  用来充当占位符 如果没有消息时显示 */}
-                      {lastMessage === undefined ? '&nbsp;' : lastMessage}
+                      {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
+                      {lastMessage === undefined ? <>&nbsp;</> : lastMessage.content.}
                     </Typography>
                   }
                 />
                 {menuState.tag === 'important' && <StarIcon />}
-                {user.onlineStatue === OnlineStatus.ONLINE ? (
+                {user.status && OnlineStatus.ONLINE === user.status.onlineStatus ? (
                   <SyncAltIcon />
                 ) : (
                   <SignalWifiOffIcon />

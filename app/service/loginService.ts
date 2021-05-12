@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { OauthToken, AccessToken } from 'app/domain/OauthToken';
 import clientConfig from 'app/config/clientConfig';
-import { saveToken } from 'app/electron/jwtStorage';
+import { clearToken, saveToken } from 'app/electron/jwtStorage';
 import addParam from 'app/utils/url';
+import { history } from 'app/store';
 
 /**
  * 配置全局的 header 和过滤器
@@ -34,4 +35,9 @@ export async function oauthLogin(
     },
   });
   return saveToken(result.data, save);
+}
+
+export function logout() {
+  clearToken();
+  history.push('/login');
 }

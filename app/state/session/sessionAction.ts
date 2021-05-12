@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
-import { Content, Message, MessagesMap } from 'app/domain/Message';
+import { Content, Message, MessagesMap, UpdateMessage } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
 import { createSession } from 'app/domain/Session';
 import { getCuntomerByUserId } from 'app/service/infoService';
@@ -44,9 +44,7 @@ export const getSession = (hide = false) =>
       _.values(session)
         .filter((it) => it.hide === hide)
         // 按时间降序
-        .sort(
-          (a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
-        )
+        .sort((a, b) => b.lastMessageTime - a.lastMessageTime)
         // 按置顶排序
         .sort((a, b) => {
           let result = 0;
@@ -64,8 +62,8 @@ export const assignmentConver = (
   const conversation = request.body;
   if (conversation !== undefined) {
     // 根据分配的 conversation 获取 user
-    const { userId } = conversation;
-    const customer = await getCuntomerByUserId(userId);
+    const { organizationId, userId } = conversation;
+    const customer = await getCuntomerByUserId(organizationId, userId);
     dispatch(newConver(createSession(conversation, customer)));
     cb(generateResponse(request.header, 'ok'));
   } else {
@@ -117,7 +115,7 @@ export function sendMessage(message: Message): AppThunk {
  * @param cb 回调
  */
 export const setNewMessage = (
-  request: WebSocketRequest<Message>,
+  request: WebSocketRequest<UpdateMessage>,
   cb: CallBack<string>
 ): AppThunk => async (dispatch) => {
   of(request)
@@ -127,6 +125,7 @@ export const setNewMessage = (
       tap(() => {
         cb(generateResponse(request.header, 'ok'));
       }),
+      map((r) => r?.message),
       map((m) => {
         return { [m!.uuid]: m } as MessagesMap;
       })

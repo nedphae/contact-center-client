@@ -20,6 +20,12 @@ export interface Message extends MessageResponse {
   nickName?: string;
 }
 
+export interface UpdateMessage {
+  pts: number;
+  message: Message;
+  ptsCount: number;
+}
+
 interface TextContent {
   text: string;
 }
@@ -66,7 +72,7 @@ export interface MessageResponse {
   /** 雪花ID */
   seqId?: number;
   /** 服务器接受时间 */
-  createdAt?: Date;
+  createdAt?: number;
   /** 是否 发送到服务器 */
   sync?: boolean;
 }

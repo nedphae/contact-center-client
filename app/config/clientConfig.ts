@@ -19,6 +19,9 @@ export default {
   headers: {
     Authorization: 'Basic dXNlcl9jbGllbnQ6dGVzdF9zZWNyZXQ=',
   },
+  graphql: {
+    graphql: '/graphql',
+  },
   websocket: {
     path: '/socket.io',
     namespace: '/im/staff',

@@ -19,16 +19,56 @@ export interface Customer {
   mobile: string | undefined;
   /** vip等级 1-10 */
   vipLevel: number | undefined;
-  title: string | undefined;
-  referrer: string | undefined;
-  /** 来源类型 */
-  fromType: FromType;
-  ip: string | undefined;
-  /** 客户在线状态 */
-  onlineStatue: OnlineStatus;
+
+  status: CustomerStatus | undefined;
   /** 企业当前登录用户其他信息，JSON字符串 */
-  data: DetailData[] | undefined;
+  detailData: DetailData[] | undefined;
 }
+
+export interface CustomerStatus {
+  // 客户来源类型
+  fromType: FromType;
+
+  // 指定客服组id
+  groupId: number | undefined;
+
+  // 客户IP
+  ip: string;
+
+  // 登录时间
+  loginTime: Date;
+
+  // 是否在线
+  onlineStatus: OnlineStatus;
+
+  // 公司id
+  organizationId: number;
+
+  // 自定义访客咨询来源页的url，不配置sdk会自动抓取，和title一起使用
+  referrer: string | undefined;
+
+  // 机器人优先开关（访客分配）
+  robotShuntSwitch: number | undefined;
+
+  // 访客选择多入口分流模版id
+  shuntId: number;
+
+  // 指定客服id
+  staffId: number | undefined;
+
+  // 自定义访客咨询来源页的标题，不配置sdk会自动抓取, 和referrer一起使用
+  title: string | undefined;
+
+  // 客户提交id
+  uid: string | undefined;
+
+  // 客户系统id
+  userId: number;
+
+  // vip等级 1-10
+  vipLevel: number | undefined;
+}
+
 export interface DetailData {
   /**
    * 数据项的名称

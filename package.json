@@ -290,6 +290,7 @@
     "webpack-merge": "^5.0.9"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.16",
     "@fortawesome/fontawesome-free": "^5.15.0",
     "@hot-loader/react-dom": "^16.13.0",
     "@material-ui/core": "^4.9.1",
@@ -304,6 +305,7 @@
     "electron-log": "^4.2.4",
     "electron-updater": "^4.3.4",
     "emoji-mart": "^3.0.1",
+    "graphql": "^15.5.0",
     "history": "^4.7.2",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.11.0",

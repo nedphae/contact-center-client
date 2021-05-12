@@ -23,7 +23,8 @@ import { ConnectedRouter } from 'connected-react-router';
 import { hot } from 'react-hot-loader/root';
 import { History } from 'history';
 import { Switch, Route, Redirect } from 'react-router-dom';
-
+import { ApolloProvider } from '@apollo/client/react';
+import apolloClient from 'app/utils/apolloClient';
 import { Store } from './store';
 // core components
 import Admin from './layouts/Admin';
@@ -37,25 +38,28 @@ type Props = {
 };
 const Root = ({ store, history }: Props) => {
   // check login
-
   return (
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <Switch>
-          {/* 原来的路由 */}
-          <Route path="/login" component={Auth} />
-          {/* 添加权限的路由 */}
-          <Authorized
-            authority={['admin']}
-            noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
-          >
-            <Route path="/admin" component={Admin} />
-            <Route path="/rtl" component={RTL} />
-            <Redirect from="/" to="/admin/entertain" />
-          </Authorized>
-        </Switch>
-      </ConnectedRouter>
-    </Provider>
+    <ApolloProvider client={apolloClient}>
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <Switch>
+            {/* 原来的路由 */}
+            <Route path="/login" component={Auth} />
+            {/* 添加权限的路由 */}
+            <Authorized
+              authority={['admin']}
+              noMatch={
+                <Route path="/" render={() => <Redirect to="/login" />} />
+              }
+            >
+              <Route path="/admin" component={Admin} />
+              <Route path="/rtl" component={RTL} />
+              <Redirect from="/" to="/admin/entertain" />
+            </Authorized>
+          </Switch>
+        </ConnectedRouter>
+      </Provider>
+    </ApolloProvider>
   );
 };
 
