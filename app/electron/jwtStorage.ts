@@ -151,3 +151,14 @@ export async function refreshToken(): Promise<AccessToken> {
     sessionStorage.getItem(clientConfig.oauth.tokenName) === null
   );
 }
+
+export async function getTokenSource(): Promise<string> {
+  let acessToken;
+  // TODO: 性能可能又问题，需要修改为异步更新
+  try {
+    acessToken = (await getAccessToken()).source;
+  } catch {
+    acessToken = (await refreshToken()).source;
+  }
+  return acessToken;
+}

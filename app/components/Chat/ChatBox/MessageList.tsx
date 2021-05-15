@@ -11,8 +11,12 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
-import { getSelectedMessageList } from 'app/state/session/sessionAction';
+import {
+  getSelectedConstomer,
+  getSelectedMessageList,
+} from 'app/state/session/sessionAction';
 import { Content } from 'app/domain/Message';
+import { getStaff } from 'app/state/staff/staffAction';
 import FileCard from './FileCard';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -23,6 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
     paper: {
       // paddingBottom: 50,
       maxHeight: '100%',
+      width: '100%',
       overflow: 'auto',
     },
     toMessagePaper: {
@@ -129,6 +134,8 @@ const MessageList = () => {
   const classes = useStyles();
   const refOfPaper = useRef<Element>();
   const messages = useSelector(getSelectedMessageList);
+  const staff = useSelector(getStaff);
+  const user = useSelector(getSelectedConstomer);
 
   // 如果有问题 修改 userEffect 为 useLayoutEffect
   useEffect(() => {
@@ -140,7 +147,7 @@ const MessageList = () => {
   return (
     <Paper square className={classes.paper} ref={refOfPaper}>
       <List className={classes.list}>
-        {messages.map(({ uuid, nickName, createdAt, content, from, to }) => (
+        {messages.map(({ uuid, createdAt, content, from, to }) => (
           <React.Fragment key={uuid}>
             <ListItem alignItems="flex-start">
               {/* 接受到的消息的头像 */}
@@ -168,14 +175,14 @@ const MessageList = () => {
                           gutterBottom
                           className={classes.inline}
                         >
-                          {nickName}
+                          {from !== undefined ? user.name : staff.nickName}
                         </Typography>
                         <Typography
                           variant="body2"
                           gutterBottom
                           className={classes.inline}
                         >
-                          {createdAt}
+                          {createdAt?.toString()}
                         </Typography>
                       </Grid>
                     }

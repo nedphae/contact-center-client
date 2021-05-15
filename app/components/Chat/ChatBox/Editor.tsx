@@ -47,6 +47,7 @@ export default function Editor(selected: SelectedProps) {
   function handleSendTextMessage() {
     if (selectedSession && textMessage !== '') {
       dispath(sendTextMessage(selectedSession, textMessage));
+      setMessage('');
     }
   }
 

@@ -6,13 +6,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
-import { Content, Message, MessagesMap, UpdateMessage } from 'app/domain/Message';
+import {
+  Content,
+  Message,
+  MessagesMap,
+  UpdateMessage,
+} from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
 import { createSession } from 'app/domain/Session';
 import { getCuntomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { createSelector } from '@reduxjs/toolkit';
 import { CreatorType } from 'app/domain/constant/Message';
+import { Customer } from 'app/domain/Customer';
 import slice from './sessionSlice';
 
 const { newConver, newMessage } = slice.actions;
@@ -28,10 +34,16 @@ export const getSelectedMessageList = (state: RootState) => {
   return _.values(messageListMap).sort(
     (a, b) =>
       // 默认 seqId 为最大
-      (b.seqId ?? Number.MAX_SAFE_INTEGER) -
-      (a.seqId ?? Number.MAX_SAFE_INTEGER)
+      (a.seqId ?? Number.MAX_SAFE_INTEGER) -
+      (b.seqId ?? Number.MAX_SAFE_INTEGER)
   );
 };
+
+export const getSelectedConstomer = (state: RootState) => {
+  const selected = state.chat.selectedSession;
+  if (selected === undefined) return {} as Customer;
+  return state.session[selected].user;
+}
 
 /**
  * 根据条件获取会话列表，并按照最后消息和置顶排序

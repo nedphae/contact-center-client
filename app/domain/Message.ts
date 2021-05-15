@@ -72,7 +72,7 @@ export interface MessageResponse {
   /** 雪花ID */
   seqId?: number;
   /** 服务器接受时间 */
-  createdAt?: number;
+  createdAt?: number | string | Date;
   /** 是否 发送到服务器 */
   sync?: boolean;
 }

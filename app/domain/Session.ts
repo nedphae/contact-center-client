@@ -26,7 +26,7 @@ export interface Session {
   /** 未读消息 */
   unread: number;
   /** 会话的聊天消息 */
-  massageList: MessagesMap | undefined;
+  massageList: MessagesMap;
   lastMessageTime: number;
   lastMessage: Message | undefined;
   hide: boolean;
@@ -52,7 +52,7 @@ export function createSession(
     conversation,
     user,
     unread: 0,
-    massageList: undefined,
+    massageList: {},
     lastMessageTime: new Date().getTime(),
     lastMessage: undefined,
     hide: false,

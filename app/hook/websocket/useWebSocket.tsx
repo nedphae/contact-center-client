@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { interval } from 'rxjs';
 
 import IO from 'socket.io-client';
 
 import SocketHandler from 'app/service/websocket/SocketHandler';
 import config from 'app/config/clientConfig';
-import { getStaffToken } from 'app/state/staff/staffAction';
+import { getStaffToken, setUserAsync } from 'app/state/staff/staffAction';
+import { getAccessToken } from 'app/electron/jwtStorage';
+import { verifyTokenPromise } from 'app/utils/jwtUtils';
 
 /**
  * WebSocket Hook, 返回 websocket对象
@@ -31,6 +34,19 @@ const useWebSocket = () => {
       : {};
 
     if (token) {
+      const period = 1000 * 60 * 10;
+      interval(period).subscribe(async () => {
+        // 每10分钟更新token
+        try {
+          verifyTokenPromise(token, period);
+        } catch {
+          const accessToken = await getAccessToken();
+          if (socketRef.current) {
+            socketRef.current.io.opts.query = `token=${accessToken.source}`;
+          }
+        }
+      });
+
       socketRef.current = IO(
         config.web.host + config.websocket.namespace,
         options

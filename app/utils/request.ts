@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAccessToken, refreshToken } from 'app/electron/jwtStorage';
+import { getTokenSource } from 'app/electron/jwtStorage';
 import tokenConfig from 'app/config/clientConfig';
 
 const axiosInstance = axios.create({
@@ -11,13 +11,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     // do something before request is sent
-    let acessToken;
-    // TODO: 性能可能又问题，需要修改为异步更新
-    try {
-      acessToken = (await getAccessToken()).source;
-    } catch {
-      acessToken = (await refreshToken()).source;
-    }
+    const acessToken = await getTokenSource();
 
     if (acessToken) {
       // let each request carry token

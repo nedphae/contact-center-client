@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { of } from 'rxjs';
-import { map, switchMap, filter } from 'rxjs/operators';
+import { map, switchMap, filter, defaultIfEmpty, tap } from 'rxjs/operators';
 import _ from 'lodash';
 
 import { SessionMap, Session, TagParamer } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
+import javaInstant2Date from 'app/utils/timeUtils';
 
 const initConver = {} as SessionMap;
 
@@ -32,13 +33,20 @@ const converSlice = createSlice({
       of(action.payload)
         .pipe(
           switchMap((m) => {
-            const { from } = _.valuesIn(m)[0];
+            const msg = _.valuesIn(m)[0];
+            const { from, to } = msg;
             return of(from).pipe(
+              tap(() => {
+                if (msg.createdAt) {
+                  msg.createdAt = javaInstant2Date(msg.createdAt);
+                }
+              }),
               filter((f) => f !== undefined && f !== null),
-              map((f) => converMap[f!]),
+              defaultIfEmpty<number | undefined>(to),
+              filter((f) => f !== undefined && f !== null),
+              map((f) => converMap[f]),
               map((c) => {
-                c.lastMessageTime =
-                  _.valuesIn(m)[0].createdAt ?? c.lastMessageTime;
+                c.lastMessageTime = msg.createdAt ?? c.lastMessageTime;
                 [c.lastMessage] = _.valuesIn(m);
                 // 消息如果存在了就不在设置 change from _.merge
                 _.defaults(c.massageList, m);

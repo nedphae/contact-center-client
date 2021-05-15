@@ -12,7 +12,7 @@ export interface Customer {
   /** 咨询入口 */
   shuntId: number;
   /** 用户姓名 */
-  name: string | undefined;
+  name: string;
   /** 用户邮箱 */
   email: string | undefined;
   /** 用户手机号 */

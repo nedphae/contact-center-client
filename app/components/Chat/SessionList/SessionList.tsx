@@ -30,6 +30,8 @@ import {
   getSelectedSession,
   setSelectedSession,
 } from 'app/state/chat/chatAction';
+import { Message } from 'app/domain/Message';
+import { MessageType } from 'app/domain/constant/Message';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -151,6 +153,23 @@ function SessionList(props: SessionListProps) {
     return menuList;
   }
 
+  function getMessagePreview(message: Message): string {
+    let previewText = ' ';
+    switch (message.content.contentType) {
+      case 'TEXT':
+        previewText = message.content.textContent
+          ? message.content.textContent.text
+          : ' ';
+        break;
+      case 'SYS':
+        break;
+      default:
+        previewText = MessageType[message.content.contentType];
+        break;
+    }
+    return previewText;
+  }
+
   return (
     <div className={classes.root}>
       <List component="nav" aria-label="main mailbox folders">
@@ -183,12 +202,17 @@ function SessionList(props: SessionListProps) {
                   secondary={
                     <Typography noWrap variant="body2" color="textSecondary">
                       {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
-                      {lastMessage === undefined ? <>&nbsp;</> : lastMessage.content.}
+                      {lastMessage === undefined ? (
+                        <>&nbsp;</>
+                      ) : (
+                        getMessagePreview(lastMessage)
+                      )}
                     </Typography>
                   }
                 />
                 {menuState.tag === 'important' && <StarIcon />}
-                {user.status && OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                {user.status &&
+                OnlineStatus.ONLINE === user.status.onlineStatus ? (
                   <SyncAltIcon />
                 ) : (
                   <SignalWifiOffIcon />
