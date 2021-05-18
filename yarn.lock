@@ -1255,10 +1255,15 @@
     prop-types "^15.6.2"
     scheduler "^0.19.1"
 
-"@iconify/icons-mdi@^1.1.13":
-  version "1.1.13"
-  resolved "https://registry.yarnpkg.com/@iconify/icons-mdi/-/icons-mdi-1.1.13.tgz#5cf40310f28e538ea3c155499c3d72e2d40081a7"
-  integrity sha512-R3EI5eXXrdhlY+x0M4VLJSPWC7Wb252JwZbTsn+6kSXVedQlt7euWZfurI70SUKfjviuVbJqLXWZCAAREjwQoA==
+"@iconify-icons/ri@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@iconify-icons/ri/-/ri-1.1.0.tgz#2ad1aab443c304e3a0a4a3e708b1dee0ed95ce5b"
+  integrity sha512-9773shGDNQ5XwULVRFGIl6lYEEML0C2jUJE0tuGl7G2oEl3mh8bnLUdt0l3ntlONaN5F4swoSDP27P5j8ezyeA==
+
+"@iconify/icons-mdi@^1.1.15":
+  version "1.1.15"
+  resolved "https://registry.yarnpkg.com/@iconify/icons-mdi/-/icons-mdi-1.1.15.tgz#e035130cc480c4318fb4cb21b8b836a2ba32c8b9"
+  integrity sha512-H2dwj/vlBXd9Gc7d66m8ZW/8TZcxshMwIoyUkyTMft1mnGqsxJWq5QEWnX+jkmL8KKGR/czqh6p9sEe67Laq6Q==
 
 "@iconify/react@^1.1.4":
   version "1.1.4"

@@ -43,7 +43,7 @@ export const getSelectedConstomer = (state: RootState) => {
   const selected = state.chat.selectedSession;
   if (selected === undefined) return {} as Customer;
   return state.session[selected].user;
-}
+};
 
 /**
  * 根据条件获取会话列表，并按照最后消息和置顶排序

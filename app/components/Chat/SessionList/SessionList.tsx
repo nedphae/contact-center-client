@@ -104,12 +104,14 @@ function SessionList(props: SessionListProps) {
     if (userId !== undefined) {
       dispatch(stickyCustomer(userId));
     }
+    setState(initialState);
   }
 
   function doTag(userId: number | undefined, tag: Tag) {
     if (userId !== undefined) {
       dispatch(tagCustomer({ userId, tag })); // type TagParamer
     }
+    setState(initialState);
   }
 
   /**

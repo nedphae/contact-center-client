@@ -70,6 +70,7 @@ export interface CustomerStatus {
 }
 
 export interface DetailData {
+  id: number;
   /**
    * 数据项的名称
    * 用于区别不同的数据。其中real_name、mobile_phone、email为保留字段，

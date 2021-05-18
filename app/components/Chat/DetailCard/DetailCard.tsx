@@ -3,7 +3,6 @@
  * TODO: 客户信息 等的组件开发
  */
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -11,6 +10,7 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
 import Style from './DetailCard.less';
+import CustomerInfo from './panel/CustomerInfo';
 
 function a11yProps(index: number) {
   return {
@@ -50,6 +50,7 @@ export default function DetailCard() {
   const style = {
     minWidth: 'calc(100% / 4)',
   };
+
   const handleChange = (
     event: React.ChangeEvent<unknown>,
     newValue: number
@@ -57,6 +58,7 @@ export default function DetailCard() {
     setValue(newValue);
     event.preventDefault();
   };
+
   return (
     <div className={Style.container}>
       <Tabs
@@ -73,7 +75,7 @@ export default function DetailCard() {
         {/* TODO: 后面可以做成配置型的 */}
       </Tabs>
       <TabPanel value={value} index={0}>
-        Item One
+        <CustomerInfo />
       </TabPanel>
       <TabPanel value={value} index={1}>
         Item Two

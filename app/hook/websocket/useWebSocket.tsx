@@ -38,7 +38,7 @@ const useWebSocket = () => {
       interval(period).subscribe(async () => {
         // 每10分钟更新token
         try {
-          verifyTokenPromise(token, period);
+          verifyTokenPromise(token, period * 2);
         } catch {
           const accessToken = await getAccessToken();
           if (socketRef.current) {
