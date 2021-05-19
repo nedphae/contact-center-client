@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { SessionMap, Session, TagParamer } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 import javaInstant2Date from 'app/utils/timeUtils';
+import { Customer } from 'app/domain/Customer';
 
 const initConver = {} as SessionMap;
 
@@ -17,6 +18,9 @@ const converSlice = createSlice({
     // 设置新会话
     newConver: (converMap, action: PayloadAction<Session>) => {
       converMap[action.payload.conversation.userId] = action.payload;
+    },
+    updateCustomer: (converMap, action: PayloadAction<Customer>) => {
+      converMap[action.payload.userId].user = action.payload;
     },
     stickyCustomer: (converMap, action: PayloadAction<number>) => {
       // 设置置顶

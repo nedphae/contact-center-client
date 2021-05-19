@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { useMutation, useLazyQuery } from '@apollo/client';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
+import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -12,8 +14,14 @@ import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import EmailIcon from '@material-ui/icons/Email';
 import { InlineIcon } from '@iconify/react';
 import vipLine from '@iconify-icons/ri/vip-line';
+import NoteAddIcon from '@material-ui/icons/NoteAdd';
 
-import { getSelectedConstomer } from 'app/state/session/sessionAction';
+import {
+  getSelectedConstomer,
+  updateCustomer,
+} from 'app/state/session/sessionAction';
+import { MUTATION_CUSTOMER, QUERY_CUSTOMER } from 'app/domain/graphql/customer';
+import { Customer } from 'app/domain/Customer';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,25 +35,41 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%', // Fix IE 11 issue.
       marginTop: theme.spacing(1),
     },
+    submit: {
+      margin: theme.spacing(3, 0, 2),
+    },
   })
 );
 
-type FormValues = {
+interface FormValues {
+  readonly id: number;
+  readonly organizationId: number;
   readonly uid: string;
   name: string;
   phone: string;
   email: boolean;
   vipLevel: number;
-};
+}
 
 export default function CustomerInfo() {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const { register, handleSubmit } = useForm<FormValues>();
   const user = useSelector(getSelectedConstomer);
+  // TODO: 显示更新错误
+  const [editCustomer, { error }] = useMutation<Customer>(MUTATION_CUSTOMER);
+  const [getCustomer, { data }] = useLazyQuery<Customer>(QUERY_CUSTOMER);
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  useEffect(() => {
+    if (data !== undefined) {
+      dispatch(updateCustomer(data));
+    }
+  }, [data, dispatch]);
+
+  const onSubmit: SubmitHandler<FormValues> = async (form) => {
     // 用户信息表单
-    
+    editCustomer({ variables: { customerInput: form } });
+    getCustomer({ variables: { orgId: form.organizationId, userId: form.id } });
   };
 
   return (
@@ -55,7 +79,13 @@ export default function CustomerInfo() {
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
             defaultValue={user.userId}
-            name="userId"
+            name="id"
+            type="hidden"
+            inputRef={register()}
+          />
+          <TextField
+            defaultValue={user.organizationId}
+            name="organizationId"
             type="hidden"
             inputRef={register()}
           />
@@ -153,27 +183,29 @@ export default function CustomerInfo() {
                 if (!b.index) b.index = Number.MAX_SAFE_INTEGER;
                 return a.index - b.index;
               })
-              .map((data) => (
-                <React.Fragment key={data.id}>
+              .map((detail) => (
+                <React.Fragment key={detail.id}>
                   <TextField
-                    defaultValue={data.id}
+                    defaultValue={detail.key}
                     type="hidden"
-                    id={`${data.key}.id`}
-                    name={`detailData.${user.detailData?.indexOf(data)}.id`}
+                    id={`key.${detail.id}`}
+                    name={`detailData.${user.detailData?.indexOf(detail)}.key`}
                     inputRef={register()}
                   />
                   <TextField
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    id={`${data.key}.value`}
-                    name={`detailData.${user.detailData?.indexOf(data)}.value`}
-                    label={data.label}
-                    defaultValue={data.value}
+                    id={`value.${detail.id}`}
+                    name={`detailData.${user.detailData?.indexOf(
+                      detail
+                    )}.value`}
+                    label={detail.label}
+                    defaultValue={detail.value}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <WcIcon />
+                          <NoteAddIcon />
                         </InputAdornment>
                       ),
                     }}
@@ -181,6 +213,15 @@ export default function CustomerInfo() {
                   />
                 </React.Fragment>
               ))}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+          >
+            保存
+          </Button>
         </form>
       </div>
     </Container>

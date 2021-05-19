@@ -5,6 +5,7 @@ import { OnlineStatus } from './constant/Staff';
 export interface Customer {
   /** 客户关联的会话id */
   conversationId: number | undefined;
+  organizationId: number;
   /** 客户 id 服务器自动设置 */
   userId: number;
   /** 用户在企业产品中的标识 */

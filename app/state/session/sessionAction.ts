@@ -22,7 +22,7 @@ import { Customer } from 'app/domain/Customer';
 import slice from './sessionSlice';
 
 const { newConver, newMessage } = slice.actions;
-export const { stickyCustomer, tagCustomer } = slice.actions;
+export const { stickyCustomer, tagCustomer, updateCustomer } = slice.actions;
 
 export const getSelectedMessageList = (state: RootState) => {
   const selected = state.chat.selectedSession;

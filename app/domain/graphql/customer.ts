@@ -42,8 +42,8 @@ export const QUERY_CUSTOMER = gql`
 `;
 export const MUTATION_CUSTOMER = gql`
   ${CORE_CUSTOMER_FIELDS}
-  mutation Customer($customer: CustomerInput!) {
-    updateCustomer(customer: $customer) {
+  mutation Customer($customerInput: CustomerInput!) {
+    updateCustomer(customer: $customerInput) {
       ...CustomerFields
     }
   }
