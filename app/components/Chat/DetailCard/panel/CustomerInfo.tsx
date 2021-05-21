@@ -20,7 +20,7 @@ import {
   getSelectedConstomer,
   updateCustomer,
 } from 'app/state/session/sessionAction';
-import { MUTATION_CUSTOMER, QUERY_CUSTOMER } from 'app/domain/graphql/customer';
+import { MUTATION_CUSTOMER, QUERY_CUSTOMER } from 'app/domain/graphql/Customer';
 import { Customer } from 'app/domain/Customer';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -183,13 +183,13 @@ export default function CustomerInfo() {
                 if (!b.index) b.index = Number.MAX_SAFE_INTEGER;
                 return a.index - b.index;
               })
-              .map((detail) => (
+              .map((detail, index) => (
                 <React.Fragment key={detail.id}>
                   <TextField
                     defaultValue={detail.key}
                     type="hidden"
                     id={`key.${detail.id}`}
-                    name={`detailData.${user.detailData?.indexOf(detail)}.key`}
+                    name={`detailData.${index}.key`}
                     inputRef={register()}
                   />
                   <TextField
@@ -197,9 +197,7 @@ export default function CustomerInfo() {
                     margin="normal"
                     fullWidth
                     id={`value.${detail.id}`}
-                    name={`detailData.${user.detailData?.indexOf(
-                      detail
-                    )}.value`}
+                    name={`detailData.${index}.value`}
                     label={detail.label}
                     defaultValue={detail.value}
                     InputProps={{

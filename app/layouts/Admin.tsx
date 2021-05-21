@@ -9,6 +9,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
 import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
+import useInitData from 'app/hook/init/useInitData';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -55,6 +56,7 @@ export default function Admin({ ...rest }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   useAutoLogin();
   useWebSocket();
+  useInitData();
 
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
     setImage(selectImage);
@@ -138,4 +140,7 @@ export default function Admin({ ...rest }) {
       </div>
     </div>
   );
+}
+function useInit() {
+  throw new Error('Function not implemented.');
 }

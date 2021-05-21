@@ -1,8 +1,16 @@
-import { AppThunk, RootState } from 'app/store';
+import { RootState } from 'app/store';
 
 import slice from './chatSlice';
 
-export const { setSelectedSession } = slice.actions;
+export const {
+  setSelectedSession,
+  setQuickReply,
+  setQuickReplySearchText,
+} = slice.actions;
 
 export const getSelectedSession = (state: RootState) =>
   state.chat.selectedSession;
+
+export const getQuickReply = (state: RootState) => state.chat.quickReply;
+export const getFilterQuickReply = (state: RootState) =>
+  state.chat.filterQuickReply;

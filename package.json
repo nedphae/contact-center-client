@@ -306,6 +306,7 @@
     "electron-log": "^4.2.4",
     "electron-updater": "^4.3.4",
     "emoji-mart": "^3.0.1",
+    "fuse.js": "^6.4.6",
     "graphql": "^15.5.0",
     "history": "^4.7.2",
     "jsonwebtoken": "^8.5.1",
