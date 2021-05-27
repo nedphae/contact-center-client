@@ -16,13 +16,6 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       flexGrow: 1,
     },
-    paper: {
-      height: 100,
-      width: 200,
-    },
-    control: {
-      padding: theme.spacing(2),
-    },
   })
 );
 

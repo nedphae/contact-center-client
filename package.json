@@ -24,7 +24,7 @@
     "postlint-styles-fix": "prettier --ignore-path .eslintignore --single-quote --write '**/*.{css,scss}'",
     "preinstall": "node ./internals/scripts/CheckYarn.js",
     "prestart": "yarn build",
-    "start": "cross-env START_HOT=1 PORT=8181 node -r @babel/register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 PORT=8181 yarn start-renderer-dev",
+    "start": "cross-env START_HOT=1 PORT=8881 node -r @babel/register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 PORT=8881 yarn start-renderer-dev",
     "start:prod": "cross-env NODE_ENV=production electron ./app/main.prod.js",
     "start-main-debug": "yarn start-main-dev --inspect=5858 --remote-debugging-port=9223",
     "start-main-dev": "cross-env START_HOT=1 NODE_ENV=development electron -r ./internals/scripts/BabelRegister ./app/main.dev.ts",

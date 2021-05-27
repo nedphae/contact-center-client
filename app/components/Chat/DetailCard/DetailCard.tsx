@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
+import QuickRecovery from './panel/QuickRecovery';
 
 function a11yProps(index: number) {
   return {
@@ -81,7 +82,7 @@ export default function DetailCard() {
         Item Two
       </TabPanel>
       <TabPanel value={value} index={2}>
-        Item Three
+        <QuickRecovery />
       </TabPanel>
       <TabPanel value={value} index={3}>
         Item Three

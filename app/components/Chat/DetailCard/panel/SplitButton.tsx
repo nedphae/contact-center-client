@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -11,7 +11,7 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     root: {
       padding: 10,
