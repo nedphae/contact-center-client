@@ -3,12 +3,14 @@
  * TODO: 客户信息 等的组件开发
  */
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
+import { getSelectedSession } from 'app/state/chat/chatAction';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
 import QuickRecovery from './panel/QuickRecovery';
@@ -48,6 +50,7 @@ function TabPanel(props: TabPanelProps) {
 
 export default function DetailCard() {
   const [value, setValue] = useState(0);
+  const selectedSession = useSelector(getSelectedSession);
   const style = {
     minWidth: 'calc(100% / 4)',
   };

@@ -78,16 +78,16 @@ export default function CustomerInfo() {
       <div className={classes.paper}>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
-            defaultValue={user.userId}
+            value={user.userId || ''}
             name="id"
             type="hidden"
-            inputRef={register()}
+            inputRef={register({ maxLength: 50 })}
           />
           <TextField
-            defaultValue={user.organizationId}
+            value={user.organizationId || ''}
             name="organizationId"
             type="hidden"
-            inputRef={register()}
+            inputRef={register({ maxLength: 50 })}
           />
           <TextField
             variant="outlined"
@@ -96,7 +96,7 @@ export default function CustomerInfo() {
             id="uid"
             name="uid"
             label="用户标识"
-            defaultValue={user.uid}
+            value={user.uid || ''}
             InputProps={{
               readOnly: true,
               startAdornment: (
@@ -105,7 +105,7 @@ export default function CustomerInfo() {
                 </InputAdornment>
               ),
             }}
-            inputRef={register()}
+            inputRef={register({ maxLength: 50 })}
           />
           <TextField
             variant="outlined"
@@ -114,7 +114,7 @@ export default function CustomerInfo() {
             id="name"
             name="name"
             label="用户姓名"
-            defaultValue={user.name}
+            value={user.name || ''}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -122,7 +122,7 @@ export default function CustomerInfo() {
                 </InputAdornment>
               ),
             }}
-            inputRef={register()}
+            inputRef={register({ maxLength: 50 })}
           />
           <TextField
             variant="outlined"
@@ -131,7 +131,7 @@ export default function CustomerInfo() {
             id="phone"
             name="phone"
             label="手机"
-            defaultValue={user.mobile}
+            value={user.mobile || ''}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -139,7 +139,7 @@ export default function CustomerInfo() {
                 </InputAdornment>
               ),
             }}
-            inputRef={register()}
+            inputRef={register({ maxLength: 150 })}
           />
           <TextField
             variant="outlined"
@@ -148,7 +148,7 @@ export default function CustomerInfo() {
             id="email"
             name="email"
             label="邮箱"
-            defaultValue={user.email}
+            value={user.email || ''}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -156,7 +156,7 @@ export default function CustomerInfo() {
                 </InputAdornment>
               ),
             }}
-            inputRef={register()}
+            inputRef={register({ maxLength: 150 })}
           />
           <TextField
             variant="outlined"
@@ -165,7 +165,7 @@ export default function CustomerInfo() {
             id="vipLevel"
             name="vipLevel"
             label="Vip 等级"
-            defaultValue={user.vipLevel}
+            value={user.vipLevel || ''}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -173,7 +173,7 @@ export default function CustomerInfo() {
                 </InputAdornment>
               ),
             }}
-            inputRef={register()}
+            inputRef={register({ maxLength: 150 })}
           />
           {user.detailData !== undefined &&
             user.detailData
@@ -186,11 +186,11 @@ export default function CustomerInfo() {
               .map((detail, index) => (
                 <React.Fragment key={detail.id}>
                   <TextField
-                    defaultValue={detail.key}
+                    value={detail.key}
                     type="hidden"
                     id={`key.${detail.id}`}
                     name={`detailData.${index}.key`}
-                    inputRef={register()}
+                    inputRef={register({ maxLength: 150 })}
                   />
                   <TextField
                     variant="outlined"
@@ -199,7 +199,7 @@ export default function CustomerInfo() {
                     id={`value.${detail.id}`}
                     name={`detailData.${index}.value`}
                     label={detail.label}
-                    defaultValue={detail.value}
+                    value={detail.value || ''}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -207,7 +207,7 @@ export default function CustomerInfo() {
                         </InputAdornment>
                       ),
                     }}
-                    inputRef={register()}
+                    inputRef={register({ maxLength: 150 })}
                   />
                 </React.Fragment>
               ))}

@@ -56,19 +56,19 @@ const dashboardRoutes = [
     layout: '/admin',
   },
   {
+    path: '/table',
+    name: '历史记录',
+    rtlName: 'قائمة الجدول',
+    icon: 'content_paste',
+    component: TableList,
+    layout: '/admin',
+  },
+  {
     path: '/user',
     name: '用户资料',
     rtlName: 'ملف تعريفي للمستخدم',
     icon: Person,
     component: UserProfile,
-    layout: '/admin',
-  },
-  {
-    path: '/table',
-    name: '表格清单',
-    rtlName: 'قائمة الجدول',
-    icon: 'content_paste',
-    component: TableList,
     layout: '/admin',
   },
   {
