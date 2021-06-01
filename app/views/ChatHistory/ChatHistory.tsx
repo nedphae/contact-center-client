@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DataGrid,
   GridColDef,
-  GridLocaleText,
   GridValueGetterParams,
   GridToolbar,
+  GridPageChangeParams,
 } from '@material-ui/data-grid';
+import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
+import { useQuery } from '@apollo/client';
+import {
+  ConversationQueryInput,
+  PageParam,
+  QUERY_CONVERSATION,
+} from 'app/domain/graphql/Conversation';
+import { Conversation, PageContent } from 'app/domain/Conversation';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -24,6 +32,8 @@ const columns: GridColDef[] = [
   {
     field: 'interaction',
     headerName: '来源类型',
+    description: '客户来自哪个接入方式.',
+    sortable: false,
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
       let result = '机器人会话';
@@ -38,164 +48,140 @@ const columns: GridColDef[] = [
   { field: 'staffId', headerName: '客服实名', width: 150 },
   { field: 'nickName', headerName: '客服昵称', width: 150 },
   { field: 'startTime', headerName: '开始时间', width: 150 },
-  { field: 'nickName', headerName: '客服昵称', width: 150 },
-  { field: 'nickName', headerName: '客服昵称', width: 150 },
+  { field: 'userId', headerName: '客户ID', width: 150 },
+  { field: 'userName', headerName: '客户名称', width: 150 },
+  { field: 'vipLevel', headerName: 'VIP', type: 'number', width: 150 },
   {
-    field: 'age',
-    headerName: 'Age',
+    field: 'visitRange',
+    headerName: '与上一次来访的时间差',
     type: 'number',
-    width: 110,
+    width: 150,
+  },
+  { field: 'transferType', headerName: '转人工类型', width: 150 },
+  { field: 'humanTransferSessionId', headerName: '转接的会话ID', width: 150 },
+  {
+    field: 'transferFromStaffName',
+    headerName: '转接来源客服名称',
+    width: 150,
+  },
+  { field: 'transferFromGroup', headerName: '转接来源客服组名称', width: 150 },
+  { field: 'transferRemarks', headerName: '转接来源备注', width: 150 },
+  {
+    field: 'isStaffInvited',
+    headerName: '客服是否邀请会话',
+    type: 'boolean',
+    width: 150,
+  },
+  { field: 'beginner', headerName: '会话发起方', width: 150 },
+  { field: 'relatedId', headerName: '关联会话id', width: 150 },
+  { field: 'relatedType', headerName: '关联会话类型', width: 150 },
+  { field: 'category', headerName: '会话分类信息', width: 150 },
+  { field: 'categoryDetail', headerName: '会话咨询分类明细', width: 150 },
+  { field: 'closeReason', headerName: '会话关闭原因', width: 150 },
+  { field: 'endTime', headerName: '结束时间', width: 150 },
+  {
+    field: 'staffFirstReplyTime',
+    headerName: '客服首次响应的时间',
+    width: 150,
+  },
+  { field: 'firstReplyCost', headerName: '客服首次响应时长', width: 150 },
+  { field: 'stickDuration', headerName: '客服置顶时长', width: 150 },
+  { field: 'remarks', headerName: '会话备注', width: 150 },
+  { field: 'status', headerName: '会话解决状态', width: 150 },
+  {
+    field: 'roundNumber',
+    headerName: '对话回合数',
+    type: 'number',
+    width: 150,
   },
   {
-    field: 'fullName',
-    headerName: 'Full name',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 160,
-    valueGetter: (params: GridValueGetterParams) =>
-      `${params.getValue(params.id, 'firstName') || ''} ${
-        params.getValue(params.id, 'lastName') || ''
-      }`,
+    field: 'clientFirstMessageTime',
+    headerName: '访客首条消息时间',
+    width: 150,
   },
+  { field: 'avgRespDuration', headerName: '客服平均响应时长', width: 150 },
+  { field: 'isValid', headerName: '是否有效会话', width: 150 },
+  {
+    field: 'staffMessageCount',
+    headerName: '客服消息数',
+    type: 'number',
+    width: 150,
+  },
+  {
+    field: 'userMessageCount',
+    headerName: '用户消息数',
+    type: 'number',
+    width: 150,
+  },
+  {
+    field: 'totalMessageCount',
+    headerName: '总消息数',
+    type: 'number',
+    width: 150,
+  },
+  {
+    field: 'treatedTime',
+    headerName: '留言处理时间',
+    type: 'number',
+    width: 150,
+  },
+  {
+    field: 'isEvaluationInvited',
+    headerName: '客服是否邀评',
+    type: 'boolean',
+    width: 150,
+  },
+  { field: 'terminator', headerName: '会话中止方', width: 150 },
 ];
-
-const rows = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-];
-
-export const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
-  rootGridLabel: '根',
-  // Root
-  noRowsLabel: '没有数据',
-  noResultsOverlayLabel: '结果未找到.',
-  errorOverlayDefaultLabel: '发送错误.',
-
-  // Density selector toolbar button text
-  toolbarDensity: '密度',
-  toolbarDensityLabel: '密度',
-  toolbarDensityCompact: '紧密',
-  toolbarDensityStandard: '标准',
-  toolbarDensityComfortable: '疏散',
-
-  // Columns selector toolbar button text
-  toolbarColumns: '列',
-  toolbarColumnsLabel: '选择列',
-
-  // Filters toolbar button text
-  toolbarFilters: '过滤器',
-  toolbarFiltersLabel: '显示过滤器',
-  toolbarFiltersTooltipHide: '隐藏过滤器',
-  toolbarFiltersTooltipShow: '显示过滤器',
-  toolbarFiltersTooltipActive: (count) =>
-    count !== 1 ? `${count} 已经过滤` : `${count} 已经过滤`,
-
-  // Export selector toolbar button text
-  toolbarExport: '导出',
-  toolbarExportLabel: '导出',
-  toolbarExportCSV: '导出为 CSV',
-
-  // Columns panel text
-  columnsPanelTextFieldLabel: '查找列',
-  columnsPanelTextFieldPlaceholder: '列标题',
-  columnsPanelDragIconLabel: '重新排序列',
-  columnsPanelShowAllButton: '全部显示',
-  columnsPanelHideAllButton: '全部隐藏',
-
-  // Filter panel text
-  filterPanelAddFilter: '添加过滤器',
-  filterPanelDeleteIconLabel: '删除',
-  filterPanelOperators: '操作',
-  filterPanelOperatorAnd: '和',
-  filterPanelOperatorOr: '或',
-  filterPanelColumns: '列',
-  filterPanelInputLabel: '值',
-  filterPanelInputPlaceholder: '过滤值',
-
-  // Filter operators text
-  filterOperatorContains: '包含',
-  filterOperatorEquals: '等于',
-  filterOperatorStartsWith: '开始于',
-  filterOperatorEndsWith: '结束于',
-  filterOperatorIs: '是',
-  filterOperatorNot: '不是',
-  filterOperatorAfter: '之后',
-  filterOperatorOnOrAfter: '在或之后',
-  filterOperatorBefore: '之前',
-  filterOperatorOnOrBefore: '在或之前',
-
-  // Filter values text
-  filterValueAny: '任何',
-  filterValueTrue: '是',
-  filterValueFalse: '否',
-
-  // Column menu text
-  columnMenuLabel: '菜单',
-  columnMenuShowColumns: '显示列',
-  columnMenuFilter: '过滤',
-  columnMenuHideColumn: '隐藏',
-  columnMenuUnsort: '取消排序',
-  columnMenuSortAsc: '升序',
-  columnMenuSortDesc: '降序',
-
-  // Column header text
-  columnHeaderFiltersTooltipActive: (count) =>
-    count !== 1 ? `${count} 已经过滤` : `${count} 已经过滤`,
-  columnHeaderFiltersLabel: '显示过滤',
-  columnHeaderSortIconLabel: '排序',
-
-  // Rows selected footer text
-  footerRowSelected: (count) =>
-    count !== 1
-      ? `${count.toLocaleString()} 列已经选择`
-      : `${count.toLocaleString()} 列已经选择`,
-
-  // Total rows footer text
-  footerTotalRows: '全部行:',
-
-  // Checkbox selection text
-  checkboxSelectionHeaderName: '选择框',
-
-  // Boolean cell text
-  booleanCellTrueLabel: '是',
-  booleanCellFalseLabel: '否',
-};
 
 export default function DataGridDemo() {
-  return (
-    <div style={{ height: '80vh', width: '100%' }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        onRowClick={(param) => {
-          console.info(param.row);
-          // 显示对话框
-        }}
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
-        disableSelectionOnClick
-        components={{
-          Toolbar: GridToolbar,
-        }}
-        pagination
-        pageSize={3}
-        // 全部的列表
-        rowCount={9}
-        paginationMode="server"
-        onPageChange={(param) => {
-          // {page: 2, pageCount: 3, pageSize: 3, paginationMode: "server", rowCount: 9}
-        }}
-        onPageSizeChange={(param) => {
-          // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
-          console.info(param);
-        }}
-      />
-    </div>
+  const [
+    conversationQueryInput,
+    setConversationQueryInput,
+  ] = useState<ConversationQueryInput>({ page: new PageParam() });
+
+  const { loading, error, data, refetch } = useQuery<PageContent<Conversation>>(
+    QUERY_CONVERSATION,
+    {
+      variables: { conversationQueryInput },
+    }
   );
+
+  const handlePageChange = (params: GridPageChangeParams) => {
+    // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
+    conversationQueryInput.page = new PageParam(params.page, params.pageSize);
+    setConversationQueryInput(conversationQueryInput);
+    refetch({ conversationQueryInput });
+  };
+
+  if (data) {
+    const rows = data.content.map((it) => it.content);
+    return (
+      <div style={{ height: '80vh', width: '100%' }}>
+        <DataGrid
+          localeText={GRID_DEFAULT_LOCALE_TEXT}
+          rows={rows}
+          columns={columns}
+          components={{
+            Toolbar: GridToolbar,
+          }}
+          pagination
+          pageSize={data.size}
+          // 全部的列表
+          rowCount={data.totalElements}
+          rowsPerPageOptions={[10, 20, 50, 100]}
+          paginationMode="server"
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageChange}
+          loading={loading}
+          disableSelectionOnClick
+          onRowClick={(param) => {
+            console.info(param.row);
+            // 显示对话框
+          }}
+        />
+      </div>
+    );
+  }
+  return <div style={{ height: '80vh', width: '100%' }} />;
 }

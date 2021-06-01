@@ -19,7 +19,7 @@ import { Content } from 'app/domain/Message';
 import { getStaff } from 'app/state/staff/staffAction';
 import FileCard from './FileCard';
 
-const useStyles = makeStyles((theme: Theme) =>
+export const useMessageListStyles = makeStyles((theme: Theme) =>
   createStyles({
     text: {
       padding: theme.spacing(2, 2, 0),
@@ -80,7 +80,10 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function createContent(content: Content, classes: ClassNameMap<'message'>) {
+export function createContent(
+  content: Content,
+  classes: ClassNameMap<'message'>
+) {
   let element;
   switch (content.contentType) {
     case 'SYS': {
@@ -131,7 +134,7 @@ function createContent(content: Content, classes: ClassNameMap<'message'>) {
 }
 
 const MessageList = () => {
-  const classes = useStyles();
+  const classes = useMessageListStyles();
   const refOfPaper = useRef<Element>();
   const messages = useSelector(getSelectedMessageList);
   const staff = useSelector(getStaff);

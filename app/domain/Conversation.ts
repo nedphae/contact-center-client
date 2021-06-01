@@ -8,6 +8,7 @@ import {
   TransferType,
 } from './constant/Conversation';
 import { CreatorType } from './constant/Message';
+import { Message } from './Message';
 
 /** 会话信息 */
 export interface Conversation {
@@ -56,6 +57,47 @@ export interface Conversation {
   userMessageCount: number;
   treatedTime: number;
   isEvaluationInvited: boolean | undefined;
-  terminator: CreatorType | undefined;
+  terminator: CreatorType | string | undefined;
   beginner: CreatorType;
+  chatMessages: Message[] | undefined;
+}
+
+export interface ContentList<T> {
+  index: string;
+  id: string;
+  score: number;
+  sortValues: [];
+  content: T;
+  highlightFields: [];
+  innerHits: Record<string, unknown>;
+  nestedMetaData: Record<string, unknown>;
+}
+
+export interface Sort {
+  unsorted: boolean;
+  sorted: boolean;
+  empty: boolean;
+}
+
+export interface Pageable {
+  sort: Sort;
+  offset: number;
+  pageNumber: number;
+  pageSize: number;
+  paged: boolean;
+  unpaged: boolean;
+}
+
+export interface PageContent<T> {
+  content: ContentList<T>[];
+  pageable: Pageable;
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  sort: Sort;
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
 }
