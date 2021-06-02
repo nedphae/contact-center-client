@@ -26,8 +26,11 @@ export interface Conversation {
   interaction: number;
   cType: ConversationType;
   staffId: number;
+  realName: string;
+  nickName: string;
   startTime: Date;
   userId: number;
+  userName: string | undefined;
   vipLevel: number;
   /** 来访时间差，单位毫秒 */
   visitRange: number;

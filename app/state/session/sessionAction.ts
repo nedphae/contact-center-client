@@ -89,8 +89,9 @@ export const assignmentConver = (
  * @returns callback
  */
 export function sendMessage(message: Message): AppThunk {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     // 发送消息到服务器
+    message.nickName = getState().staff.nickName;
     emitMessage(message)
       .pipe(
         map((r) => r.body),

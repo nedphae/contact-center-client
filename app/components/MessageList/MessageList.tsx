@@ -9,28 +9,30 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 
-import { Message } from 'app/domain/Message';
+import { Conversation } from 'app/domain/Conversation';
+import { CreatorType } from 'app/domain/constant/Message';
 import {
   createContent,
   useMessageListStyles,
 } from '../Chat/ChatBox/MessageList';
 
 interface MessageListProps {
-  messages: Message[];
+  conversation: Conversation;
 }
 
 export default function MessageList(props: MessageListProps) {
-  const { messages } = props;
+  const { conversation } = props;
   const classes = useMessageListStyles();
+  const messages = conversation.chatMessages ? conversation.chatMessages : [];
 
   return (
     <Paper square className={classes.paper}>
       <List className={classes.list}>
-        {messages.map(({ uuid, createdAt, content, from, to }) => (
+        {messages.map(({ uuid, createdAt, content, creatorType }) => (
           <React.Fragment key={uuid}>
             <ListItem alignItems="flex-start">
-              {/* 接受到的消息的头像 */}
-              {from !== undefined && (
+              {/* 客户的消息的头像 */}
+              {creatorType === CreatorType.CUSTOMER && (
                 <ListItemAvatar className={classes.listItemAvatar}>
                   <Avatar alt="Profile Picture" />
                 </ListItemAvatar>
@@ -38,7 +40,11 @@ export default function MessageList(props: MessageListProps) {
               {/* justify="flex-end" 如果是收到的消息就不设置这个 */}
               <Grid
                 container
-                justify={from !== undefined ? 'flex-start' : 'flex-end'}
+                justify={
+                  creatorType === CreatorType.CUSTOMER
+                    ? 'flex-start'
+                    : 'flex-end'
+                }
               >
                 <Grid item xs={12}>
                   <ListItemText
@@ -46,7 +52,11 @@ export default function MessageList(props: MessageListProps) {
                       <Grid
                         container
                         alignItems="center"
-                        justify={from !== undefined ? 'flex-start' : 'flex-end'}
+                        justify={
+                          creatorType === CreatorType.CUSTOMER
+                            ? 'flex-start'
+                            : 'flex-end'
+                        }
                       >
                         {/* justify="flex-end" */}
                         <Typography
@@ -54,7 +64,9 @@ export default function MessageList(props: MessageListProps) {
                           gutterBottom
                           className={classes.inline}
                         >
-                          {from !== undefined ? user.name : staff.nickName}
+                          {creatorType === CreatorType.CUSTOMER
+                            ? conversation.userName
+                            : conversation.nickName}
                         </Typography>
                         <Typography
                           variant="body2"
@@ -70,7 +82,7 @@ export default function MessageList(props: MessageListProps) {
                 <Paper
                   elevation={4}
                   className={
-                    from !== undefined
+                    creatorType === CreatorType.CUSTOMER
                       ? classes.fromMessagePaper
                       : classes.toMessagePaper
                   }
@@ -78,8 +90,8 @@ export default function MessageList(props: MessageListProps) {
                   {createContent(content, classes)}
                 </Paper>
               </Grid>
-              {/* 发送的消息的头像 */}
-              {to !== undefined && (
+              {/* 客服发送的消息的头像 */}
+              {creatorType === CreatorType.STAFF && (
                 <ListItemAvatar className={classes.listItemAvatar}>
                   <Avatar alt="Profile Picture" />
                 </ListItemAvatar>

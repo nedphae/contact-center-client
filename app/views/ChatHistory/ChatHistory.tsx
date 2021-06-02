@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+import { useQuery } from '@apollo/client';
 import {
   DataGrid,
   GridColDef,
@@ -6,14 +8,23 @@ import {
   GridToolbar,
   GridPageChangeParams,
 } from '@material-ui/data-grid';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
+import Draggable from 'react-draggable';
+import Paper, { PaperProps } from '@material-ui/core/Paper';
+
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
-import { useQuery } from '@apollo/client';
 import {
   ConversationQueryInput,
   PageParam,
   QUERY_CONVERSATION,
 } from 'app/domain/graphql/Conversation';
 import { Conversation, PageContent } from 'app/domain/Conversation';
+import MessageList from 'app/components/MessageList/MessageList';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -134,18 +145,43 @@ const columns: GridColDef[] = [
   { field: 'terminator', headerName: '会话中止方', width: 150 },
 ];
 
+function PaperComponent(props: PaperProps) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
+
 export default function DataGridDemo() {
   const [
     conversationQueryInput,
     setConversationQueryInput,
   ] = useState<ConversationQueryInput>({ page: new PageParam() });
+  const [open, setOpen] = useState(false);
+  const [
+    selectConversation,
+    setSelectConversation,
+  ] = useState<Conversation | null>(null);
 
-  const { loading, error, data, refetch } = useQuery<PageContent<Conversation>>(
+  const { loading, data, refetch } = useQuery<PageContent<Conversation>>(
     QUERY_CONVERSATION,
     {
       variables: { conversationQueryInput },
     }
   );
+
+  const handleClickOpen = (conversation: Conversation) => {
+    setSelectConversation(conversation);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handlePageChange = (params: GridPageChangeParams) => {
     // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
@@ -176,10 +212,33 @@ export default function DataGridDemo() {
           loading={loading}
           disableSelectionOnClick
           onRowClick={(param) => {
-            console.info(param.row);
-            // 显示对话框
+            handleClickOpen(param.row as Conversation);
           }}
         />
+        <Dialog
+          hideBackdrop
+          disableEnforceFocus
+          style={{ position: 'initial' }}
+          disableBackdropClick
+          open={open}
+          onClose={handleClose}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+            详细聊天消息
+          </DialogTitle>
+          <DialogContent>
+            {selectConversation && (
+              <MessageList conversation={selectConversation} />
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button autoFocus onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
