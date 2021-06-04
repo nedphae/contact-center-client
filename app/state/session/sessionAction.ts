@@ -14,7 +14,7 @@ import {
 } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
 import { createSession } from 'app/domain/Session';
-import { getCuntomerByUserId } from 'app/service/infoService';
+import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { createSelector } from '@reduxjs/toolkit';
 import { CreatorType } from 'app/domain/constant/Message';
@@ -41,7 +41,7 @@ export const getSelectedMessageList = (state: RootState) => {
 
 export const getSelectedConstomer = (state: RootState) => {
   const selected = state.chat.selectedSession;
-  if (selected === undefined) return {} as Customer;
+  if (selected === undefined) return null;
   return state.session[selected].user;
 };
 
@@ -75,9 +75,9 @@ export const assignmentConver = (
   if (conversation !== undefined) {
     // 根据分配的 conversation 获取 user
     const { organizationId, userId } = conversation;
-    const customer = await getCuntomerByUserId(organizationId, userId);
+    const customer = await getCustomerByUserId(organizationId, userId);
     dispatch(newConver(createSession(conversation, customer)));
-    cb(generateResponse(request.header, 'ok'));
+    cb(generateResponse(request.header, '"OK"'));
   } else {
     cb(generateResponse(request.header, 'request empty', 400));
   }
@@ -136,7 +136,7 @@ export const setNewMessage = (
       map((r) => r.body),
       filterUndefinedWithCb(request.header, cb),
       tap(() => {
-        cb(generateResponse(request.header, 'ok'));
+        cb(generateResponse(request.header, '"OK"'));
       }),
       map((r) => r?.message),
       map((m) => {

@@ -1,4 +1,7 @@
 import React from 'react';
+import _ from 'lodash';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+
 import {
   createStyles,
   makeStyles,
@@ -22,7 +25,11 @@ import {
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
+import Button from '@material-ui/core/Button';
+import { ConversationQueryInput } from 'app/domain/graphql/Conversation';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,6 +60,9 @@ const useStyles = makeStyles((theme: Theme) =>
     expandOpen: {
       transform: 'rotate(180deg)',
     },
+    button: {
+      margin: theme.spacing(1),
+    },
   })
 );
 const ITEM_HEIGHT = 48;
@@ -66,86 +76,143 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-
-function getStyles(name: string, personName: string[], theme: Theme) {
+function getStyles(name: string, keys: string[], theme: Theme) {
   return {
     fontWeight:
-      personName.indexOf(name) === -1
+      keys.indexOf(name) === -1
         ? theme.typography.fontWeightRegular
         : theme.typography.fontWeightMedium,
   };
 }
 
-export default function SearchForm() {
+interface SelectKeyValue {
+  label: string;
+  name: string;
+  // id to name
+  selectList: Record<string, string>;
+  defaultValue: string[];
+}
+
+interface FormProps {
+  defaultValues: ConversationQueryInput;
+  currentValues: ConversationQueryInput;
+  selectKeyValueList: SelectKeyValue[];
+  searchAction: (searchParams: ConversationQueryInput) => void;
+}
+
+export default function SearchForm(props: FormProps) {
+  const {
+    defaultValues,
+    currentValues,
+    selectKeyValueList,
+    searchAction,
+  } = props;
   const classes = useStyles();
   const theme = useTheme();
-  const [selectedDate, setSelectedDate] = React.useState<Date | null>(
-    new Date()
-  );
-  const [personName, setPersonName] = React.useState<string[]>([]);
+  const {
+    handleSubmit,
+    register,
+    reset,
+    control,
+    getValues,
+    setValue,
+  } = useForm<ConversationQueryInput>({ defaultValues: currentValues });
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-  const handleDateChange = (date: Date | null) => {
-    setSelectedDate(date);
+
+  const handleDelete = (name: string, value: string) => {
+    const values = getValues(name) as number[];
+    const index = values.indexOf(parseInt(value.toString(), 10));
+    values.splice(index, 1);
+    setValue(name, values);
   };
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setPersonName(event.target.value as string[]);
-  };
-
-  const handleDelete = (value: string) => {
-    console.info(value);
+  const onSubmit: SubmitHandler<ConversationQueryInput> = (form) => {
+    searchAction(form);
   };
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
-      <form noValidate autoComplete="off">
+      <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <Card>
           <CardActions disableSpacing>
             <div className={classes.root}>
-              <TextField id="standard-basic" label="关键字" />
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-inline"
-                label="开始时间"
-                value={selectedDate}
-                onChange={handleDateChange}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
+              <TextField
+                id="standard-basic"
+                label="关键字"
+                name="keyword"
+                inputRef={register({ maxLength: 50 })}
               />
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="MM/dd/yyyy"
-                margin="normal"
-                id="date-picker-inline"
-                label="结束时间"
-                value={selectedDate}
-                onChange={handleDateChange}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
+              <Controller
+                control={control}
+                name="timeRange.from"
+                render={(
+                  { onChange, onBlur, value, name, ref },
+                  { invalid, isTouched, isDirty }
+                ) => (
+                  <KeyboardDatePicker
+                    disableToolbar
+                    variant="inline"
+                    format="yyyy-MM-dd"
+                    margin="normal"
+                    id="date-picker-inline"
+                    label="开始时间"
+                    value={value}
+                    onChange={(_d, v) => onChange(v)}
+                    KeyboardButtonProps={{
+                      'aria-label': 'change date',
+                    }}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="timeRange.to"
+                render={(
+                  { onChange, onBlur, value, name, ref },
+                  { invalid, isTouched, isDirty }
+                ) => (
+                  <KeyboardDatePicker
+                    disableToolbar
+                    variant="inline"
+                    format="yyyy-MM-dd"
+                    margin="normal"
+                    id="date-picker-inline"
+                    label="结束时间"
+                    value={value}
+                    onChange={(_d, v) => onChange(v)}
+                    KeyboardButtonProps={{
+                      'aria-label': 'change date',
+                    }}
+                  />
+                )}
               />
             </div>
+            <Button
+              variant="contained"
+              color="secondary"
+              className={classes.button}
+              startIcon={<RotateLeftIcon />}
+              aria-label="reset"
+              onClick={() => {
+                reset(defaultValues);
+              }}
+            >
+              重置
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              className={classes.button}
+              startIcon={<SearchIcon />}
+              aria-label="submit"
+            >
+              搜索
+            </Button>
             <IconButton
               className={clsx(classes.expand, {
                 [classes.expandOpen]: expanded,
@@ -160,45 +227,67 @@ export default function SearchForm() {
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <CardActions>
               <div className={classes.root}>
-                <FormControl className={classes.formControl}>
-                  <InputLabel id="demo-mutiple-chip-label">客服</InputLabel>
-                  <Select
-                    labelId="demo-mutiple-chip-label"
-                    id="demo-mutiple-chip"
-                    multiple
-                    value={personName}
-                    onChange={handleChange}
-                    input={<Input id="select-multiple-chip" />}
-                    renderValue={(selected) => (
-                      <div className={classes.chips}>
-                        {(selected as string[]).map((value) => (
-                          <Chip
-                            key={value}
-                            label={value}
-                            className={classes.chip}
-                            onDelete={() => {
-                              handleDelete(value);
-                            }}
-                            onMouseDown={(event) => {
-                              event.stopPropagation();
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    MenuProps={MenuProps}
-                  >
-                    {names.map((name) => (
-                      <MenuItem
-                        key={name}
-                        value={name}
-                        style={getStyles(name, personName, theme)}
-                      >
-                        {name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                {selectKeyValueList.map((it) => (
+                  <FormControl key={it.name} className={classes.formControl}>
+                    <InputLabel id="demo-mutiple-chip-label">
+                      {it.label}
+                    </InputLabel>
+                    <Controller
+                      control={control}
+                      name={it.name}
+                      defaultValue={it.defaultValue}
+                      // rules={{
+                      //   setValueAs: (val) =>
+                      //     val.map((v: string) => parseInt(v, 10)),
+                      // }}
+                      render={(
+                        { onChange, onBlur, value, ref },
+                        { invalid, isTouched, isDirty }
+                      ) => (
+                        <Select
+                          labelId="demo-mutiple-chip-label"
+                          id="demo-mutiple-chip"
+                          multiple
+                          input={<Input id="select-multiple-chip" />}
+                          onChange={onChange}
+                          value={value}
+                          renderValue={(selected) => (
+                            <div className={classes.chips}>
+                              {(selected as string[]).map((id) => (
+                                <Chip
+                                  key={id}
+                                  label={it.selectList[id]}
+                                  className={classes.chip}
+                                  onDelete={() => {
+                                    handleDelete(it.name, id);
+                                  }}
+                                  onMouseDown={(event) => {
+                                    event.stopPropagation();
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          MenuProps={MenuProps}
+                        >
+                          {_.keys(it.selectList).map((id) => (
+                            <MenuItem
+                              key={id}
+                              value={id}
+                              style={getStyles(
+                                id,
+                                _.keys(it.selectList),
+                                theme
+                              )}
+                            >
+                              {it.selectList[id]}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      )}
+                    />
+                  </FormControl>
+                ))}
               </div>
             </CardActions>
           </Collapse>

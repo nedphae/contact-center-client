@@ -57,7 +57,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
-export default function QuickRecovery() {
+export default function QuickReply() {
   const classes = useStyles();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [serarchText, setSerarchText] = useState('');

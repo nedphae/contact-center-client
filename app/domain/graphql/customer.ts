@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { Customer } from '../Customer';
 
 const CORE_CUSTOMER_FIELDS = gql`
   fragment CustomerFields on Customer {
@@ -48,3 +49,10 @@ export const MUTATION_CUSTOMER = gql`
     }
   }
 `;
+
+export interface CustomerGraphql {
+  getCustomer: Customer;
+}
+export interface UpdateCustomerGraphql {
+  updateCustomer: Customer;
+}

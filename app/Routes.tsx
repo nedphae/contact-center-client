@@ -19,6 +19,7 @@
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import Dashboard from '@material-ui/icons/Dashboard';
 import Person from '@material-ui/icons/Person';
+import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
 import LibraryBooks from '@material-ui/icons/LibraryBooks';
 import BubbleChart from '@material-ui/icons/BubbleChart';
 import LocationOn from '@material-ui/icons/LocationOn';
@@ -26,6 +27,7 @@ import Notifications from '@material-ui/icons/Notifications';
 import Unarchive from '@material-ui/icons/Unarchive';
 import Language from '@material-ui/icons/Language';
 // core components/views for Admin layout
+import ChatHistory from 'app/views/ChatHistory/ChatHistory';
 import Entertain from './views/Entertain/Entertain';
 import DashboardPage from './views/Dashboard/Dashboard';
 import UserProfile from './views/UserProfile/UserProfile';
@@ -56,8 +58,16 @@ const dashboardRoutes = [
     layout: '/admin',
   },
   {
-    path: '/table',
+    path: '/history',
     name: '历史记录',
+    rtlName: 'لوحة القيادة',
+    icon: QueryBuilderIcon,
+    component: ChatHistory,
+    layout: '/admin',
+  },
+  {
+    path: '/table',
+    name: '列表',
     rtlName: 'قائمة الجدول',
     icon: 'content_paste',
     component: TableList,

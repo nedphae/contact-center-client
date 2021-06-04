@@ -30,6 +30,10 @@ export class PageParam {
   }
 }
 
+export interface ConversationGraphql {
+  searchConv: string;
+}
+
 export interface ConversationQueryInput {
   // 咨询类型
   categoryList?: string[];

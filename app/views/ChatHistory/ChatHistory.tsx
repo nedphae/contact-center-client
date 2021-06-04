@@ -11,7 +11,6 @@ import {
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import Draggable from 'react-draggable';
@@ -19,12 +18,15 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
+  ConversationGraphql,
   ConversationQueryInput,
   PageParam,
   QUERY_CONVERSATION,
 } from 'app/domain/graphql/Conversation';
 import { Conversation, PageContent } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
+import SearchForm from 'app/components/SearchForm/SearchForm';
+import { Divider } from '@material-ui/core';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -38,7 +40,7 @@ const columns: GridColDef[] = [
     field: 'inQueueTime',
     headerName: '在列队时间',
     type: 'number',
-    width: 80,
+    width: 150,
   },
   {
     field: 'interaction',
@@ -48,7 +50,7 @@ const columns: GridColDef[] = [
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
       let result = '机器人会话';
-      if (params.getValue(params.id, 'interaction') === 1) {
+      if (params.value === 1) {
         result = '客服正常会话';
       }
       return result;
@@ -156,18 +158,20 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
+const defaultValue = { page: new PageParam() };
+
 export default function DataGridDemo() {
+  const [open, setOpen] = useState(false);
   const [
     conversationQueryInput,
     setConversationQueryInput,
-  ] = useState<ConversationQueryInput>({ page: new PageParam() });
-  const [open, setOpen] = useState(false);
+  ] = useState<ConversationQueryInput>(defaultValue);
   const [
     selectConversation,
     setSelectConversation,
   ] = useState<Conversation | null>(null);
 
-  const { loading, data, refetch } = useQuery<PageContent<Conversation>>(
+  const { loading, data, refetch } = useQuery<ConversationGraphql>(
     QUERY_CONVERSATION,
     {
       variables: { conversationQueryInput },
@@ -190,57 +194,72 @@ export default function DataGridDemo() {
     refetch({ conversationQueryInput });
   };
 
-  if (data) {
-    const rows = data.content.map((it) => it.content);
-    return (
-      <div style={{ height: '80vh', width: '100%' }}>
-        <DataGrid
-          localeText={GRID_DEFAULT_LOCALE_TEXT}
-          rows={rows}
-          columns={columns}
-          components={{
-            Toolbar: GridToolbar,
-          }}
-          pagination
-          pageSize={data.size}
-          // 全部的列表
-          rowCount={data.totalElements}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-          paginationMode="server"
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageChange}
-          loading={loading}
-          disableSelectionOnClick
-          onRowClick={(param) => {
-            handleClickOpen(param.row as Conversation);
-          }}
-        />
-        <Dialog
-          hideBackdrop
-          disableEnforceFocus
-          style={{ position: 'initial' }}
-          disableBackdropClick
-          open={open}
-          onClose={handleClose}
-          PaperComponent={PaperComponent}
-          aria-labelledby="draggable-dialog-title"
-        >
-          <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-            详细聊天消息
-          </DialogTitle>
-          <DialogContent>
-            {selectConversation && (
-              <MessageList conversation={selectConversation} />
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
-  }
-  return <div style={{ height: '80vh', width: '100%' }} />;
+  const setSearchParams = (searchParams: ConversationQueryInput) => {
+    searchParams.page = conversationQueryInput.page;
+    setConversationQueryInput(searchParams);
+    refetch({ conversationQueryInput: searchParams });
+  };
+
+  const result = data
+    ? (JSON.parse(data.searchConv) as PageContent<Conversation>)
+    : null;
+  const rows =
+    result && result.content ? result.content.map((it) => it.content) : [];
+  const pageSize = result ? result.size : 0;
+  const rowCount = result ? result.totalElements : 0;
+
+  return (
+    <div style={{ height: '80vh', width: '100%' }}>
+      <Dialog
+        disableEnforceFocus
+        disableBackdropClick
+        open={open}
+        onClose={handleClose}
+        PaperComponent={PaperComponent}
+        aria-labelledby="draggable-dialog-title"
+      >
+        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+          详细聊天消息
+        </DialogTitle>
+        <DialogContent>
+          {selectConversation && (
+            <MessageList conversation={selectConversation} />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose} color="primary">
+            取消
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <SearchForm
+        defaultValues={defaultValue}
+        currentValues={conversationQueryInput}
+        searchAction={setSearchParams}
+        selectKeyValueList={[]}
+      />
+      <Divider variant="inset" component="li" />
+      <DataGrid
+        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        rows={rows}
+        columns={columns}
+        components={{
+          Toolbar: GridToolbar,
+        }}
+        pagination
+        pageSize={pageSize}
+        // 全部的列表
+        rowCount={rowCount}
+        rowsPerPageOptions={[10, 20, 50, 100]}
+        paginationMode="server"
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageChange}
+        loading={loading}
+        disableSelectionOnClick
+        onRowClick={(param) => {
+          handleClickOpen(param.row as Conversation);
+        }}
+      />
+    </div>
+  );
 }

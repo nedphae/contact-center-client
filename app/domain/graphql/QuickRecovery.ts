@@ -19,7 +19,7 @@ const CORE_QUICK_REPLY_DTO_FIELDS = gql`
       id
       organizationId
       groupName
-      staffQuickReply {
+      quickReply {
         ...QuickReplyFields
       }
     }

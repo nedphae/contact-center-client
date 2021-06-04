@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { getSelectedSession } from 'app/state/chat/chatAction';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
-import QuickRecovery from './panel/QuickRecovery';
+import QuickReply from './panel/QuickReply';
 
 function a11yProps(index: number) {
   return {
@@ -85,7 +85,7 @@ export default function DetailCard() {
         Item Two
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <QuickRecovery />
+        <QuickReply />
       </TabPanel>
       <TabPanel value={value} index={3}>
         Item Three

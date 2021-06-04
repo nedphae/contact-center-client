@@ -12,7 +12,7 @@ export async function getCurrentStaff(): Promise<Staff> {
   return result.data;
 }
 
-export async function getCuntomerByUserId(
+export async function getCustomerByUserId(
   orgId: number,
   userId: number
 ): Promise<Customer> {

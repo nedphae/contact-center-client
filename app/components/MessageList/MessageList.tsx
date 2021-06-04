@@ -11,6 +11,7 @@ import Avatar from '@material-ui/core/Avatar';
 
 import { Conversation } from 'app/domain/Conversation';
 import { CreatorType } from 'app/domain/constant/Message';
+import javaInstant2Date from 'app/utils/timeUtils';
 import {
   createContent,
   useMessageListStyles,
@@ -73,7 +74,7 @@ export default function MessageList(props: MessageListProps) {
                           gutterBottom
                           className={classes.inline}
                         >
-                          {createdAt?.toString()}
+                          {createdAt && javaInstant2Date(createdAt)}
                         </Typography>
                       </Grid>
                     }
