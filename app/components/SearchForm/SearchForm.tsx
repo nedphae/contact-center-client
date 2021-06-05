@@ -22,7 +22,7 @@ import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import {
   MuiPickersUtilsProvider,
-  KeyboardDatePicker,
+  KeyboardDateTimePicker,
 } from '@material-ui/pickers';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
@@ -153,15 +153,15 @@ export default function SearchForm(props: FormProps) {
                   { onChange, onBlur, value, name, ref },
                   { invalid, isTouched, isDirty }
                 ) => (
-                  <KeyboardDatePicker
+                  <KeyboardDateTimePicker
                     disableToolbar
                     variant="inline"
-                    format="yyyy-MM-dd"
+                    format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"
                     id="date-picker-inline"
                     label="开始时间"
                     value={value}
-                    onChange={(_d, v) => onChange(v)}
+                    onChange={(d) => onChange(d)}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -175,15 +175,15 @@ export default function SearchForm(props: FormProps) {
                   { onChange, onBlur, value, name, ref },
                   { invalid, isTouched, isDirty }
                 ) => (
-                  <KeyboardDatePicker
+                  <KeyboardDateTimePicker
                     disableToolbar
                     variant="inline"
-                    format="yyyy-MM-dd"
+                    format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"
                     id="date-picker-inline"
                     label="结束时间"
                     value={value}
-                    onChange={(_d, v) => onChange(v)}
+                    onChange={onChange}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}

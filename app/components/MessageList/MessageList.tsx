@@ -24,7 +24,15 @@ interface MessageListProps {
 export default function MessageList(props: MessageListProps) {
   const { conversation } = props;
   const classes = useMessageListStyles();
-  const messages = conversation.chatMessages ? conversation.chatMessages : [];
+  const messages = (conversation.chatMessages
+    ? conversation.chatMessages
+    : []
+  ).sort(
+    (a, b) =>
+      // 默认 seqId 为最大
+      (a.seqId ?? Number.MAX_SAFE_INTEGER) -
+      (b.seqId ?? Number.MAX_SAFE_INTEGER)
+  );
 
   return (
     <Paper square className={classes.paper}>

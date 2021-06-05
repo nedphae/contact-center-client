@@ -2,8 +2,8 @@ import { gql } from '@apollo/client';
 
 interface RangeQuery<T> {
   from?: T;
-  includeLower: boolean;
-  includeUpper: boolean;
+  includeLower?: boolean;
+  includeUpper?: boolean;
   to?: T;
 }
 type Direction = 'ASC' | 'DESC';
@@ -51,7 +51,7 @@ export interface ConversationQueryInput {
   staffIdList?: number[];
 
   // 时间区间
-  timeRange?: RangeQuery<string>;
+  timeRange?: RangeQuery<Date>;
 
   // 总消息条数
   totalMessageCount?: RangeQuery<number>;

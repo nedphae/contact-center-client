@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 import { useQuery } from '@apollo/client';
+import DateFnsUtils from '@date-io/date-fns';
+
 import {
   DataGrid,
   GridColDef,
@@ -158,7 +160,12 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
-const defaultValue = { page: new PageParam() };
+const dateFnsUtils = new DateFnsUtils();
+
+const defaultValue = {
+  page: new PageParam(),
+  timeRange: { from: dateFnsUtils.startOfDay(new Date()), to: new Date() },
+};
 
 export default function DataGridDemo() {
   const [open, setOpen] = useState(false);
@@ -213,6 +220,8 @@ export default function DataGridDemo() {
       <Dialog
         disableEnforceFocus
         disableBackdropClick
+        fullWidth
+        maxWidth="lg"
         open={open}
         onClose={handleClose}
         PaperComponent={PaperComponent}
