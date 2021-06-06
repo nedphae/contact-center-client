@@ -2,7 +2,7 @@ interface StaffGroup {
   id: number;
   groupName: string;
 }
-interface Shunt {
+interface StaffShunt {
   id: number;
   name: string;
   shuntClassId: number;

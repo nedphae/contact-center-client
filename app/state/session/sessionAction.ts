@@ -18,7 +18,6 @@ import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { createSelector } from '@reduxjs/toolkit';
 import { CreatorType } from 'app/domain/constant/Message';
-import { Customer } from 'app/domain/Customer';
 import slice from './sessionSlice';
 
 const { newConver, newMessage } = slice.actions;

@@ -7,7 +7,7 @@ import {
 } from '@apollo/client';
 
 import { QuickReplyAllDtoGraphql } from 'app/domain/Chat';
-import QUERY_QUICK_REPLY from 'app/domain/graphql/QuickRecovery';
+import { QUERY_QUICK_REPLY } from 'app/domain/graphql/QuickReply';
 import { setQuickReply } from 'app/state/chat/chatAction';
 
 /**

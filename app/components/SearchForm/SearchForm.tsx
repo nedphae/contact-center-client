@@ -85,7 +85,7 @@ function getStyles(name: string, keys: string[], theme: Theme) {
   };
 }
 
-interface SelectKeyValue {
+export interface SelectKeyValue {
   label: string;
   name: string;
   // id to name
@@ -124,10 +124,11 @@ export default function SearchForm(props: FormProps) {
   };
 
   const handleDelete = (name: string, value: string) => {
-    const values = getValues(name) as number[];
-    const index = values.indexOf(parseInt(value.toString(), 10));
-    values.splice(index, 1);
-    setValue(name, values);
+    const values = getValues(name) as string[];
+    setValue(
+      name,
+      _.remove(values, (v) => v !== value)
+    );
   };
 
   const onSubmit: SubmitHandler<ConversationQueryInput> = (form) => {

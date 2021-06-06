@@ -30,7 +30,7 @@ export interface QuickReplyGroup {
   staffId?: number;
   groupName: string;
   personal?: boolean;
-  quickRecovery: QuickReply[] | undefined;
+  quickReply: QuickReply[] | undefined;
 }
 
 export interface QuickReply {

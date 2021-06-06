@@ -9,6 +9,7 @@ const CORE_CUSTOMER_FIELDS = gql`
     name
     email
     mobile
+    vipLevel
     status {
       fromType
       groupId
@@ -20,7 +21,6 @@ const CORE_CUSTOMER_FIELDS = gql`
       shuntId
       staffId
       title
-      vipLevel
     }
     detailData {
       id

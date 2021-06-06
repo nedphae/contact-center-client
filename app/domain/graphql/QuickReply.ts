@@ -28,7 +28,7 @@ const CORE_QUICK_REPLY_DTO_FIELDS = gql`
 /**
  * 查询全部快捷回复
  */
-const QUERY_QUICK_REPLY = gql`
+export const QUERY_QUICK_REPLY = gql`
   ${CORE_QUICK_REPLY_DTO_FIELDS}
   query QuickReply {
     getQuickReply {
@@ -42,4 +42,17 @@ const QUERY_QUICK_REPLY = gql`
   }
 `;
 
-export default QUERY_QUICK_REPLY;
+export const MUTATION_QUICK_REPLY = gql`
+  mutation QuickReply($quickReplyInput: QuickReplyInput!) {
+    addQuickReply(quickReplyInput: $quickReplyInput) {
+      id
+    }
+  }
+`;
+export const MUTATION_QUICK_REPLY_GROUP = gql`
+  mutation QuickReply($quickReplyGroupInput: QuickReplyGroupInput!) {
+    addQuickReplyGroup(quickReplyGroupInput: $quickReplyGroupInput) {
+      id
+    }
+  }
+`;

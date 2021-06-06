@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import _ from 'lodash';
 
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import DateFnsUtils from '@date-io/date-fns';
 
 import {
@@ -20,15 +21,16 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
-  ConversationGraphql,
   ConversationQueryInput,
   PageParam,
-  QUERY_CONVERSATION,
 } from 'app/domain/graphql/Conversation';
 import { Conversation, PageContent } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
-import SearchForm from 'app/components/SearchForm/SearchForm';
+import SearchForm, {
+  SelectKeyValue,
+} from 'app/components/SearchForm/SearchForm';
 import { Divider } from '@material-ui/core';
+import Staff from 'app/domain/StaffInfo';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -60,7 +62,7 @@ const columns: GridColDef[] = [
   },
   { field: 'convType', headerName: '会话类型', width: 150 },
   { field: 'staffId', headerName: '客服ID', width: 150 },
-  { field: 'staffId', headerName: '客服实名', width: 150 },
+  { field: 'realName', headerName: '客服实名', width: 150 },
   { field: 'nickName', headerName: '客服昵称', width: 150 },
   { field: 'startTime', headerName: '开始时间', width: 150 },
   { field: 'userId', headerName: '客户ID', width: 150 },
@@ -167,6 +169,22 @@ const defaultValue = {
   timeRange: { from: dateFnsUtils.startOfDay(new Date()), to: new Date() },
 };
 
+export interface Graphql {
+  searchConv: string;
+  staff: string;
+  staffGroup: string;
+  staffShunt: string;
+}
+
+const QUERY = gql`
+  query Conversation($conversationQueryInput: ConversationQueryInput!) {
+    searchConv(conversationQuery: $conversationQueryInput)
+    staff
+    staffGroup
+    staffShunt
+  }
+`;
+
 export default function DataGridDemo() {
   const [open, setOpen] = useState(false);
   const [
@@ -178,12 +196,9 @@ export default function DataGridDemo() {
     setSelectConversation,
   ] = useState<Conversation | null>(null);
 
-  const { loading, data, refetch } = useQuery<ConversationGraphql>(
-    QUERY_CONVERSATION,
-    {
-      variables: { conversationQueryInput },
-    }
-  );
+  const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
+    variables: { conversationQueryInput },
+  });
 
   const handleClickOpen = (conversation: Conversation) => {
     setSelectConversation(conversation);
@@ -215,6 +230,44 @@ export default function DataGridDemo() {
   const pageSize = result ? result.size : 0;
   const rowCount = result ? result.totalElements : 0;
 
+  const staffList = data ? (JSON.parse(data?.staff) as Staff[]) : [];
+  const staffGroupList = data
+    ? (JSON.parse(data?.staffGroup) as StaffGroup[])
+    : [];
+  const staffShuntList = data
+    ? (JSON.parse(data?.staffShunt) as StaffShunt[])
+    : [];
+
+  const selectKeyValueList: SelectKeyValue[] = [
+    {
+      label: '接待客服',
+      name: 'staffIdList',
+      selectList: _.zipObject(
+        staffList.map((value) => value.id),
+        staffList.map((value) => value.nickName)
+      ),
+      defaultValue: [],
+    },
+    {
+      label: '客服组',
+      name: 'staffGroupIdList',
+      selectList: _.zipObject(
+        staffGroupList.map((value) => value.id),
+        staffGroupList.map((value) => value.groupName)
+      ),
+      defaultValue: [],
+    },
+    {
+      label: '分流组',
+      name: 'shuntIdList',
+      selectList: _.zipObject(
+        staffShuntList.map((value) => value.id),
+        staffShuntList.map((value) => value.name)
+      ),
+      defaultValue: [],
+    },
+  ];
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <Dialog
@@ -245,7 +298,7 @@ export default function DataGridDemo() {
         defaultValues={defaultValue}
         currentValues={conversationQueryInput}
         searchAction={setSearchParams}
-        selectKeyValueList={[]}
+        selectKeyValueList={selectKeyValueList}
       />
       <Divider variant="inset" component="li" />
       <DataGrid

@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { getSelectedSession } from 'app/state/chat/chatAction';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
-import QuickReply from './panel/QuickReply';
+import QuickReply from './panel/QuickReply/QuickReply';
 
 function a11yProps(index: number) {
   return {

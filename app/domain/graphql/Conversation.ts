@@ -1,5 +1,3 @@
-import { gql } from '@apollo/client';
-
 interface RangeQuery<T> {
   from?: T;
   includeLower?: boolean;
@@ -30,10 +28,6 @@ export class PageParam {
   }
 }
 
-export interface ConversationGraphql {
-  searchConv: string;
-}
-
 export interface ConversationQueryInput {
   // 咨询类型
   categoryList?: string[];
@@ -56,8 +50,3 @@ export interface ConversationQueryInput {
   // 总消息条数
   totalMessageCount?: RangeQuery<number>;
 }
-export const QUERY_CONVERSATION = gql`
-  query Conversation($conversationQueryInput: ConversationQueryInput!) {
-    searchConv(conversationQuery: $conversationQueryInput)
-  }
-`;

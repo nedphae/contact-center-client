@@ -10,7 +10,6 @@ import Grid from '@material-ui/core/Grid';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import { AppBar, Box, IconButton, Toolbar } from '@material-ui/core';
-import MoreIcon from '@material-ui/icons/MoreVert';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
 import useInitData from 'app/hook/init/useInitData';
@@ -18,8 +17,9 @@ import { getFilterQuickReply, getQuickReply } from 'app/state/chat/chatAction';
 import { QuickReplyDto } from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
 
-import NestedList from './NestedList';
-import SplitButton from './SplitButton';
+import NestedList from '../NestedList';
+import SplitButton from '../SplitButton';
+import AddQuickReply from './AddQuickReply';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -52,7 +52,7 @@ const useStyles = makeStyles(() =>
     list: {
       height: 'calc(80vh - 160px)',
       display: 'flex',
-      alignItems: 'center',
+      overflow: 'auto',
     },
   })
 );
@@ -104,8 +104,8 @@ export default function QuickReply() {
           mergeMap((group) => zip(of(group.key), group.pipe(toArray()))),
           map((gr) => {
             if (gr[0]) {
-              gr[0].quickRecovery = [];
-              gr[0].quickRecovery?.push(...gr[1]);
+              gr[0].quickReply = [];
+              gr[0].quickReply?.push(...gr[1]);
             }
             return gr[0];
           })
@@ -193,9 +193,7 @@ export default function QuickReply() {
           <IconButton color="inherit" onClick={handleRefreshClick}>
             <RefreshIcon />
           </IconButton>
-          <IconButton edge="end" color="inherit">
-            <MoreIcon />
-          </IconButton>
+          <AddQuickReply />
         </Toolbar>
       </AppBar>
     </Box>

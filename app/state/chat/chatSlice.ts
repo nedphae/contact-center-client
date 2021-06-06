@@ -34,14 +34,12 @@ const chatSlice = createSlice({
 
       const result: QuickReply[] = [];
       action.payload.org.withGroup?.forEach((g) =>
-        g.quickRecovery?.map((q) => {
-          q.group = g;
+        g.quickReply?.map((q) => {
           result.push(q);
         })
       );
       action.payload.personal.withGroup?.forEach((g) =>
-        g.quickRecovery?.map((q) => {
-          q.group = g;
+        g.quickReply?.map((q) => {
           result.push(q);
         })
       );

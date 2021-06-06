@@ -64,8 +64,8 @@ export default function NestedList(prop: NestedListProps) {
             </ListItem>
             <Collapse in={open === index} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
-                {group.quickRecovery &&
-                  group.quickRecovery.map((qr) => (
+                {group.quickReply &&
+                  group.quickReply.map((qr) => (
                     <ListItem key={qr.id} button className={classes.nested}>
                       <ListItemIcon>
                         <ReplyIcon />
