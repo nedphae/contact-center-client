@@ -2,11 +2,8 @@ import { RootState } from 'app/store';
 
 import slice from './chatSlice';
 
-export const {
-  setSelectedSession,
-  setQuickReply,
-  setQuickReplySearchText,
-} = slice.actions;
+export const { setSelectedSession, setQuickReply, setQuickReplySearchText } =
+  slice.actions;
 
 export const getSelectedSession = (state: RootState) =>
   state.chat.selectedSession;

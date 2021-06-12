@@ -65,7 +65,7 @@ export interface Conversation {
   chatMessages: Message[] | undefined;
 }
 
-export interface ContentList<T> {
+export interface SearchHit<T> {
   index: string;
   id: string;
   score: number;
@@ -92,7 +92,7 @@ export interface Pageable {
 }
 
 export interface PageContent<T> {
-  content: ContentList<T>[];
+  content: T[];
   pageable: Pageable;
   last: boolean;
   totalElements: number;

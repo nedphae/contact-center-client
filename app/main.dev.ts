@@ -5,13 +5,13 @@
  * electron renderer process from here and communicate with the other processes
  * through IPC.
  *
- * When running `yarn build` or `yarn build-main`, this file is compiled to
+ * When running `yarn build` or `yarn build:main`, this file is compiled to
  * `./app/main.prod.js` using webpack. This gives us some performance wins.
  */
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -41,7 +41,7 @@ if (
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+  const extensions = ['REACT_DEVELOPER_TOOLS'];
 
   return installer
     .default(
@@ -60,8 +60,8 @@ const createWindow = async () => {
   }
 
   const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'resources')
-    : path.join(__dirname, '../resources');
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../assets');
 
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
@@ -72,19 +72,12 @@ const createWindow = async () => {
     width: 1024,
     height: 728,
     icon: getAssetPath('icon.png'),
-    webPreferences:
-      (process.env.NODE_ENV === 'development' ||
-        process.env.E2E_BUILD === 'true') &&
-      process.env.ERB_SECURE !== 'true'
-        ? {
-            nodeIntegration: true,
-          }
-        : {
-            preload: path.join(__dirname, 'dist/renderer.prod.js'),
-          },
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
@@ -107,6 +100,12 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
+  // Open urls in the user's browser
+  mainWindow.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
+  });
+
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
@@ -124,12 +123,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-if (process.env.E2E_BUILD === 'true') {
-  // eslint-disable-next-line promise/catch-or-return
-  app.whenReady().then(createWindow);
-} else {
-  app.on('ready', createWindow);
-}
+app.whenReady().then(createWindow).catch(console.log);
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the

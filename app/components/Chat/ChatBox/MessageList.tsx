@@ -150,67 +150,70 @@ const MessageList = () => {
   return (
     <Paper square className={classes.paper} ref={refOfPaper}>
       <List className={classes.list}>
-        {messages.map(({ uuid, createdAt, content, from, to }) => (
-          <React.Fragment key={uuid}>
-            <ListItem alignItems="flex-start">
-              {/* 接受到的消息的头像 */}
-              {from !== undefined && (
-                <ListItemAvatar className={classes.listItemAvatar}>
-                  <Avatar alt="Profile Picture" />
-                </ListItemAvatar>
-              )}
-              {/* justify="flex-end" 如果是收到的消息就不设置这个 */}
-              <Grid
-                container
-                justify={from !== undefined ? 'flex-start' : 'flex-end'}
-              >
-                <Grid item xs={12}>
-                  <ListItemText
-                    primary={
-                      <Grid
-                        container
-                        alignItems="center"
-                        justify={from !== undefined ? 'flex-start' : 'flex-end'}
-                      >
-                        {/* justify="flex-end" */}
-                        <Typography
-                          variant="subtitle1"
-                          gutterBottom
-                          className={classes.inline}
-                        >
-                          {from !== undefined ? user.name : staff.nickName}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          className={classes.inline}
-                        >
-                          {createdAt?.toString()}
-                        </Typography>
-                      </Grid>
-                    }
-                  />
-                </Grid>
-                <Paper
-                  elevation={4}
-                  className={
-                    from !== undefined
-                      ? classes.fromMessagePaper
-                      : classes.toMessagePaper
-                  }
+        {user &&
+          messages.map(({ uuid, createdAt, content, from, to }) => (
+            <React.Fragment key={uuid}>
+              <ListItem alignItems="flex-start">
+                {/* 接受到的消息的头像 */}
+                {from !== undefined && (
+                  <ListItemAvatar className={classes.listItemAvatar}>
+                    <Avatar alt="Profile Picture" />
+                  </ListItemAvatar>
+                )}
+                {/* justify="flex-end" 如果是收到的消息就不设置这个 */}
+                <Grid
+                  container
+                  justify={from !== undefined ? 'flex-start' : 'flex-end'}
                 >
-                  {createContent(content, classes)}
-                </Paper>
-              </Grid>
-              {/* 发送的消息的头像 */}
-              {to !== undefined && (
-                <ListItemAvatar className={classes.listItemAvatar}>
-                  <Avatar alt="Profile Picture" />
-                </ListItemAvatar>
-              )}
-            </ListItem>
-          </React.Fragment>
-        ))}
+                  <Grid item xs={12}>
+                    <ListItemText
+                      primary={
+                        <Grid
+                          container
+                          alignItems="center"
+                          justify={
+                            from !== undefined ? 'flex-start' : 'flex-end'
+                          }
+                        >
+                          {/* justify="flex-end" */}
+                          <Typography
+                            variant="subtitle1"
+                            gutterBottom
+                            className={classes.inline}
+                          >
+                            {from !== undefined ? user.name : staff.nickName}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            gutterBottom
+                            className={classes.inline}
+                          >
+                            {createdAt?.toString()}
+                          </Typography>
+                        </Grid>
+                      }
+                    />
+                  </Grid>
+                  <Paper
+                    elevation={4}
+                    className={
+                      from !== undefined
+                        ? classes.fromMessagePaper
+                        : classes.toMessagePaper
+                    }
+                  >
+                    {createContent(content, classes)}
+                  </Paper>
+                </Grid>
+                {/* 发送的消息的头像 */}
+                {to !== undefined && (
+                  <ListItemAvatar className={classes.listItemAvatar}>
+                    <Avatar alt="Profile Picture" />
+                  </ListItemAvatar>
+                )}
+              </ListItem>
+            </React.Fragment>
+          ))}
       </List>
     </Paper>
   );

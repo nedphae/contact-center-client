@@ -17,7 +17,15 @@ const converSlice = createSlice({
   reducers: {
     // 设置新会话
     newConver: (converMap, action: PayloadAction<Session>) => {
-      converMap[action.payload.conversation.userId] = action.payload;
+      const conver = converMap[action.payload.user.userId];
+      if (conver) {
+        conver.user = action.payload.user;
+        if (conver.hide) {
+          conver.hide = false;
+        }
+      } else {
+        converMap[action.payload.conversation.userId] = action.payload;
+      }
     },
     updateCustomer: (converMap, action: PayloadAction<Customer>) => {
       converMap[action.payload.userId].user = action.payload;

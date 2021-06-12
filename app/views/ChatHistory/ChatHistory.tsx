@@ -24,13 +24,13 @@ import {
   ConversationQueryInput,
   PageParam,
 } from 'app/domain/graphql/Conversation';
-import { Conversation, PageContent } from 'app/domain/Conversation';
+import { Conversation, PageContent, SearchHit } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm, {
   SelectKeyValue,
 } from 'app/components/SearchForm/SearchForm';
 import { Divider } from '@material-ui/core';
-import Staff from 'app/domain/StaffInfo';
+import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -170,18 +170,18 @@ const defaultValue = {
 };
 
 export interface Graphql {
-  searchConv: string;
-  staff: string;
-  staffGroup: string;
-  staffShunt: string;
+  searchConv: PageContent<SearchHit<Conversation>>;
+  allStaff: Staff[];
+  allStaffGroup: StaffGroup[];
+  allStaffShunt: StaffShunt[];
 }
 
 const QUERY = gql`
   query Conversation($conversationQueryInput: ConversationQueryInput!) {
     searchConv(conversationQuery: $conversationQueryInput)
-    staff
-    staffGroup
-    staffShunt
+    allStaff
+    allStaffGroup
+    allStaffShunt
   }
 `;
 
@@ -222,21 +222,15 @@ export default function DataGridDemo() {
     refetch({ conversationQueryInput: searchParams });
   };
 
-  const result = data
-    ? (JSON.parse(data.searchConv) as PageContent<Conversation>)
-    : null;
+  const result = data ? data.searchConv : null;
   const rows =
     result && result.content ? result.content.map((it) => it.content) : [];
   const pageSize = result ? result.size : 0;
   const rowCount = result ? result.totalElements : 0;
 
-  const staffList = data ? (JSON.parse(data?.staff) as Staff[]) : [];
-  const staffGroupList = data
-    ? (JSON.parse(data?.staffGroup) as StaffGroup[])
-    : [];
-  const staffShuntList = data
-    ? (JSON.parse(data?.staffShunt) as StaffShunt[])
-    : [];
+  const staffList = data ? data?.allStaff : [];
+  const staffGroupList = data ? data?.allStaffGroup : [];
+  const staffShuntList = data ? data?.allStaffShunt : [];
 
   const selectKeyValueList: SelectKeyValue[] = [
     {
