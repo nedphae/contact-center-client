@@ -30,11 +30,11 @@ export default merge(baseConfig, {
   entry: [
     'core-js',
     'regenerator-runtime/runtime',
-    path.join(__dirname, '../../src/index.tsx'),
+    path.join(__dirname, '../../app/index.tsx'),
   ],
 
   output: {
-    path: path.join(__dirname, '../../src/dist'),
+    path: path.join(__dirname, '../../app/dist'),
     publicPath: './dist/',
     filename: 'renderer.prod.js',
   },

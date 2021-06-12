@@ -1,4 +1,5 @@
 import os from 'os';
+import _ from 'lodash';
 import storage from 'electron-json-storage';
 import axios from 'axios';
 import verifyToken from 'app/utils/jwtUtils';
@@ -56,6 +57,7 @@ function getToken(isAccese = true): Promise<OauthToken | AccessToken> {
       const shoudVerifyToken = isAccese
         ? token.access_token
         : token.refresh_token;
+        debugger;
       verifyToken(shoudVerifyToken, (err: unknown, decoded: unknown) => {
         if (decoded) {
           if (isAccese) {
@@ -71,12 +73,13 @@ function getToken(isAccese = true): Promise<OauthToken | AccessToken> {
 
     // 把 token 保存到 sessionStorage
     let token = sessionStorage.getItem(clientConfig.oauth.tokenName);
-    if (token) {
+    debugger
+    if (token && !_.isEmpty(token)) {
       verifyTokenResolve(JSON.parse(token) as OauthToken);
     } else {
       // 把 token 保存到 localStorage
       token = localStorage.getItem(clientConfig.oauth.tokenName);
-      if (token) {
+      if (token && !_.isEmpty(token)) {
         verifyTokenResolve(JSON.parse(token) as OauthToken);
       } else {
         storage.get(clientConfig.oauth.tokenName, (error, data) => {

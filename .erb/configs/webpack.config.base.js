@@ -4,7 +4,8 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import { dependencies as externals } from '../../src/package.json';
+import LessPluginAutoPrefix from 'less-plugin-autoprefix';
+import { dependencies as externals } from '../../app/package.json';
 
 export default {
   externals: [...Object.keys(externals || {})],
