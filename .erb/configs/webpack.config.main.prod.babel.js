@@ -8,14 +8,18 @@ import { merge } from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import baseConfig from './webpack.config.base';
-import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
-import DeleteSourceMaps from '../internals/scripts/DeleteSourceMaps';
+import CheckNodeEnv from '../scripts/CheckNodeEnv';
+import DeleteSourceMaps from '../scripts/DeleteSourceMaps';
 
 CheckNodeEnv('production');
 DeleteSourceMaps();
 
+const devtoolsConfig = process.env.DEBUG_PROD === 'true' ? {
+  devtool: 'source-map'
+} : {};
+
 export default merge(baseConfig, {
-  devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
+  ...devtoolsConfig,
 
   mode: 'production',
 
@@ -24,20 +28,16 @@ export default merge(baseConfig, {
   entry: './app/main.dev.ts',
 
   output: {
-    path: path.join(__dirname, '..'),
+    path: path.join(__dirname, '../../'),
     filename: './app/main.prod.js',
   },
 
   optimization: {
-    minimizer: process.env.E2E_BUILD
-      ? []
-      : [
-          new TerserPlugin({
-            parallel: true,
-            sourceMap: true,
-            cache: true,
-          }),
-        ],
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+      }),
+    ]
   },
 
   plugins: [
@@ -60,7 +60,6 @@ export default merge(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: false,
       START_MINIMIZED: false,
-      E2E_BUILD: false,
     }),
   ],
 
