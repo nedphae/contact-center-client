@@ -8,6 +8,8 @@ import baseConfig from './webpack.config.base';
 import CheckNodeEnv from '../scripts/CheckNodeEnv';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 
+const WebpackMildCompile = require('webpack-mild-compile').Plugin;
+
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
 if (process.env.NODE_ENV === 'production') {
@@ -243,6 +245,8 @@ export default merge(baseConfig, {
     }),
 
     new ReactRefreshWebpackPlugin(),
+
+    new WebpackMildCompile(),
   ],
 
   node: {
@@ -264,7 +268,7 @@ export default merge(baseConfig, {
     watchOptions: {
       aggregateTimeout: 300,
       ignored: /node_modules/,
-      poll: 100,
+      poll: 1000,
     },
     historyApiFallback: {
       verbose: true,
