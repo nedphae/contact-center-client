@@ -13,11 +13,17 @@ const useAutoLogin = (authPage = false) => {
   const getTokenCall = useCallback(async () => {
     try {
       const token = await getAccessToken();
-      dispatch(setUserAsync(token));
+      if (token) {
+        dispatch(setUserAsync(token));
+      }
     } catch (error) {
       // 刷新token
       const newToken = await refreshToken();
-      dispatch(setUserAsync(newToken));
+      if (newToken) {
+        dispatch(setUserAsync(newToken));
+      } else {
+        history.push('/login');
+      }
     }
     // 没有任何异常就跳转
     if (authPage) {

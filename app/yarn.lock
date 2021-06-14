@@ -2,3 +2,17 @@
 # yarn lockfile v1
 
 
+"@iconify-icons/ri@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@iconify-icons/ri/-/ri-1.1.0.tgz#2ad1aab443c304e3a0a4a3e708b1dee0ed95ce5b"
+  integrity sha512-9773shGDNQ5XwULVRFGIl6lYEEML0C2jUJE0tuGl7G2oEl3mh8bnLUdt0l3ntlONaN5F4swoSDP27P5j8ezyeA==
+
+"@iconify/icons-mdi@^1.1.15":
+  version "1.1.15"
+  resolved "https://registry.yarnpkg.com/@iconify/icons-mdi/-/icons-mdi-1.1.15.tgz#e035130cc480c4318fb4cb21b8b836a2ba32c8b9"
+  integrity sha512-H2dwj/vlBXd9Gc7d66m8ZW/8TZcxshMwIoyUkyTMft1mnGqsxJWq5QEWnX+jkmL8KKGR/czqh6p9sEe67Laq6Q==
+
+"@iconify/react@^1.1.4":
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/@iconify/react/-/react-1.1.4.tgz#c778eddbaf196e55705d0bedff00d039dc1de8d3"
+  integrity sha512-oxq8IMOq8q3nKGiDHbQPC8FcFuBsKve68JWBo140d5LRnj0bv5TB/FE/y01ZSvEZ7PlI2HIrnb2qivPN8kTDgw==

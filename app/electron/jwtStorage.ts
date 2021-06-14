@@ -51,35 +51,36 @@ export function saveToken(
   });
 }
 
-function getToken(isAccese = true): Promise<OauthToken | AccessToken> {
+function getToken(isAccese = true): Promise<OauthToken | AccessToken | null> {
   return new Promise((resolve, reject) => {
     function verifyTokenResolve(token: OauthToken) {
-      const shoudVerifyToken = isAccese
-        ? token.access_token
-        : token.refresh_token;
-        debugger;
-      verifyToken(shoudVerifyToken, (err: unknown, decoded: unknown) => {
-        if (decoded) {
-          if (isAccese) {
-            const accessToken = decoded as AccessToken;
-            accessToken.source = token.access_token;
-            return resolve(accessToken);
+      if (!_.isEmpty(token)) {
+        const shoudVerifyToken = isAccese
+          ? token.access_token
+          : token.refresh_token;
+        verifyToken(shoudVerifyToken, (err: unknown, decoded: unknown) => {
+          if (decoded) {
+            if (isAccese) {
+              const accessToken = decoded as AccessToken;
+              accessToken.source = token.access_token;
+              return resolve(accessToken);
+            }
+            return resolve(token);
           }
-          return resolve(token);
-        }
-        return reject(err);
-      });
+          return reject(err);
+        });
+      }
+      return resolve(null);
     }
 
     // 把 token 保存到 sessionStorage
     let token = sessionStorage.getItem(clientConfig.oauth.tokenName);
-    debugger
-    if (token && !_.isEmpty(token)) {
+    if (token) {
       verifyTokenResolve(JSON.parse(token) as OauthToken);
     } else {
       // 把 token 保存到 localStorage
       token = localStorage.getItem(clientConfig.oauth.tokenName);
-      if (token && !_.isEmpty(token)) {
+      if (token) {
         verifyTokenResolve(JSON.parse(token) as OauthToken);
       } else {
         storage.get(clientConfig.oauth.tokenName, (error, data) => {
@@ -103,24 +104,23 @@ function getToken(isAccese = true): Promise<OauthToken | AccessToken> {
  * 标记类型检查
  */
 function isOauthToken(token: OauthToken | AccessToken): token is OauthToken {
-  return (<OauthToken>token).access_token !== undefined;
+  return (<OauthToken>token)?.access_token !== undefined;
 }
 
-export async function getAccessToken(): Promise<AccessToken> {
+export async function getAccessToken(): Promise<AccessToken | null> {
   const token = await getToken();
-  if (!isOauthToken(token)) {
+  if (token && !isOauthToken(token)) {
     return token;
   }
-  // 仅仅取消类型检查
-  return {} as AccessToken;
+  return null;
 }
 
-export async function getOauthToken(): Promise<OauthToken> {
+export async function getOauthToken(): Promise<OauthToken | null> {
   const token = await getToken(false);
-  if (isOauthToken(token)) {
+  if (token && isOauthToken(token)) {
     return token;
   }
-  return {} as OauthToken;
+  return null;
 }
 
 export function clearToken() {
@@ -132,36 +132,39 @@ export function clearToken() {
   });
 }
 
-export async function refreshToken(): Promise<AccessToken> {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { refresh_token, oid } = await getOauthToken();
-  const oauthParam = {
-    grant_type: 'refresh_token',
-    refresh_token,
-    org_id: oid,
-  };
-  const url = addParam(
-    clientConfig.web.host + clientConfig.oauth.path,
-    oauthParam
-  );
-  const result = await axios.post<OauthToken>(url, null, {
-    headers: {
-      Authorization: clientConfig.headers.Authorization,
-    },
-  });
-  return saveToken(
-    result.data,
-    sessionStorage.getItem(clientConfig.oauth.tokenName) === null
-  );
+export async function refreshToken(): Promise<AccessToken | null> {
+  const oauthToken = await getOauthToken();
+  if (oauthToken) {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { refresh_token, oid } = oauthToken;
+    const oauthParam = {
+      grant_type: 'refresh_token',
+      refresh_token,
+      org_id: oid,
+    };
+    const url = addParam(
+      clientConfig.web.host + clientConfig.oauth.path,
+      oauthParam
+    );
+    const result = await axios.post<OauthToken>(url, null, {
+      headers: {
+        Authorization: clientConfig.headers.Authorization,
+      },
+    });
+    return saveToken(
+      result.data,
+      sessionStorage.getItem(clientConfig.oauth.tokenName) === null
+    );
+  }
+  return null;
 }
 
-export async function getTokenSource(): Promise<string> {
+export async function getTokenSource(): Promise<string | undefined> {
   let acessToken;
-  // TODO: 性能可能又问题，需要修改为异步更新
   try {
-    acessToken = (await getAccessToken()).source;
+    acessToken = (await getAccessToken())?.source;
   } catch {
-    acessToken = (await refreshToken()).source;
+    acessToken = (await refreshToken())?.source;
   }
   return acessToken;
 }

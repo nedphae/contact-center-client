@@ -14791,6 +14791,11 @@ webpack-merge@^5.4.0, webpack-merge@^5.7.3:
     clone-deep "^4.0.1"
     wildcard "^2.0.0"
 
+webpack-mild-compile@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/webpack-mild-compile/-/webpack-mild-compile-3.3.1.tgz#60d56efcf8f0424ec12373cb2649b9c8a6d37e7f"
+  integrity sha512-bMwvhjvMhDxcj0u7CrE5iT2h62HIqkCP3l9/AeDleV78YUjpSK/prsCqvZxTgRMfg2RmpBfaxDoe/fncPqFOLQ==
+
 webpack-sources@^1.1.0, webpack-sources@^1.4.3:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
