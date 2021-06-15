@@ -151,10 +151,12 @@ export async function refreshToken(): Promise<AccessToken | null> {
         Authorization: clientConfig.headers.Authorization,
       },
     });
-    return saveToken(
-      result.data,
-      sessionStorage.getItem(clientConfig.oauth.tokenName) === null
-    );
+    if (result.data) {
+      return saveToken(
+        result.data,
+        sessionStorage.getItem(clientConfig.oauth.tokenName) === null
+      );
+    }
   }
   return null;
 }

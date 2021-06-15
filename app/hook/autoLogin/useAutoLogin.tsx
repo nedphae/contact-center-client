@@ -11,22 +11,21 @@ const useAutoLogin = (authPage = false) => {
    * 自动刷新 Token
    */
   const getTokenCall = useCallback(async () => {
+    let token = null;
     try {
-      const token = await getAccessToken();
+      token = await getAccessToken();
       if (token) {
         dispatch(setUserAsync(token));
       }
     } catch (error) {
       // 刷新token
-      const newToken = await refreshToken();
-      if (newToken) {
-        dispatch(setUserAsync(newToken));
-      } else {
-        history.push('/login');
+      token = await refreshToken();
+      if (token) {
+        dispatch(setUserAsync(token));
       }
     }
     // 没有任何异常就跳转
-    if (authPage) {
+    if (token && authPage) {
       history.push('/');
     }
   }, [dispatch, authPage]);

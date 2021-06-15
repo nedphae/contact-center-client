@@ -12,18 +12,18 @@ export const getStaff = (state: RootState) => state.staff;
 export const getStaffToken = (state: RootState) => state.staff.token;
 
 // 异步请求
-export const setUserAsync = (token: AccessToken): AppThunk => async (
-  dispatch
-) => {
-  setAuthority(
-    token.authorities.map((role) => role.substring(5).toLowerCase())
-  );
-  // dispatch() dispatch 等待动画
-  const staff = await getCurrentStaff();
-  // 获取当前聊天会话列表，刷新页面后
-  staff.token = token.source;
-  dispatch(setStaff(staff));
-};
+export const setUserAsync =
+  (token: AccessToken): AppThunk =>
+  async (dispatch) => {
+    setAuthority(
+      token.authorities.map((role) => role.substring(5).toLowerCase())
+    );
+    // dispatch() dispatch 等待动画
+    const staff = await getCurrentStaff();
+    // 获取当前聊天会话列表，刷新页面后
+    staff.token = token.source;
+    dispatch(setStaff(staff));
+  };
 
 export const configStaff = (): AppThunk => {
   return async (dispatch, getState) => {
