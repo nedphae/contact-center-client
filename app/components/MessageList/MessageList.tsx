@@ -15,7 +15,7 @@ import javaInstant2Date from 'app/utils/timeUtils';
 import {
   createContent,
   useMessageListStyles,
-} from '../Chat/ChatBox/MessageList';
+} from '../Chat/ChatBox/MessagePanel';
 
 interface MessageListProps {
   conversation: Conversation;
@@ -24,9 +24,8 @@ interface MessageListProps {
 export default function MessageList(props: MessageListProps) {
   const { conversation } = props;
   const classes = useMessageListStyles();
-  const messages = (conversation.chatMessages
-    ? conversation.chatMessages
-    : []
+  const messages = (
+    conversation.chatMessages ? conversation.chatMessages : []
   ).sort(
     (a, b) =>
       // 默认 seqId 为最大

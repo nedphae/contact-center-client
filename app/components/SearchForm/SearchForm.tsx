@@ -101,22 +101,12 @@ interface FormProps {
 }
 
 export default function SearchForm(props: FormProps) {
-  const {
-    defaultValues,
-    currentValues,
-    selectKeyValueList,
-    searchAction,
-  } = props;
+  const { defaultValues, currentValues, selectKeyValueList, searchAction } =
+    props;
   const classes = useStyles();
   const theme = useTheme();
-  const {
-    handleSubmit,
-    register,
-    reset,
-    control,
-    getValues,
-    setValue,
-  } = useForm<ConversationQueryInput>({ defaultValues: currentValues });
+  const { handleSubmit, register, reset, control, getValues, setValue } =
+    useForm<ConversationQueryInput>({ defaultValues: currentValues });
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {

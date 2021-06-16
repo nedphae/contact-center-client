@@ -59,9 +59,8 @@ export default function CustomerForm(props: CustomerFormProps) {
   const classes = useStyles();
   const dispatch = useDispatch();
   // TODO: 显示更新错误
-  const [editCustomer, { data }] = useMutation<UpdateCustomerGraphql>(
-    MUTATION_CUSTOMER
-  );
+  const [editCustomer, { data }] =
+    useMutation<UpdateCustomerGraphql>(MUTATION_CUSTOMER);
   const { register, handleSubmit } = useForm<FormValues>({ defaultValues });
 
   useEffect(() => {

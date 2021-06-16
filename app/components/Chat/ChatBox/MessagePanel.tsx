@@ -11,11 +11,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
-import { getSelectedConstomer } from 'app/state/session/sessionAction';
-import { Content, Message } from 'app/domain/Message';
-import Staff from 'app/domain/StaffInfo';
+import {
+  getSelectedConstomer,
+  getSelectedMessageList,
+} from 'app/state/session/sessionAction';
+import { Content } from 'app/domain/Message';
+import { getStaff } from 'app/state/staff/staffAction';
 import FileCard from './FileCard';
-import { Customer } from 'app/domain/Customer';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -131,16 +133,12 @@ export function createContent(
   return element;
 }
 
-interface MessageListProps {
-  messages: Message[];
-  staff: Staff;
-  user: Customer | undefined | null;
-}
-
-const MessageList = (props: MessageListProps) => {
-  const { messages, staff, user } = props;
+const MessagePanel = () => {
   const classes = useMessageListStyles();
   const refOfPaper = useRef<Element>();
+  const messages = useSelector(getSelectedMessageList);
+  const staff = useSelector(getStaff);
+  const user = useSelector(getSelectedConstomer);
 
   // 如果有问题 修改 userEffect 为 useLayoutEffect
   useEffect(() => {
@@ -221,4 +219,4 @@ const MessageList = (props: MessageListProps) => {
   );
 };
 
-export default MessageList;
+export default MessagePanel;

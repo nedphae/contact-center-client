@@ -3,7 +3,7 @@ import { Dispatch } from 'redux';
 
 import { configStaff } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
-import { Message, UpdateMessage } from 'app/domain/Message';
+import { UpdateMessage } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
 import {
   assignmentConver,

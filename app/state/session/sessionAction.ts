@@ -66,21 +66,20 @@ export const getSession = (hide = false) =>
   );
 
 // 分配会话
-export const assignmentConver = (
-  request: WebSocketRequest<Conversation>,
-  cb: CallBack<string>
-): AppThunk => async (dispatch) => {
-  const conversation = request.body;
-  if (conversation !== undefined) {
-    // 根据分配的 conversation 获取 user
-    const { organizationId, userId } = conversation;
-    const customer = await getCustomerByUserId(organizationId, userId);
-    dispatch(newConver(createSession(conversation, customer)));
-    cb(generateResponse(request.header, '"OK"'));
-  } else {
-    cb(generateResponse(request.header, 'request empty', 400));
-  }
-};
+export const assignmentConver =
+  (request: WebSocketRequest<Conversation>, cb: CallBack<string>): AppThunk =>
+  async (dispatch) => {
+    const conversation = request.body;
+    if (conversation !== undefined) {
+      // 根据分配的 conversation 获取 user
+      const { organizationId, userId } = conversation;
+      const customer = await getCustomerByUserId(organizationId, userId);
+      dispatch(newConver(createSession(conversation, customer)));
+      cb(generateResponse(request.header, '"OK"'));
+    } else {
+      cb(generateResponse(request.header, 'request empty', 400));
+    }
+  };
 
 /**
  * 发送消息到服务器
@@ -126,26 +125,25 @@ export function sendMessage(message: Message): AppThunk {
  * @param request 消息请求
  * @param cb 回调
  */
-export const setNewMessage = (
-  request: WebSocketRequest<UpdateMessage>,
-  cb: CallBack<string>
-): AppThunk => async (dispatch) => {
-  of(request)
-    .pipe(
-      map((r) => r.body),
-      filterUndefinedWithCb(request.header, cb),
-      tap(() => {
-        cb(generateResponse(request.header, '"OK"'));
-      }),
-      map((r) => r?.message),
-      map((m) => {
-        return { [m!.uuid]: m } as MessagesMap;
-      })
-    )
-    .subscribe((end) => {
-      dispatch(newMessage(end));
-    });
-};
+export const setNewMessage =
+  (request: WebSocketRequest<UpdateMessage>, cb: CallBack<string>): AppThunk =>
+  async (dispatch) => {
+    of(request)
+      .pipe(
+        map((r) => r.body),
+        filterUndefinedWithCb(request.header, cb),
+        tap(() => {
+          cb(generateResponse(request.header, '"OK"'));
+        }),
+        map((r) => r?.message),
+        map((m) => {
+          return { [m!.uuid]: m } as MessagesMap;
+        })
+      )
+      .subscribe((end) => {
+        dispatch(newMessage(end));
+      });
+  };
 
 /**
  * 发送文本消息到用户

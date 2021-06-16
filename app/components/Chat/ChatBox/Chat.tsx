@@ -12,7 +12,7 @@ import Grid from '@material-ui/core/Grid';
 
 import { getSelectedSession } from 'app/state/chat/chatAction';
 import ChatHeader from './ChatHeader';
-import MesageList from './MessageList';
+import MesageList from './MessagePanel';
 import Editor from './Editor';
 
 const style = {

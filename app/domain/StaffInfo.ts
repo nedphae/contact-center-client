@@ -1,4 +1,5 @@
 import { OnlineStatus } from './constant/Staff';
+import { CustomerStatus } from './Customer';
 
 export default interface Staff {
   organizationId: number;
@@ -29,12 +30,14 @@ export default interface Staff {
   maxTicketAllTime: number;
   mobilePhone: string;
   enabled: boolean;
+  customerList?: CustomerStatus[];
 }
 
 export interface StaffGroup {
   id: number;
   organizationId: number;
   groupName: string;
+  staffList?: Staff[];
 }
 
 export interface StaffShunt {

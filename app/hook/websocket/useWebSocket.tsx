@@ -6,7 +6,7 @@ import IO from 'socket.io-client';
 
 import SocketHandler from 'app/service/websocket/SocketHandler';
 import config from 'app/config/clientConfig';
-import { getStaffToken, setUserAsync } from 'app/state/staff/staffAction';
+import { getStaffToken } from 'app/state/staff/staffAction';
 import { getAccessToken } from 'app/electron/jwtStorage';
 import { verifyTokenPromise } from 'app/utils/jwtUtils';
 
@@ -41,7 +41,7 @@ const useWebSocket = () => {
           verifyTokenPromise(token, period * 2);
         } catch {
           const accessToken = await getAccessToken();
-          if (socketRef.current) {
+          if (accessToken && socketRef.current) {
             socketRef.current.io.opts.query = `token=${accessToken.source}`;
           }
         }

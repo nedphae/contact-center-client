@@ -169,7 +169,7 @@ const defaultValue = {
   timeRange: { from: dateFnsUtils.startOfDay(new Date()), to: new Date() },
 };
 
-export interface Graphql {
+interface Graphql {
   searchConv: PageContent<SearchHit<Conversation>>;
   allStaff: Staff[];
   allStaffGroup: StaffGroup[];
@@ -187,14 +187,10 @@ const QUERY = gql`
 
 export default function DataGridDemo() {
   const [open, setOpen] = useState(false);
-  const [
-    conversationQueryInput,
-    setConversationQueryInput,
-  ] = useState<ConversationQueryInput>(defaultValue);
-  const [
-    selectConversation,
-    setSelectConversation,
-  ] = useState<Conversation | null>(null);
+  const [conversationQueryInput, setConversationQueryInput] =
+    useState<ConversationQueryInput>(defaultValue);
+  const [selectConversation, setSelectConversation] =
+    useState<Conversation | null>(null);
 
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { conversationQueryInput },
