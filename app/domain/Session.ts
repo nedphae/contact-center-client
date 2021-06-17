@@ -3,20 +3,6 @@ import { Customer } from 'app/domain/Customer';
 import { Message, MessagesMap } from 'app/domain/Message';
 import { ColorLogo } from './constant/Conversation';
 
-/** 同事会话监控模块 */
-interface Group {
-  /** 分组名称 */
-  name: string;
-  /** member */
-  member: GroupMember[];
-}
-
-interface GroupMember {
-  id: number;
-  nickName: string;
-  realName: string;
-}
-
 export type Tag = 'important' | '' | undefined;
 
 /** 客户ID 对应 */
@@ -27,7 +13,7 @@ export interface Session {
   unread: number;
   /** 会话的聊天消息 */
   massageList: MessagesMap;
-  lastMessageTime: number;
+  lastMessageTime: Date;
   lastMessage: Message | undefined;
   hide: boolean;
   /** 会话标识 */
@@ -53,7 +39,7 @@ export function createSession(
     user,
     unread: 0,
     massageList: {},
-    lastMessageTime: new Date().getTime(),
+    lastMessageTime: new Date(),
     lastMessage: undefined,
     hide: false,
     colorLogo: ColorLogo.NEW,

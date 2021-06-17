@@ -19,9 +19,8 @@ const useInitData = (): [
   ) => Promise<ApolloQueryResult<QuickReplyAllDtoGraphql>>
 ] => {
   const dispatch = useDispatch();
-  const { data, refetch } = useQuery<QuickReplyAllDtoGraphql>(
-    QUERY_QUICK_REPLY
-  );
+  const { data, refetch } =
+    useQuery<QuickReplyAllDtoGraphql>(QUERY_QUICK_REPLY);
 
   useEffect(() => {
     if (data !== undefined) {

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { ClassNameMap } from '@material-ui/styles/withStyles';
@@ -11,11 +10,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
-import { getSelectedConstomer } from 'app/state/session/sessionAction';
 import { Content, Message } from 'app/domain/Message';
 import Staff from 'app/domain/StaffInfo';
-import FileCard from './FileCard';
 import { Customer } from 'app/domain/Customer';
+import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
   createStyles({

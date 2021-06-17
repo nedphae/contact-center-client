@@ -1,7 +1,7 @@
 /**
  * 聊天窗口设计
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';

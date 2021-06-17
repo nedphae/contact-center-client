@@ -157,6 +157,7 @@ function PaperComponent(props: PaperProps) {
       handle="#draggable-dialog-title"
       cancel={'[class*="MuiDialogContent-root"]'}
     >
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <Paper {...props} />
     </Draggable>
   );

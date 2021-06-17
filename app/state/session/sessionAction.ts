@@ -25,12 +25,17 @@ export const { stickyCustomer, tagCustomer, updateCustomer } = slice.actions;
 
 export const getSelectedMessageList = (state: RootState) => {
   const selected = state.chat.selectedSession;
-  if (selected === undefined) return [];
-  const messageListMap = state.session[selected].massageList;
-  if (messageListMap === undefined) {
-    return [];
+  let messageList: Message[] = [];
+  if (selected === undefined && !state.chat.isMonitored) {
+    const messageListMap = state.session[selected].massageList;
+    if (messageListMap !== undefined) {
+      messageList = _.values(messageListMap);
+    }
   }
-  return _.values(messageListMap).sort(
+  if (state.chat.isMonitored) {
+    messageList = _.values(state.chat.monitoredMessageList);
+  }
+  return messageList.sort(
     (a, b) =>
       // 默认 seqId 为最大
       (a.seqId ?? Number.MAX_SAFE_INTEGER) -
@@ -40,6 +45,7 @@ export const getSelectedMessageList = (state: RootState) => {
 
 export const getSelectedConstomer = (state: RootState) => {
   const selected = state.chat.selectedSession;
+  if (state.chat.isMonitored) return state.chat.monitoredUser;
   if (selected === undefined) return null;
   return state.session[selected].user;
 };
@@ -55,7 +61,9 @@ export const getSession = (hide = false) =>
       _.values(session)
         .filter((it) => it.hide === hide)
         // 按时间降序
-        .sort((a, b) => b.lastMessageTime - a.lastMessageTime)
+        .sort(
+          (a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
+        )
         // 按置顶排序
         .sort((a, b) => {
           let result = 0;
@@ -137,6 +145,7 @@ export const setNewMessage =
         }),
         map((r) => r?.message),
         map((m) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           return { [m!.uuid]: m } as MessagesMap;
         })
       )

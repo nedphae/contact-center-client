@@ -1,3 +1,7 @@
+import { Customer } from './Customer';
+import { MessagesMap } from './Message';
+import Staff from './StaffInfo';
+
 /**
  * 一些聊天状态
  */
@@ -7,6 +11,11 @@ export default interface Chat {
   filterQuickReply: QuickReply[];
   searchQuickReply: QuickReply[];
   quickReplySearchText: string;
+  // 监控相关
+  isMonitored: boolean;
+  monitoredStaff: Staff;
+  monitoredUser: Customer;
+  monitoredMessageList: MessagesMap;
 }
 
 export interface QuickReplyAllDtoGraphql {

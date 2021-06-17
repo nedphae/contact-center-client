@@ -7,7 +7,12 @@ import { register } from 'app/service/socketService';
 import slice from './staffSlice';
 
 const { setStaff, setOnline } = slice.actions;
-export const getStaff = (state: RootState) => state.staff;
+export const getStaff = (state: RootState) => {
+  if (state.chat.isMonitored) {
+    return state.chat.monitoredStaff;
+  }
+  return state.staff;
+};
 
 export const getStaffToken = (state: RootState) => state.staff.token;
 
@@ -26,9 +31,9 @@ export const setUserAsync =
   };
 
 export const configStaff = (): AppThunk => {
-  return async (dispatch, getState) => {
+  return async (dispatch) => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
-    const staff = getStaff(getState()); // useSelector(getStaff);
+    // const staff = getStaff(getState()); // useSelector(getStaff);
     register(configStatus()).subscribe(() => {
       // 注册成功, 设置状态同步成功
       dispatch(setOnline());

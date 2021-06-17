@@ -56,9 +56,11 @@ const converSlice = createSlice({
               filter((f) => f !== undefined && f !== null),
               defaultIfEmpty<number | undefined>(to),
               filter((f) => f !== undefined && f !== null),
-              map((f) => converMap[f]),
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              map((f) => converMap[f!]),
               map((c) => {
-                c.lastMessageTime = msg.createdAt ?? c.lastMessageTime;
+                c.lastMessageTime =
+                  (msg.createdAt as Date | null) ?? c.lastMessageTime;
                 [c.lastMessage] = _.valuesIn(m);
                 // 消息如果存在了就不在设置 change from _.merge
                 _.defaults(c.massageList, m);
