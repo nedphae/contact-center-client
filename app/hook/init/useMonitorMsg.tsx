@@ -25,7 +25,8 @@ const useMonitorMsg = (userId: number, refreshInterval: number) => {
   useEffect(() => {
     if (data !== undefined) {
       const messageList = data.monitorMessageByUser.content;
-      dispatch(setMonitoredMessage(messageList));
+      const userMessages = { userId: messageList };
+      dispatch(setMonitoredMessage(userMessages));
     }
   }, [data, dispatch]);
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { gql, useSubscription } from '@apollo/client';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -19,6 +20,10 @@ import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
 import { from, of, zip } from 'rxjs';
 import { groupBy, map, mergeMap, toArray } from 'rxjs/operators';
 import useMonitorMsg from 'app/hook/init/useMonitorMsg';
+import {
+  getSelectedSession,
+  setSelectedSession,
+} from 'app/state/chat/chatAction';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,7 +57,7 @@ interface MonitorProps {
   refreshInterval?: number;
 }
 
-function SyncUserMessage(userId: number, refreshInterval: number) {
+function SyncUserMessage(userId: number, refreshInterval = 5) {
   useMonitorMsg(userId, refreshInterval);
   return <></>;
 }
@@ -60,10 +65,11 @@ function SyncUserMessage(userId: number, refreshInterval: number) {
 function Monitor(props: MonitorProps) {
   const { refreshInterval } = props;
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   const [open, setOpen] = useState(-1);
   const [staffOpen, setStaffOpen] = useState(-1);
-  const [userId, setUserId] = useState<number | null>(null);
+  const selectedSession = useSelector(getSelectedSession);
 
   const { data, loading } = useSubscription<Graphql>(MONITOR_SUBSCRIPTION, {
     variables: { seconds: refreshInterval },
@@ -75,6 +81,10 @@ function Monitor(props: MonitorProps) {
 
   const handleClickStaff = (index: number) => {
     setStaffOpen(index);
+  };
+
+  const handleClickCustomer = (index: number) => {
+    dispatch(setSelectedSession(index));
   };
 
   const grouOfStaff = new Map<number, Staff[]>();
@@ -116,7 +126,7 @@ function Monitor(props: MonitorProps) {
       aria-labelledby="nested-list-subheader"
       className={classes.root}
     >
-      {userId && SyncUserMessage(userId, 5)}
+      {selectedSession && SyncUserMessage(selectedSession, refreshInterval)}
       {resultList &&
         resultList.map((group, index) => (
           <React.Fragment key={group.id}>
@@ -158,7 +168,7 @@ function Monitor(props: MonitorProps) {
                                 <ListItem
                                   button
                                   className={classes.nested}
-                                  onClick={() => setUserId(st.id)}
+                                  onClick={() => handleClickCustomer(st.id)}
                                 >
                                   <ListItemIcon>
                                     <ChatIcon />

@@ -19,12 +19,13 @@ export default function CustomerInfo() {
       mobile: user.mobile,
       email: user.email,
       vipLevel: user.vipLevel,
+      remarks: user.remarks,
       detailData: user.detailData,
     };
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        <CustomerForm defaultValues={defaultValues} />
+        <CustomerForm defaultValues={defaultValues} shouldDispatch />
       </Container>
     );
   }

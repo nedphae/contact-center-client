@@ -3,15 +3,16 @@ import { OnlineStatus } from './constant/Staff';
 
 /** 客户信息 */
 export interface Customer {
+  id: number | undefined;
   /** 客户关联的会话id */
-  conversationId: number | undefined;
+  conversationId?: number | undefined;
   organizationId: number;
   /** 客户 id 服务器自动设置 */
-  userId: number;
+  userId?: number;
   /** 用户在企业产品中的标识 */
   uid: string;
   /** 咨询入口 */
-  shuntId: number;
+  shuntId?: number;
   /** 用户姓名 */
   name: string;
   /** 用户邮箱 */
@@ -21,7 +22,8 @@ export interface Customer {
   /** vip等级 1-10 */
   vipLevel: number | undefined;
 
-  status: CustomerStatus | undefined;
+  remarks?: string | undefined;
+  status?: CustomerStatus | undefined;
   /** 企业当前登录用户其他信息，JSON字符串 */
   detailData: DetailData[] | undefined;
 }

@@ -10,6 +10,7 @@ const CORE_CUSTOMER_FIELDS = gql`
     email
     mobile
     vipLevel
+    remarks
     status {
       fromType
       groupId

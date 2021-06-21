@@ -15,6 +15,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@iconify-icons/clarity": "^1.1.1",
     "@iconify-icons/ri": "^1.1.0",
     "@iconify/icons-mdi": "^1.1.15",
     "@iconify/react": "^1.1.4"

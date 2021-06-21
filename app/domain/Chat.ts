@@ -1,7 +1,14 @@
 import { Customer } from './Customer';
-import { MessagesMap } from './Message';
+import { Message, MessagesMap } from './Message';
 import Staff from './StaffInfo';
 
+export interface UserMessageMap {
+  [userId: number]: MessagesMap;
+}
+
+export interface UserMessages {
+  [userId: number]: Message[];
+}
 /**
  * 一些聊天状态
  */
@@ -15,7 +22,7 @@ export default interface Chat {
   isMonitored: boolean;
   monitoredStaff: Staff;
   monitoredUser: Customer;
-  monitoredMessageList: MessagesMap;
+  monitoredMessageList: UserMessageMap;
 }
 
 export interface QuickReplyAllDtoGraphql {

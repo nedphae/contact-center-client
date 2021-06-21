@@ -32,8 +32,8 @@ export const getSelectedMessageList = (state: RootState) => {
       messageList = _.values(messageListMap);
     }
   }
-  if (state.chat.isMonitored) {
-    messageList = _.values(state.chat.monitoredMessageList);
+  if (selected === undefined && state.chat.isMonitored) {
+    messageList = _.values(state.chat.monitoredMessageList[selected]);
   }
   return messageList.sort(
     (a, b) =>

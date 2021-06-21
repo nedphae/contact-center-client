@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@iconify-icons/clarity@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@iconify-icons/clarity/-/clarity-1.1.1.tgz#0d693e473c99b28dc401b1bf8d0b627b1a4c6829"
+  integrity sha512-96jM6z8cqKrWZHl6/mzXNgbI+i7lVjKtXY4vT6WXlz/paoC8r1ly7hrLE5cAfUMSU1cuQdVflTZvUp3D4C762g==
+
 "@iconify-icons/ri@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@iconify-icons/ri/-/ri-1.1.0.tgz#2ad1aab443c304e3a0a4a3e708b1dee0ed95ce5b"

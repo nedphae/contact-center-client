@@ -2,9 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import Fuse from 'fuse.js';
 import _ from 'lodash';
 
-import Chat, { QuickReply, QuickReplyAllDto } from 'app/domain/Chat';
+import Chat, {
+  QuickReply,
+  QuickReplyAllDto,
+  UserMessages,
+} from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
-import { Message, MessagesMap } from 'app/domain/Message';
+import { MessagesMap } from 'app/domain/Message';
 
 const initChat = {} as Chat;
 
@@ -61,12 +65,13 @@ const chatSlice = createSlice({
         noGroupIndex
       );
     },
-    setMonitoredMessage: (chat, action: PayloadAction<Message[]>) => {
-      const messageMap = action.payload.map((m) => {
+    setMonitoredMessage: (chat, action: PayloadAction<UserMessages>) => {
+      const { userId } = chat.monitoredUser;
+      const messageMap = action.payload[userId].map((m) => {
         return { [m.uuid]: m } as MessagesMap;
       });
-      chat.monitoredMessageList = _.defaults(
-        chat.monitoredMessageList,
+      chat.monitoredMessageList[userId] = _.defaults(
+        chat.monitoredMessageList[userId],
         messageMap
       );
     },

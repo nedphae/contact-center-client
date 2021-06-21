@@ -13,6 +13,8 @@ import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import EmailIcon from '@material-ui/icons/Email';
 import { InlineIcon } from '@iconify/react';
 import vipLine from '@iconify-icons/ri/vip-line';
+import noteLine from '@iconify-icons/clarity/note-line';
+
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 
 import {
@@ -40,36 +42,40 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface FormValues {
-  id: number;
+export interface CustomerFormValues {
+  id: number | undefined;
   organizationId: number;
   readonly uid: string;
   name: string;
   mobile: string | undefined;
   email: string | undefined;
   vipLevel: number | undefined;
+  remarks: string | undefined;
   detailData: DetailData[] | undefined;
 }
 
 interface CustomerFormProps {
-  defaultValues: FormValues;
+  defaultValues: CustomerFormValues;
+  shouldDispatch: boolean;
 }
 export default function CustomerForm(props: CustomerFormProps) {
-  const { defaultValues } = props;
+  const { defaultValues, shouldDispatch } = props;
   const classes = useStyles();
   const dispatch = useDispatch();
   // TODO: 显示更新错误
   const [editCustomer, { data }] =
     useMutation<UpdateCustomerGraphql>(MUTATION_CUSTOMER);
-  const { register, handleSubmit } = useForm<FormValues>({ defaultValues });
+  const { register, handleSubmit } = useForm<CustomerFormValues>({
+    defaultValues,
+  });
 
   useEffect(() => {
-    if (data) {
+    if (data && shouldDispatch) {
       dispatch(updateCustomer(data.updateCustomer));
     }
-  }, [data, dispatch]);
+  }, [data, dispatch, shouldDispatch]);
 
-  const onSubmit: SubmitHandler<FormValues> = async (form) => {
+  const onSubmit: SubmitHandler<CustomerFormValues> = async (form) => {
     // 用户信息表单
     editCustomer({ variables: { customerInput: form } });
   };
@@ -164,6 +170,23 @@ export default function CustomerForm(props: CustomerFormProps) {
             startAdornment: (
               <InputAdornment position="start">
                 <InlineIcon icon={vipLine} />
+              </InputAdornment>
+            ),
+          }}
+          inputRef={register({ maxLength: 2, valueAsNumber: true })}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="remarks"
+          name="remarks"
+          label="备注"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <InlineIcon icon={noteLine} />
               </InputAdornment>
             ),
           }}
