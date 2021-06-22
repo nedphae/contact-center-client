@@ -14,6 +14,8 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ReplyIcon from '@material-ui/icons/Reply';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { Topic, BotConfig, KnowledgeBase, TopicCategory } from 'app/domain/Bot';
 
@@ -78,10 +80,26 @@ const QUERY = gql`
   }
 `;
 
+const initialState = {
+  mouseX: null,
+  mouseY: null,
+};
+
 export default function Bot() {
   const classes = useStyles();
   const [open, setOpen] = useState(-1);
+  const [state, setState] = useState<{
+    mouseX: null | number;
+    mouseY: null | number;
+  }>(initialState);
+
   const { loading, data, refetch } = useQuery<Graphql>(QUERY);
+
+  const handleClose = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setState(initialState);
+  };
+
   const topicCategoryPidGroup = _.groupBy(
     data?.topicCategoryList,
     (it) => it.pid ?? -2
@@ -149,6 +167,24 @@ export default function Bot() {
                 </Collapse>
               </React.Fragment>
             ))}
+          {/* 右键菜单 */}
+          <div onContextMenu={handleClose} style={{ cursor: 'context-menu' }}>
+            <Menu
+              keepMounted
+              open={state.mouseY !== null}
+              onClose={handleClose}
+              anchorReference="anchorPosition"
+              anchorPosition={
+                state.mouseY !== null && state.mouseX !== null
+                  ? { top: state.mouseY, left: state.mouseX }
+                  : undefined
+              }
+            >
+              <MenuItem key="sticky" onClick={() => doSticky(menuState.userId)}>
+                关联机器人
+              </MenuItem>
+            </Menu>
+          </div>
         </List>
       </Grid>
       <Grid item xs={12} sm={10}>

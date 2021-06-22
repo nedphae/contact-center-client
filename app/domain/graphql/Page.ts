@@ -31,6 +31,5 @@ export default function getPageQuery(
       numberOfElements
       empty
     }
-  }
 `;
 }
