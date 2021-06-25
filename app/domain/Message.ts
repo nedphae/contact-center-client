@@ -26,11 +26,11 @@ export interface UpdateMessage {
   ptsCount: number;
 }
 
-interface TextContent {
+export interface TextContent {
   text: string;
 }
 
-interface PhotoContent {
+export interface PhotoContent {
   /** 媒体id */
   mediaId: string;
   /** 图片名称 */
@@ -38,10 +38,10 @@ interface PhotoContent {
   /** 图片大小 */
   picSize: number;
   /** 图片类型 */
-  type: number;
+  type: string;
 }
 
-interface Attachments {
+export interface Attachments {
   /** 媒体id */
   mediaId: string;
   /** 文件名称 */

@@ -6,7 +6,11 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 
-import { sendTextMessage } from 'app/state/session/sessionAction';
+import {
+  sendImageMessage,
+  sendTextMessage,
+} from 'app/state/session/sessionAction';
+import { PhotoContent } from 'app/domain/Message';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -51,11 +55,21 @@ export default function Editor(selected: SelectedProps) {
     }
   }
 
+  function handleSendImageMessage(photoContent: PhotoContent) {
+    if (selectedSession) {
+      dispath(sendImageMessage(selectedSession, photoContent));
+    }
+  }
+
   return (
     <>
       {/* TODO: 需要把  EditorTool 和 Editor 这两个组件合并到一块，防止渲染 MessageList */}
       {selectedSession && (
-        <EditorTool textMessage={textMessage} setMessage={setMessage} />
+        <EditorTool
+          textMessage={textMessage}
+          setMessage={setMessage}
+          sendImageMessage={handleSendImageMessage}
+        />
       )}
       <div
         style={{ ...style, width: 'auto', height: '100%', minHeight: '60px' }}

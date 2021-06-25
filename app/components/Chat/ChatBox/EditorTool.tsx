@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import _ from 'lodash';
 
@@ -21,6 +20,7 @@ import Upload from 'rc-upload';
 import { RcFile } from 'rc-upload/lib/interface';
 
 import config from 'app/config/clientConfig';
+import { PhotoContent } from 'app/domain/Message';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -42,23 +42,24 @@ const useStyles = makeStyles(() =>
 interface EditorProps {
   textMessage: string;
   setMessage(msg: string): void;
+  sendImageMessage(photoContent: PhotoContent): void;
 }
 
 export default function EditorTool(props: EditorProps) {
   const classes = useStyles();
-  const { textMessage, setMessage } = props;
+  const { textMessage, setMessage, sendImageMessage } = props;
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
 
-  const handleClick = (newPlacement: PopperPlacementType) => (
-    event: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    setAnchorEl(event.currentTarget);
-    setOpen((prev) => placement !== newPlacement || !prev);
-    setPlacement(newPlacement);
-  };
+  const handleClick =
+    (newPlacement: PopperPlacementType) =>
+    (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+      setOpen((prev) => placement !== newPlacement || !prev);
+      setPlacement(newPlacement);
+    };
 
   const onClose = () => setOpen(false);
 
@@ -69,15 +70,21 @@ export default function EditorTool(props: EditorProps) {
   };
 
   const imgUploadProps = {
-    action: `${config.web.host}/chat/img`,
+    action: `${config.web.host}/${config.oss.path}/chat/img`,
     multiple: true,
     accept: 'image/png,image/gif,image/jpeg',
     onStart(file: RcFile) {
       console.log('onStart', file, file.name);
     },
-    onSuccess(response: unknown, _file: RcFile, _xhr: unknown) {
+    onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
       console.log('onSuccess', response);
       // 发送图片消息
+      sendImageMessage({
+        mediaId: (response as string[])[0],
+        filename: file.name,
+        picSize: file.size,
+        type: file.type,
+      });
     },
     onError(error: Error, _ret: any, _file: RcFile) {
       console.log('onError', error);
@@ -85,7 +92,7 @@ export default function EditorTool(props: EditorProps) {
   };
 
   const fileUploadProps = _.clone(imgUploadProps);
-  fileUploadProps.action = `${config.web.host}/chat/file`;
+  fileUploadProps.action = `${config.web.host}/${config.oss.path}/chat/file`;
   fileUploadProps.accept = '*';
 
   return (

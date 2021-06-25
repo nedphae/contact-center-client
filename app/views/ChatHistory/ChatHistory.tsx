@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import _ from 'lodash';
 
 import { gql, useQuery } from '@apollo/client';
@@ -11,13 +11,6 @@ import {
   GridToolbar,
   GridPageChangeParams,
 } from '@material-ui/data-grid';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
-import Draggable from 'react-draggable';
-import Paper, { PaperProps } from '@material-ui/core/Paper';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
@@ -33,6 +26,9 @@ import { Divider } from '@material-ui/core';
 import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
 import { PageContent } from 'app/domain/Page';
 import getPageQuery from 'app/domain/graphql/Page';
+import DraggableDialog, {
+  DraggableDialogRef,
+} from 'app/components/DraggableDialog/DraggableDialog';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -152,18 +148,6 @@ const columns: GridColDef[] = [
   },
   { field: 'terminator', headerName: '会话中止方', width: 150 },
 ];
-
-function PaperComponent(props: PaperProps) {
-  return (
-    <Draggable
-      handle="#draggable-dialog-title"
-      cancel={'[class*="MuiDialogContent-root"]'}
-    >
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Paper {...props} />
-    </Draggable>
-  );
-}
 
 const dateFnsUtils = new DateFnsUtils();
 
@@ -304,7 +288,8 @@ const QUERY = gql`
 `;
 
 export default function DataGridDemo() {
-  const [open, setOpen] = useState(false);
+  const refOfDialog = useRef<DraggableDialogRef>(null);
+
   const [conversationQueryInput, setConversationQueryInput] =
     useState<ConversationQueryInput>(defaultValue);
   const [selectConversation, setSelectConversation] =
@@ -316,11 +301,7 @@ export default function DataGridDemo() {
 
   const handleClickOpen = (conversation: Conversation) => {
     setSelectConversation(conversation);
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
+    refOfDialog.current?.setOpen(true);
   };
 
   const handlePageChange = (params: GridPageChangeParams) => {
@@ -378,30 +359,11 @@ export default function DataGridDemo() {
 
   return (
     <div style={{ height: '80vh', width: '100%' }}>
-      <Dialog
-        disableEnforceFocus
-        disableBackdropClick
-        fullWidth
-        maxWidth="lg"
-        open={open}
-        onClose={handleClose}
-        PaperComponent={PaperComponent}
-        aria-labelledby="draggable-dialog-title"
-      >
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          详细聊天消息
-        </DialogTitle>
-        <DialogContent>
-          {selectConversation && (
-            <MessageList conversation={selectConversation} />
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
-            取消
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DraggableDialog title="详细聊天消息" ref={refOfDialog}>
+        {selectConversation && (
+          <MessageList conversation={selectConversation} />
+        )}
+      </DraggableDialog>
       <SearchForm
         defaultValues={defaultValue}
         currentValues={conversationQueryInput}

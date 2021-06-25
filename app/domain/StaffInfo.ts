@@ -15,6 +15,7 @@ export default interface Staff {
   currentServiceCount: number;
   userIdList: number[];
   loginTime: Date;
+  /** 是否是机器人 0 机器人， 1人工 */
   staffType: number;
   realName: string;
   username: string;

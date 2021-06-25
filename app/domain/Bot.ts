@@ -3,6 +3,7 @@ export interface KnowledgeBase {
   name: string;
   description: string | undefined;
   categoryList: TopicCategory[] | undefined;
+  botConfig: BotConfig | undefined;
 }
 
 export interface Topic {

@@ -10,6 +10,7 @@ import {
   Content,
   Message,
   MessagesMap,
+  PhotoContent,
   UpdateMessage,
 } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
@@ -167,6 +168,26 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
       textContent: {
         text: textContent,
       },
+    };
+    const message: Message = {
+      uuid: uuidv4().substr(0, 8),
+      to,
+      type: CreatorType.CUSTOMER,
+      creatorType: CreatorType.STAFF,
+      content,
+    };
+    dispatch(sendMessage(message));
+  };
+}
+
+export function sendImageMessage(
+  to: number,
+  photoContent: PhotoContent
+): AppThunk {
+  return (dispatch) => {
+    const content: Content = {
+      contentType: 'IMAGE',
+      photoContent,
     };
     const message: Message = {
       uuid: uuidv4().substr(0, 8),

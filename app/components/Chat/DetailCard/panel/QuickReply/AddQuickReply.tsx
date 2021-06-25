@@ -116,13 +116,10 @@ export default function AddQuickReply() {
 
   const { register, handleSubmit, control } = useForm<Form>();
   const [open, setOpen] = React.useState<boolean>(false);
-  const [addQuickReply, quickReplyResult] = useMutation<QuickReplyGraphql>(
-    MUTATION_QUICK_REPLY
-  );
-  const [
-    addQuickReplyGroup,
-    quickReplyGroupResult,
-  ] = useMutation<QuickReplyGroupGraphql>(MUTATION_QUICK_REPLY_GROUP);
+  const [addQuickReply, quickReplyResult] =
+    useMutation<QuickReplyGraphql>(MUTATION_QUICK_REPLY);
+  const [addQuickReplyGroup, quickReplyGroupResult] =
+    useMutation<QuickReplyGroupGraphql>(MUTATION_QUICK_REPLY_GROUP);
 
   const handleClose = () => {
     setOpen(false);

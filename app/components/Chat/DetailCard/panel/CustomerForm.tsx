@@ -14,7 +14,6 @@ import EmailIcon from '@material-ui/icons/Email';
 import { InlineIcon } from '@iconify/react';
 import vipLine from '@iconify-icons/ri/vip-line';
 import noteLine from '@iconify-icons/clarity/note-line';
-
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
 
 import {
@@ -31,10 +30,6 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-    },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
     },
     submit: {
       margin: theme.spacing(3, 0, 2),
