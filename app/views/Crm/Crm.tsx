@@ -126,7 +126,7 @@ export default function Crm() {
         aria-labelledby="draggable-dialog-title"
       >
         <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          详细聊天消息
+          详细用户信息
         </DialogTitle>
         <DialogContent>
           {selectCustomer && (

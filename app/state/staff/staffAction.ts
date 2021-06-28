@@ -14,6 +14,8 @@ export const getStaff = (state: RootState) => {
   return state.staff;
 };
 
+export const getMyself = (state: RootState) => state.staff;
+
 export const getStaffToken = (state: RootState) => state.staff.token;
 
 // 异步请求

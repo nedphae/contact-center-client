@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 import { gql, useQuery } from '@apollo/client';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -101,10 +102,10 @@ const initialState = {
 };
 
 function buildTopicCategory(topicCategoryList: TopicCategory[]) {
-  return topicCategoryList.map((cl, ci) => (
+  return topicCategoryList.map((cl) => (
     <StyledTreeItem
       key={cl.id?.toString()}
-      nodeId={cl.id?.toString() || ci.toString()}
+      nodeId={uuidv4()}
       labelText={cl.name}
       labelIcon={SubjectIcon}
     >
@@ -123,7 +124,7 @@ export default function Bot() {
     knowledgeBaseId: null | number | undefined;
   }>(initialState);
 
-  const { loading, data, refetch } = useQuery<Graphql>(QUERY);
+  const { data } = useQuery<Graphql>(QUERY);
 
   const handleContextMenuOpen = (
     event: React.MouseEvent<HTMLLIElement>,
@@ -202,10 +203,10 @@ export default function Bot() {
           defaultExpandIcon={<ArrowRightIcon />}
         >
           {data?.allKnowledgeBase &&
-            data.allKnowledgeBase.map((base, index) => (
+            data.allKnowledgeBase.map((base) => (
               <StyledTreeItem
                 key={base.id?.toString()}
-                nodeId={base.id?.toString() || index.toString()}
+                nodeId={uuidv4()}
                 labelText={base.name}
                 labelIcon={SubjectIcon}
                 onContextMenu={(event) => handleContextMenuOpen(event, base.id)}
