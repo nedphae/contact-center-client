@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import GroupIcon from '@material-ui/icons/Group';
 import { Typography, CircularProgress } from '@material-ui/core';
 
-import { StaffGroup } from 'app/domain/StaffInfo';
+import { StaffShunt } from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -26,35 +26,37 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface FormProps {
-  defaultValues: StaffGroup | undefined;
+  defaultValues: StaffShunt | undefined;
 }
 
 interface Graphql {
-  saveStaffGroup: StaffGroup;
+  saveStaffShunt: StaffShunt | undefined;
 }
 
-const MUTATION_STAFF_GROUP = gql`
-  mutation StaffGroup($staffGroupInput: StaffGroupInput!) {
-    saveStaffGroup(staffGroup: $staffGroupInput) {
+const MUTATION_STAFF_SHUNT = gql`
+  mutation StaffShunt($staffShuntInput: StaffShuntInput!) {
+    saveStaffShunt(staffShunt: $staffShuntInput) {
       id
       organizationId
-      groupName
+      shuntClassId
+      name
+      code
     }
   }
 `;
 
-export default function StaffGroupForm(props: FormProps) {
+export default function StaffShuntForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const { handleSubmit, register } = useForm<StaffGroup>({
+  const { handleSubmit, register } = useForm<StaffShunt>({
     defaultValues,
   });
 
-  const [saveStaffGroup, { loading, data }] =
-    useMutation<Graphql>(MUTATION_STAFF_GROUP);
+  const [saveStaffShunt, { loading, data }] =
+    useMutation<Graphql>(MUTATION_STAFF_SHUNT);
 
-  const onSubmit: SubmitHandler<StaffGroup> = (form) => {
-    saveStaffGroup({ variables: { staffGroupInput: form } });
+  const onSubmit: SubmitHandler<StaffShunt> = (form) => {
+    saveStaffShunt({ variables: { staffShuntInput: form } });
   };
 
   return (
@@ -63,18 +65,18 @@ export default function StaffGroupForm(props: FormProps) {
       {data && <Typography>Success!</Typography>}
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues?.id || data?.saveStaffGroup.id || ''}
+          value={defaultValues?.id || data?.saveStaffShunt?.id || ''}
           name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          inputRef={register({ maxLength: 100, valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
-          id="groupName"
-          name="groupName"
-          label="分组名称"
+          id="name"
+          name="name"
+          label="接待组名称"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -83,12 +85,30 @@ export default function StaffGroupForm(props: FormProps) {
             ),
           }}
           inputRef={register({
-            required: '必须设置分组名称',
+            required: '必须设置接待组名称',
             maxLength: {
               value: 50,
-              message: '分组名称不能大于50位',
+              message: '接待组名称不能大于50位',
             },
           })}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="code"
+          name="code"
+          label="接待组链接代码"
+          value={defaultValues?.code || data?.saveStaffShunt?.code || ''}
+          InputProps={{
+            readOnly: true,
+            startAdornment: (
+              <InputAdornment position="start">
+                <GroupIcon />
+              </InputAdornment>
+            ),
+          }}
+          inputRef={register()}
         />
         <Button
           type="submit"

@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import _ from 'lodash';
+import { Object } from 'ts-toolbelt';
 
 import { gql, useQuery } from '@apollo/client';
 import DateFnsUtils from '@date-io/date-fns';
@@ -19,16 +20,15 @@ import {
 } from 'app/domain/graphql/Conversation';
 import { Conversation, SearchHit } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
-import SearchForm, {
-  SelectKeyValue,
-} from 'app/components/SearchForm/SearchForm';
+import SearchForm from 'app/components/SearchForm/SearchForm';
 import { Divider } from '@material-ui/core';
-import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
 import { PageContent } from 'app/domain/Page';
 import getPageQuery from 'app/domain/graphql/Page';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
+import { AllStaffInfo } from 'app/domain/graphql/Staff';
+import { SelectKeyValue } from 'app/components/Form/ChipSelect';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -97,10 +97,21 @@ const columns: GridColDef[] = [
   {
     field: 'staffFirstReplyTime',
     headerName: '客服首次响应的时间',
+    type: 'dateTime',
     width: 150,
   },
-  { field: 'firstReplyCost', headerName: '客服首次响应时长', width: 150 },
-  { field: 'stickDuration', headerName: '客服置顶时长', width: 150 },
+  {
+    field: 'firstReplyCost',
+    headerName: '客服首次响应时长',
+    type: 'number',
+    width: 150,
+  },
+  {
+    field: 'stickDuration',
+    headerName: '客服置顶时长',
+    type: 'number',
+    width: 150,
+  },
   { field: 'remarks', headerName: '会话备注', width: 150 },
   { field: 'status', headerName: '会话解决状态', width: 150 },
   {
@@ -156,12 +167,11 @@ const defaultValue = {
   timeRange: { from: dateFnsUtils.startOfDay(new Date()), to: new Date() },
 };
 
-interface Graphql {
+interface SearchConv {
   searchConv: PageContent<SearchHit<Conversation>>;
-  allStaff: Staff[];
-  allStaffGroup: StaffGroup[];
-  allStaffShunt: StaffShunt[];
 }
+
+type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
 
 const CONTENT_QUERY = gql`
   fragment Content on MySearchHit {

@@ -2,24 +2,13 @@ import React from 'react';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
-import {
-  createStyles,
-  makeStyles,
-  Theme,
-  useTheme,
-} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
 import TextField from '@material-ui/core/TextField';
 import DateFnsUtils from '@date-io/date-fns';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
-import Select from '@material-ui/core/Select';
-import Chip from '@material-ui/core/Chip';
-import MenuItem from '@material-ui/core/MenuItem';
 import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
@@ -30,6 +19,7 @@ import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { ConversationQueryInput } from 'app/domain/graphql/Conversation';
+import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -65,33 +55,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   })
 );
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
-function getStyles(name: string, keys: string[], theme: Theme) {
-  return {
-    fontWeight:
-      keys.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
-}
-
-export interface SelectKeyValue {
-  label: string;
-  name: string;
-  // id to name
-  selectList: Record<string, string>;
-  defaultValue: string[];
-}
 
 interface FormProps {
   defaultValues: ConversationQueryInput;
@@ -104,7 +67,6 @@ export default function SearchForm(props: FormProps) {
   const { defaultValues, currentValues, selectKeyValueList, searchAction } =
     props;
   const classes = useStyles();
-  const theme = useTheme();
   const { handleSubmit, register, reset, control, getValues, setValue } =
     useForm<ConversationQueryInput>({ defaultValues: currentValues });
   const [expanded, setExpanded] = React.useState(false);
@@ -135,15 +97,12 @@ export default function SearchForm(props: FormProps) {
                 id="standard-basic"
                 label="关键字"
                 name="keyword"
-                inputRef={register({ maxLength: 50 })}
+                inputRef={register()}
               />
               <Controller
                 control={control}
                 name="timeRange.from"
-                render={(
-                  { onChange, onBlur, value, name, ref },
-                  { invalid, isTouched, isDirty }
-                ) => (
+                render={({ onChange, value }) => (
                   <KeyboardDateTimePicker
                     disableToolbar
                     variant="inline"
@@ -162,10 +121,7 @@ export default function SearchForm(props: FormProps) {
               <Controller
                 control={control}
                 name="timeRange.to"
-                render={(
-                  { onChange, onBlur, value, name, ref },
-                  { invalid, isTouched, isDirty }
-                ) => (
+                render={({ onChange, value }) => (
                   <KeyboardDateTimePicker
                     disableToolbar
                     variant="inline"
@@ -217,69 +173,11 @@ export default function SearchForm(props: FormProps) {
           </CardActions>
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <CardActions>
-              <div className={classes.root}>
-                {selectKeyValueList.map((it) => (
-                  <FormControl key={it.name} className={classes.formControl}>
-                    <InputLabel id="demo-mutiple-chip-label">
-                      {it.label}
-                    </InputLabel>
-                    <Controller
-                      control={control}
-                      name={it.name}
-                      defaultValue={it.defaultValue}
-                      // rules={{
-                      //   setValueAs: (val) =>
-                      //     val.map((v: string) => parseInt(v, 10)),
-                      // }}
-                      render={(
-                        { onChange, onBlur, value, ref },
-                        { invalid, isTouched, isDirty }
-                      ) => (
-                        <Select
-                          labelId="demo-mutiple-chip-label"
-                          id="demo-mutiple-chip"
-                          multiple
-                          input={<Input id="select-multiple-chip" />}
-                          onChange={onChange}
-                          value={value}
-                          renderValue={(selected) => (
-                            <div className={classes.chips}>
-                              {(selected as string[]).map((id) => (
-                                <Chip
-                                  key={id}
-                                  label={it.selectList[id]}
-                                  className={classes.chip}
-                                  onDelete={() => {
-                                    handleDelete(it.name, id);
-                                  }}
-                                  onMouseDown={(event) => {
-                                    event.stopPropagation();
-                                  }}
-                                />
-                              ))}
-                            </div>
-                          )}
-                          MenuProps={MenuProps}
-                        >
-                          {_.keys(it.selectList).map((id) => (
-                            <MenuItem
-                              key={id}
-                              value={id}
-                              style={getStyles(
-                                id,
-                                _.keys(it.selectList),
-                                theme
-                              )}
-                            >
-                              {it.selectList[id]}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      )}
-                    />
-                  </FormControl>
-                ))}
-              </div>
+              <ChipSelect
+                selectKeyValueList={selectKeyValueList}
+                control={control}
+                handleDelete={handleDelete}
+              />
             </CardActions>
           </Collapse>
         </Card>

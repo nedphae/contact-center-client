@@ -27,6 +27,7 @@ export default interface Staff {
   syncState: boolean;
   // just for websocket
   token: string | undefined;
+  simultaneousService: number;
   maxTicketPerDay: number;
   maxTicketAllTime: number;
   mobilePhone: string;
@@ -47,6 +48,14 @@ export interface StaffShunt {
   name: string;
   shuntClassId: number;
   code: string;
+}
+
+export interface ShuntClass {
+  organizationId: number;
+  id: number;
+  className: string;
+  catalogue: number | undefined;
+  children: ShuntClass[] | undefined;
 }
 
 export interface StaffConfig {

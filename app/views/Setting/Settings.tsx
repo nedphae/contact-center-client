@@ -13,6 +13,7 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
 import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
 import Account from 'app/components/Settings/personal/Account';
+import unimplemented from 'app/utils/Error';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,10 +53,6 @@ const QUERY = gql`
   }
 `;
 
-function unimplemented(): never {
-  throw new Error('Not implemented yet');
-}
-
 function settingPage(pageName: PageName) {
   let result: JSX.Element;
   switch (pageName) {
@@ -67,6 +64,11 @@ function settingPage(pageName: PageName) {
       result = <Account />;
       break;
     }
+
+    case 'org.Account': {
+      result = <Account />;
+      break;
+    }
     default: {
       result = unimplemented();
     }
@@ -74,7 +76,7 @@ function settingPage(pageName: PageName) {
   return result;
 }
 
-type PageName = 'personal.Account' | 'personal.Client';
+type PageName = 'personal.Account' | 'personal.Client' | 'org.Account';
 
 export default function Setting() {
   const classes = useStyles();
@@ -146,7 +148,7 @@ export default function Setting() {
       </Grid>
       <Grid item xs={12} sm={10}>
         {/* 显示 配置页面 */}
-        {settingPage(setPageName)}
+        {pageName && settingPage(pageName)}
       </Grid>
     </Grid>
   );

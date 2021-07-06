@@ -134,7 +134,7 @@ export default function Auth() {
             name="org_id"
             autoFocus
             InputProps={{
-              inputComponent: NumberFormatCustom,
+              inputComponent: NumberFormatCustom as any,
             }}
             autoComplete="organization"
             inputRef={register({ required: true, maxLength: 9 })}

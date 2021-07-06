@@ -60,7 +60,7 @@ export default function CustomerForm(props: CustomerFormProps) {
   // TODO: 显示更新错误
   const [editCustomer, { data }] =
     useMutation<UpdateCustomerGraphql>(MUTATION_CUSTOMER);
-  const { register, handleSubmit } = useForm<CustomerFormValues>({
+  const { register, handleSubmit, errors } = useForm<CustomerFormValues>({
     defaultValues,
   });
 
@@ -81,13 +81,13 @@ export default function CustomerForm(props: CustomerFormProps) {
           value={defaultValues.id || ''}
           name="id"
           type="hidden"
-          inputRef={register({ maxLength: 50, valueAsNumber: true })}
+          inputRef={register({ valueAsNumber: true })}
         />
         <TextField
           value={defaultValues.organizationId || ''}
           name="organizationId"
           type="hidden"
-          inputRef={register({ maxLength: 50, valueAsNumber: true })}
+          inputRef={register({ valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
@@ -104,7 +104,7 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 50 })}
+          inputRef={register()}
         />
         <TextField
           variant="outlined"
@@ -120,7 +120,14 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 50 })}
+          error={errors.name && true}
+          helperText={errors.name}
+          inputRef={register({
+            maxLength: {
+              value: 80,
+              message: '用户姓名长度不能大于80个字符',
+            },
+          })}
         />
         <TextField
           variant="outlined"
@@ -136,7 +143,14 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 150 })}
+          error={errors.mobile && true}
+          helperText={errors.mobile}
+          inputRef={register({
+            maxLength: {
+              value: 20,
+              message: '手机号码长度不能大于20个字符',
+            },
+          })}
         />
         <TextField
           variant="outlined"
@@ -145,6 +159,8 @@ export default function CustomerForm(props: CustomerFormProps) {
           id="email"
           name="email"
           label="邮箱"
+          error={errors.email && true}
+          helperText={errors.email}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -152,7 +168,12 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 150 })}
+          inputRef={register({
+            maxLength: {
+              value: 150,
+              message: '邮箱长度不能大于150个字符',
+            },
+          })}
         />
         <TextField
           variant="outlined"
@@ -161,14 +182,31 @@ export default function CustomerForm(props: CustomerFormProps) {
           id="vipLevel"
           name="vipLevel"
           label="Vip 等级"
+          type="number"
+          error={errors.vipLevel && true}
+          helperText={errors.vipLevel}
+          InputLabelProps={{
+            shrink: true,
+          }}
           InputProps={{
+            inputProps: { min: 0, max: 99 },
             startAdornment: (
               <InputAdornment position="start">
                 <InlineIcon icon={vipLine} />
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 2, valueAsNumber: true })}
+          inputRef={register({
+            min: {
+              value: 0,
+              message: 'VIP 等级最小为0',
+            },
+            max: {
+              value: 99,
+              message: 'VIP 等级最大为99',
+            },
+            valueAsNumber: true,
+          })}
         />
         <TextField
           variant="outlined"
@@ -178,6 +216,8 @@ export default function CustomerForm(props: CustomerFormProps) {
           id="remarks"
           name="remarks"
           label="备注"
+          error={errors.remarks && true}
+          helperText={errors.remarks}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -185,7 +225,12 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 2, valueAsNumber: true })}
+          inputRef={register({
+            maxLength: {
+              value: 500,
+              message: '备注长度不能大于500个字符',
+            },
+          })}
         />
         {defaultValues.detailData !== undefined &&
           defaultValues.detailData
@@ -201,7 +246,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                   type="hidden"
                   id={`key.${detail.id}`}
                   name={`detailData.${index}.key`}
-                  inputRef={register({ maxLength: 150 })}
+                  inputRef={register()}
                 />
                 <TextField
                   variant="outlined"
@@ -217,7 +262,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                       </InputAdornment>
                     ),
                   }}
-                  inputRef={register({ maxLength: 150 })}
+                  inputRef={register()}
                 />
               </React.Fragment>
             ))}

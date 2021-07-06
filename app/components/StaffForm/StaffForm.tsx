@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
@@ -29,7 +30,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import Upload from 'rc-upload';
-import { RcFile } from 'rc-upload/lib/interface';
 
 import config from 'app/config/clientConfig';
 import Staff from 'app/domain/StaffInfo';
@@ -62,6 +62,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface FormProps {
   defaultValues: Staff;
+  mutationCallback?: (staff: Staff) => void | undefined;
 }
 
 interface Graphql {
@@ -91,28 +92,32 @@ const MUTATION_STAFF = gql`
   }
 `;
 
+type StaffWithPassword = Object.Merge<
+  Staff,
+  { password?: string; password_repeat?: string }
+>;
+
 export default function StaffForm(props: FormProps) {
-  const { defaultValues } = props;
+  const { defaultValues, mutationCallback } = props;
   const { staffType } = defaultValues;
   const classes = useStyles();
-  const { handleSubmit, register, control, setValue, watch } = useForm<Staff>({
-    defaultValues,
-  });
+  const { handleSubmit, register, control, setValue, watch, errors } =
+    useForm<StaffWithPassword>({
+      defaultValues,
+    });
   const [uploading, setUploading] = useState<boolean>();
   const [error, setError] = useState<string | null>(null);
   const [saveStaff, { loading, data }] = useMutation<Graphql>(MUTATION_STAFF);
 
-  const password = useRef({});
-  password.current = watch('password', '');
-  const avatar = useRef({});
-  avatar.current = watch('avatar', '');
+  const password = watch('password');
+  const avatar = watch('avatar');
 
   const imgUploadProps = useMemo(() => {
     return {
       action: `${config.web.host}/${config.oss.path}/staff/img`,
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
-      onStart(file: RcFile) {
+      onStart() {
         setUploading(true);
       },
       onSuccess(response: unknown) {
@@ -130,12 +135,16 @@ export default function StaffForm(props: FormProps) {
     saveStaff({ variables: { staffInput: form } });
   };
 
-  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
+  const handleClose = (_event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
     setError(null);
   };
+
+  if (mutationCallback && data) {
+    mutationCallback(data.saveStaff);
+  }
 
   return (
     <div className={classes.paper}>
@@ -155,12 +164,12 @@ export default function StaffForm(props: FormProps) {
           value={defaultValues.id || ''}
           name="id"
           type="hidden"
-          inputRef={register({ maxLength: 100, valueAsNumber: true })}
+          inputRef={register({ valueAsNumber: true })}
         />
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
-            src={`${config.web.host}/${config.oss.path}/staff/img/${avatar.current}`}
+            src={`${config.web.host}/${config.oss.path}/staff/img/${avatar}`}
           >
             头像
           </Avatar>
@@ -172,7 +181,7 @@ export default function StaffForm(props: FormProps) {
           id="avatar"
           name="avatar"
           type="hidden"
-          value={avatar.current}
+          value={avatar}
           inputRef={register()}
         />
         <TextField
@@ -190,9 +199,14 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
+          error={errors.username && true}
+          helperText={errors.username}
           inputRef={register({
-            required: '',
-            maxLength: 50,
+            required: '必须提供用户名',
+            maxLength: {
+              value: 50,
+              message: '用户名不能大于50位',
+            },
             minLength: {
               value: 4,
               message: '用户名至少4位',
@@ -216,11 +230,21 @@ export default function StaffForm(props: FormProps) {
                   </InputAdornment>
                 ),
               }}
+              error={errors.password && true}
+              helperText={errors.password}
               inputRef={register({
-                maxLength: 50,
+                required: '必须提供密码',
+                maxLength: {
+                  value: 50,
+                  message: '密码不能大于50位',
+                },
                 minLength: {
                   value: 8,
                   message: '密码至少8位',
+                },
+                pattern: {
+                  value: /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$).{8,50}$/,
+                  message: '密码必须包含 数字、字母、特殊字符 中两种或以上',
                 },
               })}
             />
@@ -239,8 +263,10 @@ export default function StaffForm(props: FormProps) {
                   </InputAdornment>
                 ),
               }}
+              error={errors.password_repeat && true}
+              helperText={errors.password_repeat}
               inputRef={register({
-                validate: (value) => value === password.current || '密码不相符',
+                validate: (value) => value === password || '密码不相符',
               })}
             />
             <FormControl variant="filled" className={classes.formControl}>
@@ -295,7 +321,7 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 150 })}
+          inputRef={register()}
         />
         <TextField
           variant="outlined"
@@ -311,7 +337,7 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 150 })}
+          inputRef={register()}
         />
         <TextField
           variant="outlined"
@@ -328,7 +354,15 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 150, valueAsNumber: true })}
+          error={errors.simultaneousService && true}
+          helperText={errors.simultaneousService}
+          inputRef={register({
+            min: {
+              value: 0,
+              message: '同时接待量 最小为0',
+            },
+            valueAsNumber: true,
+          })}
         />
         <TextField
           variant="outlined"
@@ -345,7 +379,19 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 10, valueAsNumber: true })}
+          error={errors.maxTicketPerDay && true}
+          helperText={errors.maxTicketPerDay}
+          inputRef={register({
+            min: {
+              value: 0,
+              message: '工单 最小为0',
+            },
+            max: {
+              value: 999,
+              message: '工单 最大为999',
+            },
+            valueAsNumber: true,
+          })}
         />
         <TextField
           variant="outlined"
@@ -362,7 +408,19 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({ maxLength: 10, valueAsNumber: true })}
+          error={errors.maxTicketAllTime && true}
+          helperText={errors.maxTicketAllTime}
+          inputRef={register({
+            min: {
+              value: 0,
+              message: '工单 最小为0',
+            },
+            max: {
+              value: 999,
+              message: '工单 最大为999',
+            },
+            valueAsNumber: true,
+          })}
         />
         <FormControl variant="filled" className={classes.formControl}>
           <InputLabel id="demo-mutiple-chip-label">是否是机器人</InputLabel>
@@ -432,6 +490,8 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
+          error={errors.username && true}
+          helperText={errors.username}
           inputRef={register({ maxLength: 250 })}
         />
         <FormControlLabel
@@ -464,3 +524,7 @@ export default function StaffForm(props: FormProps) {
     </div>
   );
 }
+
+StaffForm.defaultProps = {
+  mutationCallback: undefined,
+};

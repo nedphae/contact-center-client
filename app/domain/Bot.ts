@@ -48,8 +48,10 @@ export interface TopicCategory {
 }
 
 export interface BotConfig {
-  id: number | undefined;
+  id?: number | undefined;
   botId: number;
   knowledgeBaseId: number;
   noAnswerReply: string;
 }
+
+export const botConfigNoAnswerReply = '抱歉，没有找到您想要的答案';

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {
   Controller,
+  DeepMap,
+  FieldError,
   RegisterOptions,
   SubmitHandler,
   useForm,
@@ -43,7 +45,8 @@ interface QuickReplyGroupGraphql {
 }
 
 function quickReplyForm(
-  register: (arg0?: RegisterOptions) => React.Ref<unknown> | undefined
+  register: (arg0?: RegisterOptions) => React.Ref<unknown> | undefined,
+  errors: DeepMap<FormValues, FieldError>
 ) {
   return (
     <>
@@ -64,7 +67,14 @@ function quickReplyForm(
         id="title"
         name="title"
         label="话术标题"
-        inputRef={register({ maxLength: 50 })}
+        error={errors.title && true}
+        helperText={errors.title}
+        inputRef={register({
+          maxLength: {
+            value: 80,
+            message: '话术标题长度不能大于80个字符',
+          },
+        })}
       />
       <TextField
         variant="outlined"
@@ -73,14 +83,22 @@ function quickReplyForm(
         id="content"
         name="content"
         label="话术内容"
-        inputRef={register({ maxLength: 500 })}
+        error={errors.content && true}
+        helperText={errors.content}
+        inputRef={register({
+          maxLength: {
+            value: 500,
+            message: '话术内容长度不能大于500个字符',
+          },
+        })}
       />
     </>
   );
 }
 
 function quickReplyGroupForm(
-  register: (arg0?: RegisterOptions) => React.Ref<unknown> | undefined
+  register: (arg0?: RegisterOptions) => React.Ref<unknown> | undefined,
+  errors: DeepMap<GroupFormValues, FieldError>
 ) {
   return (
     <>
@@ -92,7 +110,14 @@ function quickReplyGroupForm(
         id="groupName"
         name="groupName"
         label="分组名称"
-        inputRef={register({ maxLength: 50 })}
+        error={errors.groupName && true}
+        helperText={errors.groupName}
+        inputRef={register({
+          maxLength: {
+            value: 50,
+            message: '分组名称长度不能大于50个字符',
+          },
+        })}
       />
     </>
   );
@@ -114,7 +139,7 @@ export default function AddQuickReply() {
     setAnchorEl(null);
   };
 
-  const { register, handleSubmit, control } = useForm<Form>();
+  const { register, handleSubmit, control, errors } = useForm<Form>();
   const [open, setOpen] = React.useState<boolean>(false);
   const [addQuickReply, quickReplyResult] =
     useMutation<QuickReplyGraphql>(MUTATION_QUICK_REPLY);
@@ -185,7 +210,9 @@ export default function AddQuickReply() {
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle id="form-dialog-title">添加话术</DialogTitle>
           <DialogContent>
-            {group ? quickReplyGroupForm(register) : quickReplyForm(register)}
+            {group
+              ? quickReplyGroupForm(register, errors)
+              : quickReplyForm(register, errors)}
             <FormControlLabel
               control={
                 <Controller

@@ -6,6 +6,7 @@ import StaffForm from './StaffForm';
 
 interface FormProps {
   staffId: number | null | undefined;
+  mutationCallback?: (staff: Staff) => void | undefined;
 }
 
 interface Graphql {
@@ -36,7 +37,7 @@ const QUERY_STAFF = gql`
 `;
 
 export default function StaffFormContainer(props: FormProps) {
-  const { staffId } = props;
+  const { staffId, mutationCallback } = props;
   const [getStaff, { data }] = useLazyQuery<Graphql>(QUERY_STAFF, {
     variables: { staffId },
   });
@@ -49,10 +50,19 @@ export default function StaffFormContainer(props: FormProps) {
 
   const staff = useMemo(() => {
     if (data) {
+      if (mutationCallback) {
+        mutationCallback(data.getStaffById);
+      }
       return data.getStaffById;
     }
     return { staffType: 0 } as Staff;
-  }, [data]);
+  }, [data, mutationCallback]);
 
-  return <StaffForm defaultValues={staff} />;
+  return (
+    <StaffForm defaultValues={staff} mutationCallback={mutationCallback} />
+  );
 }
+
+StaffFormContainer.defaultProps = {
+  mutationCallback: undefined,
+};
