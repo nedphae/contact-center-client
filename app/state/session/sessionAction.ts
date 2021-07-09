@@ -27,13 +27,13 @@ export const { stickyCustomer, tagCustomer, updateCustomer } = slice.actions;
 export const getSelectedMessageList = (state: RootState) => {
   const selected = state.chat.selectedSession;
   let messageList: Message[] = [];
-  if (selected === undefined && !state.chat.isMonitored) {
+  if (selected !== undefined && !state.chat.isMonitored) {
     const messageListMap = state.session[selected].massageList;
     if (messageListMap !== undefined) {
       messageList = _.values(messageListMap);
     }
   }
-  if (selected === undefined && state.chat.isMonitored) {
+  if (selected !== undefined && state.chat.isMonitored) {
     messageList = _.values(state.chat.monitoredMessageList[selected]);
   }
   return messageList.sort(

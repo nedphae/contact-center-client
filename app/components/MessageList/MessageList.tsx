@@ -15,7 +15,7 @@ import javaInstant2Date from 'app/utils/timeUtils';
 import {
   createContent,
   useMessageListStyles,
-} from '../Chat/ChatBox/MessagePanel';
+} from '../Chat/ChatBox/MessageList';
 
 interface MessageListProps {
   conversation: Conversation;

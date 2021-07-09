@@ -32,7 +32,7 @@ const switchRoutes = (
           <Route
             path={prop.layout + prop.path}
             component={prop.component}
-            key={key}
+            key={prop.layout + prop.path}
           />
         );
       }

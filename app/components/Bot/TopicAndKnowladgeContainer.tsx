@@ -34,6 +34,6 @@ export default function TopicAndKnowladgeContainer<T extends TopicOrKnowladge>(
         />
       );
     default:
-      return unimplemented();
+      unimplemented();
   }
 }

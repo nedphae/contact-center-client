@@ -12,7 +12,7 @@ import DraggableDialog, {
 import StaffForm from 'app/components/StaffForm/StaffForm';
 import Staff from 'app/domain/StaffInfo';
 
-const STAFF_QUERY = gql`
+const QUERY_STAFF = gql`
   query Staff {
     allStaff {
       avatar
@@ -73,7 +73,7 @@ const columns: GridColDef[] = [
 const defaultStaff = { staffType: 1 } as Staff;
 
 export default function AccountList() {
-  const { loading, data } = useQuery<Graphql>(STAFF_QUERY);
+  const { loading, data } = useQuery<Graphql>(QUERY_STAFF);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [staff, setStaff] = useState<Staff>(defaultStaff);
   const rows = data?.allStaff ?? [];

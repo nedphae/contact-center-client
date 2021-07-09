@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const SHUNT_QUERY = gql`
+const QUERY_SHUNT = gql`
   query Shunt {
     allStaffShunt {
       code
@@ -80,7 +80,7 @@ export default function Shunt() {
     undefined
   );
   const refOfDialog = useRef<DraggableDialogRef>(null);
-  const { loading, data } = useQuery<Graphql>(SHUNT_QUERY);
+  const { loading, data } = useQuery<Graphql>(QUERY_SHUNT);
 
   function newButtonClick() {
     setStaffShunt(undefined);

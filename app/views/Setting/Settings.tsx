@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { gql, useQuery } from '@apollo/client';
 
@@ -14,6 +13,8 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
 import Account from 'app/components/Settings/personal/Account';
 import unimplemented from 'app/utils/Error';
+import Group from 'app/components/Settings/org/Group';
+import Shunt from 'app/components/Settings/org/Shunt';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -61,22 +62,45 @@ function settingPage(pageName: PageName) {
       break;
     }
     case 'personal.Client': {
-      result = <Account />;
+      unimplemented();
       break;
     }
-
     case 'org.Account': {
       result = <Account />;
       break;
     }
+    case 'org.Group': {
+      result = <Group />;
+      break;
+    }
+    case 'org.Shunt': {
+      result = <Shunt />;
+      break;
+    }
+    case 'org.BlackList': {
+      unimplemented();
+      break;
+    }
+    case 'org.ConsultationType': {
+      unimplemented();
+      break;
+    }
     default: {
-      result = unimplemented();
+      unimplemented();
+      break;
     }
   }
   return result;
 }
 
-type PageName = 'personal.Account' | 'personal.Client' | 'org.Account';
+type PageName =
+  | 'personal.Account'
+  | 'personal.Client'
+  | 'org.Account'
+  | 'org.Group'
+  | 'org.Shunt'
+  | 'org.BlackList'
+  | 'org.ConsultationType';
 
 export default function Setting() {
   const classes = useStyles();
@@ -106,6 +130,7 @@ export default function Setting() {
               nodeId={uuidv4()}
               labelText="客户端设置"
               labelIcon={SubjectIcon}
+              onClick={() => setPageName('personal.Client')}
             />
           </StyledTreeItem>
           <StyledTreeItem
@@ -117,31 +142,31 @@ export default function Setting() {
               nodeId={uuidv4()}
               labelText="账号管理"
               labelIcon={SubjectIcon}
+              onClick={() => setPageName('org.Account')}
             />
             <StyledTreeItem
               nodeId={uuidv4()}
               labelText="客服组"
               labelIcon={SubjectIcon}
+              onClick={() => setPageName('org.Group')}
             />
             <StyledTreeItem
               nodeId={uuidv4()}
               labelText="接待组"
               labelIcon={SubjectIcon}
+              onClick={() => setPageName('org.Shunt')}
             />
             <StyledTreeItem
               nodeId={uuidv4()}
               labelText="咨询类型"
               labelIcon={SubjectIcon}
+              onClick={() => setPageName('org.ConsultationType')}
             />
             <StyledTreeItem
               nodeId={uuidv4()}
               labelText="黑名单设置"
               labelIcon={SubjectIcon}
-            />
-            <StyledTreeItem
-              nodeId={uuidv4()}
-              labelText="黑名单设置"
-              labelIcon={SubjectIcon}
+              onClick={() => setPageName('org.BlackList')}
             />
           </StyledTreeItem>
         </TreeView>

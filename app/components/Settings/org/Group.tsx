@@ -13,7 +13,7 @@ import DraggableDialog, {
 import StaffGroupForm from 'app/components/StaffForm/StaffGroupForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 
-const GROUP_QUERY = gql`
+const QUERY_GROUP = gql`
   query Group {
     allStaffGroup {
       id
@@ -35,7 +35,7 @@ export default function Group() {
     undefined
   );
   const refOfDialog = useRef<DraggableDialogRef>(null);
-  const { loading, data } = useQuery<Graphql>(GROUP_QUERY);
+  const { loading, data } = useQuery<Graphql>(QUERY_GROUP);
 
   function newButtonClick() {
     setStaffGroup(undefined);

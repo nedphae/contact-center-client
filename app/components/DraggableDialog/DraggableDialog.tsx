@@ -23,15 +23,14 @@ function PaperComponent(props: PaperProps) {
 interface Props {
   title: string;
   children: React.ReactNode;
-  ref: React.Ref<DraggableDialogRef>;
 }
 
 export interface DraggableDialogRef {
   setOpen: (state: boolean) => void;
 }
 
-function DraggableDialog(props: Props) {
-  const { title, children, ref } = props;
+function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
+  const { title, children } = props;
   const [open, setOpen] = useState(false);
 
   const handleClose = () => {
