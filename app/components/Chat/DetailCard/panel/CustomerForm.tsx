@@ -50,7 +50,7 @@ export interface CustomerFormValues {
 }
 
 interface CustomerFormProps {
-  defaultValues: CustomerFormValues;
+  defaultValues: CustomerFormValues | undefined;
   shouldDispatch: boolean;
 }
 export default function CustomerForm(props: CustomerFormProps) {
@@ -78,13 +78,13 @@ export default function CustomerForm(props: CustomerFormProps) {
     <div className={classes.paper}>
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues.id || ''}
+          value={defaultValues?.id || ''}
           name="id"
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
         <TextField
-          value={defaultValues.organizationId || ''}
+          value={defaultValues?.organizationId || ''}
           name="organizationId"
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
@@ -232,8 +232,8 @@ export default function CustomerForm(props: CustomerFormProps) {
             },
           })}
         />
-        {defaultValues.detailData !== undefined &&
-          defaultValues.detailData
+        {defaultValues?.detailData !== undefined &&
+          defaultValues?.detailData
             .filter(({ hidden }) => hidden === false)
             .sort((a, b) => {
               if (!a.index) a.index = Number.MAX_SAFE_INTEGER;

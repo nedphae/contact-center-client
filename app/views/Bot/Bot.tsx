@@ -266,51 +266,53 @@ export default function Bot() {
   function newTopicOrKnowladge(topicOrKnowladge: TopicOrKnowladge) {
     setState(_.assign(initialState, { topicOrKnowladge }));
     refOfKnowladgeDialog.current?.setOpen(true);
+    handleMenuClose();
   }
 
   function editTopicOrKnowladge(topicOrKnowladge: TopicOrKnowladge) {
     setState(_.assign(state, { topicOrKnowladge }));
     refOfKnowladgeDialog.current?.setOpen(true);
+    handleMenuClose();
   }
 
   return (
     <Grid container className={classes.root}>
-      {/* 功能菜单 */}
-      <Toolbar className={classes.toolBar}>
-        <IconButton
-          edge="start"
-          className={classes.menuButton}
-          color="inherit"
-          aria-label="menu"
-          onClick={handleMenuClick}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Menu
-          id="simple-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
-        >
-          <MenuItem
-            onClick={() => {
-              newTopicOrKnowladge('Knowladge');
-            }}
-          >
-            添加知识库
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              newTopicOrKnowladge('Topic');
-            }}
-          >
-            添加知识库分类
-          </MenuItem>
-        </Menu>
-      </Toolbar>
-      {/* 知识库，分类 树状列表 */}
       <Grid item xs={12} sm={2}>
+        {/* 功能菜单 */}
+        <Toolbar className={classes.toolBar}>
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="menu"
+            onClick={handleMenuClick}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem
+              onClick={() => {
+                newTopicOrKnowladge('Knowladge');
+              }}
+            >
+              添加知识库
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                newTopicOrKnowladge('Topic');
+              }}
+            >
+              添加知识库分类
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+        {/* 知识库，分类 树状列表 */}
         <TreeView
           className={classes.list}
           defaultCollapseIcon={<ArrowDropDownIcon />}
@@ -348,28 +350,27 @@ export default function Bot() {
                 : undefined
             }
           >
-            {state.topicOrKnowladge === 'Knowladge' && (
-              <>
-                <MenuItem onClick={interrelateBot}>关联机器人</MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    editTopicOrKnowladge('Knowladge');
-                  }}
-                >
-                  修改知识库
-                </MenuItem>
-              </>
-            )}
+            {state.topicOrKnowladge === 'Knowladge' && [
+              <MenuItem key="interrelateBot" onClick={interrelateBot}>
+                关联机器人
+              </MenuItem>,
+              <MenuItem
+                key="editTopicOrKnowladge"
+                onClick={() => {
+                  editTopicOrKnowladge('Knowladge');
+                }}
+              >
+                修改知识库
+              </MenuItem>,
+            ]}
             {state.topicOrKnowladge === 'Topic' && (
-              <>
-                <MenuItem
-                  onClick={() => {
-                    editTopicOrKnowladge('Topic');
-                  }}
-                >
-                  修改知识分类
-                </MenuItem>
-              </>
+              <MenuItem
+                onClick={() => {
+                  editTopicOrKnowladge('Topic');
+                }}
+              >
+                修改知识分类
+              </MenuItem>
             )}
           </Menu>
         </div>

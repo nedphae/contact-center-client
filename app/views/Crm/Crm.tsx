@@ -5,7 +5,6 @@ import { gql, useQuery } from '@apollo/client';
 import {
   DataGrid,
   GridColDef,
-  GridToolbar,
   GridPageChangeParams,
 } from '@material-ui/data-grid';
 import Dialog from '@material-ui/core/Dialog';
@@ -24,6 +23,7 @@ import getPageQuery from 'app/domain/graphql/Page';
 import CustomerForm, {
   CustomerFormValues,
 } from 'app/components/Chat/DetailCard/panel/CustomerForm';
+import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -52,7 +52,7 @@ interface Graphql {
 }
 
 const CONTENT_QUERY = gql`
-  fragment Content on Customer {
+  fragment CustomerContent on Customer {
     organizationId
     userId: id
     uid
@@ -78,8 +78,9 @@ const QUERY = gql`
 
 export default function Crm() {
   const [open, setOpen] = useState(false);
-  const [selectCustomer, setSelectCustomer] =
-    useState<CustomerFormValues | null>(null);
+  const [selectCustomer, setSelectCustomer] = useState<
+    CustomerFormValues | undefined
+  >(undefined);
 
   const { loading, data, fetchMore } = useQuery<Graphql>(QUERY, {
     variables: { first: 20, offect: 0 },
@@ -113,6 +114,11 @@ export default function Crm() {
   const pageSize = result ? result.size : 0;
   const rowCount = result ? result.totalElements : 0;
 
+  function newButtonClick() {
+    setSelectCustomer(undefined);
+    setOpen(true);
+  }
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <Dialog
@@ -129,12 +135,7 @@ export default function Crm() {
           详细用户信息
         </DialogTitle>
         <DialogContent>
-          {selectCustomer && (
-            <CustomerForm
-              defaultValues={selectCustomer}
-              shouldDispatch={false}
-            />
-          )}
+          <CustomerForm defaultValues={selectCustomer} shouldDispatch={false} />
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
@@ -148,7 +149,7 @@ export default function Crm() {
         rows={rows}
         columns={columns}
         components={{
-          Toolbar: GridToolbar,
+          Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
         }}
         pagination
         pageSize={pageSize}

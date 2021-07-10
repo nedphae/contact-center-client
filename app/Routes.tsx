@@ -28,6 +28,8 @@ import Unarchive from '@material-ui/icons/Unarchive';
 import Language from '@material-ui/icons/Language';
 // core components/views for Admin layout
 import ChatHistory from 'app/views/ChatHistory/ChatHistory';
+import Crm from 'app/views/Crm/Crm';
+import Bot from 'app/views/Bot/Bot';
 import Entertain from './views/Entertain/Entertain';
 import DashboardPage from './views/Dashboard/Dashboard';
 import UserProfile from './views/UserProfile/UserProfile';
@@ -63,6 +65,22 @@ const dashboardRoutes = [
     rtlName: 'لوحة القيادة',
     icon: QueryBuilderIcon,
     component: ChatHistory,
+    layout: '/admin',
+  },
+  {
+    path: '/crm',
+    name: '客户资源',
+    rtlName: 'لوحة القيادة',
+    icon: QueryBuilderIcon,
+    component: Crm,
+    layout: '/admin',
+  },
+  {
+    path: '/bot',
+    name: '机器人配置',
+    rtlName: 'لوحة القيادة',
+    icon: QueryBuilderIcon,
+    component: Bot,
     layout: '/admin',
   },
   {

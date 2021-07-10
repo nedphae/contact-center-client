@@ -174,7 +174,7 @@ interface SearchConv {
 type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
 
 const CONTENT_QUERY = gql`
-  fragment Content on MySearchHit {
+  fragment MySearchHitContent on MySearchHit {
     content {
       avgRespDuration
       beginner

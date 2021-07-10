@@ -7,15 +7,11 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Button from '@material-ui/core/Button';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import {
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  Typography,
-} from '@material-ui/core';
+import { CircularProgress, FormControl, Typography } from '@material-ui/core';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 
 import { TopicCategory } from 'app/domain/Bot';
+import './DropdownTreeSelect.global.css';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -114,7 +110,6 @@ export default function TopicCategoryForm(props: FormProps) {
           inputRef={register({ valueAsNumber: true })}
         />
         <FormControl variant="filled" className={classes.formControl}>
-          <InputLabel id="demo-mutiple-chip-label">上级分类</InputLabel>
           <Controller
             control={control}
             name="pid"
@@ -124,6 +119,7 @@ export default function TopicCategoryForm(props: FormProps) {
                 onChange={(_currentNode, selectedNodes) => {
                   onChange(selectedNodes.map((it) => it.value)[0]);
                 }}
+                texts={{ placeholder: '选择上级分类' }}
                 className="mdl-demo"
                 mode="radioSelect"
               />

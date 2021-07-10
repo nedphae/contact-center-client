@@ -159,9 +159,9 @@ export default function TopicForm(props: FormProps) {
               <Select
                 labelId="type"
                 id="type"
+                defaultValue={1}
                 onChange={onChange}
                 value={value}
-                inputProps={{ readOnly: true }}
               >
                 <MenuItem value={1}>标准问题</MenuItem>
                 <MenuItem value={2}>相似问题</MenuItem>

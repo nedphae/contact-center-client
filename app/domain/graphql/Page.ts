@@ -6,7 +6,7 @@ export default function getPageQuery(
 ): DocumentNode {
   return gql`
   ${content}
-  fragment Page on ${pageName} {
+  fragment Page${pageName} on ${pageName} {
     content {
         ...Content
       }
