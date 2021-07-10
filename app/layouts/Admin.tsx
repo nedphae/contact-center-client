@@ -2,7 +2,6 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 // creates a beautiful scrollbar
 import PerfectScrollbar from 'perfect-scrollbar';
-import 'perfect-scrollbar/css/perfect-scrollbar.css';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -10,6 +9,7 @@ import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
 import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import useInitData from 'app/hook/init/useInitData';
+import Footer from 'app/components/Footer/Footer';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -26,7 +26,7 @@ let ps: PerfectScrollbar;
 
 const switchRoutes = (
   <Switch>
-    {routes.map((prop, key) => {
+    {routes.map((prop) => {
       if (prop.layout === '/admin') {
         return (
           <Route
@@ -128,7 +128,7 @@ export default function Admin({ ...rest }) {
         ) : (
           <div className={classes.map}>{switchRoutes}</div>
         )}
-        {/* {getRoute() ? <Footer /> : null} */}
+        {getRoute() ? <Footer /> : null}
         <FixedPlugin
           handleImageClick={handleImageClick}
           handleColorClick={handleColorClick}
@@ -140,7 +140,4 @@ export default function Admin({ ...rest }) {
       </div>
     </div>
   );
-}
-function useInit() {
-  throw new Error('Function not implemented.');
 }
