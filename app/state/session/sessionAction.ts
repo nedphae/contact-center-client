@@ -44,6 +44,12 @@ export const getSelectedMessageList = (state: RootState) => {
   );
 };
 
+export const getSelectedSession = (state: RootState) => {
+  const selected = state.chat.selectedSession;
+  if (selected === undefined) return null;
+  return state.session[selected];
+};
+
 export const getSelectedConstomer = (state: RootState) => {
   const selected = state.chat.selectedSession;
   if (state.chat.isMonitored) return state.chat.monitoredUser;
@@ -81,8 +87,8 @@ export const assignmentConver =
     const conversation = request.body;
     if (conversation !== undefined) {
       // 根据分配的 conversation 获取 user
-      const { organizationId, userId } = conversation;
-      const customer = await getCustomerByUserId(organizationId, userId);
+      const { userId } = conversation;
+      const customer = await getCustomerByUserId(userId);
       dispatch(newConver(createSession(conversation, customer)));
       cb(generateResponse(request.header, '"OK"'));
     } else {

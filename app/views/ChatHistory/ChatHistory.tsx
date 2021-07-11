@@ -255,13 +255,17 @@ const CONTENT_QUERY = gql`
   }
 `;
 
-const PAGE_QUERY = getPageQuery('SearchHitPage', CONTENT_QUERY);
+const PAGE_QUERY = getPageQuery(
+  'SearchHitPage',
+  CONTENT_QUERY,
+  'MySearchHitContent'
+);
 
 const QUERY = gql`
   ${PAGE_QUERY}
   query Conversation($conversationQueryInput: ConversationQueryInput!) {
     searchConv(conversationQuery: $conversationQueryInput) {
-      ...Page
+      ...PageSearchHitPage
     }
     allStaff {
       avatar

@@ -12,13 +12,10 @@ export async function getCurrentStaff(): Promise<Staff> {
   return result.data;
 }
 
-export async function getCustomerByUserId(
-  orgId: number,
-  userId: number
-): Promise<Customer> {
+export async function getCustomerByUserId(userId: number): Promise<Customer> {
   const result = await apolloClient.query({
     query: QUERY_CUSTOMER,
-    variables: { orgId, userId },
+    variables: { userId },
   });
   return result.data.getCustomer;
 }

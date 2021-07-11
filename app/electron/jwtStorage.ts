@@ -63,14 +63,17 @@ function getToken(isAccese = true): Promise<OauthToken | AccessToken | null> {
             if (isAccese) {
               const accessToken = decoded as AccessToken;
               accessToken.source = token.access_token;
-              return resolve(accessToken);
+              resolve(accessToken);
+            } else {
+              resolve(token);
             }
-            return resolve(token);
+          } else {
+            reject(err);
           }
-          return reject(err);
         });
+      } else {
+        resolve(null);
       }
-      return resolve(null);
     }
 
     // 把 token 保存到 sessionStorage

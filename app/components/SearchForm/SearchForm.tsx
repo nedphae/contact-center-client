@@ -63,6 +63,8 @@ interface FormProps {
   searchAction: (searchParams: ConversationQueryInput) => void;
 }
 
+const dateFnsUtils = new DateFnsUtils();
+
 export default function SearchForm(props: FormProps) {
   const { defaultValues, currentValues, selectKeyValueList, searchAction } =
     props;
@@ -104,14 +106,20 @@ export default function SearchForm(props: FormProps) {
                 name="timeRange.from"
                 render={({ onChange, value }) => (
                   <KeyboardDateTimePicker
-                    disableToolbar
+                    disableFuture
                     variant="inline"
                     format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"
                     id="date-picker-inline"
                     label="开始时间"
                     value={value}
-                    onChange={(d) => onChange(d)}
+                    onChange={(d) => {
+                      if (d) {
+                        onChange(
+                          dateFnsUtils.format(d, "yyyy-MM-dd'T'HH:mm:ss.SSSXX")
+                        );
+                      }
+                    }}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -123,14 +131,20 @@ export default function SearchForm(props: FormProps) {
                 name="timeRange.to"
                 render={({ onChange, value }) => (
                   <KeyboardDateTimePicker
-                    disableToolbar
+                    disableFuture
                     variant="inline"
                     format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"
                     id="date-picker-inline"
                     label="结束时间"
                     value={value}
-                    onChange={onChange}
+                    onChange={(d) => {
+                      if (d) {
+                        onChange(
+                          dateFnsUtils.format(d, "yyyy-MM-dd'T'HH:mm:ss.SSSXX")
+                        );
+                      }
+                    }}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}

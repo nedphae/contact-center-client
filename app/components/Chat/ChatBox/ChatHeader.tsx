@@ -2,12 +2,16 @@
  * 聊天窗口头，显示用户信息，和基本统计
  */
 import React from 'react';
+import { useSelector } from 'react-redux';
+
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+
+import { getSelectedConstomer } from 'app/state/session/sessionAction';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -24,6 +28,7 @@ const useStyles = makeStyles(() =>
 
 export default function ChatHeader() {
   const classes = useStyles();
+  const user = useSelector(getSelectedConstomer);
 
   return (
     <AppBar position="sticky" className={classes.appBar}>
@@ -39,7 +44,7 @@ export default function ChatHeader() {
               display="inline"
               color="secondary"
             >
-              Scroll to Elevate App Bar {/** 获取用户信息 */}
+              {user?.name ?? user?.uid} {/** 获取用户信息 */}
             </Typography>
           </Grid>
           <Grid item xs={3} zeroMinWidth>

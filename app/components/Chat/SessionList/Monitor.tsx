@@ -19,10 +19,10 @@ import { CustomerStatus } from 'app/domain/Customer';
 import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
 import { from, of, zip } from 'rxjs';
 import { groupBy, map, mergeMap, toArray } from 'rxjs/operators';
-import useMonitorMsg from 'app/hook/init/useMonitorMsg';
+import useMonitorUserAndMsg from 'app/hook/init/useMonitorUserAndMsg';
 import {
-  getSelectedSession,
-  setSelectedSession,
+  getMonitorSelectedSession,
+  setMonitorSelectedSession,
 } from 'app/state/chat/chatAction';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,7 +58,7 @@ interface MonitorProps {
 }
 
 function SyncUserMessage(userId: number, refreshInterval = 5) {
-  useMonitorMsg(userId, refreshInterval);
+  useMonitorUserAndMsg(userId, refreshInterval);
   return <></>;
 }
 
@@ -69,9 +69,9 @@ function Monitor(props: MonitorProps) {
 
   const [open, setOpen] = useState(-1);
   const [staffOpen, setStaffOpen] = useState(-1);
-  const selectedSession = useSelector(getSelectedSession);
+  const selectedSession = useSelector(getMonitorSelectedSession);
 
-  const { data, loading } = useSubscription<Graphql>(MONITOR_SUBSCRIPTION, {
+  const { data } = useSubscription<Graphql>(MONITOR_SUBSCRIPTION, {
     variables: { seconds: refreshInterval },
   });
 
@@ -83,21 +83,28 @@ function Monitor(props: MonitorProps) {
     setStaffOpen(index);
   };
 
-  const handleClickCustomer = (index: number) => {
-    dispatch(setSelectedSession(index));
+  const handleClickCustomer = (
+    userId: number,
+    monitoredStaff: Staff,
+    monitoredUserStatus: CustomerStatus
+  ) => {
+    dispatch(
+      setMonitorSelectedSession({
+        selectedSession: userId,
+        isMonitored: true,
+        monitoredStaff,
+        monitoredUserStatus,
+        monitoredMessageList: {},
+      })
+    );
   };
 
   const grouOfStaff = new Map<number, Staff[]>();
   let resultList: StaffGroup[] | null = null;
   // TODO: group by staff Shunt 根据接待组进行分组展示
   if (data) {
-    const {
-      staffStatusList,
-      staffList,
-      staffGroupList,
-      staffShuntList,
-      customerList,
-    } = data.staffOnlineList;
+    const { staffStatusList, staffList, staffGroupList, customerList } =
+      data.staffOnlineList;
     const mapOfStaffStatus = _.groupBy(staffList, 'id');
     const mapOfCustomer = _.groupBy(customerList, 'id');
 
@@ -164,11 +171,13 @@ function Monitor(props: MonitorProps) {
                         <List component="div" disablePadding>
                           {st.customerList &&
                             st.customerList.map((cs) => (
-                              <React.Fragment key={st.id}>
+                              <React.Fragment key={cs.userId}>
                                 <ListItem
                                   button
                                   className={classes.nested}
-                                  onClick={() => handleClickCustomer(st.id)}
+                                  onClick={() =>
+                                    handleClickCustomer(cs.userId, st, cs)
+                                  }
                                 >
                                   <ListItemIcon>
                                     <ChatIcon />

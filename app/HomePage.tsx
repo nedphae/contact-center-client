@@ -42,9 +42,6 @@ const Root = ({ store, history }: Props) => {
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <Switch>
-            <Route path="/admin" component={Admin} />
-            <Route path="/rtl" component={RTL} />
-            <Redirect from="/" to="/admin/entertain" />
             {/* 原来的路由 */}
             <Route path="/login" component={Auth} />
             {/* 添加权限的路由 */}

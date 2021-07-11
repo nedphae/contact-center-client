@@ -1,4 +1,5 @@
-import { Customer } from './Customer';
+import { Conversation } from './Conversation';
+import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
 import Staff from './StaffInfo';
 
@@ -9,20 +10,28 @@ export interface UserMessageMap {
 export interface UserMessages {
   [userId: number]: Message[];
 }
+
+export interface MonitoredLazyData {
+  monitoredUser?: Customer;
+  monitoredSession?: Conversation;
+}
+
+export interface Monitored extends MonitoredLazyData {
+  selectedSession: number;
+  // 监控相关
+  isMonitored: boolean;
+  monitoredStaff: Staff;
+  monitoredUserStatus: CustomerStatus;
+  monitoredMessageList: UserMessageMap;
+}
 /**
  * 一些聊天状态
  */
-export default interface Chat {
-  selectedSession: number;
+export default interface Chat extends Monitored {
   quickReply: QuickReplyAllDto;
   filterQuickReply: QuickReply[];
   searchQuickReply: QuickReply[];
   quickReplySearchText: string;
-  // 监控相关
-  isMonitored: boolean;
-  monitoredStaff: Staff;
-  monitoredUser: Customer;
-  monitoredMessageList: UserMessageMap;
 }
 
 export interface QuickReplyAllDtoGraphql {

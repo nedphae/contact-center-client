@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { Customer } from '../Customer';
 
-const CORE_CUSTOMER_FIELDS = gql`
+export const CORE_CUSTOMER_FIELDS = gql`
   fragment CustomerFields on Customer {
     organizationId
     userId: id
@@ -36,8 +36,8 @@ const CORE_CUSTOMER_FIELDS = gql`
 `;
 export const QUERY_CUSTOMER = gql`
   ${CORE_CUSTOMER_FIELDS}
-  query Customer($orgId: Int!, $userId: Long!) {
-    getCustomer(oid: $orgId, userId: $userId) {
+  query Customer($userId: Long!) {
+    getCustomer(userId: $userId) {
       ...CustomerFields
     }
   }

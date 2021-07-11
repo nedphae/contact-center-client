@@ -2,13 +2,14 @@ import { DocumentNode, gql } from '@apollo/client';
 
 export default function getPageQuery(
   pageName: string,
-  content: DocumentNode
+  content: DocumentNode,
+  contentName: string
 ): DocumentNode {
   return gql`
   ${content}
   fragment Page${pageName} on ${pageName} {
     content {
-        ...Content
+        ...${contentName}
       }
       pageable {
         offset

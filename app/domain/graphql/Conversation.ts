@@ -1,3 +1,6 @@
+import { gql } from '@apollo/client';
+import { Conversation } from '../Conversation';
+
 interface RangeQuery<T> {
   from?: T;
   includeLower?: boolean;
@@ -45,8 +48,72 @@ export interface ConversationQueryInput {
   staffIdList?: number[];
 
   // 时间区间
-  timeRange?: RangeQuery<Date>;
+  timeRange?: RangeQuery<Date | string>;
 
   // 总消息条数
   totalMessageCount?: RangeQuery<number>;
+}
+
+export const CONVERSATION_QUERY = gql`
+  fragment ConversationFields on Conversation {
+    avgRespDuration
+    beginner
+    category
+    categoryDetail
+    clientFirstMessageTime
+    closeReason
+    convType
+    endTime
+    evaluate {
+      evaluation
+      evaluationRemark
+      evaluationType
+      userResolvedStatus
+    }
+    firstReplyCost
+    fromGroupId
+    fromGroupName
+    fromIp
+    fromPage
+    fromShuntId
+    fromShuntName
+    fromTitle
+    fromType
+    humanTransferSessionId
+    id
+    inQueueTime
+    interaction
+    isEvaluationInvited
+    isStaffInvited
+    isValid
+    nickName
+    organizationId
+    realName
+    relatedId
+    relatedType
+    remarks
+    roundNumber
+    staffFirstReplyTime
+    staffId
+    staffMessageCount
+    startTime
+    status
+    stickDuration
+    terminator
+    totalMessageCount
+    transferFromGroup
+    transferFromStaffName
+    transferRemarks
+    transferType
+    treatedTime
+    userId
+    userMessageCount
+    userName
+    vipLevel
+    visitRange
+  }
+`;
+
+export interface ConversationGraphql {
+  getConversation: Conversation;
 }

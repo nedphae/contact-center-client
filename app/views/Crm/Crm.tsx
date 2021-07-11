@@ -65,13 +65,17 @@ const CONTENT_QUERY = gql`
   }
 `;
 
-const PAGE_QUERY = getPageQuery('CustomerPage', CONTENT_QUERY);
+const PAGE_QUERY = getPageQuery(
+  'CustomerPage',
+  CONTENT_QUERY,
+  'CustomerContent'
+);
 
 const QUERY = gql`
   ${PAGE_QUERY}
   query FindAllCustomer($first: Int!, $offset: Int!) {
     findAllCustomer(first: $first, offset: $offset) {
-      ...Page
+      ...PageCustomerPage
     }
   }
 `;

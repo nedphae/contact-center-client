@@ -30,6 +30,7 @@ const useWebSocket = () => {
             //   // jwt token
             token,
           },
+          transports: ['websocket'],
         }
       : {};
 
