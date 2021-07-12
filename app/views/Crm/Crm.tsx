@@ -54,7 +54,7 @@ interface Graphql {
 const CONTENT_QUERY = gql`
   fragment CustomerContent on Customer {
     organizationId
-    userId: id
+    id
     uid
     name
     email

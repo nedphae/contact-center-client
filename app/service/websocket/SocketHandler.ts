@@ -27,11 +27,6 @@ export default class SocketHandler implements EventInterface {
      * 不同事件由不同的 handler 处理
      */
     this.socket.on('connect', this.onConnect);
-    // 接受同步消息
-    this.socket.on('msg/sync', this.onMessage);
-    // 分配客户
-    this.socket.on('assign', this.onAssignment);
-
     // this.socket.connect();
   }
 
@@ -39,6 +34,10 @@ export default class SocketHandler implements EventInterface {
    * 箭头语法绑定 this
    */
   onConnect = () => {
+    // 接受同步消息
+    this.socket.on('msg/sync', this.onMessage);
+    // 分配客户
+    this.socket.on('assign', this.onAssignment);
     /**
      * 发送客服注册信息(在线状态等)
      * 系统初始化信息，个人设置 等

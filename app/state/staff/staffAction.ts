@@ -8,8 +8,8 @@ import slice from './staffSlice';
 
 const { setStaff, setOnline } = slice.actions;
 export const getStaff = (state: RootState) => {
-  if (state.chat.isMonitored) {
-    return state.chat.monitoredStaff;
+  if (state.chat.monitored) {
+    return state.chat.monitored.monitoredStaff;
   }
   return state.staff;
 };
@@ -33,7 +33,7 @@ export const setUserAsync =
   };
 
 export const configStaff = (): AppThunk => {
-  return async (dispatch) => {
+  return (dispatch) => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
     // const staff = getStaff(getState()); // useSelector(getStaff);
     register(configStatus()).subscribe(() => {

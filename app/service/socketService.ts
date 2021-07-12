@@ -53,26 +53,24 @@ export default function fetch<T, R>(
  * @param maxRetryAttempts 最大尝试次数
  * @param scalingDuration 自增重试间隔
  */
-const genericRetryStrategy = (maxRetryAttempts = 3, scalingDuration = 5000) => <
-  T
->(
-  attempts: Observable<T>
-) => {
-  return attempts.pipe(
-    // 这里 mergeMap 效果和 delayWhen 一样
-    delayWhen((error, i) => {
-      const retryAttempt = i + 1;
-      // 如果是超时错误且没有达到最大重试次数
-      if (retryAttempt < maxRetryAttempts && error instanceof TimeoutError) {
-        // 重试的时间间隔不断增长: 1秒、2秒，以此类推
-        return timer(retryAttempt * scalingDuration);
-      }
-      // 不是我们想重试的，就抛出错误
-      return throwError(error);
-    })
-    // finalize(() => console.log('We are done!'))
-  );
-};
+const genericRetryStrategy =
+  (maxRetryAttempts = 3, scalingDuration = 5000) =>
+  <T>(attempts: Observable<T>) => {
+    return attempts.pipe(
+      // 这里 mergeMap 效果和 delayWhen 一样
+      delayWhen((error, i) => {
+        const retryAttempt = i + 1;
+        // 如果是超时错误且没有达到最大重试次数
+        if (retryAttempt < maxRetryAttempts && error instanceof TimeoutError) {
+          // 重试的时间间隔不断增长: 1秒、2秒，以此类推
+          return timer(retryAttempt * scalingDuration);
+        }
+        // 不是我们想重试的，就抛出错误
+        return throwError(error);
+      })
+      // finalize(() => console.log('We are done!'))
+    );
+  };
 
 /**
  * 发送 websocket 事件，自动超时重试
