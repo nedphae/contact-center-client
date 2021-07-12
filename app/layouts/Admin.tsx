@@ -4,6 +4,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import PerfectScrollbar from 'perfect-scrollbar';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
@@ -102,6 +103,8 @@ export default function Admin({ ...rest }) {
   }, [mainPanel]);
   return (
     <div className={classes.wrapper}>
+      {/* 修复样式错误 */}
+      <CssBaseline />
       {/** 侧边选项卡 */}
       <Sidebar
         routes={routes}
@@ -128,7 +131,7 @@ export default function Admin({ ...rest }) {
         ) : (
           <div className={classes.map}>{switchRoutes}</div>
         )}
-        {getRoute() ? <Footer /> : null}
+        {/* {getRoute() ? <Footer /> : null} */}
         <FixedPlugin
           handleImageClick={handleImageClick}
           handleColorClick={handleColorClick}

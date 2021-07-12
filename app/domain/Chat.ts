@@ -1,3 +1,5 @@
+import { Object } from 'ts-toolbelt';
+
 import { Conversation } from './Conversation';
 import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
@@ -17,21 +19,27 @@ export interface MonitoredLazyData {
 }
 
 export interface Monitored extends MonitoredLazyData {
-  selectedSession: number;
   // 监控相关
-  isMonitored: boolean;
   monitoredStaff: Staff;
   monitoredUserStatus: CustomerStatus;
   monitoredMessageList: UserMessageMap;
 }
+
+export interface BaseChat {
+  selectedSession: number;
+}
+
+export type SetMonitored = Object.Merge<BaseChat, Monitored>;
+
 /**
  * 一些聊天状态
  */
-export default interface Chat extends Monitored {
+export default interface Chat extends BaseChat {
   quickReply: QuickReplyAllDto;
   filterQuickReply: QuickReply[];
   searchQuickReply: QuickReply[];
   quickReplySearchText: string;
+  monitored: Monitored | undefined;
 }
 
 export interface QuickReplyAllDtoGraphql {

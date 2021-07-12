@@ -27,14 +27,14 @@ export const { stickyCustomer, tagCustomer, updateCustomer } = slice.actions;
 export const getSelectedMessageList = (state: RootState) => {
   const selected = state.chat.selectedSession;
   let messageList: Message[] = [];
-  if (selected !== undefined && !state.chat.isMonitored) {
+  if (selected !== undefined && !state.chat.monitored) {
     const messageListMap = state.session[selected].massageList;
     if (messageListMap !== undefined) {
       messageList = _.values(messageListMap);
     }
   }
-  if (selected !== undefined && state.chat.isMonitored) {
-    messageList = _.values(state.chat.monitoredMessageList[selected]);
+  if (selected !== undefined && state.chat.monitored) {
+    messageList = _.values(state.chat.monitored.monitoredMessageList[selected]);
   }
   return messageList.sort(
     (a, b) =>
@@ -47,12 +47,15 @@ export const getSelectedMessageList = (state: RootState) => {
 export const getSelectedSession = (state: RootState) => {
   const selected = state.chat.selectedSession;
   if (selected === undefined) return null;
-  return state.session[selected];
+  if (selected !== undefined && state.chat.monitored) {
+    return state.chat.monitored.monitoredSession;
+  }
+  return state.session[selected]?.conversation;
 };
 
 export const getSelectedConstomer = (state: RootState) => {
   const selected = state.chat.selectedSession;
-  if (state.chat.isMonitored) return state.chat.monitoredUser;
+  if (state.chat.monitored) return state.chat.monitored.monitoredUser;
   if (selected === undefined) return null;
   return state.session[selected].user;
 };

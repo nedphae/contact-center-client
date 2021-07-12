@@ -15,7 +15,7 @@ export const getSelectedSession = (state: RootState) =>
   state.chat.selectedSession;
 
 export const getMonitorSelectedSession = (state: RootState) =>
-  state.chat.isMonitored && state.chat.selectedSession;
+  state.chat.monitored && state.chat.selectedSession;
 
 export const getQuickReply = (state: RootState) => state.chat.quickReply;
 export const getFilterQuickReply = (state: RootState) =>

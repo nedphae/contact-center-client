@@ -91,7 +91,6 @@ function Monitor(props: MonitorProps) {
     dispatch(
       setMonitorSelectedSession({
         selectedSession: userId,
-        isMonitored: true,
         monitoredStaff,
         monitoredUserStatus,
         monitoredMessageList: {},

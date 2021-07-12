@@ -16,7 +16,7 @@ const keyMap = {
 export default function Entertain() {
   return (
     <HotKeys keyMap={keyMap}>
-      <ChatApp />;
+      <ChatApp />
     </HotKeys>
   );
 }

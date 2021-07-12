@@ -1,7 +1,7 @@
 /**
  * 聊天窗口头，显示用户信息，和基本统计
  */
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -11,7 +11,10 @@ import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import { getSelectedConstomer } from 'app/state/session/sessionAction';
+import {
+  getSelectedConstomer,
+  getSelectedSession,
+} from 'app/state/session/sessionAction';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -29,6 +32,23 @@ const useStyles = makeStyles(() =>
 export default function ChatHeader() {
   const classes = useStyles();
   const user = useSelector(getSelectedConstomer);
+  const session = useSelector(getSelectedSession);
+  const [sessionDuration, setSessionDuration] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (session) {
+      timer = setInterval(() => {
+        const duration =
+          (new Date().getTime() - session.startTime.getTime()) / 1000 ?? 0;
+        setSessionDuration(duration);
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [session]);
 
   return (
     <AppBar position="sticky" className={classes.appBar}>
@@ -54,7 +74,7 @@ export default function ChatHeader() {
               variant="body2"
               color="textSecondary"
             >
-              咨询时长：{/** 获取会话时长 */}
+              咨询时长：{sessionDuration} 秒 {/** 获取会话时长 */}
             </Typography>
           </Grid>
           <Grid item xs={12} zeroMinWidth>

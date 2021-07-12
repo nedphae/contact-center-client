@@ -61,7 +61,15 @@ const CONTENT_QUERY = gql`
     mobile
     vipLevel
     remarks
-    detailData: data
+    detailData: data {
+      id
+      key
+      label
+      value
+      index
+      hidden
+      href
+    }
   }
 `;
 
@@ -87,7 +95,7 @@ export default function Crm() {
   >(undefined);
 
   const { loading, data, fetchMore } = useQuery<Graphql>(QUERY, {
-    variables: { first: 20, offect: 0 },
+    variables: { first: 20, offset: 0 },
   });
 
   const handleClickOpen = (user: Customer) => {
@@ -111,7 +119,7 @@ export default function Crm() {
   };
 
   const handlePageChange = (params: GridPageChangeParams) => {
-    fetchMore({ variables: { first: params.pageSize, offect: params.page } });
+    fetchMore({ variables: { first: params.pageSize, offset: params.page } });
   };
   const result = data ? data.findAllCustomer : null;
   const rows = result && result.content ? result.content : [];
