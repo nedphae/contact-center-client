@@ -21,7 +21,6 @@ const useStyles = makeStyles(() =>
 
 export default function ChatApp() {
   const classes = useStyles();
-
   return (
     <Grid container className={classes.root} spacing={0}>
       <Grid item xs={12}>

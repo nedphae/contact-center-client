@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 // creates a beautiful scrollbar
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -10,7 +10,6 @@ import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
 import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import useInitData from 'app/hook/init/useInitData';
-import Footer from 'app/components/Footer/Footer';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -45,6 +44,10 @@ const switchRoutes = (
 
 const useStyles = makeStyles(styles);
 
+export const WebSocketContext = createContext<
+  SocketIOClient.Socket | undefined
+>(undefined);
+
 export default function Admin({ ...rest }) {
   // styles
   const classes = useStyles();
@@ -56,7 +59,7 @@ export default function Admin({ ...rest }) {
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
   useAutoLogin();
-  useWebSocket();
+  const [webSocket] = useWebSocket();
   useInitData();
 
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
@@ -102,45 +105,49 @@ export default function Admin({ ...rest }) {
     };
   }, [mainPanel]);
   return (
-    <div className={classes.wrapper}>
-      {/* 修复样式错误 */}
-      <CssBaseline />
-      {/** 侧边选项卡 */}
-      <Sidebar
-        routes={routes}
-        logoText="客服系统" // 客服
-        logo={logo}
-        image={image}
-        handleDrawerToggle={handleDrawerToggle}
-        open={mobileOpen}
-        color={color}
-        {...rest}
-      />
-      <div className={classes.mainPanel} ref={mainPanel}>
-        {/** 此处的 routes 仅仅获取 routes 对应的选项卡名称作为 appbar(应用头部) 显示 */}
-        <Navbar
+    <WebSocketContext.Provider value={webSocket}>
+      <div className={classes.wrapper}>
+        {/* 修复样式错误 */}
+        <CssBaseline />
+        {/** 侧边选项卡 */}
+        <Sidebar
           routes={routes}
+          logoText="客服系统" // 客服
+          logo={logo}
+          image={image}
           handleDrawerToggle={handleDrawerToggle}
+          open={mobileOpen}
+          color={color}
+          // eslint-disable-next-line react/jsx-props-no-spreading
           {...rest}
         />
-        {/* On the /maps route we want the map to be on full screen - this is not possible if the content and conatiner classes are present because they have some paddings which would make the map smaller */}
-        {getRoute() ? (
-          <div className={classes.content}>
-            <div className={classes.container}>{switchRoutes}</div>
-          </div>
-        ) : (
-          <div className={classes.map}>{switchRoutes}</div>
-        )}
-        {/* {getRoute() ? <Footer /> : null} */}
-        <FixedPlugin
-          handleImageClick={handleImageClick}
-          handleColorClick={handleColorClick}
-          bgColor={color}
-          bgImage={image}
-          handleFixedClick={handleFixedClick}
-          fixedClasses={fixedClasses}
-        />
+        <div className={classes.mainPanel} ref={mainPanel}>
+          {/** 此处的 routes 仅仅获取 routes 对应的选项卡名称作为 appbar(应用头部) 显示 */}
+          <Navbar
+            routes={routes}
+            handleDrawerToggle={handleDrawerToggle}
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...rest}
+          />
+          {/* On the /maps route we want the map to be on full screen - this is not possible if the content and conatiner classes are present because they have some paddings which would make the map smaller */}
+          {getRoute() ? (
+            <div className={classes.content}>
+              <div className={classes.container}>{switchRoutes}</div>
+            </div>
+          ) : (
+            <div className={classes.map}>{switchRoutes}</div>
+          )}
+          {/* {getRoute() ? <Footer /> : null} */}
+          <FixedPlugin
+            handleImageClick={handleImageClick}
+            handleColorClick={handleColorClick}
+            bgColor={color}
+            bgImage={image}
+            handleFixedClick={handleFixedClick}
+            fixedClasses={fixedClasses}
+          />
+        </div>
       </div>
-    </div>
+    </WebSocketContext.Provider>
   );
 }

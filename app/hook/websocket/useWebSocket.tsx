@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { interval } from 'rxjs';
 
@@ -15,12 +15,11 @@ import { verifyTokenPromise } from 'app/utils/jwtUtils';
  * @param jwt
  */
 const useWebSocket = () => {
-  const socketRef = useRef<SocketIOClient.Socket>();
   const dispatch = useDispatch();
   const token = useSelector(getStaffToken);
 
   useEffect(() => {
-    if (token) {
+    if (token && !window.socketRef) {
       const options: SocketIOClient.ConnectOpts = {
         // reconnectionDelay: 1000,
         // 传递 JWT Token
@@ -30,8 +29,29 @@ const useWebSocket = () => {
           //  jwt token
           token,
         },
+        transports: ['websocket'],
       };
 
+      window.socketRef = IO(
+        config.web.host + config.websocket.namespace,
+        options
+      );
+      const socketHandler = new SocketHandler(window.socketRef, dispatch);
+      socketHandler.init();
+    }
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    return () => {
+      if (window.socketRef !== undefined) {
+        window.socketRef.disconnect();
+        window.socketRef = undefined;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (window.socketRef && token) {
       const period = 1000 * 60 * 10;
       interval(period).subscribe(async () => {
         // 每10分钟更新token
@@ -39,30 +59,15 @@ const useWebSocket = () => {
           verifyTokenPromise(token, period * 2);
         } catch {
           const accessToken = await getAccessToken();
-          if (accessToken && socketRef.current) {
-            socketRef.current.io.opts.query = `token=${accessToken.source}`;
+          if (accessToken && window.socketRef) {
+            window.socketRef.io.opts.query = `token=${accessToken.source}`;
           }
         }
       });
-
-      socketRef.current = IO(
-        config.web.host + config.websocket.namespace,
-        options
-      );
-      window.socketRef = socketRef.current;
-
-      const socketHandler = new SocketHandler(socketRef.current, dispatch);
-      socketHandler.init();
     }
+  }, [token]);
 
-    return () => {
-      if (socketRef.current !== undefined) {
-        socketRef.current.disconnect();
-      }
-    };
-  }, [dispatch, token]);
-
-  return [socketRef.current];
+  return [window.socketRef];
 };
 
 export default useWebSocket;

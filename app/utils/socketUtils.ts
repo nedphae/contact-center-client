@@ -44,5 +44,5 @@ export const socketCallback = <T, R>(
     // 5秒超时
     5000
   );
-  window.socketRef.emit(e, r, cbWithTimeout);
+  window.socketRef?.emit(e, r, cbWithTimeout);
 };

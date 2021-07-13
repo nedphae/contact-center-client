@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import { SessionMap, Session, TagParamer } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
-import javaInstant2Date from 'app/utils/timeUtils';
+import javaInstant2DateStr from 'app/utils/timeUtils';
 import { Customer } from 'app/domain/Customer';
 
 const initConver = {} as SessionMap;
@@ -54,7 +54,7 @@ const converSlice = createSlice({
             return of(from).pipe(
               tap(() => {
                 if (msg.createdAt) {
-                  msg.createdAt = javaInstant2Date(msg.createdAt);
+                  msg.createdAt = javaInstant2DateStr(msg.createdAt);
                 }
               }),
               filter((f) => f !== undefined && f !== null),

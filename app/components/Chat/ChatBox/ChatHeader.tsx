@@ -15,6 +15,7 @@ import {
   getSelectedConstomer,
   getSelectedSession,
 } from 'app/state/session/sessionAction';
+import { javaInstant2Num } from 'app/utils/timeUtils';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -40,8 +41,10 @@ export default function ChatHeader() {
     if (session) {
       timer = setInterval(() => {
         const duration =
-          (new Date().getTime() - session.startTime.getTime()) / 1000 ?? 0;
-        setSessionDuration(duration);
+          (new Date().getTime() -
+            javaInstant2Num(session.startTime).getTime()) /
+            1000 ?? 0;
+        setSessionDuration(parseInt(duration.toString(), 10));
       }, 1000);
     }
 

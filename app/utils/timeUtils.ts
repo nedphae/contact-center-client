@@ -1,11 +1,17 @@
-export default function javaInstant2Date(
+export function javaInstant2Num(instant: number): Date {
+  const array = instant.toString().split('.');
+  return new Date(Number(array[0]) * 1000 + Number(array[1]) / 1000);
+}
+
+export default function javaInstant2DateStr(
   instant: number | string | Date
-): string {
+): string | undefined {
   let date;
   if (instant instanceof Date) {
     date = instant;
   }
-  const array = instant.toString().split('.');
-  date = new Date(Number(array[0]) * 1000 + Number(array[1]) / 1000);
-  return date.toLocaleString();
+  if (Number.isFinite(instant)) {
+    date = javaInstant2Num(instant as number);
+  }
+  return date?.toLocaleString();
 }

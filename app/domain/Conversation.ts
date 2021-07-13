@@ -28,7 +28,7 @@ export interface Conversation {
   staffId: number;
   realName: string;
   nickName: string;
-  startTime: Date;
+  startTime: number;
   userId: number;
   userName: string | undefined;
   vipLevel: number;
