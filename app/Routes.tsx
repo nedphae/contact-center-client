@@ -26,10 +26,12 @@ import LocationOn from '@material-ui/icons/LocationOn';
 import Notifications from '@material-ui/icons/Notifications';
 import Unarchive from '@material-ui/icons/Unarchive';
 import Language from '@material-ui/icons/Language';
+import SettingsIcon from '@material-ui/icons/Settings';
 // core components/views for Admin layout
 import ChatHistory from 'app/views/ChatHistory/ChatHistory';
 import Crm from 'app/views/Crm/Crm';
 import Bot from 'app/views/Bot/Bot';
+import Setting from 'app/views/Setting/Settings';
 import Entertain from './views/Entertain/Entertain';
 import DashboardPage from './views/Dashboard/Dashboard';
 import UserProfile from './views/UserProfile/UserProfile';
@@ -81,6 +83,14 @@ const dashboardRoutes = [
     rtlName: 'لوحة القيادة',
     icon: QueryBuilderIcon,
     component: Bot,
+    layout: '/admin',
+  },
+  {
+    path: '/setting',
+    name: '设置',
+    rtlName: 'لوحة القيادة',
+    icon: SettingsIcon,
+    component: Setting,
     layout: '/admin',
   },
   {

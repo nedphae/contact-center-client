@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 
 import Authorized from 'app/utils/Authorized';
 import SessionList from './SessionList';
+import Monitor from './Monitor';
 
 function a11yProps(index: number) {
   return {
@@ -108,7 +109,7 @@ export default function SessionPanel() {
       <TabPanel value={value} index={2}>
         <Authorized authority={['admin']} noMatch="非 Admin权限">
           {/* 添加权限的Dom */}
-          Admin 时权限展示
+          <Monitor />
         </Authorized>
       </TabPanel>
     </div>

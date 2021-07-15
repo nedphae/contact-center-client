@@ -76,7 +76,9 @@ export default function useApolloClient(): [
 
       setGraphqlClient(apolloClient);
     }
+  }, [graphqlClient]);
 
+  useEffect(() => {
     return () => {
       if (graphqlClient) {
         graphqlClient.stop();
@@ -87,7 +89,8 @@ export default function useApolloClient(): [
         subscriptionClient.current = undefined;
       }
     };
-  }, [graphqlClient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return [graphqlClient];
 }

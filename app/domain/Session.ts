@@ -13,7 +13,7 @@ export interface Session {
   unread: number;
   /** 会话的聊天消息 */
   massageList: MessagesMap;
-  lastMessageTime: Date;
+  lastMessageTime: number;
   lastMessage: Message | undefined;
   hide: boolean;
   /** 会话标识 */
@@ -39,7 +39,7 @@ export function createSession(
     user,
     unread: 0,
     massageList: {},
-    lastMessageTime: new Date(),
+    lastMessageTime: new Date().getTime(),
     lastMessage: undefined,
     hide: false,
     colorLogo: ColorLogo.NEW,

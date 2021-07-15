@@ -14,7 +14,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
-import 'emoji-mart/css/emoji-mart.css';
+import './emoji-mart.global.css';
 import { Picker, BaseEmoji } from 'emoji-mart';
 import Upload from 'rc-upload';
 import { RcFile } from 'rc-upload/lib/interface';

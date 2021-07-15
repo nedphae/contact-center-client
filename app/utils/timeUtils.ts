@@ -7,6 +7,9 @@ export default function javaInstant2DateStr(
   instant: number | string | Date
 ): string | undefined {
   let date;
+  if (typeof instant === 'string') {
+    return instant;
+  }
   if (instant instanceof Date) {
     date = instant;
   }

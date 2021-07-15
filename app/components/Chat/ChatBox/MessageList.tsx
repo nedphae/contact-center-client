@@ -13,6 +13,7 @@ import Avatar from '@material-ui/core/Avatar';
 import { Content, Message } from 'app/domain/Message';
 import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
+import javaInstant2DateStr from 'app/utils/timeUtils';
 import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
@@ -188,7 +189,7 @@ const MessageList = (props: MessageListProps) => {
                             gutterBottom
                             className={classes.inline}
                           >
-                            {createdAt?.toString()}
+                            {createdAt && javaInstant2DateStr(createdAt)}
                           </Typography>
                         </Grid>
                       }

@@ -29,11 +29,11 @@ import Admin from './layouts/Admin';
 import RTL from './layouts/RTL';
 import Auth from './layouts/Auth';
 import Authorized from './components/Authorized/Authorized';
-// import useApolloClient from './hook/init/useApolloClient';
-import apolloClient from './utils/apolloClient';
+import useApolloClient from './hook/init/useApolloClient';
+// import apolloClient from './utils/apolloClient';
 
 function AdminContainer() {
-  // const [apolloClient] = useApolloClient();
+  const [apolloClient] = useApolloClient();
   return (
     <>
       {apolloClient && (

@@ -71,9 +71,7 @@ export const getSession = (hide = false) =>
       _.values(session)
         .filter((it) => it.hide === hide)
         // 按时间降序
-        .sort(
-          (a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
-        )
+        .sort((a, b) => b.lastMessageTime - a.lastMessageTime)
         // 按置顶排序
         .sort((a, b) => {
           let result = 0;

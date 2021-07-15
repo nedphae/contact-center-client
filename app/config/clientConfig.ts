@@ -20,7 +20,7 @@ export default {
     Authorization: 'Basic dXNlcl9jbGllbnQ6dGVzdF9zZWNyZXQ=',
   },
   graphql: {
-    webSocketLink: 'ws://localhost:8700/subscriptions',
+    webSocketLink: 'ws://localhost:8780/subscriptions',
     graphql: '/graphql',
   },
   websocket: {
