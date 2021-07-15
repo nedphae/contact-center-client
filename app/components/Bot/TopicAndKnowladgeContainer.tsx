@@ -4,22 +4,22 @@ import React from 'react';
 import KnowledgeBaseForm from './KnowledgeBaseForm';
 import TopicCategoryForm from './TopicCategoryForm';
 
-export interface DefaultValueType {
-  Topic: TopicCategory | undefined;
-  Knowladge: KnowledgeBase | undefined;
+export interface TopicOrKnowladge {
+  Topic?: TopicCategory | undefined;
+  Knowladge?: KnowledgeBase | undefined;
 }
 
-export type TopicOrKnowladge = keyof DefaultValueType;
+export type TopicOrKnowladgeKey = keyof TopicOrKnowladge;
 
-export interface FormProps<T extends TopicOrKnowladge> {
+export interface FormProps<T extends TopicOrKnowladgeKey> {
   showWhat: T;
-  defaultValue: DefaultValueType[T];
+  defaultValue: TopicOrKnowladge[T];
   allTopicCategoryList: TopicCategory[];
 }
 
-export default function TopicAndKnowladgeContainer<T extends TopicOrKnowladge>(
-  props: FormProps<T>
-) {
+export default function TopicAndKnowladgeContainer<
+  T extends TopicOrKnowladgeKey
+>(props: FormProps<T>) {
   const { showWhat, defaultValue, allTopicCategoryList } = props;
   switch (showWhat) {
     case 'Knowladge':

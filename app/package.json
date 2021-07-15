@@ -21,6 +21,7 @@
     "@iconify/react": "^1.1.4",
     "@types/jsoneditor": "^8.6.0",
     "jsoneditor": "^9.5.1",
-    "react-dropdown-tree-select": "^2.5.1"
+    "react-dropdown-tree-select": "^2.5.1",
+    "react-shadow": "^19.0.2"
   }
 }

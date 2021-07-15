@@ -181,7 +181,25 @@ const CONTENT_QUERY = gql`
       category
       categoryDetail
       chatMessages {
-        content
+        content {
+          contentType
+          sysCode
+          attachments {
+            mediaId
+            size
+            type
+            url
+          }
+          photoContent {
+            mediaId
+            filename
+            picSize
+            type
+          }
+          textContent {
+            text
+          }
+        }
         conversationId
         createdAt
         creatorType

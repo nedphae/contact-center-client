@@ -7,7 +7,12 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Button from '@material-ui/core/Button';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import { CircularProgress, FormControl, Typography } from '@material-ui/core';
+import {
+  CircularProgress,
+  CssBaseline,
+  FormControl,
+  Typography,
+} from '@material-ui/core';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 
 import { TopicCategory } from 'app/domain/Bot';
@@ -92,6 +97,7 @@ export default function TopicCategoryForm(props: FormProps) {
     <div className={classes.paper}>
       {loading && <CircularProgress />}
       {data && <Typography>Success!</Typography>}
+      <CssBaseline />
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveTopicCategory.id || ''}
