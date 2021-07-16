@@ -213,22 +213,22 @@ export default function AddQuickReply() {
             {group
               ? quickReplyGroupForm(register, errors)
               : quickReplyForm(register, errors)}
-            <FormControlLabel
-              control={
-                <Controller
-                  control={control}
-                  defaultValue
-                  name="personal"
-                  render={({ onChange, value }) => (
+            <Controller
+              control={control}
+              defaultValue
+              name="personal"
+              render={({ onChange, value }) => (
+                <FormControlLabel
+                  control={
                     <Checkbox
                       checked={value}
                       onChange={(e) => onChange(e.target.checked)}
                       inputProps={{ 'aria-label': 'primary checkbox' }}
                     />
-                  )}
+                  }
+                  label="是否个人"
                 />
-              }
-              label="是否个人"
+              )}
             />
           </DialogContent>
           <DialogActions>

@@ -28,11 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
         margin: theme.spacing(1),
       },
     },
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: '50vw',
-      maxWidth: '100%',
-    },
     chips: {
       display: 'flex',
       flexWrap: 'wrap',

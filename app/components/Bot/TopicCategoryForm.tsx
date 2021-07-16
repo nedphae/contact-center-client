@@ -26,10 +26,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-    formControl: {
-      margin: theme.spacing(1),
-      width: '100%', // Fix IE 11 issue.
-    },
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
@@ -115,11 +111,11 @@ export default function TopicCategoryForm(props: FormProps) {
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
-        <FormControl variant="filled" className={classes.formControl}>
-          <Controller
-            control={control}
-            name="pid"
-            render={({ onChange }) => (
+        <Controller
+          control={control}
+          name="pid"
+          render={({ onChange }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
               <DropdownTreeSelect
                 data={treeData}
                 onChange={(_currentNode, selectedNodes) => {
@@ -129,9 +125,9 @@ export default function TopicCategoryForm(props: FormProps) {
                 className="mdl-demo"
                 mode="radioSelect"
               />
-            )}
-          />
-        </FormControl>
+            </FormControl>
+          )}
+        />
         <TextField
           variant="outlined"
           margin="normal"

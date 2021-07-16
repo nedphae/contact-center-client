@@ -20,10 +20,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-    formControl: {
-      margin: theme.spacing(1),
-      width: '100%', // Fix IE 11 issue.
-    },
     submit: {
       margin: theme.spacing(3, 0, 2),
     },

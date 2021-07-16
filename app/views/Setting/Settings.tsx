@@ -14,6 +14,7 @@ import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
 import Account from 'app/components/Settings/personal/Account';
 import unimplemented from 'app/utils/Error';
 import Group from 'app/components/Settings/org/Group';
+import AccountList from 'app/components/Settings/org/AccountList';
 import Shunt from 'app/components/Settings/org/Shunt';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -66,7 +67,7 @@ function settingPage(pageName: PageName) {
       break;
     }
     case 'org.Account': {
-      result = <Account />;
+      result = <AccountList />;
       break;
     }
     case 'org.Group': {
@@ -105,23 +106,25 @@ type PageName =
 export default function Setting() {
   const classes = useStyles();
   const { data } = useQuery<Graphql>(QUERY);
-  const [pageName, setPageName] = useState<PageName>();
+  const [pageName, setPageName] = useState<PageName>('personal.Account');
 
   return (
     <Grid container className={classes.root}>
       <Grid item xs={12} sm={2}>
         <TreeView
           className={classes.list}
+          defaultExpanded={['default-expanded']}
+          defaultSelected={['default-select']}
           defaultCollapseIcon={<ArrowDropDownIcon />}
           defaultExpandIcon={<ArrowRightIcon />}
         >
           <StyledTreeItem
-            nodeId={uuidv4()}
+            nodeId="default-expanded"
             labelText="个人设置"
             labelIcon={SubjectIcon}
           >
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="default-select"
               labelText="账号设置"
               labelIcon={SubjectIcon}
               onClick={() => setPageName('personal.Account')}

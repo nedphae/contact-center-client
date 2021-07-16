@@ -31,10 +31,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-    formControl: {
-      margin: theme.spacing(1),
-      width: '100%', // Fix IE 11 issue.
-    },
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
@@ -150,25 +146,26 @@ export default function TopicForm(props: FormProps) {
             },
           })}
         />
-        <FormControl variant="filled" className={classes.formControl}>
-          <InputLabel id="demo-mutiple-chip-label">问题类型</InputLabel>
-          <Controller
-            control={control}
-            name="type"
-            render={({ onChange, value }) => (
+        <Controller
+          control={control}
+          name="type"
+          render={({ onChange, value }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="demo-mutiple-chip-label">问题类型</InputLabel>
               <Select
                 labelId="type"
                 id="type"
                 defaultValue={1}
                 onChange={onChange}
                 value={value}
+                label="问题类型"
               >
                 <MenuItem value={1}>标准问题</MenuItem>
                 <MenuItem value={2}>相似问题</MenuItem>
               </Select>
-            )}
-          />
-        </FormControl>
+            </FormControl>
+          )}
+        />
         {questionType === 1 && (
           <>
             <TextField
@@ -210,18 +207,19 @@ export default function TopicForm(props: FormProps) {
           </>
         )}
         {questionType === 1 && (
-          <FormControl variant="filled" className={classes.formControl}>
-            <InputLabel id="demo-mutiple-chip-label">相似问题</InputLabel>
-            <Controller
-              control={control}
-              name="refId"
-              render={({ onChange, value }) => (
+          <Controller
+            control={control}
+            name="refId"
+            render={({ onChange, value }) => (
+              <FormControl variant="outlined" margin="normal" fullWidth>
+                <InputLabel id="demo-mutiple-chip-label">相似问题</InputLabel>
                 <Select
                   labelId="refId"
                   id="refId"
                   onChange={onChange}
                   value={value}
                   inputProps={{ readOnly: true }}
+                  label="相似问题"
                 >
                   <MenuItem value="">
                     <em>None</em>
@@ -235,32 +233,32 @@ export default function TopicForm(props: FormProps) {
                       );
                     })}
                 </Select>
-              )}
-            />
-          </FormControl>
+              </FormControl>
+            )}
+          />
         )}
         <ChipSelect
           selectKeyValueList={selectKeyValueList}
           control={control}
           handleDelete={handleDelete}
         />
-        <FormControlLabel
-          control={
-            <Controller
-              control={control}
-              defaultValue
-              name="enabled"
-              render={({ onChange, value }) => (
+        <Controller
+          control={control}
+          defaultValue
+          name="enabled"
+          render={({ onChange, value }) => (
+            <FormControlLabel
+              control={
                 <Checkbox
                   defaultChecked
                   checked={value}
                   onChange={(e) => onChange(e.target.checked)}
                   inputProps={{ 'aria-label': 'primary checkbox' }}
                 />
-              )}
+              }
+              label="是否启用"
             />
-          }
-          label="是否启用"
+          )}
         />
         <Button
           type="submit"

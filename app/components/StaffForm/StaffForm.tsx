@@ -46,10 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-    formControl: {
-      margin: theme.spacing(1),
-      width: '100%', // Fix IE 11 issue.
-    },
     form: {
       width: '100%', // Fix IE 11 issue.
       marginTop: theme.spacing(1),
@@ -166,6 +162,13 @@ export default function StaffForm(props: FormProps) {
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
+        <TextField
+          id="avatar"
+          name="avatar"
+          type="hidden"
+          value={avatar}
+          inputRef={register()}
+        />
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
@@ -174,16 +177,6 @@ export default function StaffForm(props: FormProps) {
             头像
           </Avatar>
         </Upload>
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          id="avatar"
-          name="avatar"
-          type="hidden"
-          value={avatar}
-          inputRef={register()}
-        />
         <TextField
           variant="outlined"
           margin="normal"
@@ -269,15 +262,18 @@ export default function StaffForm(props: FormProps) {
                 validate: (value) => value === password || '密码不相符',
               })}
             />
-            <FormControl variant="filled" className={classes.formControl}>
-              <InputLabel id="demo-mutiple-chip-label">角色</InputLabel>
-              <Controller
-                control={control}
-                name="role"
-                render={({ onChange, value }) => (
+            <Controller
+              control={control}
+              name="role"
+              render={({ onChange, value }) => (
+                <FormControl variant="outlined" margin="normal" fullWidth>
+                  <InputLabel id="role-simple-select-outlined-label">
+                    角色
+                  </InputLabel>
                   <Select
-                    labelId="role"
+                    labelId="role-simple-select-outlined-label"
                     id="role"
+                    label="角色"
                     onChange={onChange}
                     value={value}
                   >
@@ -286,9 +282,9 @@ export default function StaffForm(props: FormProps) {
                     <MenuItem value="ROLE_QA">质检</MenuItem>
                     <MenuItem value="ROLE_STAFF">客服</MenuItem>
                   </Select>
-                )}
-              />
-            </FormControl>
+                </FormControl>
+              )}
+            />
           </>
         )}
         <TextField
@@ -422,44 +418,49 @@ export default function StaffForm(props: FormProps) {
             valueAsNumber: true,
           })}
         />
-        <FormControl variant="filled" className={classes.formControl}>
-          <InputLabel id="demo-mutiple-chip-label">是否是机器人</InputLabel>
-          <Controller
-            control={control}
-            name="staffType"
-            render={({ onChange, value }) => (
+        <Controller
+          control={control}
+          name="staffType"
+          render={({ onChange, value }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="staffType-simple-select-outlined-label">
+                是否是机器人
+              </InputLabel>
               <Select
-                labelId="staffType"
+                labelId="staffType-simple-select-outlined-label"
                 id="staffType"
                 onChange={onChange}
                 value={value}
-                inputProps={{ readOnly: true }}
+                label="是否是机器人"
               >
                 <MenuItem value={0}>机器人</MenuItem>
                 <MenuItem value={1}>人工</MenuItem>
               </Select>
-            )}
-          />
-        </FormControl>
-        <FormControl variant="filled" className={classes.formControl}>
-          <InputLabel id="demo-mutiple-chip-label">性别</InputLabel>
-          <Controller
-            control={control}
-            name="gender"
-            render={({ onChange, value }) => (
+            </FormControl>
+          )}
+        />
+        <Controller
+          control={control}
+          name="gender"
+          render={({ onChange, value }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="gender-simple-select-outlined-label">
+                性别
+              </InputLabel>
               <Select
-                labelId="gender"
+                labelId="gender-simple-select-outlined-label"
                 id="gender"
                 onChange={onChange}
                 value={value}
+                label="性别"
               >
                 <MenuItem value={0}>男</MenuItem>
                 <MenuItem value={1}>女</MenuItem>
                 <MenuItem value={99}>其他</MenuItem>
               </Select>
-            )}
-          />
-        </FormControl>
+            </FormControl>
+          )}
+        />
         <TextField
           variant="outlined"
           margin="normal"

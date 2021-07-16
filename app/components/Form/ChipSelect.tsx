@@ -80,17 +80,18 @@ export default function ChipSelect(props: SelectProps) {
   return (
     <div className={classes.root}>
       {selectKeyValueList.map((it) => (
-        <FormControl key={it.name} className={classes.formControl}>
-          <InputLabel id="demo-mutiple-chip-label">{it.label}</InputLabel>
-          <Controller
-            control={control}
-            name={it.name}
-            defaultValue={it.defaultValue}
-            // rules={{
-            //   setValueAs: (val) =>
-            //     val.map((v: string) => parseInt(v, 10)),
-            // }}
-            render={({ onChange, value }) => (
+        <Controller
+          key={it.name}
+          control={control}
+          name={it.name}
+          defaultValue={it.defaultValue}
+          // rules={{
+          //   setValueAs: (val) =>
+          //     val.map((v: string) => parseInt(v, 10)),
+          // }}
+          render={({ onChange, value }) => (
+            <FormControl className={classes.formControl}>
+              <InputLabel id="demo-mutiple-chip-label">{it.label}</InputLabel>
               <Select
                 labelId="demo-mutiple-chip-label"
                 id="demo-mutiple-chip"
@@ -98,6 +99,7 @@ export default function ChipSelect(props: SelectProps) {
                 input={<Input id="select-multiple-chip" />}
                 onChange={onChange}
                 value={value}
+                label={it.label}
                 renderValue={(selected) => (
                   <div className={classes.chips}>
                     {(selected as string[]).map((id) => (
@@ -127,9 +129,9 @@ export default function ChipSelect(props: SelectProps) {
                   </MenuItem>
                 ))}
               </Select>
-            )}
-          />
-        </FormControl>
+            </FormControl>
+          )}
+        />
       ))}
     </div>
   );
