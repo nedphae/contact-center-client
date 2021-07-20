@@ -14,6 +14,7 @@ import {
   CircularProgress,
   FormControl,
   FormControlLabel,
+  FormControlProps,
   InputLabel,
   MenuItem,
   Select,
@@ -124,6 +125,22 @@ export default function TopicForm(props: FormProps) {
           inputRef={register({ valueAsNumber: true })}
         />
         <TextField
+          value={
+            defaultValues?.knowledgeBaseId ||
+            data?.saveTopic.knowledgeBaseId ||
+            ''
+          }
+          name="knowledgeBaseId"
+          type="hidden"
+          inputRef={register({ valueAsNumber: true })}
+        />
+        <TextField
+          value={defaultValues?.categoryId || data?.saveTopic.categoryId || ''}
+          name="categoryId"
+          type="hidden"
+          inputRef={register({ valueAsNumber: true })}
+        />
+        <TextField
           variant="outlined"
           margin="normal"
           fullWidth
@@ -149,13 +166,13 @@ export default function TopicForm(props: FormProps) {
         <Controller
           control={control}
           name="type"
+          defaultValue={1}
           render={({ onChange, value }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="demo-mutiple-chip-label">问题类型</InputLabel>
               <Select
                 labelId="type"
                 id="type"
-                defaultValue={1}
                 onChange={onChange}
                 value={value}
                 label="问题类型"
@@ -204,9 +221,23 @@ export default function TopicForm(props: FormProps) {
               }}
               inputRef={register()}
             />
+            <ChipSelect
+              selectKeyValueList={selectKeyValueList}
+              control={control}
+              handleDelete={handleDelete}
+              CustomerFormControl={(formControlProps: FormControlProps) => (
+                <FormControl
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...formControlProps}
+                />
+              )}
+            />
           </>
         )}
-        {questionType === 1 && (
+        {questionType === 2 && (
           <Controller
             control={control}
             name="refId"
@@ -217,7 +248,7 @@ export default function TopicForm(props: FormProps) {
                   labelId="refId"
                   id="refId"
                   onChange={onChange}
-                  value={value}
+                  value={value || ''}
                   inputProps={{ readOnly: true }}
                   label="相似问题"
                 >
@@ -237,11 +268,6 @@ export default function TopicForm(props: FormProps) {
             )}
           />
         )}
-        <ChipSelect
-          selectKeyValueList={selectKeyValueList}
-          control={control}
-          handleDelete={handleDelete}
-        />
         <Controller
           control={control}
           defaultValue
@@ -250,7 +276,6 @@ export default function TopicForm(props: FormProps) {
             <FormControlLabel
               control={
                 <Checkbox
-                  defaultChecked
                   checked={value}
                   onChange={(e) => onChange(e.target.checked)}
                   inputProps={{ 'aria-label': 'primary checkbox' }}

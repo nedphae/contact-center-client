@@ -19,6 +19,7 @@ import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { ConversationQueryInput } from 'app/domain/graphql/Conversation';
+import { FormControl, FormControlProps } from '@material-ui/core';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -47,6 +48,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     button: {
       margin: theme.spacing(1),
+    },
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: '50vw',
+      maxWidth: '100%',
     },
   })
 );
@@ -186,6 +192,13 @@ export default function SearchForm(props: FormProps) {
                 selectKeyValueList={selectKeyValueList}
                 control={control}
                 handleDelete={handleDelete}
+                CustomerFormControl={(formControlProps: FormControlProps) => (
+                  <FormControl
+                    className={classes.formControl}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...formControlProps}
+                  />
+                )}
               />
             </CardActions>
           </Collapse>

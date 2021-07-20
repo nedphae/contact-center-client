@@ -149,32 +149,34 @@ export default function Bot() {
   const rows = data?.allTopic ?? [];
 
   return (
-    <Grid container className={classes.root}>
-      <BotSidecar
-        memoData={memoData}
-        allTopicCategory={data?.allTopicCategory}
-      />
-      <Grid item xs={12} sm={10}>
-        {/* 显示 DataGrid Topic */}
-        <DraggableDialog title="配置知识库问题" ref={refOfTopicDialog}>
-          <TopicForm defaultValues={topic} topicList={rows} />
-        </DraggableDialog>
-        <DataGrid
-          localeText={GRID_DEFAULT_LOCALE_TEXT}
-          rows={rows}
-          columns={columns}
-          components={{
-            Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
-          }}
-          onRowClick={(param) => {
-            handleClickOpen(param.row as Topic);
-          }}
-          pagination
-          pageSize={20}
-          loading={loading}
-          disableSelectionOnClick
+    <>
+      {/* 显示 DataGrid Topic */}
+      <DraggableDialog title="配置知识库问题" ref={refOfTopicDialog}>
+        <TopicForm defaultValues={topic} topicList={rows} />
+      </DraggableDialog>
+      <Grid container className={classes.root}>
+        <BotSidecar
+          memoData={memoData}
+          allTopicCategory={data?.allTopicCategory}
         />
+        <Grid item xs={12} sm={10}>
+          <DataGrid
+            localeText={GRID_DEFAULT_LOCALE_TEXT}
+            rows={rows}
+            columns={columns}
+            components={{
+              Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
+            }}
+            onRowClick={(param) => {
+              handleClickOpen(param.row as Topic);
+            }}
+            pagination
+            pageSize={20}
+            loading={loading}
+            disableSelectionOnClick
+          />
+        </Grid>
       </Grid>
-    </Grid>
+    </>
   );
 }

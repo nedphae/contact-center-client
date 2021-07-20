@@ -22,7 +22,7 @@ export default interface Staff {
   nickName: string;
   gender: string | undefined;
   createTime: Date;
-  headImg: string | undefined;
+  avatar: string | undefined;
   personalizedSignature: string;
   syncState: boolean;
   // just for websocket

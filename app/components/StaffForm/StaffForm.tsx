@@ -46,10 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-    form: {
-      width: '100%', // Fix IE 11 issue.
-      marginTop: theme.spacing(1),
-    },
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
@@ -166,13 +162,16 @@ export default function StaffForm(props: FormProps) {
           id="avatar"
           name="avatar"
           type="hidden"
-          value={avatar}
+          value={avatar || ''}
           inputRef={register()}
         />
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
-            src={`${config.web.host}/${config.oss.path}/staff/img/${avatar}`}
+            src={
+              avatar &&
+              `${config.web.host}/${config.oss.path}/staff/img/${avatar}`
+            }
           >
             头像
           </Avatar>

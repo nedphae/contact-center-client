@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 import { gql, useQuery } from '@apollo/client';
@@ -108,71 +108,77 @@ export default function Setting() {
   const { data } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
 
-  return (
-    <Grid container className={classes.root}>
-      <Grid item xs={12} sm={2}>
-        <TreeView
-          className={classes.list}
-          defaultExpanded={['default-expanded']}
-          defaultSelected={['default-select']}
-          defaultCollapseIcon={<ArrowDropDownIcon />}
-          defaultExpandIcon={<ArrowRightIcon />}
+  const memoTreeView = useMemo(() => {
+    return (
+      <TreeView
+        className={classes.list}
+        defaultExpanded={['default-expanded']}
+        defaultSelected={['default-select']}
+        defaultCollapseIcon={<ArrowDropDownIcon />}
+        defaultExpandIcon={<ArrowRightIcon />}
+      >
+        <StyledTreeItem
+          nodeId="default-expanded"
+          labelText="个人设置"
+          labelIcon={SubjectIcon}
         >
           <StyledTreeItem
-            nodeId="default-expanded"
-            labelText="个人设置"
+            nodeId="default-select"
+            labelText="账号设置"
             labelIcon={SubjectIcon}
-          >
-            <StyledTreeItem
-              nodeId="default-select"
-              labelText="账号设置"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('personal.Account')}
-            />
-            <StyledTreeItem
+            onClick={() => setPageName('personal.Account')}
+          />
+          {/* <StyledTreeItem
               nodeId={uuidv4()}
               labelText="客户端设置"
               labelIcon={SubjectIcon}
               onClick={() => setPageName('personal.Client')}
-            />
-          </StyledTreeItem>
+            /> */}
+        </StyledTreeItem>
+        <StyledTreeItem
+          nodeId={uuidv4()}
+          labelText="企业设置"
+          labelIcon={SubjectIcon}
+        >
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="企业设置"
+            labelText="账号管理"
             labelIcon={SubjectIcon}
-          >
-            <StyledTreeItem
-              nodeId={uuidv4()}
-              labelText="账号管理"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('org.Account')}
-            />
-            <StyledTreeItem
-              nodeId={uuidv4()}
-              labelText="客服组"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('org.Group')}
-            />
-            <StyledTreeItem
-              nodeId={uuidv4()}
-              labelText="接待组"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('org.Shunt')}
-            />
-            <StyledTreeItem
-              nodeId={uuidv4()}
-              labelText="咨询类型"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('org.ConsultationType')}
-            />
-            <StyledTreeItem
-              nodeId={uuidv4()}
-              labelText="黑名单设置"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('org.BlackList')}
-            />
-          </StyledTreeItem>
-        </TreeView>
+            onClick={() => setPageName('org.Account')}
+          />
+          <StyledTreeItem
+            nodeId={uuidv4()}
+            labelText="客服组"
+            labelIcon={SubjectIcon}
+            onClick={() => setPageName('org.Group')}
+          />
+          <StyledTreeItem
+            nodeId={uuidv4()}
+            labelText="接待组"
+            labelIcon={SubjectIcon}
+            onClick={() => setPageName('org.Shunt')}
+          />
+          <StyledTreeItem
+            nodeId={uuidv4()}
+            labelText="咨询类型"
+            labelIcon={SubjectIcon}
+            onClick={() => setPageName('org.ConsultationType')}
+          />
+          <StyledTreeItem
+            nodeId={uuidv4()}
+            labelText="黑名单设置"
+            labelIcon={SubjectIcon}
+            onClick={() => setPageName('org.BlackList')}
+          />
+        </StyledTreeItem>
+      </TreeView>
+    );
+  }, [classes]);
+
+  return (
+    <Grid container className={classes.root}>
+      <Grid item xs={12} sm={2}>
+        {memoTreeView}
       </Grid>
       <Grid item xs={12} sm={10}>
         {/* 显示 配置页面 */}

@@ -7,7 +7,7 @@ export interface KnowledgeBase {
 }
 
 export interface Topic {
-  id: number | undefined;
+  id: string | undefined;
   /** 所属知识库ID * */
   knowledgeBaseId: number;
   /** 问题，使用ik分词器查询和索引 */

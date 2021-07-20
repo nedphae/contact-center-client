@@ -26,7 +26,7 @@ export default function CustomerGridToolbar(props: CustomerGridToolbarProps) {
     </GridToolbarContainer>
   );
 }
-// Function Higher-Order Components
+// Function Higher-Order Components HOC
 export function CustomerGridToolbarCreater(props: CustomerGridToolbarProps) {
   const MyCustomerGridToolbar: React.FunctionComponent = () => {
     // eslint-disable-next-line react/jsx-props-no-spreading

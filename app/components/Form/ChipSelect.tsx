@@ -6,27 +6,17 @@ import {
   Theme,
   createStyles,
   Chip,
-  FormControl,
   Input,
   InputLabel,
   MenuItem,
   Select,
   useTheme,
+  FormControlProps,
 } from '@material-ui/core';
 import { Control, Controller } from 'react-hook-form';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
-    root: {
-      '& > *': {
-        margin: theme.spacing(1),
-      },
-    },
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: '50vw',
-      maxWidth: '100%',
-    },
     chips: {
       display: 'flex',
       flexWrap: 'wrap',
@@ -62,23 +52,25 @@ export interface SelectKeyValue {
   name: string;
   // id to name
   selectList: Record<string, string>;
-  defaultValue: string[] | string;
+  defaultValue: string[];
 }
 
 export interface SelectProps {
   selectKeyValueList: SelectKeyValue[];
+  CustomerFormControl: (porps: FormControlProps) => JSX.Element;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<Record<string, any>>;
   handleDelete: (name: string, value: string) => void;
 }
 
 export default function ChipSelect(props: SelectProps) {
-  const { selectKeyValueList, control, handleDelete } = props;
+  const { selectKeyValueList, control, handleDelete, CustomerFormControl } =
+    props;
   const classes = useStyles();
   const theme = useTheme();
 
   return (
-    <div className={classes.root}>
+    <div>
       {selectKeyValueList.map((it) => (
         <Controller
           key={it.name}
@@ -90,7 +82,7 @@ export default function ChipSelect(props: SelectProps) {
           //     val.map((v: string) => parseInt(v, 10)),
           // }}
           render={({ onChange, value }) => (
-            <FormControl className={classes.formControl}>
+            <CustomerFormControl>
               <InputLabel id="demo-mutiple-chip-label">{it.label}</InputLabel>
               <Select
                 labelId="demo-mutiple-chip-label"
@@ -98,7 +90,7 @@ export default function ChipSelect(props: SelectProps) {
                 multiple
                 input={<Input id="select-multiple-chip" />}
                 onChange={onChange}
-                value={value}
+                value={value ?? []}
                 label={it.label}
                 renderValue={(selected) => (
                   <div className={classes.chips}>
@@ -129,7 +121,7 @@ export default function ChipSelect(props: SelectProps) {
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </CustomerFormControl>
           )}
         />
       ))}

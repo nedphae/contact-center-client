@@ -90,7 +90,7 @@ export default function AccountList() {
 
   return (
     <>
-      <DraggableDialog title="详细聊天消息" ref={refOfDialog}>
+      <DraggableDialog title="客服信息" ref={refOfDialog}>
         <StaffForm defaultValues={staff} />
       </DraggableDialog>
       <DataGrid
