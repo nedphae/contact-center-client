@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback } from 'react';
 
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
+import { gql, useMutation } from '@apollo/client';
 
 import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
@@ -24,6 +25,7 @@ import TopicAndKnowladgeContainer, {
   TopicOrKnowladgeKey,
   TopicOrKnowladge,
 } from 'app/components/Bot/TopicAndKnowladgeContainer';
+import unimplemented from 'app/utils/Error';
 import BotToolbar from './BotToolbar';
 import BotTreeView from './BotTreeView';
 
@@ -50,6 +52,22 @@ interface BotProps {
   allTopicCategory: TopicCategory[] | undefined;
 }
 
+const MUTATION_BOT_CONFIG = gql`
+  mutation DeleteBotConfig($ids: [Long]!) {
+    deleteBotConfigByIds(ids: $ids)
+  }
+`;
+const MUTATION_KNOWLEDGE_BASE = gql`
+  mutation DeleteKnowledgeBase($ids: [Long]!) {
+    deleteKnowledgeBaseByIds(ids: $ids)
+  }
+`;
+const MUTATION_TOPIC_CATEGORY = gql`
+  mutation DeleteTopicCategory($ids: [Long]!) {
+    deleteTopicCategoryByIds(ids: $ids)
+  }
+`;
+
 export default function BotSidecar(props: BotProps) {
   const { memoData, allTopicCategory } = props;
   const [state, setState] = useState<Select>(initialState);
@@ -58,6 +76,15 @@ export default function BotSidecar(props: BotProps) {
   const [configStaff, setConfigStaff] = useState<Staff | null>(null);
   const [topicOrKnowladge, setTopicOrKnowladge] =
     useState<TopicOrKnowladgeWithKey>({} as TopicOrKnowladgeWithKey);
+
+  // 删除 Mutation
+  const [deleteBotConfigById] = useMutation<unknown>(MUTATION_BOT_CONFIG);
+  const [deleteKnowledgeBaseById] = useMutation<unknown>(
+    MUTATION_KNOWLEDGE_BASE
+  );
+  const [deleteTopicCategoryById] = useMutation<unknown>(
+    MUTATION_TOPIC_CATEGORY
+  );
 
   const handleContextMenuOpen = useCallback(
     (
@@ -98,6 +125,27 @@ export default function BotSidecar(props: BotProps) {
     setTopicOrKnowladge(_.assignIn({ topicOrKnowladgeKey }, topicOrKnowladge));
     refOfKnowladgeDialog.current?.setOpen(true);
   }
+
+  function deleteTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
+    setState(initialState);
+    switch (topicOrKnowladgeKey) {
+      case 'Topic': {
+        const id = topicOrKnowladge.Topic?.id;
+        if (id) deleteTopicCategoryById({ variables: { id: [id] } });
+        break;
+      }
+      case 'Knowladge': {
+        const id = topicOrKnowladge.Knowladge?.id;
+        const botConfigId = topicOrKnowladge.Knowladge?.botConfig?.id;
+        if (botConfigId)
+          deleteBotConfigById({ variables: { id: [botConfigId] } });
+        if (id) deleteKnowledgeBaseById({ variables: { id: [id] } });
+        break;
+      }
+      default:
+        unimplemented();
+    }
+  }
   /**
    * 关联知识库和机器人
    */
@@ -109,9 +157,9 @@ export default function BotSidecar(props: BotProps) {
     setConfigStaff(staff);
   }
 
-  const botConfig = topicOrKnowladge.Knowladge
-    ? memoData.botConfigMap[topicOrKnowladge.Knowladge.id ?? -1][0]
-    : null;
+  const botConfigList =
+    memoData.botConfigMap[topicOrKnowladge.Knowladge?.id ?? -1] ?? [];
+  const botConfig = botConfigList[0];
 
   const staffId = botConfig ? botConfig?.botId : null;
   const memoStaffAndBotConfig = {
@@ -156,16 +204,42 @@ export default function BotSidecar(props: BotProps) {
             >
               修改知识库
             </MenuItem>,
-          ]}
-          {topicOrKnowladge.topicOrKnowladgeKey === 'Topic' && (
             <MenuItem
+              key="addTopicCategory"
+              onClick={() => {
+                setState(initialState);
+                newTopicOrKnowladge('Topic');
+              }}
+            >
+              添加知识库分类
+            </MenuItem>,
+            <MenuItem
+              key="deleteTopicOrKnowladge"
+              onClick={() => {
+                deleteTopicOrKnowladge('Knowladge');
+              }}
+            >
+              删除知识库
+            </MenuItem>,
+          ]}
+          {topicOrKnowladge.topicOrKnowladgeKey === 'Topic' && [
+            <MenuItem
+              key="editTopicOrKnowladge"
               onClick={() => {
                 editTopicOrKnowladge('Topic');
               }}
             >
               修改知识分类
-            </MenuItem>
-          )}
+            </MenuItem>,
+            <MenuItem
+              key="deleteTopicOrKnowladge"
+              onClick={() => {
+                deleteTopicOrKnowladge('Topic');
+              }}
+            >
+              删除知识分类
+            </MenuItem>,
+          ]}
         </Menu>
       </div>
       {/* 显示 弹窗配置知识库对应的机器人 */}

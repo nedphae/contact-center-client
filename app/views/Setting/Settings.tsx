@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { gql, useQuery } from '@apollo/client';
 
@@ -16,6 +17,8 @@ import unimplemented from 'app/utils/Error';
 import Group from 'app/components/Settings/org/Group';
 import AccountList from 'app/components/Settings/org/AccountList';
 import Shunt from 'app/components/Settings/org/Shunt';
+import { Properties, RootProperties } from 'app/domain/Properties';
+import PropertiesFrom from 'app/components/Settings/org/PropertiesFrom';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -46,16 +49,20 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Graphql {
-  allProperties: string;
+  getAllProperties: string;
 }
 
 const QUERY = gql`
   query Properties {
-    allProperties
+    getAllProperties
   }
 `;
 
-function settingPage(pageName: PageName) {
+function settingPage(
+  pageName: PageName,
+  properties4Set: string | null,
+  properties?: RootProperties
+) {
   let result: JSX.Element;
   switch (pageName) {
     case 'personal.Account': {
@@ -86,6 +93,19 @@ function settingPage(pageName: PageName) {
       unimplemented();
       break;
     }
+    case 'org.Properties': {
+      if (properties && properties4Set) {
+        result = (
+          <PropertiesFrom
+            defaultValues={properties}
+            properties4Set={properties4Set}
+          />
+        );
+      } else {
+        unimplemented();
+      }
+      break;
+    }
     default: {
       unimplemented();
       break;
@@ -101,12 +121,18 @@ type PageName =
   | 'org.Group'
   | 'org.Shunt'
   | 'org.BlackList'
-  | 'org.ConsultationType';
+  | 'org.ConsultationType'
+  | 'org.Properties';
 
 export default function Setting() {
   const classes = useStyles();
   const { data } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
+  const [properties4Set, setProperties4Set] = useState<string | null>(null);
+
+  const properties: RootProperties = data?.getAllProperties
+    ? JSON.parse(data?.getAllProperties)
+    : undefined;
 
   const memoTreeView = useMemo(() => {
     return (
@@ -170,10 +196,39 @@ export default function Setting() {
             labelIcon={SubjectIcon}
             onClick={() => setPageName('org.BlackList')}
           />
+          {properties &&
+            _.keys(properties).map((k) => (
+              <StyledTreeItem
+                key={k}
+                nodeId={uuidv4()}
+                labelText={properties[k].label}
+                labelIcon={SubjectIcon}
+              >
+                {_.keys(properties[k])
+                  .filter(
+                    (pk) => !['id', 'label', 'available', 'value'].includes(pk)
+                  )
+                  .map((fk) => {
+                    const childProp = properties[k][fk] as Properties;
+                    return (
+                      <StyledTreeItem
+                        key={fk}
+                        nodeId={uuidv4()}
+                        labelText={childProp.label}
+                        labelIcon={SubjectIcon}
+                        onClick={() => {
+                          setPageName('org.Properties');
+                          setProperties4Set(`${k}.${fk}`);
+                        }}
+                      />
+                    );
+                  })}
+              </StyledTreeItem>
+            ))}
         </StyledTreeItem>
       </TreeView>
     );
-  }, [classes]);
+  }, [classes, properties]);
 
   return (
     <Grid container className={classes.root}>
@@ -182,7 +237,7 @@ export default function Setting() {
       </Grid>
       <Grid item xs={12} sm={10}>
         {/* 显示 配置页面 */}
-        {pageName && settingPage(pageName)}
+        {pageName && settingPage(pageName, properties4Set, properties)}
       </Grid>
     </Grid>
   );

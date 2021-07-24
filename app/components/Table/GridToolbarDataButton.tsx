@@ -7,13 +7,14 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 
 export interface GridToolbarDataProps {
   newButtonClick: () => void;
+  deleteButtonClick?: () => void;
 }
 
 export const GridToolbarDataButton = forwardRef<
   HTMLButtonElement,
   GridToolbarDataProps
 >(function GridToolbarDataButton(props, ref) {
-  const { newButtonClick } = props;
+  const { newButtonClick, deleteButtonClick } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -22,6 +23,14 @@ export const GridToolbarDataButton = forwardRef<
   const handleNew = () => {
     // 打开新增接口
     newButtonClick();
+    setAnchorEl(null);
+  };
+
+  const handleDelete = () => {
+    // 打开新增接口
+    if (deleteButtonClick) {
+      deleteButtonClick();
+    }
     setAnchorEl(null);
   };
 
@@ -64,6 +73,9 @@ export const GridToolbarDataButton = forwardRef<
           autoFocusItem={Boolean(anchorEl)}
         >
           <MenuItem onClick={handleNew}>新建</MenuItem>
+          {deleteButtonClick && (
+            <MenuItem onClick={handleDelete}>新建</MenuItem>
+          )}
         </MenuList>
       </GridMenu>
     </>
@@ -72,4 +84,9 @@ export const GridToolbarDataButton = forwardRef<
 
 GridToolbarDataButton.propTypes = {
   newButtonClick: PropTypes.func.isRequired,
+  deleteButtonClick: PropTypes.func,
+};
+
+GridToolbarDataButton.defaultProps = {
+  deleteButtonClick: undefined,
 };

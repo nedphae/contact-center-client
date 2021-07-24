@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 
 import _ from 'lodash';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -10,11 +10,17 @@ import { Topic, BotConfig, KnowledgeBase, TopicCategory } from 'app/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
-import { DataGrid, GridColDef } from '@material-ui/data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowId,
+  GridSelectionModelChangeParams,
+} from '@material-ui/data-grid';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import TopicForm from 'app/components/Bot/TopicForm';
 import BotSidecar from 'app/components/Bot/BotSidecar';
+import 'app/components/Bot/DropdownTreeSelect.global.css';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -86,11 +92,19 @@ const columns: GridColDef[] = [
   { field: 'categoryId', headerName: '知识点所属分类', width: 150 },
 ];
 
+const MUTATION_TOPIC = gql`
+  mutation DeleteTopic($ids: [String]!) {
+    deleteTopicByIds(ids: $ids)
+  }
+`;
+
 export default function Bot() {
   const classes = useStyles();
   const refOfTopicDialog = useRef<DraggableDialogRef>(null);
   const [topic, setTopic] = useState<Topic | undefined>(undefined);
   const { data, loading } = useQuery<Graphql>(QUERY);
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
+  const [deleteTopicById] = useMutation<unknown>(MUTATION_TOPIC);
 
   const handleClickOpen = (selectTopic: Topic) => {
     setTopic(selectTopic);
@@ -100,6 +114,12 @@ export default function Bot() {
   function newButtonClick() {
     setTopic(undefined);
     refOfTopicDialog.current?.setOpen(true);
+  }
+
+  function deleteButtonClick() {
+    if (selectionModel && selectionModel.length > 0) {
+      deleteTopicById({ variables: { ids: selectionModel } });
+    }
   }
 
   const memoData = useMemo(() => {
@@ -129,7 +149,7 @@ export default function Bot() {
     );
     const memoAllKnowledgeBase =
       data?.allKnowledgeBase.map((it) => {
-        const [botConfig] = it.id ? botConfigMap[it.id] : [];
+        const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
         const knowledgeBase = _.assignIn(
           {
             categoryList: topicCategoryKnowledgeBaseGroup[it.id ?? -1],
@@ -152,7 +172,11 @@ export default function Bot() {
     <>
       {/* 显示 DataGrid Topic */}
       <DraggableDialog title="配置知识库问题" ref={refOfTopicDialog}>
-        <TopicForm defaultValues={topic} topicList={rows} />
+        <TopicForm
+          defaultValues={topic}
+          topicList={rows}
+          categoryList={data?.allTopicCategory ?? []}
+        />
       </DraggableDialog>
       <Grid container className={classes.root}>
         <BotSidecar
@@ -162,10 +186,20 @@ export default function Bot() {
         <Grid item xs={12} sm={10}>
           <DataGrid
             localeText={GRID_DEFAULT_LOCALE_TEXT}
+            checkboxSelection
+            onSelectionModelChange={(
+              newSelectionModel: GridSelectionModelChangeParams
+            ) => {
+              setSelectionModel(newSelectionModel.selectionModel);
+            }}
+            selectionModel={selectionModel}
             rows={rows}
             columns={columns}
             components={{
-              Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
+              Toolbar: CustomerGridToolbarCreater({
+                newButtonClick,
+                deleteButtonClick,
+              }),
             }}
             onRowClick={(param) => {
               handleClickOpen(param.row as Topic);

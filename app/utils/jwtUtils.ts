@@ -39,8 +39,8 @@ export function verifyTokenPromise(
           return resolve(accessToken);
         }
         const now = new Date().getTime();
-        if (accessToken.exp < now + interval) {
-          return reject(Error());
+        if (accessToken.exp * 1000 < now + interval) {
+          return reject(new Error('expired'));
         }
       }
       // 验证失败就删除 权限

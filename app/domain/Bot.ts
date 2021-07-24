@@ -1,3 +1,5 @@
+import { TreeNodeProps } from 'react-dropdown-tree-select';
+
 export interface KnowledgeBase {
   id: number | undefined;
   name: string;
@@ -55,3 +57,29 @@ export interface BotConfig {
 }
 
 export const botConfigNoAnswerReply = '抱歉，没有找到您想要的答案';
+
+export function makeTreeNode(
+  topicCategory: TopicCategory[],
+  selectValue?: number,
+  setExtraProperties?: (
+    topicCategory: TopicCategory,
+    node: TreeNodeProps
+  ) => void
+): TreeNodeProps[] {
+  return topicCategory.map((it) => {
+    const node: TreeNodeProps = {
+      label: it.name,
+      value: it.id?.toString() ?? '',
+    };
+    if (selectValue && it.id === selectValue) {
+      node.checked = true;
+    }
+    if (it.children) {
+      node.children = makeTreeNode(it.children, selectValue);
+    }
+    if (setExtraProperties) {
+      setExtraProperties(it, node);
+    }
+    return node;
+  });
+}

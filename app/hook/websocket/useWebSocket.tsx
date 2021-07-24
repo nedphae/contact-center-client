@@ -53,16 +53,18 @@ const useWebSocket = () => {
   useEffect(() => {
     if (window.socketRef && token) {
       const period = 1000 * 60 * 10;
-      interval(period).subscribe(async () => {
-        // 每10分钟更新token
-        try {
-          verifyTokenPromise(token, period * 2);
-        } catch {
-          const accessToken = await getAccessToken();
-          if (accessToken && window.socketRef) {
-            window.socketRef.io.opts.query = `token=${accessToken.source}`;
-          }
-        }
+      interval(period).subscribe(() => {
+        verifyTokenPromise(token, period * 2)
+          .catch(getAccessToken)
+          .then((accessToken) => {
+            if (accessToken && window.socketRef) {
+              window.socketRef.io.opts.query = `token=${accessToken.source}`;
+            }
+            return undefined;
+          })
+          .catch((error) => {
+            throw error;
+          });
       });
     }
   }, [token]);

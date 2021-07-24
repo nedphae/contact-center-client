@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -21,7 +21,8 @@ import {
   Typography,
 } from '@material-ui/core';
 
-import { Topic } from 'app/domain/Bot';
+import { makeTreeNode, Topic, TopicCategory } from 'app/domain/Bot';
+import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -41,6 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface FormProps {
   defaultValues: Topic | undefined;
   topicList: Topic[];
+  categoryList: TopicCategory[];
 }
 
 interface Graphql {
@@ -70,7 +72,7 @@ const MUTATION_TOPIC = gql`
 `;
 
 export default function TopicForm(props: FormProps) {
-  const { defaultValues, topicList } = props;
+  const { defaultValues, topicList, categoryList } = props;
   const classes = useStyles();
   const {
     handleSubmit,
@@ -113,6 +115,18 @@ export default function TopicForm(props: FormProps) {
     );
   };
 
+  const treeData = useMemo(
+    () =>
+      makeTreeNode(
+        categoryList,
+        defaultValues?.categoryId,
+        (topicCategory: TopicCategory, node: TreeNodeProps) => {
+          node.knowledgeBaseId = topicCategory.knowledgeBaseId;
+        }
+      ),
+    [defaultValues, categoryList]
+  );
+
   return (
     <div className={classes.paper}>
       {loading && <CircularProgress />}
@@ -140,6 +154,22 @@ export default function TopicForm(props: FormProps) {
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
+        <FormControl variant="outlined" margin="normal" fullWidth>
+          <DropdownTreeSelect
+            inlineSearchInput
+            data={treeData}
+            onChange={(_currentNode, selectedNodes) => {
+              setValue(
+                'knowledgeBaseId',
+                selectedNodes.map((it) => it.knowledgeBaseId)[0]
+              );
+              setValue('categoryId', selectedNodes.map((it) => it.value)[0]);
+            }}
+            texts={{ placeholder: '选择所属分类' }}
+            className="mdl-demo"
+            mode="radioSelect"
+          />
+        </FormControl>
         <TextField
           variant="outlined"
           margin="normal"

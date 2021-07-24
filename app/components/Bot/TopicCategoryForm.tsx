@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -13,10 +13,9 @@ import {
   FormControl,
   Typography,
 } from '@material-ui/core';
-import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
+import DropdownTreeSelect from 'react-dropdown-tree-select';
 
-import { TopicCategory } from 'app/domain/Bot';
-import './DropdownTreeSelect.global.css';
+import { makeTreeNode, TopicCategory } from 'app/domain/Bot';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,29 +51,10 @@ const MUTATION = gql`
   }
 `;
 
-function makeTreeNode(
-  topicCategory: TopicCategory[],
-  selectValue?: number
-): TreeNodeProps[] {
-  return topicCategory.map((it) => {
-    const node: TreeNodeProps = {
-      label: it.name,
-      value: it.id?.toString() ?? '',
-    };
-    if (selectValue && it.id === selectValue) {
-      node.isisDefaultValue = true;
-    }
-    if (it.children) {
-      node.children = makeTreeNode(it.children, selectValue);
-    }
-    return node;
-  });
-}
-
 export default function TopicCategoryForm(props: FormProps) {
   const { defaultValues, allTopicCategoryList } = props;
   const classes = useStyles();
-  const { handleSubmit, register, errors, control } = useForm<TopicCategory>({
+  const { handleSubmit, register, errors, setValue } = useForm<TopicCategory>({
     defaultValues,
   });
 
@@ -111,23 +91,24 @@ export default function TopicCategoryForm(props: FormProps) {
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
-        <Controller
-          control={control}
+        <TextField
+          value={defaultValues?.pid || data?.saveTopicCategory.pid || ''}
           name="pid"
-          render={({ onChange }) => (
-            <FormControl variant="outlined" margin="normal" fullWidth>
-              <DropdownTreeSelect
-                data={treeData}
-                onChange={(_currentNode, selectedNodes) => {
-                  onChange(selectedNodes.map((it) => it.value)[0]);
-                }}
-                texts={{ placeholder: '选择上级分类' }}
-                className="mdl-demo"
-                mode="radioSelect"
-              />
-            </FormControl>
-          )}
+          type="hidden"
+          inputRef={register({ valueAsNumber: true })}
         />
+        <FormControl variant="outlined" margin="normal" fullWidth>
+          <DropdownTreeSelect
+            inlineSearchInput
+            data={treeData}
+            onChange={(_currentNode, selectedNodes) => {
+              setValue('pid', selectedNodes.map((it) => it.value)[0]);
+            }}
+            texts={{ placeholder: '选择上级分类' }}
+            className="mdl-demo"
+            mode="radioSelect"
+          />
+        </FormControl>
         <TextField
           variant="outlined"
           margin="normal"

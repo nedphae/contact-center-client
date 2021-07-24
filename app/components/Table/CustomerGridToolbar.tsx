@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import {
   GridToolbarContainer,
@@ -14,11 +15,9 @@ import {
 export type CustomerGridToolbarProps = GridToolbarDataProps;
 
 export default function CustomerGridToolbar(props: CustomerGridToolbarProps) {
-  const { newButtonClick } = props;
-
   return (
     <GridToolbarContainer>
-      <GridToolbarDataButton newButtonClick={newButtonClick} />
+      <GridToolbarDataButton {...props} />
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
       <GridToolbarDensitySelector />
@@ -29,7 +28,6 @@ export default function CustomerGridToolbar(props: CustomerGridToolbarProps) {
 // Function Higher-Order Components HOC
 export function CustomerGridToolbarCreater(props: CustomerGridToolbarProps) {
   const MyCustomerGridToolbar: React.FunctionComponent = () => {
-    // eslint-disable-next-line react/jsx-props-no-spreading
     return <CustomerGridToolbar {...props} />;
   };
   return MyCustomerGridToolbar;

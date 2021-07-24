@@ -130,9 +130,7 @@ export function clearToken() {
   localStorage.removeItem('antd-pro-authority');
   sessionStorage.removeItem(clientConfig.oauth.tokenName);
   localStorage.removeItem(clientConfig.oauth.tokenName);
-  storage.remove(clientConfig.oauth.tokenName, (error) => {
-    throw error;
-  });
+  storage.remove(clientConfig.oauth.tokenName, () => {});
 }
 
 export async function refreshToken(): Promise<AccessToken | null> {
