@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import {
   DataGrid,
   GridColDef,
   GridPageChangeParams,
+  GridRowId,
+  GridSelectionModelChangeParams,
 } from '@material-ui/data-grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -87,16 +89,23 @@ const QUERY = gql`
     }
   }
 `;
+const MUTATION_CUSTOMER = gql`
+  mutation DeleteCustomer($ids: [Long!]!) {
+    deleteCustomerByIds(ids: $ids)
+  }
+`;
 
 export default function Crm() {
   const [open, setOpen] = useState(false);
   const [selectCustomer, setSelectCustomer] = useState<
     CustomerFormValues | undefined
   >(undefined);
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
-  const { loading, data, fetchMore } = useQuery<Graphql>(QUERY, {
+  const { loading, data, fetchMore, refetch } = useQuery<Graphql>(QUERY, {
     variables: { first: 20, offset: 0 },
   });
+  const [deleteCustomerByIds] = useMutation<unknown>(MUTATION_CUSTOMER);
 
   const handleClickOpen = (user: Customer) => {
     const idUser = {
@@ -131,6 +140,12 @@ export default function Crm() {
     setOpen(true);
   }
 
+  function deleteButtonClick() {
+    if (selectionModel && selectionModel.length > 0) {
+      deleteCustomerByIds({ variables: { ids: selectionModel } });
+    }
+  }
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <Dialog
@@ -161,7 +176,13 @@ export default function Crm() {
         rows={rows}
         columns={columns}
         components={{
-          Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
+          Toolbar: CustomerGridToolbarCreater({
+            newButtonClick,
+            deleteButtonClick,
+            refetch: () => {
+              refetch();
+            },
+          }),
         }}
         pagination
         pageSize={pageSize}
@@ -172,10 +193,17 @@ export default function Crm() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageChange}
         loading={loading}
-        disableSelectionOnClick
         onRowClick={(param) => {
           handleClickOpen(param.row as Customer);
         }}
+        disableSelectionOnClick
+        checkboxSelection
+        onSelectionModelChange={(
+          newSelectionModel: GridSelectionModelChangeParams
+        ) => {
+          setSelectionModel(newSelectionModel.selectionModel);
+        }}
+        selectionModel={selectionModel}
       />
     </div>
   );

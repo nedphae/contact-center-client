@@ -66,14 +66,6 @@ export default function BotToolbar(props: BotToolbarProps) {
         >
           添加知识库
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            newTopicOrKnowladge('Topic');
-            handleMenuClose();
-          }}
-        >
-          添加知识库分类
-        </MenuItem>
       </Menu>
     </Toolbar>
   );

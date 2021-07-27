@@ -4,6 +4,7 @@ import { getCurrentStaff } from 'app/service/infoService';
 import { configStatus } from 'app/domain/StaffInfo';
 import { AccessToken } from 'app/domain/OauthToken';
 import { register } from 'app/service/socketService';
+import { OnlineStatus } from 'app/domain/constant/Staff';
 import slice from './staffSlice';
 
 const { setStaff, setOnline } = slice.actions;
@@ -29,14 +30,15 @@ export const setUserAsync =
     const staff = await getCurrentStaff();
     // 获取当前聊天会话列表，刷新页面后
     staff.token = token.source;
+    staff.onlineStatus = OnlineStatus.ONLINE;
     dispatch(setStaff(staff));
   };
 
 export const configStaff = (): AppThunk => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
     // const staff = getStaff(getState()); // useSelector(getStaff);
-    register(configStatus()).subscribe(() => {
+    register(configStatus(getState().staff.onlineStatus)).subscribe(() => {
       // 注册成功, 设置状态同步成功
       dispatch(setOnline());
     });

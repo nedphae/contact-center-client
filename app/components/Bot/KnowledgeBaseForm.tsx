@@ -83,7 +83,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
             ),
           }}
           error={errors.name && true}
-          helperText={errors.name}
+          helperText={errors.name?.message}
           inputRef={register({
             required: '必须提供知识库名称',
             maxLength: {
@@ -107,7 +107,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
             ),
           }}
           error={errors.description && true}
-          helperText={errors.description}
+          helperText={errors.description?.message}
           inputRef={register({
             maxLength: {
               value: 500,

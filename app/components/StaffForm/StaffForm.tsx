@@ -192,7 +192,7 @@ export default function StaffForm(props: FormProps) {
             ),
           }}
           error={errors.username && true}
-          helperText={errors.username}
+          helperText={errors.username?.message}
           inputRef={register({
             required: '必须提供用户名',
             maxLength: {
@@ -223,7 +223,7 @@ export default function StaffForm(props: FormProps) {
                 ),
               }}
               error={errors.password && true}
-              helperText={errors.password}
+              helperText={errors.password?.message}
               inputRef={register({
                 required: '必须提供密码',
                 maxLength: {
@@ -256,7 +256,7 @@ export default function StaffForm(props: FormProps) {
                 ),
               }}
               error={errors.password_repeat && true}
-              helperText={errors.password_repeat}
+              helperText={errors.password_repeat?.message}
               inputRef={register({
                 validate: (value) => value === password || '密码不相符',
               })}
@@ -350,7 +350,7 @@ export default function StaffForm(props: FormProps) {
             ),
           }}
           error={errors.simultaneousService && true}
-          helperText={errors.simultaneousService}
+          helperText={errors.simultaneousService?.message}
           inputRef={register({
             min: {
               value: 0,
@@ -375,7 +375,7 @@ export default function StaffForm(props: FormProps) {
             ),
           }}
           error={errors.maxTicketPerDay && true}
-          helperText={errors.maxTicketPerDay}
+          helperText={errors.maxTicketPerDay?.message}
           inputRef={register({
             min: {
               value: 0,
@@ -404,7 +404,7 @@ export default function StaffForm(props: FormProps) {
             ),
           }}
           error={errors.maxTicketAllTime && true}
-          helperText={errors.maxTicketAllTime}
+          helperText={errors.maxTicketAllTime?.message}
           inputRef={register({
             min: {
               value: 0,
@@ -491,7 +491,7 @@ export default function StaffForm(props: FormProps) {
             ),
           }}
           error={errors.username && true}
-          helperText={errors.username}
+          helperText={errors.username?.message}
           inputRef={register({ maxLength: 250 })}
         />
         <FormControlLabel

@@ -130,9 +130,11 @@ export default function Setting() {
   const [pageName, setPageName] = useState<PageName>('personal.Account');
   const [properties4Set, setProperties4Set] = useState<string | null>(null);
 
-  const properties: RootProperties = data?.getAllProperties
-    ? JSON.parse(data?.getAllProperties)
-    : undefined;
+  const properties: RootProperties = useMemo(
+    () =>
+      data?.getAllProperties ? JSON.parse(data?.getAllProperties) : undefined,
+    [data]
+  );
 
   const memoTreeView = useMemo(() => {
     return (

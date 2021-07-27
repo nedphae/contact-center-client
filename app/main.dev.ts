@@ -46,9 +46,17 @@ const installExtensions = async () => {
   return installer
     .default(
       extensions.map((name) => installer[name]),
-      forceDownload
+      {
+        loadExtensionOptions: {
+          forceDownload,
+          allowFileAccess: true,
+        },
+      }
     )
-    .catch(console.log);
+    .catch((error: unknown) => {
+      console.error('can not install extensions');
+      console.error(error);
+    });
 };
 
 const createWindow = async () => {
@@ -74,6 +82,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
     },
   });
 

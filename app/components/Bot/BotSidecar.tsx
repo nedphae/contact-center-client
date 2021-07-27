@@ -2,7 +2,12 @@ import React, { useRef, useState, useCallback } from 'react';
 
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
-import { gql, useMutation } from '@apollo/client';
+import {
+  ApolloQueryResult,
+  gql,
+  OperationVariables,
+  useMutation,
+} from '@apollo/client';
 
 import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
@@ -45,6 +50,9 @@ const initialState: Select = {
 };
 
 interface BotProps {
+  refetch: (
+    variables?: Partial<OperationVariables> | undefined
+  ) => Promise<ApolloQueryResult<unknown>>;
   memoData: {
     allKnowledgeBase: KnowledgeBase[];
     botConfigMap: _.Dictionary<BotConfig[]>;
@@ -53,23 +61,23 @@ interface BotProps {
 }
 
 const MUTATION_BOT_CONFIG = gql`
-  mutation DeleteBotConfig($ids: [Long]!) {
+  mutation DeleteBotConfig($ids: [Long!]!) {
     deleteBotConfigByIds(ids: $ids)
   }
 `;
 const MUTATION_KNOWLEDGE_BASE = gql`
-  mutation DeleteKnowledgeBase($ids: [Long]!) {
+  mutation DeleteKnowledgeBase($ids: [Long!]!) {
     deleteKnowledgeBaseByIds(ids: $ids)
   }
 `;
 const MUTATION_TOPIC_CATEGORY = gql`
-  mutation DeleteTopicCategory($ids: [Long]!) {
+  mutation DeleteTopicCategory($ids: [Long!]!) {
     deleteTopicCategoryByIds(ids: $ids)
   }
 `;
 
 export default function BotSidecar(props: BotProps) {
-  const { memoData, allTopicCategory } = props;
+  const { memoData, allTopicCategory, refetch } = props;
   const [state, setState] = useState<Select>(initialState);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
@@ -116,7 +124,25 @@ export default function BotSidecar(props: BotProps) {
 
   function newTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
     setState(initialState);
-    setTopicOrKnowladge({ topicOrKnowladgeKey });
+    let updateTopicOrKnowladge = { topicOrKnowladgeKey };
+    switch (topicOrKnowladgeKey) {
+      case 'Topic': {
+        updateTopicOrKnowladge = _.assignIn(
+          {
+            topicOrKnowladgeKey,
+            // 表单 default value
+            Topic: { knowledgeBaseId: topicOrKnowladge.Knowladge?.id },
+          },
+          topicOrKnowladge
+        );
+        break;
+      }
+      default: {
+        updateTopicOrKnowladge = { topicOrKnowladgeKey };
+        break;
+      }
+    }
+    setTopicOrKnowladge(updateTopicOrKnowladge);
     refOfKnowladgeDialog.current?.setOpen(true);
   }
 
@@ -131,20 +157,24 @@ export default function BotSidecar(props: BotProps) {
     switch (topicOrKnowladgeKey) {
       case 'Topic': {
         const id = topicOrKnowladge.Topic?.id;
-        if (id) deleteTopicCategoryById({ variables: { id: [id] } });
+        if (id) deleteTopicCategoryById({ variables: { ids: [id] } });
         break;
       }
       case 'Knowladge': {
         const id = topicOrKnowladge.Knowladge?.id;
         const botConfigId = topicOrKnowladge.Knowladge?.botConfig?.id;
-        if (botConfigId)
-          deleteBotConfigById({ variables: { id: [botConfigId] } });
-        if (id) deleteKnowledgeBaseById({ variables: { id: [id] } });
+        if (botConfigId) {
+          deleteBotConfigById({ variables: { ids: [botConfigId] } });
+        }
+        if (id) {
+          deleteKnowledgeBaseById({ variables: { ids: [id] } });
+        }
         break;
       }
       default:
         unimplemented();
     }
+    refetch();
   }
   /**
    * 关联知识库和机器人
@@ -194,7 +224,7 @@ export default function BotSidecar(props: BotProps) {
         >
           {topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' && [
             <MenuItem key="interrelateBot" onClick={interrelateBot}>
-              关联机器人
+              关联到客服账号
             </MenuItem>,
             <MenuItem
               key="editTopicOrKnowladge"

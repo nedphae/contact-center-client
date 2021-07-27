@@ -124,7 +124,7 @@ export default function TopicCategoryForm(props: FormProps) {
             ),
           }}
           error={errors.name && true}
-          helperText={errors.name}
+          helperText={errors.name?.message}
           inputRef={register({
             maxLength: {
               value: 500,

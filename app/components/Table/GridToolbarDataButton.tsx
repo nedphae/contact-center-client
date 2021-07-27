@@ -8,13 +8,14 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 export interface GridToolbarDataProps {
   newButtonClick: () => void;
   deleteButtonClick?: () => void;
+  refetch?: () => void;
 }
 
 export const GridToolbarDataButton = forwardRef<
   HTMLButtonElement,
   GridToolbarDataProps
 >(function GridToolbarDataButton(props, ref) {
-  const { newButtonClick, deleteButtonClick } = props;
+  const { newButtonClick, deleteButtonClick, refetch } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -30,6 +31,14 @@ export const GridToolbarDataButton = forwardRef<
     // 打开新增接口
     if (deleteButtonClick) {
       deleteButtonClick();
+    }
+    setAnchorEl(null);
+  };
+
+  const handleRefetch = () => {
+    // 打开新增接口
+    if (refetch) {
+      refetch();
     }
     setAnchorEl(null);
   };
@@ -72,9 +81,10 @@ export const GridToolbarDataButton = forwardRef<
           onKeyDown={handleListKeyDown}
           autoFocusItem={Boolean(anchorEl)}
         >
+          {refetch && <MenuItem onClick={handleRefetch}>刷新</MenuItem>}
           <MenuItem onClick={handleNew}>新建</MenuItem>
           {deleteButtonClick && (
-            <MenuItem onClick={handleDelete}>新建</MenuItem>
+            <MenuItem onClick={handleDelete}>删除</MenuItem>
           )}
         </MenuList>
       </GridMenu>
@@ -85,8 +95,10 @@ export const GridToolbarDataButton = forwardRef<
 GridToolbarDataButton.propTypes = {
   newButtonClick: PropTypes.func.isRequired,
   deleteButtonClick: PropTypes.func,
+  refetch: PropTypes.func,
 };
 
 GridToolbarDataButton.defaultProps = {
   deleteButtonClick: undefined,
+  refetch: undefined,
 };

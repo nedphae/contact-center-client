@@ -1,5 +1,5 @@
 import JwksRsa, { SigningKey, RsaSigningKey } from 'jwks-rsa';
-import jwt, { JwtHeader, VerifyCallback } from 'jsonwebtoken';
+import jwt, { JwtHeader, VerifyCallback, VerifyErrors } from 'jsonwebtoken';
 
 import { AccessToken } from 'app/domain/OauthToken';
 import tokenConfig from '../config/clientConfig';
@@ -29,23 +29,24 @@ export default function verifyToken(token: string, callback: VerifyCallback) {
 export function verifyTokenPromise(
   token: string,
   interval = 0
-): Promise<AccessToken> {
-  return new Promise<AccessToken>((resolve, reject) => {
-    verifyToken(token, (err: unknown, decoded: unknown) => {
+): Promise<undefined> {
+  return new Promise<undefined>((resolve, reject) => {
+    verifyToken(token, (err: VerifyErrors | null, decoded: unknown) => {
       if (decoded) {
         const accessToken = decoded as AccessToken;
         accessToken.source = token;
-        if (interval === 0) {
-          return resolve(accessToken);
-        }
         const now = new Date().getTime();
         if (accessToken.exp * 1000 < now + interval) {
-          return reject(new Error('expired'));
+          reject(new Error('token will be expired'));
+        } else {
+          resolve(undefined);
         }
       }
-      // 验证失败就删除 权限
-      localStorage.removeItem('antd-pro-authority');
-      return reject(err);
+      if (err) {
+        // 验证失败就删除 权限
+        localStorage.removeItem('antd-pro-authority');
+        reject(err);
+      }
     });
   });
 }

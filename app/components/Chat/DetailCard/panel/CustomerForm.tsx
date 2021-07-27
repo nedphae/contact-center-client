@@ -121,7 +121,7 @@ export default function CustomerForm(props: CustomerFormProps) {
             ),
           }}
           error={errors.name && true}
-          helperText={errors.name}
+          helperText={errors.name?.message}
           inputRef={register({
             maxLength: {
               value: 80,
@@ -144,7 +144,7 @@ export default function CustomerForm(props: CustomerFormProps) {
             ),
           }}
           error={errors.mobile && true}
-          helperText={errors.mobile}
+          helperText={errors.mobile?.message}
           inputRef={register({
             maxLength: {
               value: 20,
@@ -160,7 +160,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           name="email"
           label="邮箱"
           error={errors.email && true}
-          helperText={errors.email}
+          helperText={errors.email?.message}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -184,7 +184,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           label="Vip 等级"
           type="number"
           error={errors.vipLevel && true}
-          helperText={errors.vipLevel}
+          helperText={errors.vipLevel?.message}
           InputLabelProps={{
             shrink: true,
           }}
@@ -217,7 +217,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           name="remarks"
           label="备注"
           error={errors.remarks && true}
-          helperText={errors.remarks}
+          helperText={errors.remarks?.message}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

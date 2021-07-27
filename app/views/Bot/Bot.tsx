@@ -93,7 +93,7 @@ const columns: GridColDef[] = [
 ];
 
 const MUTATION_TOPIC = gql`
-  mutation DeleteTopic($ids: [String]!) {
+  mutation DeleteTopic($ids: [String!]!) {
     deleteTopicByIds(ids: $ids)
   }
 `;
@@ -102,7 +102,7 @@ export default function Bot() {
   const classes = useStyles();
   const refOfTopicDialog = useRef<DraggableDialogRef>(null);
   const [topic, setTopic] = useState<Topic | undefined>(undefined);
-  const { data, loading } = useQuery<Graphql>(QUERY);
+  const { data, loading, refetch } = useQuery<Graphql>(QUERY);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const [deleteTopicById] = useMutation<unknown>(MUTATION_TOPIC);
 
@@ -182,23 +182,20 @@ export default function Bot() {
         <BotSidecar
           memoData={memoData}
           allTopicCategory={data?.allTopicCategory}
+          refetch={refetch}
         />
         <Grid item xs={12} sm={10}>
           <DataGrid
             localeText={GRID_DEFAULT_LOCALE_TEXT}
-            checkboxSelection
-            onSelectionModelChange={(
-              newSelectionModel: GridSelectionModelChangeParams
-            ) => {
-              setSelectionModel(newSelectionModel.selectionModel);
-            }}
-            selectionModel={selectionModel}
             rows={rows}
             columns={columns}
             components={{
               Toolbar: CustomerGridToolbarCreater({
                 newButtonClick,
                 deleteButtonClick,
+                refetch: () => {
+                  refetch();
+                },
               }),
             }}
             onRowClick={(param) => {
@@ -208,6 +205,13 @@ export default function Bot() {
             pageSize={20}
             loading={loading}
             disableSelectionOnClick
+            checkboxSelection
+            onSelectionModelChange={(
+              newSelectionModel: GridSelectionModelChangeParams
+            ) => {
+              setSelectionModel(newSelectionModel.selectionModel);
+            }}
+            selectionModel={selectionModel}
           />
         </Grid>
       </Grid>

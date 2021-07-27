@@ -68,7 +68,7 @@ function quickReplyForm(
         name="title"
         label="话术标题"
         error={errors.title && true}
-        helperText={errors.title}
+        helperText={errors.title?.message}
         inputRef={register({
           maxLength: {
             value: 80,
@@ -84,7 +84,7 @@ function quickReplyForm(
         name="content"
         label="话术内容"
         error={errors.content && true}
-        helperText={errors.content}
+        helperText={errors.content?.message}
         inputRef={register({
           maxLength: {
             value: 500,
@@ -111,7 +111,7 @@ function quickReplyGroupForm(
         name="groupName"
         label="分组名称"
         error={errors.groupName && true}
-        helperText={errors.groupName}
+        helperText={errors.groupName?.message}
         inputRef={register({
           maxLength: {
             value: 50,

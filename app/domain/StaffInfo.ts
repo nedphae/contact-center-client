@@ -62,8 +62,8 @@ export interface StaffConfig {
   onlineStatus: OnlineStatus;
 }
 
-export function configStatus(): StaffConfig {
+export function configStatus(onlineStatus: OnlineStatus): StaffConfig {
   return {
-    onlineStatus: OnlineStatus.ONLINE,
+    onlineStatus,
   };
 }

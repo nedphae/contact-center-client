@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+
 import classNames from 'classnames';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,13 +12,22 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Hidden from '@material-ui/core/Hidden';
 import Poppers from '@material-ui/core/Popper';
 import Divider from '@material-ui/core/Divider';
+import { green, grey, red } from '@material-ui/core/colors';
 // @material-ui/icons
-import Person from '@material-ui/icons/Person';
+// 在线 离线
+import LensIcon from '@material-ui/icons/Lens';
+// 忙碌
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+// 离开
+import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import Notifications from '@material-ui/icons/Notifications';
 import Dashboard from '@material-ui/icons/Dashboard';
 import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
+import { Badge, Avatar } from '@material-ui/core';
+import { getMyself } from 'app/state/staff/staffAction';
+import { OnlineStatus } from 'app/domain/constant/Staff';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
@@ -24,10 +35,38 @@ import styles from '../../assets/jss/material-dashboard-react/components/headerL
 
 const useStyles = makeStyles(styles);
 
+function getOnlineStatusIcon(onlineStatus: OnlineStatus) {
+  let icon;
+  switch (onlineStatus) {
+    case OnlineStatus.ONLINE: {
+      icon = <LensIcon style={{ color: green.A400 }} />;
+      break;
+    }
+    case OnlineStatus.OFFLINE: {
+      icon = <LensIcon style={{ color: grey.A400 }} />;
+      break;
+    }
+    case OnlineStatus.BUSY: {
+      icon = <RemoveCircleIcon style={{ color: red.A400 }} />;
+      break;
+    }
+    case OnlineStatus.AWAY: {
+      icon = <NotInterestedIcon style={{ color: grey.A400 }} />;
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+  return icon;
+}
+
 export default function AdminNavbarLinks() {
   const classes = useStyles();
   const [openNotification, setOpenNotification] = React.useState<any>(null);
   const [openProfile, setOpenProfile] = React.useState<any>(null);
+  const mySelf = useSelector(getMyself);
+
   const handleClickNotification = (event: {
     target: any;
     currentTarget: React.SetStateAction<null>;
@@ -52,6 +91,9 @@ export default function AdminNavbarLinks() {
     }
   };
   const handleCloseProfile = () => {
+    setOpenProfile(null);
+  };
+  const handleLogout = () => {
     setOpenProfile(null);
     // 清除全部 token 缓存
     logout();
@@ -172,7 +214,17 @@ export default function AdminNavbarLinks() {
           onClick={handleClickProfile}
           className={classes.buttonLink}
         >
-          <Person className={classes.icons} />
+          {/* <Person className={classes.icons} /> */}
+          <Badge
+            overlap="circle"
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            badgeContent={getOnlineStatusIcon(mySelf.onlineStatus)}
+          >
+            <Avatar alt={mySelf.realName} src={mySelf.avatar} />
+          </Badge>
           <Hidden mdUp implementation="css">
             <p className={classes.linkText}>Profile</p>
           </Hidden>
@@ -202,20 +254,20 @@ export default function AdminNavbarLinks() {
                       onClick={handleCloseProfile}
                       className={classes.dropdownItem}
                     >
-                      Profile
+                      设置离开
                     </MenuItem>
                     <MenuItem
                       onClick={handleCloseProfile}
                       className={classes.dropdownItem}
                     >
-                      Settings
+                      设置忙碌
                     </MenuItem>
                     <Divider light />
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={handleLogout}
                       className={classes.dropdownItem}
                     >
-                      Logout
+                      退出系统
                     </MenuItem>
                   </MenuList>
                 </ClickAwayListener>

@@ -100,7 +100,7 @@ export default function BotConfigForm(props: FormProps) {
             ),
           }}
           error={errors.noAnswerReply && true}
-          helperText={errors.noAnswerReply}
+          helperText={errors.noAnswerReply?.message}
           inputRef={register({
             maxLength: {
               value: 500,

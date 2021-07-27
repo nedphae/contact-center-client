@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -15,6 +15,7 @@ import {
   FormControl,
   FormControlLabel,
   FormControlProps,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -86,11 +87,10 @@ export default function TopicForm(props: FormProps) {
     defaultValues,
   });
 
-  const [saveStaffGroup, { loading, data }] =
-    useMutation<Graphql>(MUTATION_TOPIC);
+  const [saveTopic, { loading, data }] = useMutation<Graphql>(MUTATION_TOPIC);
 
   const onSubmit: SubmitHandler<Topic> = (form) => {
-    saveStaffGroup({ variables: { topicInput: form } });
+    saveTopic({ variables: { topicInput: form } });
   };
 
   const questionType = watch('type', 1);
@@ -115,44 +115,47 @@ export default function TopicForm(props: FormProps) {
     );
   };
 
-  const treeData = useMemo(
-    () =>
-      makeTreeNode(
-        categoryList,
-        defaultValues?.categoryId,
-        (topicCategory: TopicCategory, node: TreeNodeProps) => {
-          node.knowledgeBaseId = topicCategory.knowledgeBaseId;
-        }
-      ),
-    [defaultValues, categoryList]
+  const currentValues = getValues();
+  const treeData = makeTreeNode(
+    categoryList,
+    currentValues?.categoryId,
+    (topicCategory: TopicCategory, node: TreeNodeProps) => {
+      node.knowledgeBaseId = topicCategory.knowledgeBaseId;
+    }
   );
 
   return (
     <div className={classes.paper}>
-      {loading && <CircularProgress />}
-      {data && <Typography>Success!</Typography>}
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues?.id || data?.saveTopic.id || ''}
+          value={data?.saveTopic.id || currentValues?.id || ''}
           name="id"
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
         <TextField
+          value={data?.saveTopic.categoryId || currentValues?.categoryId || ''}
+          name="categoryId"
+          type="hidden"
+          error={errors.categoryId && true}
+          helperText={errors.categoryId?.message}
+          inputRef={register({
+            required: '必须选择知识库分类',
+            valueAsNumber: true,
+          })}
+        />
+        <TextField
           value={
-            defaultValues?.knowledgeBaseId ||
             data?.saveTopic.knowledgeBaseId ||
+            currentValues?.knowledgeBaseId ||
             ''
           }
           name="knowledgeBaseId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
-        />
-        <TextField
-          value={defaultValues?.categoryId || data?.saveTopic.categoryId || ''}
-          name="categoryId"
-          type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          inputRef={register({
+            required: '必须选择知识库',
+            valueAsNumber: true,
+          })}
         />
         <FormControl variant="outlined" margin="normal" fullWidth>
           <DropdownTreeSelect
@@ -161,9 +164,14 @@ export default function TopicForm(props: FormProps) {
             onChange={(_currentNode, selectedNodes) => {
               setValue(
                 'knowledgeBaseId',
-                selectedNodes.map((it) => it.knowledgeBaseId)[0]
+                selectedNodes.map((it) => it.knowledgeBaseId)[0],
+                {
+                  shouldValidate: true,
+                }
               );
-              setValue('categoryId', selectedNodes.map((it) => it.value)[0]);
+              setValue('categoryId', selectedNodes.map((it) => it.value)[0], {
+                shouldValidate: true,
+              });
             }}
             texts={{ placeholder: '选择所属分类' }}
             className="mdl-demo"
@@ -185,8 +193,9 @@ export default function TopicForm(props: FormProps) {
             ),
           }}
           error={errors.question && true}
-          helperText={errors.question}
+          helperText={errors.question?.message}
           inputRef={register({
+            required: '问题必填',
             maxLength: {
               value: 500,
               message: '问题长度不能大于500个字符',
@@ -222,8 +231,8 @@ export default function TopicForm(props: FormProps) {
               id="answer"
               name="answer"
               label="问题的对外答案"
-              error={errors.question && true}
-              helperText={errors.question}
+              error={errors.answer && true}
+              helperText={errors.answer?.message}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -240,8 +249,8 @@ export default function TopicForm(props: FormProps) {
               id="innerAnswer"
               name="innerAnswer"
               label="问题的对内答案"
-              error={errors.question && true}
-              helperText={errors.question}
+              error={errors.innerAnswer && true}
+              helperText={errors.innerAnswer?.message}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -271,15 +280,20 @@ export default function TopicForm(props: FormProps) {
           <Controller
             control={control}
             name="refId"
-            render={({ onChange, value }) => (
-              <FormControl variant="outlined" margin="normal" fullWidth>
+            rules={{ required: '相似问题必选' }}
+            render={({ onChange, value }, { invalid }) => (
+              <FormControl
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                error={invalid}
+              >
                 <InputLabel id="demo-mutiple-chip-label">相似问题</InputLabel>
                 <Select
                   labelId="refId"
                   id="refId"
                   onChange={onChange}
                   value={value || ''}
-                  inputProps={{ readOnly: true }}
                   label="相似问题"
                 >
                   <MenuItem value="">
@@ -294,6 +308,7 @@ export default function TopicForm(props: FormProps) {
                       );
                     })}
                 </Select>
+                {invalid && <FormHelperText>Error</FormHelperText>}
               </FormControl>
             )}
           />
@@ -325,6 +340,8 @@ export default function TopicForm(props: FormProps) {
           保存
         </Button>
       </form>
+      {loading && <CircularProgress />}
+      {data && <Typography>Success!</Typography>}
     </div>
   );
 }
