@@ -8,7 +8,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 
 import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
-import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import useInitData from 'app/hook/init/useInitData';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
@@ -58,7 +57,6 @@ export default function Admin({ ...rest }) {
   const [color, setColor] = React.useState('blue');
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  useAutoLogin();
   const [webSocket] = useWebSocket();
   useInitData();
 

@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import {
+  Popper,
+  Grow,
+  Paper,
+  ClickAwayListener,
+  MenuList,
+  MenuItem,
+} from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 
@@ -11,6 +19,11 @@ import {
   sendTextMessage,
 } from 'app/state/session/sessionAction';
 import { PhotoContent } from 'app/domain/Message';
+import {
+  getSearchQuickReply,
+  getSearchText,
+  setQuickReplySearchText,
+} from 'app/state/chat/chatAction';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -40,11 +53,30 @@ interface SelectedProps {
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
-  const [textMessage, setMessage] = useState('');
-  const classes = useStyles();
+  const textMessage = useSelector(getSearchText);
   const dispath = useDispatch();
+  // 展示 快捷回复
+  const [open, setOpen] = useState(true);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const textFieldRef = useRef<HTMLTextAreaElement>(null);
+  const menuListRef = useRef<HTMLUListElement>(null);
+  const classes = useStyles();
+  const quickReplyList = useSelector(getSearchQuickReply);
+
+  function setMessage(message: string) {
+    dispath(setQuickReplySearchText(message));
+  }
+
+  const filterQuickReplyList = quickReplyList?.filter(
+    (it) => it.content !== textMessage
+  );
+
+  const shouldOpen = Boolean(
+    filterQuickReplyList && filterQuickReplyList.length > 0
+  );
 
   function handleTextChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    setOpen(true);
     setMessage(event.target.value);
   }
 
@@ -61,11 +93,86 @@ export default function Editor(selected: SelectedProps) {
     }
   }
 
+  function setFocusToQuickReplyMenu(event: React.KeyboardEvent) {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      menuListRef.current?.focus();
+    }
+  }
+
+  const handleClose = (event: React.MouseEvent<EventTarget>) => {
+    if (
+      anchorRef.current &&
+      anchorRef.current.contains(event.target as HTMLElement)
+    ) {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const handleSelectItem =
+    (text: string) => (event: React.MouseEvent<EventTarget>) => {
+      setMessage(text);
+      handleClose(event);
+      textFieldRef.current?.focus();
+    };
+
+  function handleListKeyDown(event: React.KeyboardEvent) {
+    if (event.key === 'Tab' || event.key === 'Escape') {
+      setOpen(false);
+      event.preventDefault();
+      textFieldRef.current?.focus();
+    }
+  }
+
   return (
     <>
+      <Popper
+        open={open && shouldOpen}
+        anchorEl={anchorRef.current}
+        placement="top-start"
+        role={undefined}
+        transition
+        disablePortal
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === 'bottom' ? 'center top' : 'bottom center',
+            }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList
+                  id="menu-list-grow"
+                  onKeyDown={handleListKeyDown}
+                  ref={menuListRef}
+                >
+                  <MenuItem disabled>
+                    按两次上下键选择 esc/tab 取消选择
+                  </MenuItem>
+                  {quickReplyList &&
+                    quickReplyList.map((quickReply) => (
+                      <MenuItem
+                        key={quickReply.id}
+                        onClick={handleSelectItem(quickReply.content)}
+                      >
+                        {`[${quickReply.title}]: ${quickReply.content}`}
+                      </MenuItem>
+                    ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
       {/* TODO: 需要把  EditorTool 和 Editor 这两个组件合并到一块，防止渲染 MessageList */}
       {selectedSession && (
         <EditorTool
+          ref={anchorRef}
           textMessage={textMessage}
           setMessage={setMessage}
           sendImageMessage={handleSendImageMessage}
@@ -77,10 +184,13 @@ export default function Editor(selected: SelectedProps) {
         {selectedSession && (
           <>
             <TextareaAutosize
+              autoFocus
+              ref={textFieldRef}
               className={classes.textarea}
               aria-label="maximum height"
               placeholder="请输入消息..."
               onChange={handleTextChange}
+              onKeyDown={setFocusToQuickReplyMenu}
               value={textMessage}
               rowsMin={2}
             />

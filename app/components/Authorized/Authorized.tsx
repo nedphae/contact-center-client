@@ -9,6 +9,7 @@ import check, { IAuthorityType } from './CheckPermissions';
 
 import AuthorizedRoute from './AuthorizedRoute';
 import Secured from './Secured';
+import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 
 interface AuthorizedProps {
   authority: IAuthorityType;
@@ -34,6 +35,7 @@ const Authorized: React.FunctionComponent<AuthorizedProps> = ({
     />
   ),
 }) => {
+  useAutoLogin();
   const childrenRender: React.ReactNode =
     typeof children === 'undefined' ? null : children;
   const dom = check(authority, childrenRender, noMatch);

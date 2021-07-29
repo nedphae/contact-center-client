@@ -8,6 +8,8 @@ import './assets/css/normalize.less';
 
 const store = configuredStore();
 
+// 删除 antd-pro-authority
+localStorage.removeItem('antd-pro-authority');
 document.addEventListener('DOMContentLoaded', () => {
   // eslint-disable-next-line global-require
   const Root = require('./HomePage').default;

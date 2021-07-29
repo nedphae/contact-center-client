@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+import React, { forwardRef, useState } from 'react';
 import _ from 'lodash';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -45,7 +46,7 @@ interface EditorProps {
   sendImageMessage(photoContent: PhotoContent): void;
 }
 
-export default function EditorTool(props: EditorProps) {
+function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
   const { textMessage, setMessage, sendImageMessage } = props;
 
@@ -71,7 +72,7 @@ export default function EditorTool(props: EditorProps) {
 
   const imgUploadProps = {
     action: `${config.web.host}/${config.oss.path}/chat/img`,
-    multiple: true,
+    multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onStart(file: RcFile) {
       console.log('onStart', file, file.name);
@@ -96,7 +97,7 @@ export default function EditorTool(props: EditorProps) {
   fileUploadProps.accept = '*';
 
   return (
-    <Toolbar className={classes.toolBar}>
+    <Toolbar className={classes.toolBar} ref={ref}>
       <Popper
         open={open}
         anchorEl={anchorEl}
@@ -151,3 +152,5 @@ export default function EditorTool(props: EditorProps) {
     </Toolbar>
   );
 }
+
+export default forwardRef<HTMLDivElement, EditorProps>(EditorTool);

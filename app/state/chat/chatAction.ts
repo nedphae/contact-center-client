@@ -20,3 +20,8 @@ export const getMonitorSelectedSession = (state: RootState) =>
 export const getQuickReply = (state: RootState) => state.chat.quickReply;
 export const getFilterQuickReply = (state: RootState) =>
   state.chat.filterQuickReply;
+
+export const getSearchText = (state: RootState) =>
+  state.chat.quickReplySearchText;
+export const getSearchQuickReply = (state: RootState) =>
+  state.chat.searchQuickReply;
