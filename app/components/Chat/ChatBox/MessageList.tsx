@@ -152,6 +152,7 @@ const MessageList = (props: MessageListProps) => {
     <Paper square className={classes.paper} ref={refOfPaper}>
       <List className={classes.list}>
         {user &&
+          messages &&
           messages.map(({ uuid, createdAt, content, from, to }) => (
             <React.Fragment key={uuid}>
               <ListItem alignItems="flex-start">

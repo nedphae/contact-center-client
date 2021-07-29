@@ -16,14 +16,14 @@ import {
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
   ConversationQueryInput,
+  CONV_PAGE_QUERY,
   PageParam,
+  SearchConv,
 } from 'app/domain/graphql/Conversation';
-import { Conversation, SearchHit } from 'app/domain/Conversation';
+import { Conversation } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import { Divider } from '@material-ui/core';
-import { PageContent } from 'app/domain/Page';
-import getPageQuery from 'app/domain/graphql/Page';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
@@ -167,120 +167,10 @@ const defaultValue = {
   timeRange: { from: dateFnsUtils.startOfDay(new Date()), to: new Date() },
 };
 
-interface SearchConv {
-  searchConv: PageContent<SearchHit<Conversation>>;
-}
-
 type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
 
-const CONTENT_QUERY = gql`
-  fragment MySearchHitContent on MySearchHit {
-    content {
-      avgRespDuration
-      beginner
-      category
-      categoryDetail
-      chatMessages {
-        content {
-          contentType
-          sysCode
-          attachments {
-            mediaId
-            size
-            type
-            url
-          }
-          photoContent {
-            mediaId
-            filename
-            picSize
-            type
-          }
-          textContent {
-            text
-          }
-        }
-        conversationId
-        createdAt
-        creatorType
-        from
-        nickName
-        organizationId
-        seqId
-        to
-        type
-        uuid
-      }
-      clientFirstMessageTime
-      closeReason
-      convType
-      endTime
-      evaluate {
-        evaluation
-        evaluationRemark
-        evaluationType
-        userResolvedStatus
-      }
-      firstReplyCost
-      fromGroupId
-      fromGroupName
-      fromIp
-      fromPage
-      fromShuntId
-      fromShuntName
-      fromTitle
-      fromType
-      humanTransferSessionId
-      id
-      inQueueTime
-      interaction
-      isEvaluationInvited
-      isStaffInvited
-      isValid
-      nickName
-      organizationId
-      realName
-      relatedId
-      relatedType
-      remarks
-      roundNumber
-      staffFirstReplyTime
-      staffId
-      staffMessageCount
-      startTime
-      status
-      stickDuration
-      terminator
-      totalMessageCount
-      transferFromGroup
-      transferFromStaffName
-      transferRemarks
-      transferType
-      treatedTime
-      userId
-      userMessageCount
-      userName
-      vipLevel
-      visitRange
-    }
-    highlightFields
-    id
-    index
-    innerHits
-    nestedMetaData
-    score
-    sortValues
-  }
-`;
-
-const PAGE_QUERY = getPageQuery(
-  'SearchHitPage',
-  CONTENT_QUERY,
-  'MySearchHitContent'
-);
-
 const QUERY = gql`
-  ${PAGE_QUERY}
+  ${CONV_PAGE_QUERY}
   query Conversation($conversationQueryInput: ConversationQueryInput!) {
     searchConv(conversationQuery: $conversationQueryInput) {
       ...PageSearchHitPage

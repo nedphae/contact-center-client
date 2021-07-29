@@ -3,14 +3,12 @@
  * TODO: 客户信息 等的组件开发
  */
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
-import { getSelectedSession } from 'app/state/chat/chatAction';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
 import QuickReply from './panel/QuickReply/QuickReply';
@@ -50,7 +48,6 @@ function TabPanel(props: TabPanelProps) {
 
 export default function DetailCard() {
   const [value, setValue] = useState(0);
-  const selectedSession = useSelector(getSelectedSession);
   const style = {
     minWidth: 'calc(100% / 4)',
   };
@@ -73,7 +70,7 @@ export default function DetailCard() {
         aria-label="scrollable prevent tabs example"
       >
         <Tab style={style} label="客户信息" {...a11yProps(0)} />
-        <Tab style={style} label="互动记录" {...a11yProps(1)} />
+        <Tab style={style} label="历史会话" {...a11yProps(1)} />
         <Tab style={style} label="常用话术" {...a11yProps(2)} />
         <Tab style={style} label="ERP" {...a11yProps(3)} />
         {/* TODO: 后面可以做成配置型的 */}
