@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+import _ from 'lodash';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { ClassNameMap } from '@material-ui/styles/withStyles';
@@ -14,6 +16,7 @@ import { Content, Message } from 'app/domain/Message';
 import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
+import { gql, useLazyQuery } from '@apollo/client';
 import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
@@ -134,26 +137,108 @@ interface MessageListProps {
   messages: Message[];
   staff: Staff;
   user: Customer | undefined | null;
+  loadMore?: boolean;
+}
+
+const CONTENT_QUERY = gql`
+  fragment MyMessageContent on Message {
+    content {
+      content {
+        contentType
+        sysCode
+        attachments {
+          mediaId
+          size
+          type
+          url
+        }
+        photoContent {
+          mediaId
+          filename
+          picSize
+          type
+        }
+        textContent {
+          text
+        }
+      }
+      conversationId
+      createdAt
+      creatorType
+      from
+      nickName
+      organizationId
+      seqId
+      to
+      type
+      uuid
+    }
+  }
+`;
+
+const QUERY = gql`
+  ${CONTENT_QUERY}
+  query HistoryMessage($userId: Long!, $lastSeqId: Long, $pageSize: Int) {
+    loadHistoryMessage(
+      userId: $userId
+      lastSeqId: $lastSeqId
+      pageSize: $pageSize
+    ) {
+      ...MyMessageContent
+    }
+  }
+`;
+interface MessagePage {
+  loadHistoryMessage: Message[];
 }
 
 const MessageList = (props: MessageListProps) => {
-  const { messages, staff, user } = props;
+  const { messages, staff, user, loadMore } = props;
   const classes = useMessageListStyles();
   const refOfPaper = useRef<Element>();
+  const [lastSeqId, setLastSeqId] = useState<number | undefined>();
+  const [loadHistoryMessage, { data, fetchMore }] =
+    useLazyQuery<MessagePage>(QUERY);
+  const [concatMessage, setConcatMessage] = useState<Message[]>([]);
 
   // 如果有问题 修改 userEffect 为 useLayoutEffect
   useEffect(() => {
+    if (messages) {
+      setLastSeqId(messages[0].seqId);
+    }
     if (refOfPaper.current !== undefined) {
       refOfPaper.current.scrollTop = refOfPaper.current?.scrollHeight;
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (data && data.loadHistoryMessage) {
+      setLastSeqId(data.loadHistoryMessage[0].seqId);
+      setConcatMessage(_.concat(data.loadHistoryMessage ?? [], messages ?? []));
+    }
+  }, [data, messages]);
+
+  function handleLoadMore() {
+    if (data && fetchMore) {
+      fetchMore({ variables: { userId: user?.id, lastSeqId } });
+    } else {
+      loadHistoryMessage({ variables: { userId: user?.id, lastSeqId } });
+    }
+  }
+
   return (
     <Paper square className={classes.paper} ref={refOfPaper}>
       <List className={classes.list}>
+        {loadMore && (
+          <ListItem button onClick={handleLoadMore}>
+            <ListItemText
+              style={{ display: 'flex', justifyContent: 'center' }}
+              primary="点击加载更多"
+            />
+          </ListItem>
+        )}
         {user &&
-          messages &&
-          messages.map(({ uuid, createdAt, content, from, to }) => (
+          concatMessage.map(({ uuid, createdAt, content, from, to }) => (
             <React.Fragment key={uuid}>
               <ListItem alignItems="flex-start">
                 {/* 接受到的消息的头像 */}
@@ -219,6 +304,9 @@ const MessageList = (props: MessageListProps) => {
       </List>
     </Paper>
   );
+};
+MessageList.defaultProps = {
+  loadMore: false,
 };
 
 export default MessageList;

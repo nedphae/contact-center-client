@@ -67,13 +67,13 @@ const QUERY = gql`
   ${CONV_PAGE_QUERY}
   query Conversation($conversationQueryInput: ConversationQueryInput!) {
     searchConv(conversationQuery: $conversationQueryInput) {
-      ...PageSearchHitPage
+      ...PageOnSearchHitPage
     }
   }
 `;
 type Graphql = SearchConv;
 
-export default function History() {
+export default function ConvsationHistory() {
   const classes = useStyles();
   const user = useSelector(getSelectedConstomer);
   const [selectedId, setSelectedId] = useState<SelectedType>(0);

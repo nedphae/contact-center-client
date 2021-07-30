@@ -13,7 +13,7 @@ const MessagePanel = () => {
   const staff = useSelector(getStaff);
   const user = useSelector(getSelectedConstomer);
 
-  return <MessageList messages={messages} staff={staff} user={user} />;
+  return <MessageList messages={messages} staff={staff} user={user} loadMore />;
 };
 
 export default MessagePanel;

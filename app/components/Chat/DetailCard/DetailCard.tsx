@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
 import QuickReply from './panel/QuickReply/QuickReply';
+import ConvsationHistory from './panel/ConvsationHistory';
 
 function a11yProps(index: number) {
   return {
@@ -79,7 +80,7 @@ export default function DetailCard() {
         <CustomerInfo />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Item Two
+        <ConvsationHistory />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <QuickReply />
