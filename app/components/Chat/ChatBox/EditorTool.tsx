@@ -71,7 +71,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   };
 
   const imgUploadProps = {
-    action: `${config.web.host}/${config.oss.path}/chat/img`,
+    action: `${config.web.host}${config.oss.path}/chat/img`,
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onStart(file: RcFile) {

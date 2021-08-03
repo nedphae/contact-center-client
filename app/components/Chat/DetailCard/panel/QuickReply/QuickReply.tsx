@@ -57,6 +57,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
+// useInitData 会触发 redux，TODO: 待修复
 export default function QuickReply() {
   const classes = useStyles();
   const [selectedIndex, setSelectedIndex] = useState(0);

@@ -4,12 +4,12 @@
  */
 import React from 'react';
 
+import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import Snackbar from '../Snackbar/Snackbar';
 import check, { IAuthorityType } from './CheckPermissions';
 
 import AuthorizedRoute from './AuthorizedRoute';
 import Secured from './Secured';
-import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 
 interface AuthorizedProps {
   authority: IAuthorityType;

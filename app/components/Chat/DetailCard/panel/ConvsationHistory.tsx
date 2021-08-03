@@ -34,6 +34,7 @@ const useStyles = makeStyles(() =>
     paper: {
       display: 'flex',
       alignItems: 'center',
+      height: '70vh',
       // width: 400,
     },
     input: {
@@ -80,10 +81,10 @@ export default function ConvsationHistory() {
   const [searchConv, { data }] = useLazyQuery<Graphql>(QUERY);
 
   useEffect(() => {
-    if (user && user.id) {
+    if (user && user.userId) {
       const searchParams: ConversationQueryInput = {
         page: new PageParam(),
-        userId: user.id,
+        userId: user.userId,
       };
       searchConv({ variables: { conversationQueryInput: searchParams } });
     }

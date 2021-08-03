@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -192,7 +192,7 @@ export default function Editor(selected: SelectedProps) {
               onChange={handleTextChange}
               onKeyDown={setFocusToQuickReplyMenu}
               value={textMessage}
-              rowsMin={2}
+              minRows={2}
             />
             <Button
               // 是否可用，通过 TextareaAutosize 判断
