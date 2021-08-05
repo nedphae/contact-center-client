@@ -7,7 +7,7 @@ import { register } from 'app/service/socketService';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import slice from './staffSlice';
 
-const { setStaff, setOnline } = slice.actions;
+export const { setStaff, setOnline, updateStatus } = slice.actions;
 export const getStaff = (state: RootState) => {
   if (state.chat.monitored) {
     return state.chat.monitored.monitoredStaff;

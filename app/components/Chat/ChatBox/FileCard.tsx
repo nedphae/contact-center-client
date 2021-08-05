@@ -24,6 +24,10 @@ export default function FileCard(props: FileProps) {
   const classes = useStyles();
   const { filename, fileSize, url } = props;
 
+  function downloadFile() {
+    window.open(url);
+  }
+
   return (
     <Card className={classes.root}>
       <CardActionArea>
@@ -35,7 +39,9 @@ export default function FileCard(props: FileProps) {
       </CardActionArea>
       <CardActions>
         <Button size="small">预览</Button>
-        <Button size="small">下载</Button>
+        <Button size="small" onClick={downloadFile}>
+          下载
+        </Button>
       </CardActions>
     </Card>
   );

@@ -50,8 +50,6 @@ export interface Attachments {
   size: string;
   /** 根据类型显示不同图标 */
   type: string;
-  /** 文件 路径 */
-  url: string;
 }
 
 export interface Content {

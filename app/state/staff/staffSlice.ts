@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 
 const initStaff = {} as Staff;
@@ -12,6 +13,9 @@ const staffSlice = createSlice({
     // 已经在服务器设置了状态
     setOnline: (staff) => {
       staff.syncState = true;
+    },
+    updateStatus: (staff, action: PayloadAction<OnlineStatus>) => {
+      staff.onlineStatus = action.payload;
     },
   },
 });

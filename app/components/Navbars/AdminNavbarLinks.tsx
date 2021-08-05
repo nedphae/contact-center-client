@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import classNames from 'classnames';
 // @material-ui/core components
@@ -26,8 +26,10 @@ import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
 import { Badge, Avatar } from '@material-ui/core';
-import { getMyself } from 'app/state/staff/staffAction';
+import { getMyself, updateStatus } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
+import Staff from 'app/domain/StaffInfo';
+import { gql, useMutation } from '@apollo/client';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
@@ -61,11 +63,26 @@ function getOnlineStatusIcon(onlineStatus: OnlineStatus) {
   return icon;
 }
 
+interface Graphql {
+  updateStaffStatus: Staff;
+}
+const MUTATION = gql`
+  mutation UpdateStaffStatus($updateStaffStatus: UpdateStaffStatusInput!) {
+    updateStaffStatus(updateStaffStatus: $updateStaffStatus) {
+      staffId: id
+      organizationId
+      onlineStatus
+    }
+  }
+`;
+
 export default function AdminNavbarLinks() {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [openNotification, setOpenNotification] = React.useState<any>(null);
   const [openProfile, setOpenProfile] = React.useState<any>(null);
   const mySelf = useSelector(getMyself);
+  const [updateStaffStatus] = useMutation<Graphql>(MUTATION);
 
   const handleClickNotification = (event: {
     target: any;
@@ -97,6 +114,20 @@ export default function AdminNavbarLinks() {
     setOpenProfile(null);
     // 清除全部 token 缓存
     logout();
+  };
+  const handleChangeOnlineStatus = (onlineStatus: OnlineStatus) => () => {
+    updateStaffStatus({
+      variables: { updateStaffStatus: { onlineStatus } },
+    })
+      .then((data) => {
+        const staffStatus = data.data?.updateStaffStatus;
+        if (staffStatus) {
+          dispatch(updateStatus(staffStatus.onlineStatus));
+        }
+        return staffStatus;
+      })
+      .catch((error) => console.error(error));
+    setOpenProfile(null);
   };
   return (
     <div>
@@ -216,7 +247,7 @@ export default function AdminNavbarLinks() {
         >
           {/* <Person className={classes.icons} /> */}
           <Badge
-            overlap="circle"
+            overlap="circular"
             anchorOrigin={{
               vertical: 'bottom',
               horizontal: 'right',
@@ -251,13 +282,13 @@ export default function AdminNavbarLinks() {
                 <ClickAwayListener onClickAway={handleCloseProfile}>
                   <MenuList role="menu">
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
                       className={classes.dropdownItem}
                     >
                       设置离开
                     </MenuItem>
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
                       className={classes.dropdownItem}
                     >
                       设置忙碌

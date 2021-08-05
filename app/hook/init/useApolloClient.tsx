@@ -77,16 +77,16 @@ export default function useApolloClient(): [
             Query: {
               fields: {
                 loadHistoryMessage: {
-                  // read(existing?: Message[], { args: { offset, limit } }) {
-                  //   // A read function should always return undefined if existing is
-                  //   // undefined. Returning undefined signals that the field is
-                  //   // missing from the cache, which instructs Apollo Client to
-                  //   // fetch its value from your GraphQL server.
-                  //   const filterList = existing?.filter(
-                  //     (it) => (it.seqId ?? 0) < (offset ?? 0)
-                  //   );
-                  //   return filterList && filterList.slice(0, limit);
-                  // },
+                  read(existing?: Message[], { args: { offset, limit } }) {
+                    // A read function should always return undefined if existing is
+                    // undefined. Returning undefined signals that the field is
+                    // missing from the cache, which instructs Apollo Client to
+                    // fetch its value from your GraphQL server.
+                    const filterList = existing?.filter(
+                      (it) => (it.seqId ?? 0) < (offset ?? 0)
+                    );
+                    return filterList && filterList.slice(0, limit);
+                  },
                   // Don't cache separate results based on
                   // any of this field's arguments.
                   keyArgs: false,

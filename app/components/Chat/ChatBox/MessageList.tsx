@@ -132,7 +132,8 @@ export function createContent(
     }
     case 'FILE': {
       if (content.attachments !== undefined) {
-        const { filename, size, url } = content.attachments;
+        const { filename, size, mediaId } = content.attachments;
+        const url = `${config.web.host}${config.oss.path}/chat/file/${mediaId}`;
         element = <FileCard filename={filename} fileSize={size} url={url} />;
       }
       break;

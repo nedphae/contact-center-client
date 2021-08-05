@@ -62,8 +62,8 @@ interface Graphql {
 }
 
 const MUTATION_STAFF = gql`
-  mutation Staff($staffInput: StaffInput!) {
-    saveStaff(staff: $staffInput) {
+  mutation Staff($staff: StaffInput!) {
+    saveStaff(staff: $staff) {
       id
       organizationId
       username
