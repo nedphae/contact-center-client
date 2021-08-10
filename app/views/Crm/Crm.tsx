@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 
-import {
-  DataGrid,
-  GridColDef,
-  GridPageChangeParams,
-  GridRowId,
-  GridSelectionModelChangeParams,
-} from '@material-ui/data-grid';
+import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -85,7 +79,7 @@ const QUERY = gql`
   ${PAGE_QUERY}
   query FindAllCustomer($first: Int!, $offset: Int!) {
     findAllCustomer(first: $first, offset: $offset) {
-      ...PageCustomerPage
+      ...PageOnCustomerPage
     }
   }
 `;
@@ -101,9 +95,12 @@ export default function Crm() {
     CustomerFormValues | undefined
   >(undefined);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
-
-  const { loading, data, fetchMore, refetch } = useQuery<Graphql>(QUERY, {
-    variables: { first: 20, offset: 0 },
+  const [pageParams, setPageParams] = useState({
+    first: 20,
+    offset: 0,
+  });
+  const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
+    variables: pageParams,
   });
   const [deleteCustomerByIds] = useMutation<unknown>(MUTATION_CUSTOMER);
 
@@ -127,8 +124,13 @@ export default function Crm() {
     setOpen(false);
   };
 
-  const handlePageChange = (params: GridPageChangeParams) => {
-    fetchMore({ variables: { first: params.pageSize, offset: params.page } });
+  const handlePageChange = (params: number) => {
+    setPageParams({ first: pageParams.first, offset: params });
+    refetch({ variables: pageParams });
+  };
+  const handlePageSizeChange = (params: number) => {
+    setPageParams({ first: params, offset: pageParams.offset });
+    refetch({ variables: pageParams });
   };
   const result = data ? data.findAllCustomer : null;
   const rows = result && result.content ? result.content : [];
@@ -191,17 +193,15 @@ export default function Crm() {
         rowsPerPageOptions={[10, 20, 50, 100]}
         paginationMode="server"
         onPageChange={handlePageChange}
-        onPageSizeChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
         loading={loading}
         onRowClick={(param) => {
           handleClickOpen(param.row as Customer);
         }}
         disableSelectionOnClick
         checkboxSelection
-        onSelectionModelChange={(
-          newSelectionModel: GridSelectionModelChangeParams
-        ) => {
-          setSelectionModel(newSelectionModel.selectionModel);
+        onSelectionModelChange={(selectionId: GridRowId[]) => {
+          setSelectionModel(selectionId);
         }}
         selectionModel={selectionModel}
       />

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import classNames from 'classnames';
@@ -69,9 +69,9 @@ interface Graphql {
 const MUTATION = gql`
   mutation UpdateStaffStatus($updateStaffStatus: UpdateStaffStatusInput!) {
     updateStaffStatus(updateStaffStatus: $updateStaffStatus) {
-      staffId: id
+      id: staffId
       organizationId
-      onlineStatus
+      onlineStatusKey: onlineStatus
     }
   }
 `;
@@ -115,20 +115,116 @@ export default function AdminNavbarLinks() {
     // 清除全部 token 缓存
     logout();
   };
-  const handleChangeOnlineStatus = (onlineStatus: OnlineStatus) => () => {
-    updateStaffStatus({
-      variables: { updateStaffStatus: { onlineStatus } },
-    })
-      .then((data) => {
-        const staffStatus = data.data?.updateStaffStatus;
-        if (staffStatus) {
-          dispatch(updateStatus(staffStatus.onlineStatus));
-        }
-        return staffStatus;
+  const handleChangeOnlineStatus = useCallback(
+    (onlineStatus: OnlineStatus) => () => {
+      updateStaffStatus({
+        variables: {
+          updateStaffStatus: { onlineStatus: OnlineStatus[onlineStatus] },
+        },
       })
-      .catch((error) => console.error(error));
-    setOpenProfile(null);
-  };
+        .then((data) => {
+          const staffStatus = data.data?.updateStaffStatus;
+          if (staffStatus) {
+            dispatch(updateStatus(OnlineStatus[staffStatus.onlineStatusKey]));
+          }
+          return staffStatus;
+        })
+        .catch((error) => console.error(error));
+      setOpenProfile(null);
+    },
+    [dispatch, updateStaffStatus]
+  );
+
+  const memoMap = useMemo(() => {
+    const map = new Map()
+      .set(
+        OnlineStatus.ONLINE,
+        <MenuItem
+          key={OnlineStatus.ONLINE}
+          onClick={handleChangeOnlineStatus(OnlineStatus.ONLINE)}
+          className={classes.dropdownItem}
+        >
+          设置在线
+        </MenuItem>
+      )
+      .set(
+        OnlineStatus.BUSY,
+        <MenuItem
+          key={OnlineStatus.BUSY}
+          onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
+          className={classes.dropdownItem}
+        >
+          设置忙碌
+        </MenuItem>
+      )
+      .set(
+        OnlineStatus.AWAY,
+        <MenuItem
+          key={OnlineStatus.AWAY}
+          onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
+          className={classes.dropdownItem}
+        >
+          设置离开
+        </MenuItem>
+      )
+      .set(
+        OnlineStatus.OFFLINE,
+        <MenuItem
+          key={OnlineStatus.OFFLINE}
+          onClick={handleChangeOnlineStatus(OnlineStatus.OFFLINE)}
+          className={classes.dropdownItem}
+        >
+          设置离线
+        </MenuItem>
+      );
+    return map;
+  }, [classes.dropdownItem, handleChangeOnlineStatus]);
+
+  function getOnlineStatusMenuItem(onlineStatus: OnlineStatus) {
+    const map = new Map(memoMap)
+      .set(
+        OnlineStatus.ONLINE,
+        <MenuItem
+          key={OnlineStatus.ONLINE}
+          onClick={handleChangeOnlineStatus(OnlineStatus.ONLINE)}
+          className={classes.dropdownItem}
+        >
+          设置在线
+        </MenuItem>
+      )
+      .set(
+        OnlineStatus.AWAY,
+        <MenuItem
+          key={OnlineStatus.AWAY}
+          onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
+          className={classes.dropdownItem}
+        >
+          设置离开
+        </MenuItem>
+      )
+      .set(
+        OnlineStatus.BUSY,
+        <MenuItem
+          key={OnlineStatus.BUSY}
+          onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
+          className={classes.dropdownItem}
+        >
+          设置忙碌
+        </MenuItem>
+      )
+      .set(
+        OnlineStatus.OFFLINE,
+        <MenuItem
+          key={OnlineStatus.OFFLINE}
+          onClick={handleChangeOnlineStatus(OnlineStatus.OFFLINE)}
+          className={classes.dropdownItem}
+        >
+          设置离线
+        </MenuItem>
+      );
+    map.delete(onlineStatus);
+    return Array.from(map.values());
+  }
   return (
     <div>
       <div className={classes.searchWrapper}>
@@ -281,18 +377,7 @@ export default function AdminNavbarLinks() {
               <Paper>
                 <ClickAwayListener onClickAway={handleCloseProfile}>
                   <MenuList role="menu">
-                    <MenuItem
-                      onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
-                      className={classes.dropdownItem}
-                    >
-                      设置离开
-                    </MenuItem>
-                    <MenuItem
-                      onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
-                      className={classes.dropdownItem}
-                    >
-                      设置忙碌
-                    </MenuItem>
+                    {getOnlineStatusMenuItem(mySelf.onlineStatus)}
                     <Divider light />
                     <MenuItem
                       onClick={handleLogout}

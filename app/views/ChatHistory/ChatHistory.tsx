@@ -10,7 +10,6 @@ import {
   GridColDef,
   GridValueGetterParams,
   GridToolbar,
-  GridPageChangeParams,
 } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
@@ -226,9 +225,20 @@ export default function DataGridDemo() {
     refOfDialog.current?.setOpen(true);
   };
 
-  const handlePageChange = (params: GridPageChangeParams) => {
+  const handlePageChange = (params: number) => {
     // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
-    conversationQueryInput.page = new PageParam(params.page, params.pageSize);
+    conversationQueryInput.page = new PageParam(
+      params,
+      conversationQueryInput.page.size
+    );
+    setConversationQueryInput(conversationQueryInput);
+    refetch({ conversationQueryInput });
+  };
+  const handlePageSizeChange = (params: number) => {
+    conversationQueryInput.page = new PageParam(
+      conversationQueryInput.page.page,
+      params
+    );
     setConversationQueryInput(conversationQueryInput);
     refetch({ conversationQueryInput });
   };
@@ -307,7 +317,7 @@ export default function DataGridDemo() {
         rowsPerPageOptions={[10, 20, 50, 100]}
         paginationMode="server"
         onPageChange={handlePageChange}
-        onPageSizeChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
         loading={loading}
         disableSelectionOnClick
         onRowClick={(param) => {

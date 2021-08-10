@@ -1,4 +1,4 @@
-import { OnlineStatus } from './constant/Staff';
+import { OnlineStatus, OnlineStatusKey } from './constant/Staff';
 import { CustomerStatus } from './Customer';
 
 export default interface Staff {
@@ -11,6 +11,7 @@ export default interface Staff {
   role: string;
   shunt: number[];
   onlineStatus: OnlineStatus;
+  onlineStatusKey: OnlineStatusKey;
   maxServiceCount: number;
   currentServiceCount: number;
   userIdList: number[];

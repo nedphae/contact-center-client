@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Dispatch } from 'redux';
 
-import { configStaff } from 'app/state/staff/staffAction';
+import { configStaff, updateStatus } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { UpdateMessage } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
@@ -9,6 +9,7 @@ import {
   assignmentConver,
   setNewMessage,
 } from 'app/state/session/sessionAction';
+import { OnlineStatus } from 'app/domain/constant/Staff';
 import EventInterface, { CallBack } from './EventInterface';
 
 export default class SocketHandler implements EventInterface {
@@ -28,6 +29,9 @@ export default class SocketHandler implements EventInterface {
      */
     this.socket.on('connect', this.onConnect);
     // this.socket.connect();
+    this.socket.on('disconnect', () => {
+      this.dispatch(updateStatus(OnlineStatus.OFFLINE));
+    });
   }
 
   /**

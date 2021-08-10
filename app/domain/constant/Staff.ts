@@ -5,6 +5,8 @@ export enum OnlineStatus {
   AWAY,
 }
 
+export type OnlineStatusKey = keyof typeof OnlineStatus;
+
 export enum StaffRole {
   /** 管理员 */
   ADMIN,

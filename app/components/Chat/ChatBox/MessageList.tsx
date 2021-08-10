@@ -162,9 +162,9 @@ const CONTENT_QUERY = gql`
       sysCode
       attachments {
         mediaId
+        filename
         size
         type
-        url
       }
       photoContent {
         mediaId
@@ -320,10 +320,10 @@ const MessageList = (props: MessageListProps) => {
                         <Avatar alt="Profile Picture" />
                       </ListItemAvatar>
                     )}
-                    {/* justify="flex-end" 如果是收到的消息就不设置这个 */}
+                    {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
                     <Grid
                       container
-                      justify={creatorType !== 1 ? 'flex-start' : 'flex-end'}
+                      justifyContent={creatorType !== 1 ? 'flex-start' : 'flex-end'}
                     >
                       <Grid item xs={12}>
                         <ListItemText
@@ -331,11 +331,11 @@ const MessageList = (props: MessageListProps) => {
                             <Grid
                               container
                               alignItems="center"
-                              justify={
+                              justifyContent={
                                 creatorType !== 1 ? 'flex-start' : 'flex-end'
                               }
                             >
-                              {/* justify="flex-end" */}
+                              {/* justifyContent="flex-end" */}
                               <Typography
                                 variant="subtitle1"
                                 gutterBottom
