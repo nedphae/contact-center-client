@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Dispatch } from 'redux';
-
 import { configStaff, updateStatus } from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { UpdateMessage } from 'app/domain/Message';
@@ -10,14 +7,15 @@ import {
   setNewMessage,
 } from 'app/state/session/sessionAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
+import { AppDispatch } from 'app/store';
 import EventInterface, { CallBack } from './EventInterface';
 
 export default class SocketHandler implements EventInterface {
   socket: SocketIOClient.Socket;
 
-  dispatch: Dispatch<any>;
+  dispatch: AppDispatch;
 
-  constructor($socket: SocketIOClient.Socket, $dispatch: Dispatch<any>) {
+  constructor($socket: SocketIOClient.Socket, $dispatch: AppDispatch) {
     this.socket = $socket;
     this.dispatch = $dispatch;
   }

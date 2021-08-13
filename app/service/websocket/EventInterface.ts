@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Dispatch } from 'redux';
-
 import { WebSocketResponse } from 'app/domain/WebSocket';
+import { AppDispatch } from 'app/store';
 
 export default interface EventInterface {
   readonly socket: SocketIOClient.Socket;
 
-  readonly dispatch: Dispatch<any>;
+  readonly dispatch: AppDispatch;
 
   /** 注册ws事件侦听 */
   init(): void;

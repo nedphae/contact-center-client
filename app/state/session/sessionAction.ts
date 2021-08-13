@@ -1,4 +1,5 @@
-import { AppThunk, RootState } from 'app/store';
+import { AppDispatch, AppThunk, RootState } from 'app/store';
+import { createSelector } from '@reduxjs/toolkit';
 import { of } from 'rxjs';
 import { map, filter, tap, catchError } from 'rxjs/operators';
 import _ from 'lodash';
@@ -17,12 +18,17 @@ import { Conversation } from 'app/domain/Conversation';
 import { createSession } from 'app/domain/Session';
 import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
-import { createSelector } from '@reduxjs/toolkit';
-import { CreatorType } from 'app/domain/constant/Message';
+import { CreatorType, SysCode } from 'app/domain/constant/Message';
+import { CustomerStatus } from 'app/domain/Customer';
 import slice from './sessionSlice';
 
-const { newConver, newMessage } = slice.actions;
-export const { stickyCustomer, tagCustomer, updateCustomer } = slice.actions;
+const { newConver, newMessage, updateCustomerStatus } = slice.actions;
+export const {
+  stickyCustomer,
+  tagCustomer,
+  updateCustomer,
+  addHistoryMessage,
+} = slice.actions;
 
 export const getSelectedMessageList = (state: RootState) => {
   const selected = state.chat.selectedSession;
@@ -136,6 +142,22 @@ export function sendMessage(message: Message): AppThunk {
   };
 }
 
+function runSysMsg(message: Message, dispatch: AppDispatch) {
+  const { content } = message;
+  switch (content.sysCode) {
+    case SysCode.ONLINE_STATUS_CHANGED: {
+      const msg = content.textContent?.text;
+      if (msg) {
+        const sysMsg = JSON.parse(msg) as CustomerStatus;
+        dispatch(updateCustomerStatus(sysMsg));
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
 /**
  * 获取设置服务器发送的消息
  * @param request 消息请求
@@ -152,14 +174,18 @@ export const setNewMessage =
           cb(generateResponse(request.header, '"OK"'));
         }),
         map((r) => r?.message),
-        map((m) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return { [m!.uuid]: m } as MessagesMap;
+        tap((m) => {
+          if (m?.creatorType === CreatorType.SYS) {
+            // 系统消息，解析并执行操作
+            runSysMsg(m, dispatch);
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const end = { [m!.uuid]: m } as MessagesMap;
+            dispatch(newMessage(end));
+          }
         })
       )
-      .subscribe((end) => {
-        dispatch(newMessage(end));
-      });
+      .subscribe();
   };
 
 /**

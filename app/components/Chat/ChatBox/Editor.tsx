@@ -202,7 +202,7 @@ export default function Editor(selected: SelectedProps) {
               endIcon={<Icon>send</Icon>}
               onClick={handleSendTextMessage}
             >
-              Send
+              发送
             </Button>
             <Button style={{ minWidth: 50 }} variant="outlined">
               关闭

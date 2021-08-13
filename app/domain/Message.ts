@@ -1,4 +1,4 @@
-import { CreatorType, MessageTypeKey } from './constant/Message';
+import { CreatorType, MessageTypeKey, SysCode } from './constant/Message';
 
 /**
  * Chat messages are not stored locally, all get from the server
@@ -54,6 +54,8 @@ export interface Attachments {
 
 export interface Content {
   contentType: MessageTypeKey;
+  /** sys 消息类型 * */
+  sysCode?: SysCode;
   /** 文字 */
   textContent?: TextContent;
   /** 图片 */

@@ -87,7 +87,7 @@ const chatSlice = createSlice({
           });
           chat.monitored.monitoredMessageList[userId] = _.defaults(
             chat.monitored.monitoredMessageList[userId],
-            messageMap
+            ...messageMap
           );
         }
       }

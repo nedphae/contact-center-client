@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
+import { useDispatch } from 'react-redux';
 import Viewer from 'react-viewer';
 
 import _ from 'lodash';
@@ -16,11 +17,12 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 
-import { Content, Message } from 'app/domain/Message';
+import { Content, Message, MessagesMap } from 'app/domain/Message';
 import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import config from 'app/config/clientConfig';
+import { addHistoryMessage } from 'app/state/session/sessionAction';
 import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
@@ -191,8 +193,8 @@ const CONTENT_QUERY = gql`
 
 const QUERY = gql`
   ${CONTENT_QUERY}
-  query HistoryMessage($userId: Long!, $offset: Long, $limit: Int) {
-    loadHistoryMessage(userId: $userId, offset: $offset, limit: $limit) {
+  query HistoryMessage($userId: Long!, $cursor: Long, $limit: Int) {
+    loadHistoryMessage(userId: $userId, cursor: $cursor, limit: $limit) {
       ...MyMessageContent
     }
   }
@@ -211,55 +213,53 @@ const styles = StyleSheet.create({
 const MessageList = (props: MessageListProps) => {
   const { messages, staff, user, loadMore } = props;
   const classes = useMessageListStyles();
+  const dispatch = useDispatch();
   const refOfScrollView = useRef<ScrollView>(null);
-  const [lastSeqId, setLastSeqId] = useState<number | null>(null);
   const [loadHistory, setLoadHistory] = useState<boolean>(false);
-  const [loadHistoryMessage, { data, fetchMore }] = useLazyQuery<MessagePage>(
-    QUERY,
-    { fetchPolicy: 'cache-and-network' }
-  );
-  const [concatMessage, setConcatMessage] = useState<Message[]>([]);
+  const [loadHistoryMessage, { data }] = useLazyQuery<MessagePage>(QUERY, {
+    fetchPolicy: 'no-cache',
+  });
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
   const [imageViewer, setImageViewer] = useState<{
     src: string;
     alt: string;
   }>({ src: '', alt: 'null' });
 
-  // 如果有问题 修改 userEffect 为 useLayoutEffect
-  useEffect(() => {
-    if (messages && messages[0]) {
-      setLastSeqId(messages[0].seqId ?? null);
-      setConcatMessage(messages);
-      setLoadHistory(false);
-    }
-  }, [messages]);
+  const lastSeqId = messages[0]?.seqId ?? null;
 
   // 防止渲染 卡顿
   useLayoutEffect(() => {
     // 如果 fetchMore 就不滚动
-    if (refOfScrollView.current) {
+    if (refOfScrollView.current && !loadHistory) {
       refOfScrollView.current.scrollToEnd({ animated: false });
     }
-  }, [messages]);
+  }, [loadHistory, messages]);
 
   useEffect(() => {
-    if (data && data.loadHistoryMessage && data.loadHistoryMessage[0]) {
-      const loadMessage = _.reverse([...data.loadHistoryMessage]);
-      setLastSeqId(loadMessage[0].seqId ?? null);
-      setConcatMessage(_.concat(loadMessage ?? [], messages ?? []));
+    if (
+      data &&
+      data.loadHistoryMessage &&
+      data.loadHistoryMessage[0] &&
+      user &&
+      user.id
+    ) {
+      const historyMessage = _.reverse([...data.loadHistoryMessage]);
+      const userMessageMapList = {
+        [user.id]: _.defaults(
+          {},
+          ...historyMessage.map((m) => {
+            return { [m.uuid]: m } as MessagesMap;
+          })
+        ),
+      };
+      dispatch(addHistoryMessage(userMessageMapList));
     }
-  }, [data, messages]);
+  }, [data, dispatch, user]);
 
   function handleLoadMore() {
-    if (data && fetchMore) {
-      fetchMore({
-        variables: { userId: user?.userId, offset: lastSeqId, limit: null },
-      });
-    } else {
-      loadHistoryMessage({
-        variables: { userId: user?.userId, offset: lastSeqId, limit: null },
-      });
-    }
+    loadHistoryMessage({
+      variables: { userId: user?.userId, cursor: lastSeqId, limit: 20 },
+    });
     setLoadHistory(true);
   }
 
@@ -275,7 +275,7 @@ const MessageList = (props: MessageListProps) => {
   }
 
   function getImages() {
-    const imageMessages = concatMessage.filter(
+    const imageMessages = messages.filter(
       (message) => message.content.contentType === 'IMAGE'
     );
     const images = imageMessages.map((message) => {
@@ -309,8 +309,8 @@ const MessageList = (props: MessageListProps) => {
               />
             </ListItem>
           )}
-          {concatMessage &&
-            concatMessage.map(
+          {messages &&
+            messages.map(
               ({ uuid, createdAt, content, creatorType, nickName }) => (
                 <React.Fragment key={uuid}>
                   <ListItem alignItems="flex-start">
@@ -323,7 +323,9 @@ const MessageList = (props: MessageListProps) => {
                     {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
                     <Grid
                       container
-                      justifyContent={creatorType !== 1 ? 'flex-start' : 'flex-end'}
+                      justifyContent={
+                        creatorType !== 1 ? 'flex-start' : 'flex-end'
+                      }
                     >
                       <Grid item xs={12}>
                         <ListItemText

@@ -5,7 +5,8 @@ import _ from 'lodash';
 
 import { SessionMap, Session, TagParamer } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
-import { Customer } from 'app/domain/Customer';
+import { Customer, CustomerStatus } from 'app/domain/Customer';
+import { UserMessageMap } from 'app/domain/Chat';
 
 const initConver = {} as SessionMap;
 
@@ -33,6 +34,14 @@ const converSlice = createSlice({
         converMap[action.payload.userId].user = action.payload;
       }
     },
+    updateCustomerStatus: (
+      converMap,
+      action: PayloadAction<CustomerStatus>
+    ) => {
+      if (action.payload.userId) {
+        converMap[action.payload.userId].user.status = action.payload;
+      }
+    },
     stickyCustomer: (converMap, action: PayloadAction<number>) => {
       // 设置置顶
       const conver = converMap[action.payload];
@@ -43,6 +52,16 @@ const converSlice = createSlice({
       const conver = converMap[action.payload.userId];
       conver.tag = action.payload.tag;
     },
+    addHistoryMessage: (converMap, action: PayloadAction<UserMessageMap>) => {
+      const userMessageMap = action.payload;
+      const userIds = _.keys(userMessageMap);
+      userIds.forEach((userIdStr) => {
+        const userId = parseInt(userIdStr, 10);
+        const messageMap = userMessageMap[userId];
+        const conver = converMap[userId];
+        _.defaults(conver.massageList, messageMap);
+      });
+    },
     newMessage: (converMap, action: PayloadAction<MessagesMap>) => {
       // 设置新消息
       of(action.payload)
@@ -52,7 +71,7 @@ const converSlice = createSlice({
             const { from, to } = msg;
             return of(from).pipe(
               filter((f) => f !== undefined && f !== null),
-              defaultIfEmpty<number | undefined>(to),
+              defaultIfEmpty<number | undefined, number | undefined>(to),
               filter((f) => f !== undefined && f !== null),
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               map((f) => converMap[f!]),

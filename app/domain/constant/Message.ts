@@ -30,3 +30,14 @@ export enum CreatorType {
   /** 群聊 */
   GROUP,
 }
+
+export enum SysCode {
+  // 更新列队
+  UPDATE_QUEUE,
+  // 分配列队
+  ASSIGN,
+  // 无答案
+  NO_ANSWER,
+  // 修改在线状态
+  ONLINE_STATUS_CHANGED,
+}

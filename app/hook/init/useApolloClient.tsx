@@ -15,7 +15,6 @@ import clientConfig from 'app/config/clientConfig';
 
 import { getTokenSource } from 'app/electron/jwtStorage';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
-import { Message } from 'app/domain/Message';
 
 export default function useApolloClient(): [
   ApolloClient<NormalizedCacheObject> | undefined
@@ -72,34 +71,7 @@ export default function useApolloClient(): [
 
       const apolloClient = new ApolloClient({
         link: splitLink,
-        cache: new InMemoryCache({
-          typePolicies: {
-            Query: {
-              fields: {
-                loadHistoryMessage: {
-                  read(existing?: Message[], { args: { offset, limit } }) {
-                    // A read function should always return undefined if existing is
-                    // undefined. Returning undefined signals that the field is
-                    // missing from the cache, which instructs Apollo Client to
-                    // fetch its value from your GraphQL server.
-                    const filterList = existing?.filter(
-                      (it) => (it.seqId ?? 0) < (offset ?? 0)
-                    );
-                    return filterList && filterList.slice(0, limit);
-                  },
-                  // Don't cache separate results based on
-                  // any of this field's arguments.
-                  keyArgs: false,
-                  // Concatenate the incoming list items with
-                  // the existing list items.
-                  merge(existing = [], incoming) {
-                    return [...existing, ...incoming];
-                  },
-                },
-              },
-            },
-          },
-        }),
+        cache: new InMemoryCache(),
       });
 
       setGraphqlClient(apolloClient);
