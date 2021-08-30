@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 
+import DateFnsUtils from '@date-io/date-fns';
 import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -20,6 +21,10 @@ import CustomerForm, {
   CustomerFormValues,
 } from 'app/components/Chat/DetailCard/panel/CustomerForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
+import { SearchHit } from 'app/domain/Conversation';
+import SearchForm from 'app/components/SearchForm/SearchForm';
+import { PageParam } from 'app/domain/graphql/Query';
+import { CustomerQueryInput } from 'app/domain/graphql/Customer';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -44,42 +49,50 @@ function PaperComponent(props: PaperProps) {
 }
 
 interface Graphql {
-  findAllCustomer: PageContent<Customer>;
+  searchCustomer: PageContent<SearchHit<Customer>>;
 }
 
 const CONTENT_QUERY = gql`
-  fragment CustomerContent on Customer {
-    organizationId
-    id
-    uid
-    name
-    email
-    mobile
-    vipLevel
-    remarks
-    detailData: data {
+  fragment CustomerSearchHitContent on CustomerSearchHit {
+    content {
+      organizationId
       id
-      key
-      label
-      value
-      index
-      hidden
-      href
+      uid
+      name
+      email
+      mobile
+      vipLevel
+      remarks
+      data {
+        key
+        label
+        value
+        index
+        hidden
+        href
+      }
     }
+    highlightFields
+    id
+    index
+    innerHits
+    nestedMetaData
+    score
+    sortValues
   }
 `;
 
-const PAGE_QUERY = getPageQuery(
-  'CustomerPage',
+const CUSTOMER_PAGE_QUERY = getPageQuery(
+  'CustomerSearchHitPage',
   CONTENT_QUERY,
-  'CustomerContent'
+  'CustomerSearchHitContent'
 );
 
 const QUERY = gql`
-  ${PAGE_QUERY}
-  query FindAllCustomer($first: Int!, $offset: Int!) {
-    findAllCustomer(first: $first, offset: $offset) {
-      ...PageOnCustomerPage
+  ${CUSTOMER_PAGE_QUERY}
+  query FindAllCustomer($customerQuery: CustomerQueryInput!) {
+    searchCustomer(customerQuery: $customerQuery) {
+      ...PageOnCustomerSearchHitPage
     }
   }
 `;
@@ -88,19 +101,27 @@ const MUTATION_CUSTOMER = gql`
     deleteCustomerByIds(ids: $ids)
   }
 `;
+const dateFnsUtils = new DateFnsUtils();
+
+const defaultValue = {
+  page: new PageParam(),
+  timeRange: { from: dateFnsUtils.startOfMonth(new Date()), to: new Date() },
+};
 
 export default function Crm() {
   const [open, setOpen] = useState(false);
   const [selectCustomer, setSelectCustomer] = useState<
     CustomerFormValues | undefined
   >(undefined);
+  const [customerQueryInput, setCustomerQueryInput] =
+    useState<CustomerQueryInput>(defaultValue);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const [pageParams, setPageParams] = useState({
     first: 20,
     offset: 0,
   });
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
-    variables: pageParams,
+    variables: { customerQuery: customerQueryInput },
   });
   const [deleteCustomerByIds] = useMutation<unknown>(MUTATION_CUSTOMER);
 
@@ -111,30 +132,40 @@ export default function Crm() {
       uid: user.uid,
       name: user.name,
       mobile: user.mobile,
+      address: user.address,
       email: user.email,
       vipLevel: user.vipLevel,
       remarks: user.remarks,
-      detailData: user.detailData,
+      data: user.data,
     };
     setSelectCustomer(idUser);
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleDialogClose = (
+    _: unknown,
+    reason: 'backdropClick' | 'escapeKeyDown'
+  ) => {
+    if (reason !== 'backdropClick') {
+      handleClose();
+    }
+  };
+
   const handlePageChange = (params: number) => {
-    setPageParams({ first: pageParams.first, offset: params });
-    refetch({ variables: pageParams });
+    const newPageParams = { first: pageParams.first, offset: params };
+    setPageParams(newPageParams);
   };
   const handlePageSizeChange = (params: number) => {
-    setPageParams({ first: params, offset: pageParams.offset });
-    refetch({ variables: pageParams });
+    const newPageParams = { first: params, offset: pageParams.offset };
+    setPageParams(newPageParams);
   };
-  const result = data ? data.findAllCustomer : null;
-  const rows = result && result.content ? result.content : [];
-  const pageSize = result ? result.size : 0;
+  const result = data?.searchCustomer;
+  const rows =
+    result && result.content ? result.content.map((it) => it.content) : [];
+  const pageSize = result ? result.size : 20;
   const rowCount = result ? result.totalElements : 0;
 
   function newButtonClick() {
@@ -148,15 +179,20 @@ export default function Crm() {
     }
   }
 
+  const setSearchParams = (searchParams: CustomerQueryInput) => {
+    searchParams.page = customerQueryInput.page;
+    setCustomerQueryInput(searchParams);
+    refetch({ customerQuery: searchParams });
+  };
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <Dialog
         disableEnforceFocus
-        disableBackdropClick
         fullWidth
         maxWidth="lg"
         open={open}
-        onClose={handleClose}
+        onClose={handleDialogClose}
         PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
@@ -172,6 +208,12 @@ export default function Crm() {
           </Button>
         </DialogActions>
       </Dialog>
+      <SearchForm
+        defaultValues={defaultValue}
+        currentValues={customerQueryInput}
+        searchAction={setSearchParams}
+        selectKeyValueList={[]}
+      />
       <Divider variant="inset" component="li" />
       <DataGrid
         localeText={GRID_DEFAULT_LOCALE_TEXT}

@@ -1,6 +1,6 @@
 export default {
   web: {
-    host: 'http://localhost:8700',
+    host: 'http://localhost:8800',
   },
   // jwt 配置
   oauth: {
@@ -20,7 +20,7 @@ export default {
     Authorization: 'Basic dXNlcl9jbGllbnQ6dGVzdF9zZWNyZXQ=',
   },
   graphql: {
-    webSocketLink: 'ws://localhost:8780/subscriptions',
+    webSocketLink: 'ws://localhost:8880/subscriptions',
     graphql: '/graphql',
   },
   websocket: {

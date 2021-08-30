@@ -6,8 +6,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuIcon from '@material-ui/icons/Menu';
 import { IconButton, Toolbar } from '@material-ui/core';
 
-import { TopicOrKnowladgeKey } from './TopicAndKnowladgeContainer';
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     toolBar: {
@@ -25,19 +23,21 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 interface BotToolbarProps {
-  newTopicOrKnowladge: (name: TopicOrKnowladgeKey) => void;
+  refetch: () => void;
+  adderName: string;
+  add: () => void;
 }
-export default function BotToolbar(props: BotToolbarProps) {
-  const { newTopicOrKnowladge } = props;
+export default function TreeToolbar(props: BotToolbarProps) {
+  const { add, adderName, refetch } = props;
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>(undefined);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   return (
@@ -60,11 +60,19 @@ export default function BotToolbar(props: BotToolbarProps) {
       >
         <MenuItem
           onClick={() => {
-            newTopicOrKnowladge('Knowladge');
+            refetch();
             handleMenuClose();
           }}
         >
-          添加知识库
+          刷新
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            add();
+            handleMenuClose();
+          }}
+        >
+          {adderName}
         </MenuItem>
       </Menu>
     </Toolbar>

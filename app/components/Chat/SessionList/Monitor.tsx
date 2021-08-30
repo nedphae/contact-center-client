@@ -175,7 +175,7 @@ function Monitor(props: MonitorProps) {
   };
 
   const grouOfStaff = new Map<number, Staff[]>();
-  let resultList: StaffGroup[] | null = null;
+  let resultList: StaffGroup[] | undefined = undefined;
   // TODO: group by staff Shunt 根据接待组进行分组展示
   if (data) {
     const { staffStatusList, staffList, staffGroupList, customerList } =
@@ -208,7 +208,8 @@ function Monitor(props: MonitorProps) {
       aria-labelledby="nested-list-subheader"
       className={classes.root}
     >
-      {selectedSession && SyncUserMessage(selectedSession, refreshInterval)}
+      {selectedSession &&
+        SyncUserMessage(selectedSession.conversation.userId, refreshInterval)}
       {resultList &&
         resultList.map((group, index) => (
           <React.Fragment key={group.id}>

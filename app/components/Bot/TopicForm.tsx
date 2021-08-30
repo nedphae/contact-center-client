@@ -3,15 +3,13 @@ import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Button from '@material-ui/core/Button';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 import {
   Checkbox,
-  CircularProgress,
   FormControl,
   FormControlLabel,
   FormControlProps,
@@ -19,23 +17,20 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Typography,
 } from '@material-ui/core';
 
 import { makeTreeNode, Topic, TopicCategory } from 'app/domain/Bot';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
+import SubmitButton from '../Form/SubmitButton';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     paper: {
       // marginTop: theme.spacing(8),
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
     },
   })
 );
@@ -118,7 +113,7 @@ export default function TopicForm(props: FormProps) {
   const currentValues = getValues();
   const treeData = makeTreeNode(
     categoryList,
-    currentValues?.categoryId,
+    currentValues.categoryId ?? defaultValues?.categoryId,
     (topicCategory: TopicCategory, node: TreeNodeProps) => {
       node.knowledgeBaseId = topicCategory.knowledgeBaseId;
     }
@@ -128,13 +123,15 @@ export default function TopicForm(props: FormProps) {
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={data?.saveTopic.id || currentValues?.id || ''}
+          value={data?.saveTopic.id || defaultValues?.id || ''}
           name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          inputRef={register()}
         />
         <TextField
-          value={data?.saveTopic.categoryId || currentValues?.categoryId || ''}
+          defaultValue={
+            data?.saveTopic.categoryId || defaultValues?.categoryId || ''
+          }
           name="categoryId"
           type="hidden"
           error={errors.categoryId && true}
@@ -145,9 +142,9 @@ export default function TopicForm(props: FormProps) {
           })}
         />
         <TextField
-          value={
+          defaultValue={
             data?.saveTopic.knowledgeBaseId ||
-            currentValues?.knowledgeBaseId ||
+            defaultValues?.knowledgeBaseId ||
             ''
           }
           name="knowledgeBaseId"
@@ -182,6 +179,7 @@ export default function TopicForm(props: FormProps) {
           variant="outlined"
           margin="normal"
           fullWidth
+          multiline
           id="question"
           name="question"
           label="问题"
@@ -228,6 +226,7 @@ export default function TopicForm(props: FormProps) {
               variant="outlined"
               margin="normal"
               fullWidth
+              multiline
               id="answer"
               name="answer"
               label="问题的对外答案"
@@ -246,6 +245,7 @@ export default function TopicForm(props: FormProps) {
               variant="outlined"
               margin="normal"
               fullWidth
+              multiline
               id="innerAnswer"
               name="innerAnswer"
               label="问题的对内答案"
@@ -330,18 +330,8 @@ export default function TopicForm(props: FormProps) {
             />
           )}
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          保存
-        </Button>
+        <SubmitButton loading={loading} success={Boolean(data)} />
       </form>
-      {loading && <CircularProgress />}
-      {data && <Typography>Success!</Typography>}
     </div>
   );
 }

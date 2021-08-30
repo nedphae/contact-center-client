@@ -6,22 +6,15 @@ import { gql, useMutation } from '@apollo/client';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
 import { Box } from '@material-ui/core';
 
-import Staff from 'app/domain/StaffInfo';
 import { Properties, RootProperties } from 'app/domain/Properties';
+import SubmitButton from 'app/components/Form/SubmitButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
-      // marginTop: theme.spacing(8),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
+      margin: theme.spacing(0, 5, 0),
     },
   })
 );
@@ -32,28 +25,19 @@ interface FormProps {
 }
 
 interface Graphql {
-  saveStaff: Staff;
+  updateProperties: Properties;
 }
 
-const MUTATION_STAFF = gql`
-  mutation Staff($staffInput: StaffInput!) {
-    saveStaff(staff: $staffInput) {
+const MUTATION_PROPERTIES = gql`
+  mutation Properties($properties: [PropertiesInput!]!) {
+    updateProperties(properties: $properties) {
       id
       organizationId
-      username
-      role
-      staffGroupId
-      realName
-      nickName
-      avatar
-      simultaneousService
-      maxTicketPerDay
-      maxTicketAllTime
-      staffType
-      gender
-      mobilePhone
-      personalizedSignature
-      enabled
+      key
+      value
+      label
+      available
+      personal
     }
   }
 `;
@@ -71,10 +55,11 @@ export default function PropertiesFrom(props: FormProps) {
   const classes = useStyles();
 
   const { handleSubmit, register } = useForm<FormResult>();
-  const [saveStaff] = useMutation<Graphql>(MUTATION_STAFF);
+  const [updateProperties, { loading, data }] =
+    useMutation<Graphql>(MUTATION_PROPERTIES);
 
   const onSubmit: SubmitHandler<FormResult> = (form) => {
-    console.info(form);
+    updateProperties({ variables: { properties: form.props } });
   };
 
   return (
@@ -97,8 +82,9 @@ export default function PropertiesFrom(props: FormProps) {
                     variant="outlined"
                     margin="normal"
                     fullWidth
+                    multiline
                     label={childProp.label}
-                    value={childProp.value}
+                    defaultValue={childProp.value}
                     id={`${properties4Set}.${fk}.value`}
                     name={`props[${index}].value`}
                     inputRef={register()}
@@ -106,15 +92,7 @@ export default function PropertiesFrom(props: FormProps) {
                 </Box>
               );
             })}
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          保存
-        </Button>
+        <SubmitButton loading={loading} success={Boolean(data)} />
       </form>
     </div>
   );

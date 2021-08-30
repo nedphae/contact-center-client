@@ -36,17 +36,17 @@ export interface Topic {
   failureTime: Date | undefined;
   /** 知识点所属分类 */
   categoryId: number | undefined;
-  /** 问题答案类型，0只有对外答案，1只有对内答案，2同时有对内和对外答案，null 相似问题，无答案 */
+  /** 问题答案类型，0只有对外答案，1只有对内答案，2同时有对内和对外答案，undefined 相似问题，无答案 */
   faqType: number | undefined;
 }
 
 export interface TopicCategory {
-  id: number | undefined;
-  name: string;
-  knowledgeBaseId: number;
-  pid: number | undefined;
-  children: TopicCategory[] | undefined;
-  topicList: Topic[] | undefined;
+  id?: number | undefined;
+  name?: string | undefined;
+  knowledgeBaseId?: number | undefined;
+  pid?: number | undefined;
+  children?: TopicCategory[] | undefined;
+  topicList?: Topic[] | undefined;
 }
 
 export interface BotConfig {
@@ -68,7 +68,7 @@ export function makeTreeNode(
 ): TreeNodeProps[] {
   return topicCategory.map((it) => {
     const node: TreeNodeProps = {
-      label: it.name,
+      label: it.name || '未命名',
       value: it.id?.toString() ?? '',
     };
     if (selectValue && it.id === selectValue) {

@@ -1,5 +1,7 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 
 import classNames from 'classnames';
 // @material-ui/core components
@@ -21,15 +23,16 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 // 离开
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import Notifications from '@material-ui/icons/Notifications';
-import Dashboard from '@material-ui/icons/Dashboard';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
-import { Badge, Avatar } from '@material-ui/core';
+import { Badge, Avatar, CssBaseline } from '@material-ui/core';
 import { getMyself, updateStatus } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
+import config from 'app/config/clientConfig';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
@@ -66,9 +69,22 @@ function getOnlineStatusIcon(onlineStatus: OnlineStatus) {
 interface Graphql {
   updateStaffStatus: Staff;
 }
+interface AssignmentGraphql {
+  assignmentFromQueue: Staff;
+}
 const MUTATION = gql`
   mutation UpdateStaffStatus($updateStaffStatus: UpdateStaffStatusInput!) {
     updateStaffStatus(updateStaffStatus: $updateStaffStatus) {
+      id: staffId
+      organizationId
+      onlineStatusKey: onlineStatus
+    }
+  }
+`;
+
+const assignment = gql`
+  mutation AssignmentFromQueue($staffStatus: StaffStatusInput!) {
+    assignmentFromQueue(staffStatus: $staffStatus) {
       id: staffId
       organizationId
       onlineStatusKey: onlineStatus
@@ -83,6 +99,7 @@ export default function AdminNavbarLinks() {
   const [openProfile, setOpenProfile] = React.useState<any>(null);
   const mySelf = useSelector(getMyself);
   const [updateStaffStatus] = useMutation<Graphql>(MUTATION);
+  const [assignmentFromQueue] = useMutation<AssignmentGraphql>(MUTATION);
 
   const handleClickNotification = (event: {
     target: any;
@@ -126,6 +143,14 @@ export default function AdminNavbarLinks() {
           const staffStatus = data.data?.updateStaffStatus;
           if (staffStatus) {
             dispatch(updateStatus(OnlineStatus[staffStatus.onlineStatusKey]));
+            if (staffStatus.onlineStatus === OnlineStatus.ONLINE) {
+              // 是在线状态，请求分配客服
+              assignmentFromQueue({
+                variables: {
+                  staffStatus,
+                },
+              });
+            }
           }
           return staffStatus;
         })
@@ -181,52 +206,13 @@ export default function AdminNavbarLinks() {
   }, [classes.dropdownItem, handleChangeOnlineStatus]);
 
   function getOnlineStatusMenuItem(onlineStatus: OnlineStatus) {
-    const map = new Map(memoMap)
-      .set(
-        OnlineStatus.ONLINE,
-        <MenuItem
-          key={OnlineStatus.ONLINE}
-          onClick={handleChangeOnlineStatus(OnlineStatus.ONLINE)}
-          className={classes.dropdownItem}
-        >
-          设置在线
-        </MenuItem>
-      )
-      .set(
-        OnlineStatus.AWAY,
-        <MenuItem
-          key={OnlineStatus.AWAY}
-          onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
-          className={classes.dropdownItem}
-        >
-          设置离开
-        </MenuItem>
-      )
-      .set(
-        OnlineStatus.BUSY,
-        <MenuItem
-          key={OnlineStatus.BUSY}
-          onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
-          className={classes.dropdownItem}
-        >
-          设置忙碌
-        </MenuItem>
-      )
-      .set(
-        OnlineStatus.OFFLINE,
-        <MenuItem
-          key={OnlineStatus.OFFLINE}
-          onClick={handleChangeOnlineStatus(OnlineStatus.OFFLINE)}
-          className={classes.dropdownItem}
-        >
-          设置离线
-        </MenuItem>
-      );
+    const map = new Map(memoMap);
     map.delete(onlineStatus);
     return Array.from(map.values());
   }
   return (
     <div>
+      <CssBaseline />
       <div className={classes.searchWrapper}>
         <CustomInput
           formControlProps={{
@@ -243,18 +229,24 @@ export default function AdminNavbarLinks() {
           <Search />
         </Button>
       </div>
-      <Button
-        color={window.innerWidth > 959 ? 'transparent' : 'white'}
-        justIcon={window.innerWidth > 959}
-        simple={!(window.innerWidth > 959)}
-        aria-label="Dashboard"
+      <NavLink
         className={classes.buttonLink}
+        activeClassName="active"
+        to="/admin/entertain"
       >
-        <Dashboard className={classes.icons} />
-        <Hidden mdUp implementation="css">
-          <p className={classes.linkText}>Dashboard</p>
-        </Hidden>
-      </Button>
+        <Button
+          color={window.innerWidth > 959 ? 'transparent' : 'white'}
+          justIcon={window.innerWidth > 959}
+          simple={!(window.innerWidth > 959)}
+          aria-label="Dashboard"
+          className={classes.buttonLink}
+        >
+          <QuestionAnswerIcon className={classes.icons} />
+          <Hidden mdUp implementation="css">
+            <p className={classes.linkText}>Dashboard</p>
+          </Hidden>
+        </Button>
+      </NavLink>
       <div className={classes.manager}>
         <Button
           color={window.innerWidth > 959 ? 'transparent' : 'white'}
@@ -310,7 +302,7 @@ export default function AdminNavbarLinks() {
                       onClick={handleCloseNotification}
                       className={classes.dropdownItem}
                     >
-                      You're now friend with Andrew
+                      You&apos;re now friend with Andrew
                     </MenuItem>
                     <MenuItem
                       onClick={handleCloseNotification}
@@ -350,7 +342,14 @@ export default function AdminNavbarLinks() {
             }}
             badgeContent={getOnlineStatusIcon(mySelf.onlineStatus)}
           >
-            <Avatar alt={mySelf.realName} src={mySelf.avatar} />
+            <Avatar
+              alt={mySelf.realName}
+              src={
+                mySelf.avatar
+                  ? `${config.web.host}${config.oss.path}/staff/img/${mySelf.avatar}`
+                  : undefined
+              }
+            />
           </Badge>
           <Hidden mdUp implementation="css">
             <p className={classes.linkText}>Profile</p>

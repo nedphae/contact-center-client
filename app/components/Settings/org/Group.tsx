@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
-import { DataGrid, GridColDef } from '@material-ui/data-grid';
+import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
-import { StaffGroupList } from 'app/domain/graphql/Staff';
+import { QUERY_GROUP, StaffGroupList } from 'app/domain/graphql/Staff';
 import { StaffGroup } from 'app/domain/StaffInfo';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -13,13 +13,9 @@ import DraggableDialog, {
 import StaffGroupForm from 'app/components/StaffForm/StaffGroupForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 
-const QUERY_GROUP = gql`
-  query Group {
-    allStaffGroup {
-      id
-      organizationId
-      groupName
-    }
+const MUTATION_GROUP = gql`
+  mutation DeleteGroup($ids: [Long!]!) {
+    deleteStaffGroupByIds(ids: $ids)
   }
 `;
 
@@ -34,8 +30,10 @@ export default function Group() {
   const [staffGroup, setStaffGroup] = useState<StaffGroup | undefined>(
     undefined
   );
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
-  const { loading, data } = useQuery<Graphql>(QUERY_GROUP);
+  const { loading, data, refetch } = useQuery<Graphql>(QUERY_GROUP);
+  const [deleteByIds] = useMutation<number>(MUTATION_GROUP);
 
   function newButtonClick() {
     setStaffGroup(undefined);
@@ -49,6 +47,12 @@ export default function Group() {
 
   const rows = data?.allStaffGroup ?? [];
 
+  function deleteButtonClick() {
+    if (selectionModel && selectionModel.length > 0) {
+      deleteByIds({ variables: { ids: selectionModel } });
+    }
+  }
+
   return (
     <>
       <DraggableDialog title="添加/修改客服组" ref={refOfDialog}>
@@ -59,15 +63,27 @@ export default function Group() {
         rows={rows}
         columns={columns}
         components={{
-          Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
+          Toolbar: CustomerGridToolbarCreater({
+            newButtonClick,
+            deleteButtonClick,
+            refetch: () => {
+              refetch();
+            },
+          }),
         }}
         onRowClick={(param) => {
           handleClickOpen(param.row as StaffGroup);
         }}
+        rowsPerPageOptions={[20]}
         pagination
         pageSize={20}
         loading={loading}
         disableSelectionOnClick
+        checkboxSelection
+        onSelectionModelChange={(selectionId: GridRowId[]) => {
+          setSelectionModel(selectionId);
+        }}
+        selectionModel={selectionModel}
       />
     </>
   );

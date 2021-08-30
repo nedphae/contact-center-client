@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { Customer } from '../Customer';
+import { PageParam, RangeQuery } from './Query';
 
 export const CORE_CUSTOMER_FIELDS = gql`
   fragment CustomerFields on Customer {
@@ -9,6 +10,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
     name
     email
     mobile
+    address
     vipLevel
     remarks
     status {
@@ -23,8 +25,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
       staffId
       title
     }
-    detailData {
-      id
+    data {
       key
       label
       value
@@ -56,4 +57,16 @@ export interface CustomerGraphql {
 }
 export interface UpdateCustomerGraphql {
   updateCustomer: Customer;
+}
+
+export interface CustomerQueryInput {
+  time?: boolean;
+  // 关键字
+  keyword?: string;
+
+  // 分页参数
+  page: PageParam;
+
+  // 时间区间
+  timeRange?: RangeQuery<Date | string>;
 }

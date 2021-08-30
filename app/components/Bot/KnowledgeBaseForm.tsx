@@ -2,26 +2,21 @@ import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Button from '@material-ui/core/Button';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
-import { CircularProgress, Typography } from '@material-ui/core';
-
 import { KnowledgeBase } from 'app/domain/Bot';
+import SubmitButton from '../Form/SubmitButton';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     paper: {
       // marginTop: theme.spacing(8),
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
     },
   })
 );
@@ -59,8 +54,6 @@ export default function KnowledgeBaseForm(props: FormProps) {
 
   return (
     <div className={classes.paper}>
-      {loading && <CircularProgress />}
-      {data && <Typography>Success!</Typography>}
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveKnowledgeBase.id || ''}
@@ -115,15 +108,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
             },
           })}
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          保存
-        </Button>
+        <SubmitButton loading={loading} success={Boolean(data)} />
       </form>
     </div>
   );

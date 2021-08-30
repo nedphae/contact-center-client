@@ -23,6 +23,8 @@ import { ConnectedRouter } from 'connected-react-router';
 import { History } from 'history';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
+import { HotKeys } from 'react-hotkeys';
+
 import { Store } from './store';
 // core components
 import Admin from './layouts/Admin';
@@ -32,14 +34,23 @@ import Authorized from './components/Authorized/Authorized';
 import useApolloClient from './hook/init/useApolloClient';
 // import apolloClient from './utils/apolloClient';
 
+const keyMap = {
+  // 关闭当前会话(隐藏)
+  ESC_NODE: 'esc',
+  // 切换至等待时间最长的会话
+  SWITCH_NODE: 'ctrl+tab',
+};
+
 function AdminContainer() {
   const [apolloClient] = useApolloClient();
   return (
     <>
       {apolloClient && (
-        <ApolloProvider client={apolloClient}>
-          <Admin />
-        </ApolloProvider>
+        <HotKeys keyMap={keyMap}>
+          <ApolloProvider client={apolloClient}>
+            <Admin />
+          </ApolloProvider>
+        </HotKeys>
       )}
     </>
   );

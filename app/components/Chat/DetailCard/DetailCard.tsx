@@ -9,6 +9,7 @@ import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
+import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
 import QuickReply from './panel/QuickReply/QuickReply';
@@ -86,7 +87,7 @@ export default function DetailCard() {
         <QuickReply />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        Item Three
+        <ComingSoon />
       </TabPanel>
     </div>
   );

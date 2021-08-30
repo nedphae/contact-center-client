@@ -22,6 +22,7 @@ import {
 } from 'app/domain/graphql/Customer';
 import { updateCustomer } from 'app/state/session/sessionAction';
 import { DetailData } from 'app/domain/Customer';
+import { Link } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,9 +45,10 @@ export interface CustomerFormValues {
   name: string;
   mobile: string | undefined;
   email: string | undefined;
+  address: string | undefined;
   vipLevel: number | undefined;
   remarks: string | undefined;
-  detailData: DetailData[] | undefined;
+  data: DetailData[] | undefined;
 }
 
 interface CustomerFormProps {
@@ -179,6 +181,25 @@ export default function CustomerForm(props: CustomerFormProps) {
           variant="outlined"
           margin="normal"
           fullWidth
+          multiline
+          id="address"
+          name="address"
+          label="地址"
+          error={errors.address && true}
+          helperText={errors.address?.message}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <EmailIcon />
+              </InputAdornment>
+            ),
+          }}
+          inputRef={register()}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
           id="vipLevel"
           name="vipLevel"
           label="Vip 等级"
@@ -232,8 +253,8 @@ export default function CustomerForm(props: CustomerFormProps) {
             },
           })}
         />
-        {defaultValues?.detailData !== undefined &&
-          defaultValues?.detailData
+        {defaultValues?.data &&
+          defaultValues?.data
             .filter(({ hidden }) => hidden === false)
             .sort((a, b) => {
               if (!a.index) a.index = Number.MAX_SAFE_INTEGER;
@@ -241,19 +262,43 @@ export default function CustomerForm(props: CustomerFormProps) {
               return a.index - b.index;
             })
             .map((detail, index) => (
-              <React.Fragment key={detail.id}>
+              <React.Fragment key={detail.key}>
                 <TextField
                   type="hidden"
-                  id={`key.${detail.id}`}
-                  name={`detailData.${index}.key`}
+                  id={`${detail.key}.key`}
+                  name={`data.${index}.key`}
+                  inputRef={register()}
+                />
+                <TextField
+                  type="hidden"
+                  id={`${detail.key}.label`}
+                  name={`data.${index}.label`}
+                  inputRef={register()}
+                />
+                <TextField
+                  type="hidden"
+                  id={`${detail.key}.index`}
+                  name={`data.${index}.index`}
+                  inputRef={register()}
+                />
+                <TextField
+                  type="hidden"
+                  id={`${detail.key}.hidden`}
+                  name={`data.${index}.hidden`}
+                  inputRef={register()}
+                />
+                <TextField
+                  type="hidden"
+                  id={`${detail.key}.href`}
+                  name={`data.${index}.href`}
                   inputRef={register()}
                 />
                 <TextField
                   variant="outlined"
                   margin="normal"
                   fullWidth
-                  id={`value.${detail.id}`}
-                  name={`detailData.${index}.value`}
+                  id={`${detail.key}.value`}
+                  name={`data.${index}.value`}
                   label={detail.label}
                   InputProps={{
                     startAdornment: (
@@ -264,6 +309,16 @@ export default function CustomerForm(props: CustomerFormProps) {
                   }}
                   inputRef={register()}
                 />
+                {detail.href && (
+                  <Link
+                    target="_blank"
+                    href={detail.href}
+                    variant="body2"
+                    style={{ marginLeft: 10 }}
+                  >
+                    点击查看详细信息
+                  </Link>
+                )}
               </React.Fragment>
             ))}
         <Button

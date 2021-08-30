@@ -2,7 +2,11 @@ import { useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { history } from 'app/store';
-import { getAccessToken, refreshToken } from 'app/electron/jwtStorage';
+import {
+  getAccessToken,
+  getOnlineStatus,
+  refreshToken,
+} from 'app/electron/jwtStorage';
 import { setUserAsync } from 'app/state/staff/staffAction';
 
 const useAutoLogin = (authPage = false) => {
@@ -11,17 +15,18 @@ const useAutoLogin = (authPage = false) => {
    * 自动刷新 Token
    */
   const getTokenCall = useCallback(async () => {
-    let token = null;
+    let token;
+    const onlineStatus = parseInt(getOnlineStatus() ?? '1', 10);
     try {
       token = await getAccessToken();
       if (token) {
-        dispatch(setUserAsync(token));
+        dispatch(setUserAsync(token, onlineStatus));
       }
     } catch (error) {
       // 刷新token
       token = await refreshToken();
       if (token) {
-        dispatch(setUserAsync(token));
+        dispatch(setUserAsync(token, onlineStatus));
       }
     }
     // 没有任何异常就跳转

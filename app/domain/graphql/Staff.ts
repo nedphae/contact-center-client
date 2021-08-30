@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client';
 import { Object } from 'ts-toolbelt';
 
 import Staff, { ShuntClass, StaffGroup, StaffShunt } from '../StaffInfo';
@@ -24,3 +25,37 @@ export type AllStaffInfo = Object.MergeAll<
   StaffList,
   [StaffGroupList, StaffShuntList]
 >;
+
+export const QUERY_GROUP = gql`
+  query Group {
+    allStaffGroup {
+      id
+      organizationId
+      groupName
+    }
+  }
+`;
+
+export const QUERY_STAFF = gql`
+  query Staff {
+    allStaff {
+      avatar
+      enabled
+      gender
+      id
+      maxTicketAllTime
+      maxTicketPerDay
+      mobilePhone
+      nickName
+      organizationId
+      password
+      personalizedSignature
+      realName
+      role
+      simultaneousService
+      staffGroupId
+      staffType
+      username
+    }
+  }
+`;

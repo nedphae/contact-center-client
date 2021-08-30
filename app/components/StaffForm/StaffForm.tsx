@@ -1,12 +1,13 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo, useState } from 'react';
 import { Object } from 'ts-toolbelt';
+import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Button from '@material-ui/core/Button';
 
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
@@ -27,27 +28,24 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Typography,
 } from '@material-ui/core';
 import Upload from 'rc-upload';
 
 import config from 'app/config/clientConfig';
 import Staff from 'app/domain/StaffInfo';
+import SubmitButton from '../Form/SubmitButton';
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     paper: {
       // marginTop: theme.spacing(8),
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-    },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
     },
   })
 );
@@ -91,22 +89,23 @@ type StaffWithPassword = Object.Merge<
 
 export default function StaffForm(props: FormProps) {
   const { defaultValues, mutationCallback } = props;
-  const { staffType } = defaultValues;
   const classes = useStyles();
   const { handleSubmit, register, control, setValue, watch, errors } =
     useForm<StaffWithPassword>({
-      defaultValues,
+      // 清除 password
+      defaultValues: _.omit(defaultValues, 'password'),
     });
   const [uploading, setUploading] = useState<boolean>();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>();
   const [saveStaff, { loading, data }] = useMutation<Graphql>(MUTATION_STAFF);
 
   const password = watch('password');
   const avatar = watch('avatar');
+  const staffType = watch('staffType');
 
   const imgUploadProps = useMemo(() => {
     return {
-      action: `${config.web.host}/${config.oss.path}/staff/img`,
+      action: `${config.web.host}${config.oss.path}/staff/img`,
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {
@@ -124,14 +123,14 @@ export default function StaffForm(props: FormProps) {
   }, [setUploading, setError, setValue]);
 
   const onSubmit: SubmitHandler<Staff> = (form) => {
-    saveStaff({ variables: { staffInput: form } });
+    saveStaff({ variables: { staff: _.omit(form, 'password_repeat') } });
   };
 
   const handleClose = (_event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
-    setError(null);
+    setError(undefined);
   };
 
   if (mutationCallback && data) {
@@ -140,10 +139,9 @@ export default function StaffForm(props: FormProps) {
 
   return (
     <div className={classes.paper}>
-      {(uploading || loading) && <CircularProgress />}
-      {data && <Typography>Success!</Typography>}
+      {uploading && <CircularProgress />}
       <Snackbar
-        open={error !== null}
+        open={error !== undefined}
         autoHideDuration={6000}
         onClose={handleClose}
       >
@@ -170,7 +168,7 @@ export default function StaffForm(props: FormProps) {
             alt="上传头像"
             src={
               avatar &&
-              `${config.web.host}/${config.oss.path}/staff/img/${avatar}`
+              `${config.web.host}${config.oss.path}/staff/img/${avatar}`
             }
           >
             头像
@@ -184,7 +182,6 @@ export default function StaffForm(props: FormProps) {
           name="username"
           label="用户名"
           InputProps={{
-            readOnly: true,
             startAdornment: (
               <InputAdornment position="start">
                 <AccountCircle />
@@ -205,7 +202,28 @@ export default function StaffForm(props: FormProps) {
             },
           })}
         />
-        {staffType && staffType === 1 && (
+        <Controller
+          control={control}
+          name="staffType"
+          render={({ onChange, value }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="staffType-simple-select-outlined-label">
+                是否是机器人
+              </InputLabel>
+              <Select
+                labelId="staffType-simple-select-outlined-label"
+                id="staffType"
+                onChange={onChange}
+                value={value}
+                label="是否是机器人"
+              >
+                <MenuItem value={0}>机器人</MenuItem>
+                <MenuItem value={1}>人工</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
+        {staffType === 1 && (
           <>
             <TextField
               variant="outlined"
@@ -225,7 +243,6 @@ export default function StaffForm(props: FormProps) {
               error={errors.password && true}
               helperText={errors.password?.message}
               inputRef={register({
-                required: '必须提供密码',
                 maxLength: {
                   value: 50,
                   message: '密码不能大于50位',
@@ -261,31 +278,31 @@ export default function StaffForm(props: FormProps) {
                 validate: (value) => value === password || '密码不相符',
               })}
             />
-            <Controller
-              control={control}
-              name="role"
-              render={({ onChange, value }) => (
-                <FormControl variant="outlined" margin="normal" fullWidth>
-                  <InputLabel id="role-simple-select-outlined-label">
-                    角色
-                  </InputLabel>
-                  <Select
-                    labelId="role-simple-select-outlined-label"
-                    id="role"
-                    label="角色"
-                    onChange={onChange}
-                    value={value}
-                  >
-                    <MenuItem value="ROLE_ADMIN">管理员</MenuItem>
-                    <MenuItem value="ROLE_LEADER">组长</MenuItem>
-                    <MenuItem value="ROLE_QA">质检</MenuItem>
-                    <MenuItem value="ROLE_STAFF">客服</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-            />
           </>
         )}
+        <Controller
+          control={control}
+          name="role"
+          render={({ onChange, value }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="role-simple-select-outlined-label">
+                角色
+              </InputLabel>
+              <Select
+                labelId="role-simple-select-outlined-label"
+                id="role"
+                label="角色"
+                onChange={onChange}
+                value={value}
+              >
+                <MenuItem value="ROLE_ADMIN">管理员</MenuItem>
+                <MenuItem value="ROLE_LEADER">组长</MenuItem>
+                <MenuItem value="ROLE_QA">质检</MenuItem>
+                <MenuItem value="ROLE_STAFF">客服</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
         <TextField
           variant="outlined"
           margin="normal"
@@ -419,27 +436,6 @@ export default function StaffForm(props: FormProps) {
         />
         <Controller
           control={control}
-          name="staffType"
-          render={({ onChange, value }) => (
-            <FormControl variant="outlined" margin="normal" fullWidth>
-              <InputLabel id="staffType-simple-select-outlined-label">
-                是否是机器人
-              </InputLabel>
-              <Select
-                labelId="staffType-simple-select-outlined-label"
-                id="staffType"
-                onChange={onChange}
-                value={value}
-                label="是否是机器人"
-              >
-                <MenuItem value={0}>机器人</MenuItem>
-                <MenuItem value={1}>人工</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
-        <Controller
-          control={control}
           name="gender"
           render={({ onChange, value }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
@@ -490,8 +486,8 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          error={errors.username && true}
-          helperText={errors.username?.message}
+          error={errors.personalizedSignature && true}
+          helperText={errors.personalizedSignature?.message}
           inputRef={register({ maxLength: 250 })}
         />
         <FormControlLabel
@@ -511,15 +507,7 @@ export default function StaffForm(props: FormProps) {
           }
           label="是否启用"
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          保存
-        </Button>
+        <SubmitButton loading={loading} success={Boolean(data)} />
       </form>
     </div>
   );

@@ -37,6 +37,15 @@ function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
     setOpen(false);
   };
 
+  const handleDialogClose = (
+    _: unknown,
+    reason: 'backdropClick' | 'escapeKeyDown'
+  ) => {
+    if (reason !== 'backdropClick') {
+      handleClose();
+    }
+  };
+
   useImperativeHandle(ref, () => ({
     setOpen: (state: boolean) => {
       setOpen(state);
@@ -46,10 +55,10 @@ function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
   return (
     <Dialog
       disableEnforceFocus
-      disableBackdropClick
       fullWidth
+      maxWidth="lg"
       open={open}
-      onClose={handleClose}
+      onClose={handleDialogClose}
       PaperComponent={PaperComponent}
       aria-labelledby="draggable-dialog-title"
     >

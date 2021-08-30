@@ -15,7 +15,7 @@ import {
   Header,
   generateResponse,
 } from 'app/domain/WebSocket';
-import { StaffConfig } from 'app/domain/StaffInfo';
+import { StaffConfigData } from 'app/domain/StaffInfo';
 import { Message, MessageResponse } from 'app/domain/Message';
 import { socketCallback } from 'app/utils/socketUtils';
 import { CallBack } from './websocket/EventInterface';
@@ -108,7 +108,7 @@ export function emitMessage(
  * @param staffConfig staff config data
  */
 export function register<T>(
-  staffConfig: StaffConfig
+  staffConfig: StaffConfigData
 ): Observable<WebSocketResponse<T>> {
   return fetch('register', generateRequest(staffConfig));
 }

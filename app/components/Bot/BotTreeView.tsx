@@ -60,7 +60,7 @@ function buildTopicCategory(
     <StyledTreeItem
       key={cl.id?.toString()}
       nodeId={uuidv4()}
-      labelText={cl.name}
+      labelText={`${cl.id}: ${cl.name}`}
       labelIcon={SubjectIcon}
       onContextMenu={(event) => {
         if (onContextMenu) {
@@ -99,7 +99,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
             <StyledTreeItem
               key={base.id?.toString()}
               nodeId={uuidv4()}
-              labelText={base.name}
+              labelText={`${base.id}: ${base.name}`}
               labelIcon={SubjectIcon}
               onContextMenu={(event) =>
                 handleContextMenuOpen(event, 'Knowladge', base)

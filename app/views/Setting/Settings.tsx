@@ -13,12 +13,12 @@ import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
 import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
 import Account from 'app/components/Settings/personal/Account';
-import unimplemented from 'app/utils/Error';
 import Group from 'app/components/Settings/org/Group';
 import AccountList from 'app/components/Settings/org/AccountList';
 import Shunt from 'app/components/Settings/org/Shunt';
 import { Properties, RootProperties } from 'app/domain/Properties';
 import PropertiesFrom from 'app/components/Settings/org/PropertiesFrom';
+import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,7 +60,7 @@ const QUERY = gql`
 
 function settingPage(
   pageName: PageName,
-  properties4Set: string | null,
+  properties4Set: string | undefined,
   properties?: RootProperties
 ) {
   let result: JSX.Element;
@@ -70,7 +70,7 @@ function settingPage(
       break;
     }
     case 'personal.Client': {
-      unimplemented();
+      result = <ComingSoon />;
       break;
     }
     case 'org.Account': {
@@ -86,11 +86,11 @@ function settingPage(
       break;
     }
     case 'org.BlackList': {
-      unimplemented();
+      result = <ComingSoon />;
       break;
     }
     case 'org.ConsultationType': {
-      unimplemented();
+      result = <ComingSoon />;
       break;
     }
     case 'org.Properties': {
@@ -102,12 +102,12 @@ function settingPage(
           />
         );
       } else {
-        unimplemented();
+        result = <ComingSoon />;
       }
       break;
     }
     default: {
-      unimplemented();
+      result = <ComingSoon />;
       break;
     }
   }
@@ -128,7 +128,7 @@ export default function Setting() {
   const classes = useStyles();
   const { data } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
-  const [properties4Set, setProperties4Set] = useState<string | null>(null);
+  const [properties4Set, setProperties4Set] = useState<string>();
 
   const properties: RootProperties = useMemo(
     () =>

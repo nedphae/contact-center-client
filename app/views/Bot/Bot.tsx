@@ -10,12 +10,7 @@ import { Topic, BotConfig, KnowledgeBase, TopicCategory } from 'app/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
-import {
-  DataGrid,
-  GridColDef,
-  GridRowId,
-  GridSelectionModelChangeParams,
-} from '@material-ui/data-grid';
+import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import TopicForm from 'app/components/Bot/TopicForm';
@@ -77,19 +72,19 @@ const QUERY = gql`
 `;
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
+  { field: 'id', headerName: 'ID', width: 200 },
   { field: 'knowledgeBaseId', headerName: '所属知识库ID', width: 150 },
+  { field: 'categoryId', headerName: '知识点所属分类', width: 150 },
   { field: 'question', headerName: '问题', width: 150 },
   { field: 'md5', headerName: '问题的md5', width: 150 },
   { field: 'answer', headerName: '问题的对外答案', width: 150 },
   { field: 'innerAnswer', headerName: '问题的对内答案', width: 150 },
   { field: 'fromType', headerName: '问题的来源', width: 150 },
   { field: 'type', headerName: '问题类型', width: 150 },
-  { field: 'refId', headerName: '相似问题', width: 150 },
+  { field: 'refId', headerName: '相似问题', width: 200 },
   { field: 'enabled', headerName: '是否有效标记位', width: 150 },
   { field: 'effectiveTime', headerName: '问题的有效时间', width: 150 },
   { field: 'failureTime', headerName: '有效期结束', width: 150 },
-  { field: 'categoryId', headerName: '知识点所属分类', width: 150 },
 ];
 
 const MUTATION_TOPIC = gql`
@@ -101,7 +96,7 @@ const MUTATION_TOPIC = gql`
 export default function Bot() {
   const classes = useStyles();
   const refOfTopicDialog = useRef<DraggableDialogRef>(null);
-  const [topic, setTopic] = useState<Topic | undefined>(undefined);
+  const [topic, setTopic] = useState<Topic>();
   const { data, loading, refetch } = useQuery<Graphql>(QUERY);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const [deleteTopicById] = useMutation<unknown>(MUTATION_TOPIC);
@@ -203,13 +198,12 @@ export default function Bot() {
             }}
             pagination
             pageSize={20}
+            rowsPerPageOptions={[20]}
             loading={loading}
             disableSelectionOnClick
             checkboxSelection
-            onSelectionModelChange={(
-              newSelectionModel: GridSelectionModelChangeParams
-            ) => {
-              setSelectionModel(newSelectionModel.selectionModel);
+            onSelectionModelChange={(gridRowId: GridRowId[]) => {
+              setSelectionModel(gridRowId);
             }}
             selectionModel={selectionModel}
           />

@@ -59,7 +59,7 @@ export default function CustomInput(props: {
         >
           {labelText}
         </InputLabel>
-      ) : null}
+      ) : undefined}
       <Input
         classes={{
           root: marginTop,
@@ -73,7 +73,7 @@ export default function CustomInput(props: {
         <Clear className={`${classes.feedback} ${classes.labelRootError}`} />
       ) : success ? (
         <Check className={`${classes.feedback} ${classes.labelRootSuccess}`} />
-      ) : null}
+      ) : undefined}
     </FormControl>
   );
 }

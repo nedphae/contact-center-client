@@ -40,4 +40,6 @@ export enum SysCode {
   NO_ANSWER,
   // 修改在线状态
   ONLINE_STATUS_CHANGED,
+  // 会话结束
+  CONV_END,
 }

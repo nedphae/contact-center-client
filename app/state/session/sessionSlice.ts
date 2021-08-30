@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { of } from 'rxjs';
 import { map, switchMap, filter, defaultIfEmpty } from 'rxjs/operators';
@@ -18,16 +19,42 @@ const converSlice = createSlice({
     // 设置新会话
     newConver: (converMap, action: PayloadAction<Session>) => {
       if (action.payload.user.userId) {
-        const conver = converMap[action.payload.user.userId];
-        if (conver) {
-          conver.user = action.payload.user;
-          if (conver.hide) {
-            conver.hide = false;
-          }
-        } else {
-          converMap[action.payload.conversation.userId] = action.payload;
+        converMap[action.payload.conversation.userId] = action.payload;
+      }
+    },
+    unhideSession: (converMap, action: PayloadAction<number | undefined>) => {
+      if (action.payload) {
+        const conver = converMap[action.payload];
+        if (conver && conver.hide) {
+          conver.hide = false;
         }
       }
+    },
+    clearMessgeBadge: (
+      converMap,
+      action: PayloadAction<number | undefined>
+    ) => {
+      if (action.payload) {
+        const conver = converMap[action.payload];
+        if (conver) {
+          conver.unread = 0;
+        }
+      }
+    },
+    addNewMessgeBadge: (
+      converMap,
+      action: PayloadAction<number | undefined>
+    ) => {
+      if (action.payload) {
+        const conver = converMap[action.payload];
+        if (conver) {
+          conver.unread += 1;
+        }
+      }
+    },
+    hideSelectedSession: (converMap, action: PayloadAction<number>) => {
+      const conver = converMap[action.payload];
+      conver.hide = true;
     },
     updateCustomer: (converMap, action: PayloadAction<Customer>) => {
       if (action.payload.userId) {
@@ -38,7 +65,7 @@ const converSlice = createSlice({
       converMap,
       action: PayloadAction<CustomerStatus>
     ) => {
-      if (action.payload.userId) {
+      if (action.payload.userId && converMap[action.payload.userId]) {
         converMap[action.payload.userId].user.status = action.payload;
       }
     },
@@ -59,8 +86,15 @@ const converSlice = createSlice({
         const userId = parseInt(userIdStr, 10);
         const messageMap = userMessageMap[userId];
         const conver = converMap[userId];
-        _.defaults(conver.massageList, messageMap);
+        conver.massageList = _.defaults(conver.massageList, messageMap);
       });
+    },
+    setHasMore: (
+      converMap,
+      action: PayloadAction<{ userId: number; hasMore: boolean }>
+    ) => {
+      const conver = converMap[action.payload.userId];
+      conver.hasMore = action.payload.hasMore;
     },
     newMessage: (converMap, action: PayloadAction<MessagesMap>) => {
       // 设置新消息
@@ -71,16 +105,19 @@ const converSlice = createSlice({
             const { from, to } = msg;
             return of(from).pipe(
               filter((f) => f !== undefined && f !== null),
-              defaultIfEmpty<number | undefined, number | undefined>(to),
-              filter((f) => f !== undefined && f !== null),
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               map((f) => converMap[f!]),
+              filter((f) => f !== undefined && f !== null),
+              defaultIfEmpty<Session | undefined, Session | undefined>(
+                to ? converMap[to] : undefined
+              ),
               map((c) => {
-                c.lastMessageTime =
-                  (msg.createdAt as number | null) ?? c.lastMessageTime;
-                [c.lastMessage] = _.valuesIn(m);
-                // 消息如果存在了就不在设置 change from _.merge
-                _.defaults(c.massageList, m);
+                if (c) {
+                  c.lastMessageTime =
+                    (msg.createdAt as number | null) ?? c.lastMessageTime;
+                  [c.lastMessage] = _.valuesIn(m);
+                  // 消息如果存在了就不在设置 change from _.merge
+                  c.massageList = _.defaults(c.massageList, m);
+                }
               })
             );
           })

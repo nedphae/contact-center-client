@@ -1,7 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 
 import PropTypes from 'prop-types';
-import { GridMenu, isTabKey, isHideMenuKey } from '@material-ui/data-grid';
+import { GridMenu } from '@material-ui/data-grid';
 import { Badge, Button, MenuItem, MenuList } from '@material-ui/core';
 import ViewListIcon from '@material-ui/icons/ViewList';
 
@@ -16,15 +16,15 @@ export const GridToolbarDataButton = forwardRef<
   GridToolbarDataProps
 >(function GridToolbarDataButton(props, ref) {
   const { newButtonClick, deleteButtonClick, refetch } = props;
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
     setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
+  const handleMenuClose = () => setAnchorEl(undefined);
   const handleNew = () => {
     // 打开新增接口
     newButtonClick();
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   const handleDelete = () => {
@@ -32,7 +32,7 @@ export const GridToolbarDataButton = forwardRef<
     if (deleteButtonClick) {
       deleteButtonClick();
     }
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   const handleRefetch = () => {
@@ -40,14 +40,14 @@ export const GridToolbarDataButton = forwardRef<
     if (refetch) {
       refetch();
     }
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   };
 
   const handleListKeyDown = (event: React.KeyboardEvent) => {
-    if (isTabKey(event.key)) {
+    if (event.key === 'Tab') {
       event.preventDefault();
     }
-    if (isHideMenuKey(event.key)) {
+    if (event.key === 'Tab' || event.key === 'Escape') {
       handleMenuClose();
     }
   };

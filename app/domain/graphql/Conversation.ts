@@ -2,38 +2,10 @@ import { gql } from '@apollo/client';
 import { Conversation, SearchHit } from '../Conversation';
 import { PageContent } from '../Page';
 import getPageQuery from './Page';
-
-interface RangeQuery<T> {
-  from?: T;
-  includeLower?: boolean;
-  includeUpper?: boolean;
-  to?: T;
-}
-type Direction = 'ASC' | 'DESC';
-
-export class PageParam {
-  page = 0;
-
-  size = 20;
-
-  direction: Direction;
-
-  properties?: string[] = undefined;
-
-  constructor(
-    page = 0,
-    size = 20,
-    direction: Direction = 'DESC',
-    properties: string[] | undefined = undefined
-  ) {
-    this.page = page;
-    this.size = size;
-    this.direction = direction;
-    this.properties = properties;
-  }
-}
+import { PageParam, RangeQuery } from './Query';
 
 export interface ConversationQueryInput {
+  time?: boolean;
   // 咨询类型
   categoryList?: string[];
 
@@ -137,9 +109,9 @@ const CONTENT_QUERY = gql`
           sysCode
           attachments {
             mediaId
+            filename
             size
             type
-            url
           }
           photoContent {
             mediaId

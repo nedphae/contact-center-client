@@ -1,11 +1,11 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { gql, useLazyQuery } from '@apollo/client';
 
 import Staff from 'app/domain/StaffInfo';
 import StaffForm from './StaffForm';
 
 interface FormProps {
-  staffId: number | null | undefined;
+  staffId: number | undefined;
   mutationCallback?: (staff: Staff) => void | undefined;
 }
 
@@ -38,28 +38,39 @@ const QUERY_STAFF = gql`
 
 export default function StaffFormContainer(props: FormProps) {
   const { staffId, mutationCallback } = props;
-  const [getStaff, { data }] = useLazyQuery<Graphql>(QUERY_STAFF, {
-    variables: { staffId },
-  });
+  const [getStaff, { data }] = useLazyQuery<Graphql>(QUERY_STAFF);
 
   useEffect(() => {
     if (staffId) {
-      getStaff();
+      getStaff({
+        variables: { staffId },
+      });
     }
-  });
+  }, [getStaff, staffId]);
 
-  const staff = useMemo(() => {
-    if (data) {
-      if (mutationCallback) {
-        mutationCallback(data.getStaffById);
-      }
-      return data.getStaffById;
+  const staff = data?.getStaffById;
+  if (staff) {
+    if (mutationCallback) {
+      mutationCallback(staff);
     }
-    return { staffType: 0 } as Staff;
-  }, [data, mutationCallback]);
-
+  }
+  if (staffId) {
+    return (
+      <>
+        {staff && (
+          <StaffForm
+            defaultValues={staff}
+            mutationCallback={mutationCallback}
+          />
+        )}
+      </>
+    );
+  }
   return (
-    <StaffForm defaultValues={staff} mutationCallback={mutationCallback} />
+    <StaffForm
+      defaultValues={{ staffType: 0 } as Staff}
+      mutationCallback={mutationCallback}
+    />
   );
 }
 

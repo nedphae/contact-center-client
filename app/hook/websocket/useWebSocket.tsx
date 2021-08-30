@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { interval } from 'rxjs';
+import { interval, Subscription } from 'rxjs';
 
 import IO from 'socket.io-client';
 
@@ -51,10 +51,11 @@ const useWebSocket = () => {
   }, []);
 
   useEffect(() => {
+    let tempSubscription: Subscription;
     if (window.socketRef && token) {
       const period = 1000 * 60 * 10;
       let newToken = token;
-      interval(period).subscribe(() => {
+      tempSubscription = interval(period).subscribe(() => {
         verifyTokenPromise(newToken, period * 2)
           .catch(() => {
             return refreshToken();
@@ -71,6 +72,11 @@ const useWebSocket = () => {
           });
       });
     }
+    return () => {
+      if (tempSubscription) {
+        tempSubscription.unsubscribe();
+      }
+    };
   }, [token]);
 
   return [window.socketRef];

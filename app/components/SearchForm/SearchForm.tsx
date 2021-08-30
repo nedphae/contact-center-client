@@ -19,7 +19,13 @@ import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
 import { ConversationQueryInput } from 'app/domain/graphql/Conversation';
-import { FormControl, FormControlProps } from '@material-ui/core';
+import {
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormControlProps,
+} from '@material-ui/core';
+import { CustomerQueryInput } from 'app/domain/graphql/Customer';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,11 +63,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+type FormType = ConversationQueryInput | CustomerQueryInput;
+
 interface FormProps {
-  defaultValues: ConversationQueryInput;
-  currentValues: ConversationQueryInput;
+  defaultValues: FormType;
+  currentValues: FormType;
   selectKeyValueList: SelectKeyValue[];
-  searchAction: (searchParams: ConversationQueryInput) => void;
+  searchAction: (searchParams: FormType) => void;
 }
 
 const dateFnsUtils = new DateFnsUtils();
@@ -71,7 +79,7 @@ export default function SearchForm(props: FormProps) {
     props;
   const classes = useStyles();
   const { handleSubmit, register, reset, control, getValues, setValue } =
-    useForm<ConversationQueryInput>({ defaultValues: currentValues });
+    useForm<FormType>({ defaultValues: currentValues });
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -86,13 +94,18 @@ export default function SearchForm(props: FormProps) {
     );
   };
 
-  const onSubmit: SubmitHandler<ConversationQueryInput> = (form) => {
-    searchAction(form);
+  const onSubmit: SubmitHandler<FormType> = (form) => {
+    if (form.time) {
+      searchAction(_.omit(form, 'time'));
+    } else {
+      searchAction(_.omit(form, 'time', 'timeRange'));
+    }
   };
 
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+        {/* 老式的折叠写法，新的参考 StaffShuntForm */}
         <Card>
           <CardActions disableSpacing>
             <div className={classes.root}>
@@ -101,6 +114,23 @@ export default function SearchForm(props: FormProps) {
                 label="关键字"
                 name="keyword"
                 inputRef={register()}
+              />
+              <Controller
+                control={control}
+                defaultValue
+                name="time"
+                render={({ onChange, value }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={value}
+                        onChange={(e) => onChange(e.target.checked)}
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />
+                    }
+                    label="时间"
+                  />
+                )}
               />
               <Controller
                 control={control}

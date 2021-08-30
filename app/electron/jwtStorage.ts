@@ -6,6 +6,7 @@ import verifyToken from 'app/utils/jwtUtils';
 import { OauthToken, AccessToken } from 'app/domain/OauthToken';
 import clientConfig from 'app/config/clientConfig';
 import addParam from 'app/utils/url';
+import { OnlineStatus } from 'app/domain/constant/Staff';
 
 storage.setDataPath(os.tmpdir());
 
@@ -51,7 +52,9 @@ export function saveToken(
   });
 }
 
-function getToken(isAccese = true): Promise<OauthToken | AccessToken | null> {
+function getToken(
+  isAccese = true
+): Promise<OauthToken | AccessToken | undefined> {
   return new Promise((resolve, reject) => {
     function verifyTokenResolve(token: OauthToken) {
       if (!_.isEmpty(token)) {
@@ -72,7 +75,7 @@ function getToken(isAccese = true): Promise<OauthToken | AccessToken | null> {
           }
         });
       } else {
-        resolve(null);
+        resolve(undefined);
       }
     }
 
@@ -110,30 +113,31 @@ function isOauthToken(token: OauthToken | AccessToken): token is OauthToken {
   return (<OauthToken>token)?.access_token !== undefined;
 }
 
-export async function getAccessToken(): Promise<AccessToken | null> {
+export async function getAccessToken(): Promise<AccessToken | undefined> {
   const token = await getToken();
   if (token && !isOauthToken(token)) {
     return token;
   }
-  return null;
+  return undefined;
 }
 
-export async function getOauthToken(): Promise<OauthToken | null> {
+export async function getOauthToken(): Promise<OauthToken | undefined> {
   const token = await getToken(false);
   if (token && isOauthToken(token)) {
     return token;
   }
-  return null;
+  return undefined;
 }
 
 export function clearToken() {
   localStorage.removeItem('antd-pro-authority');
+  localStorage.removeItem('onlineStatus');
   sessionStorage.removeItem(clientConfig.oauth.tokenName);
   localStorage.removeItem(clientConfig.oauth.tokenName);
   storage.remove(clientConfig.oauth.tokenName, () => {});
 }
 
-export async function refreshToken(): Promise<AccessToken | null> {
+export async function refreshToken(): Promise<AccessToken | undefined> {
   const oauthToken = await getOauthToken();
   if (oauthToken) {
     // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -147,7 +151,7 @@ export async function refreshToken(): Promise<AccessToken | null> {
       clientConfig.web.host + clientConfig.oauth.path,
       oauthParam
     );
-    const result = await axios.post<OauthToken>(url, null, {
+    const result = await axios.post<OauthToken>(url, undefined, {
       headers: {
         Authorization: clientConfig.headers.Authorization,
       },
@@ -155,11 +159,11 @@ export async function refreshToken(): Promise<AccessToken | null> {
     if (result.data) {
       return saveToken(
         result.data,
-        sessionStorage.getItem(clientConfig.oauth.tokenName) === null
+        sessionStorage.getItem(clientConfig.oauth.tokenName) === undefined
       );
     }
   }
-  return null;
+  return undefined;
 }
 
 export async function getTokenSource(): Promise<string | undefined> {
@@ -170,4 +174,12 @@ export async function getTokenSource(): Promise<string | undefined> {
     acessToken = (await refreshToken())?.source;
   }
   return acessToken;
+}
+
+export function saveOnlineStatus(onlineStatus: OnlineStatus) {
+  localStorage.setItem('onlineStatus', onlineStatus.toString());
+}
+
+export function getOnlineStatus() {
+  return localStorage.getItem('onlineStatus');
 }

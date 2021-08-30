@@ -15,23 +15,61 @@ import {
   UpdateMessage,
 } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
-import { createSession } from 'app/domain/Session';
+import { createSession, SessionMap } from 'app/domain/Session';
 import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { CreatorType, SysCode } from 'app/domain/constant/Message';
 import { CustomerStatus } from 'app/domain/Customer';
 import slice from './sessionSlice';
+import { setAnimated, setSelectedSession } from '../chat/chatAction';
 
-const { newConver, newMessage, updateCustomerStatus } = slice.actions;
+const {
+  newConver,
+  newMessage,
+  updateCustomerStatus,
+  unhideSession,
+  addNewMessgeBadge,
+  hideSelectedSession,
+} = slice.actions;
 export const {
   stickyCustomer,
   tagCustomer,
   updateCustomer,
   addHistoryMessage,
+  clearMessgeBadge,
+  setHasMore,
 } = slice.actions;
 
+function getSessionByHide(session: SessionMap, hide: boolean) {
+  return (
+    _.values(session)
+      .filter((it) => it.hide === hide)
+      // 按时间降序
+      .sort((a, b) => b.lastMessageTime - a.lastMessageTime)
+      // 按置顶排序
+      .sort((a, b) => {
+        let result = 0;
+        if (a.sticky) result -= 1;
+        if (b.sticky) result += 1;
+        return result;
+      })
+  );
+}
+
+export const hideSelectedSessionAndSetToLast =
+  (userId: number): AppThunk =>
+  async (dispatch, getState) => {
+    dispatch(hideSelectedSession(userId));
+    const list = getSessionByHide(getState().session, false).filter(
+      (se) => se.conversation.userId !== userId
+    );
+    // 设置为等待时间最长的会话
+    const last = list[list.length - 1];
+    dispatch(setSelectedSession(last));
+  };
+
 export const getSelectedMessageList = (state: RootState) => {
-  const selected = state.chat.selectedSession;
+  const selected = state.chat.selectedSession?.conversation.userId;
   let messageList: Message[] = [];
   if (selected !== undefined && !state.chat.monitored) {
     const messageListMap = state.session[selected].massageList;
@@ -50,9 +88,9 @@ export const getSelectedMessageList = (state: RootState) => {
   );
 };
 
-export const getSelectedSession = (state: RootState) => {
-  const selected = state.chat.selectedSession;
-  if (selected === undefined) return null;
+export const getSelectedConv = (state: RootState) => {
+  const selected = state.chat.selectedSession?.conversation.userId;
+  if (selected === undefined) return undefined;
   if (selected !== undefined && state.chat.monitored) {
     return state.chat.monitored.monitoredSession;
   }
@@ -60,9 +98,9 @@ export const getSelectedSession = (state: RootState) => {
 };
 
 export const getSelectedConstomer = (state: RootState) => {
-  const selected = state.chat.selectedSession;
+  const selected = state.chat.selectedSession?.conversation.userId;
   if (state.chat.monitored) return state.chat.monitored.monitoredUser;
-  if (selected === undefined) return null;
+  if (selected === undefined) return undefined;
   return state.session[selected].user;
 };
 
@@ -73,19 +111,28 @@ export const getSelectedConstomer = (state: RootState) => {
 export const getSession = (hide = false) =>
   createSelector(
     (state: RootState) => state.session,
-    (session) =>
-      _.values(session)
-        .filter((it) => it.hide === hide)
-        // 按时间降序
-        .sort((a, b) => b.lastMessageTime - a.lastMessageTime)
-        // 按置顶排序
-        .sort((a, b) => {
-          let result = 0;
-          if (a.sticky) result -= 1;
-          if (b.sticky) result += 1;
-          return result;
-        })
+    (session) => getSessionByHide(session, hide)
   );
+
+const updateConver =
+  (conver: Conversation): AppThunk =>
+  async (dispatch, getState) => {
+    const { userId } = conver;
+    if (userId) {
+      const session = getState().session[conver.userId];
+      // 根据分配的 conversation 获取 user
+      const customer = await getCustomerByUserId(userId);
+      if (session) {
+        const newSession = _.defaults(
+          { conversation: conver, user: customer },
+          session
+        );
+        dispatch(newConver(newSession));
+      } else {
+        dispatch(newConver(createSession(conver, customer)));
+      }
+    }
+  };
 
 // 分配会话
 export const assignmentConver =
@@ -93,10 +140,7 @@ export const assignmentConver =
   async (dispatch) => {
     const conversation = request.body;
     if (conversation !== undefined) {
-      // 根据分配的 conversation 获取 user
-      const { userId } = conversation;
-      const customer = await getCustomerByUserId(userId);
-      dispatch(newConver(createSession(conversation, customer)));
+      dispatch(updateConver(conversation));
       cb(generateResponse(request.header, '"OK"'));
     } else {
       cb(generateResponse(request.header, 'request empty', 400));
@@ -136,6 +180,7 @@ export function sendMessage(message: Message): AppThunk {
         })
       )
       .subscribe((messagesMap) => {
+        dispatch(setAnimated(true));
         // 显示消息
         dispatch(newMessage(messagesMap));
       });
@@ -153,6 +198,14 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
       }
       break;
     }
+    case SysCode.CONV_END: {
+      const msg = content.textContent?.text;
+      if (msg) {
+        const sysMsg = JSON.parse(msg) as Conversation;
+        dispatch(updateConver(sysMsg));
+      }
+      break;
+    }
     default:
       break;
   }
@@ -165,7 +218,7 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
  */
 export const setNewMessage =
   (request: WebSocketRequest<UpdateMessage>, cb: CallBack<string>): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     of(request)
       .pipe(
         map((r) => r.body),
@@ -181,7 +234,16 @@ export const setNewMessage =
           } else {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const end = { [m!.uuid]: m } as MessagesMap;
+            const { selectedSession } = getState().chat;
+            if (selectedSession) {
+              if (selectedSession.conversation.userId !== m?.from) {
+                dispatch(addNewMessgeBadge(m?.from));
+              } else {
+                dispatch(setAnimated(true));
+              }
+            }
             dispatch(newMessage(end));
+            dispatch(unhideSession(m?.from));
           }
         })
       )

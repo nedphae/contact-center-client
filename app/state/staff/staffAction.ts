@@ -21,7 +21,10 @@ export const getStaffToken = (state: RootState) => state.staff.token;
 
 // 异步请求
 export const setUserAsync =
-  (token: AccessToken): AppThunk =>
+  (
+    token: AccessToken,
+    onlineStatus: OnlineStatus = OnlineStatus.ONLINE
+  ): AppThunk =>
   async (dispatch) => {
     setAuthority(
       token.authorities.map((role) => role.substring(5).toLowerCase())
@@ -30,7 +33,7 @@ export const setUserAsync =
     const staff = await getCurrentStaff();
     // 获取当前聊天会话列表，刷新页面后
     staff.token = token.source;
-    staff.onlineStatus = OnlineStatus.ONLINE;
+    staff.onlineStatus = onlineStatus;
     dispatch(setStaff(staff));
   };
 
@@ -38,7 +41,9 @@ export const configStaff = (): AppThunk => {
   return (dispatch, getState) => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
     // const staff = getStaff(getState()); // useSelector(getStaff);
-    register(configStatus(getState().staff.onlineStatus)).subscribe(() => {
+    register(
+      configStatus(getState().staff.prevOnlineStatus ?? OnlineStatus.ONLINE)
+    ).subscribe(() => {
       // 注册成功, 设置状态同步成功
       dispatch(setOnline());
     });

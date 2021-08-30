@@ -11,6 +11,7 @@ import Chat, {
 } from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
 import { MessagesMap } from 'app/domain/Message';
+import { Session } from 'app/domain/Session';
 
 const initChat = {} as Chat;
 
@@ -25,8 +26,11 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState: initChat,
   reducers: {
-    setSelectedSession: (chat, action: PayloadAction<number>) => {
+    setSelectedSession: (chat, action: PayloadAction<Session>) => {
       chat.monitored = undefined;
+      if (chat.selectedSession?.animated) {
+        chat.selectedSession.animated = false;
+      }
       chat.selectedSession = action.payload;
     },
     setMonitorSelectedSession: (chat, action: PayloadAction<SetMonitored>) => {
@@ -47,6 +51,16 @@ const chatSlice = createSlice({
         noGroupResult.forEach((r) => result.push(r.item));
       }
       chat.searchQuickReply = result;
+    },
+    setAnimated: (chat, action: PayloadAction<boolean>) => {
+      if (chat.selectedSession) {
+        chat.selectedSession.animated = action.payload;
+      }
+    },
+    setIsHistoryMessage: (chat, action: PayloadAction<boolean>) => {
+      if (chat.selectedSession) {
+        chat.selectedSession.isHistoryMessage = action.payload;
+      }
     },
     setQuickReply: (chat, action: PayloadAction<QuickReplyAllDto>) => {
       chat.quickReply = action.payload;

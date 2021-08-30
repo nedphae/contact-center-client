@@ -3,6 +3,7 @@ import { Object } from 'ts-toolbelt';
 import { Conversation } from './Conversation';
 import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
+import { Session } from './Session';
 import Staff from './StaffInfo';
 
 export interface UserMessageMap {
@@ -26,7 +27,7 @@ export interface Monitored extends MonitoredLazyData {
 }
 
 export interface BaseChat {
-  selectedSession: number;
+  selectedSession?: Session;
 }
 
 export type SetMonitored = Object.Merge<BaseChat, Monitored>;
@@ -76,5 +77,6 @@ export interface QuickReply {
   groupId?: number;
   title: string;
   content: string;
+  personal?: boolean;
   group: QuickReplyGroup | undefined;
 }

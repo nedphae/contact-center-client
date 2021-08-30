@@ -15,6 +15,7 @@ import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 
 import {
+  hideSelectedSessionAndSetToLast,
   sendImageMessage,
   sendTextMessage,
 } from 'app/state/session/sessionAction';
@@ -24,6 +25,7 @@ import {
   getSearchText,
   setQuickReplySearchText,
 } from 'app/state/chat/chatAction';
+import { Session } from 'app/domain/Session';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -47,14 +49,14 @@ const useStyles = makeStyles(() =>
 );
 
 interface SelectedProps {
-  selectedSession: number | undefined;
+  selectedSession: Session | undefined;
 }
 
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
   const textMessage = useSelector(getSearchText);
-  const dispath = useDispatch();
+  const dispatch = useDispatch();
   // 展示 快捷回复
   const [open, setOpen] = useState(true);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -64,7 +66,7 @@ export default function Editor(selected: SelectedProps) {
   const quickReplyList = useSelector(getSearchQuickReply);
 
   function setMessage(message: string) {
-    dispath(setQuickReplySearchText(message));
+    dispatch(setQuickReplySearchText(message));
   }
 
   const filterQuickReplyList = quickReplyList?.filter(
@@ -82,21 +84,31 @@ export default function Editor(selected: SelectedProps) {
 
   function handleSendTextMessage() {
     if (selectedSession && textMessage !== '') {
-      dispath(sendTextMessage(selectedSession, textMessage));
+      dispatch(
+        sendTextMessage(selectedSession.conversation.userId, textMessage)
+      );
       setMessage('');
     }
   }
 
   function handleSendImageMessage(photoContent: PhotoContent) {
     if (selectedSession) {
-      dispath(sendImageMessage(selectedSession, photoContent));
+      dispatch(
+        sendImageMessage(selectedSession.conversation.userId, photoContent)
+      );
     }
   }
 
   function setFocusToQuickReplyMenu(event: React.KeyboardEvent) {
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    if (
+      event.key === 'ArrowDown' ||
+      (event.key === 'ArrowUp' && open && shouldOpen)
+    ) {
       event.preventDefault();
       menuListRef.current?.focus();
+    } else if (!event.shiftKey && event.key === 'Enter') {
+      handleSendTextMessage();
+      event.preventDefault();
     }
   }
 
@@ -124,6 +136,15 @@ export default function Editor(selected: SelectedProps) {
       textFieldRef.current?.focus();
     }
   }
+
+  const escNode = () => {
+    if (selectedSession) {
+      // esc 隐藏会话
+      dispatch(
+        hideSelectedSessionAndSetToLast(selectedSession.conversation.userId)
+      );
+    }
+  };
 
   return (
     <>
@@ -204,7 +225,11 @@ export default function Editor(selected: SelectedProps) {
             >
               发送
             </Button>
-            <Button style={{ minWidth: 50 }} variant="outlined">
+            <Button
+              style={{ minWidth: 50 }}
+              variant="outlined"
+              onClick={escNode}
+            >
               关闭
             </Button>
           </>

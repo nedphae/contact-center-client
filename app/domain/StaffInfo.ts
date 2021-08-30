@@ -6,10 +6,12 @@ export default interface Staff {
   id: number;
   /** use for colleague conversation */
   groupId: number;
+  groupName?: string;
   staffGroup: StaffGroup;
   /** type of role */
   role: string;
   shunt: number[];
+  prevOnlineStatus?: OnlineStatus;
   onlineStatus: OnlineStatus;
   onlineStatusKey: OnlineStatusKey;
   maxServiceCount: number;
@@ -60,10 +62,24 @@ export interface ShuntClass {
 }
 
 export interface StaffConfig {
+  id?: number | undefined;
+  /** 公司id */
+  organizationId?: number | undefined;
+  /** 接待组 id */
+  shuntId: number | undefined;
+  /** 配置优先级 */
+  priority: number | undefined;
+  staffId: number | undefined;
+  staffName?: string;
+  staffType?: number;
+  enabled?: boolean;
+}
+
+export interface StaffConfigData {
   onlineStatus: OnlineStatus;
 }
 
-export function configStatus(onlineStatus: OnlineStatus): StaffConfig {
+export function configStatus(onlineStatus: OnlineStatus): StaffConfigData {
   return {
     onlineStatus,
   };

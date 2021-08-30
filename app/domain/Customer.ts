@@ -19,13 +19,14 @@ export interface Customer {
   email: string | undefined;
   /** 用户手机号 */
   mobile: string | undefined;
+  address: string | undefined;
   /** vip等级 1-10 */
   vipLevel: number | undefined;
 
   remarks?: string | undefined;
   status?: CustomerStatus | undefined;
   /** 企业当前登录用户其他信息，JSON字符串 */
-  detailData: DetailData[] | undefined;
+  data: DetailData[] | undefined;
 }
 
 export interface CustomerStatus {
@@ -73,7 +74,6 @@ export interface CustomerStatus {
 }
 
 export interface DetailData {
-  id: number;
   /**
    * 数据项的名称
    * 用于区别不同的数据。其中real_name、mobile_phone、email为保留字段，

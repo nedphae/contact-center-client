@@ -1,9 +1,15 @@
 import React, { useRef, useState } from 'react';
 
-import { gql, useQuery } from '@apollo/client';
-import { DataGrid, GridColDef } from '@material-ui/data-grid';
+import _ from 'lodash';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 
-import { StaffList } from 'app/domain/graphql/Staff';
+import {
+  QUERY_GROUP,
+  QUERY_STAFF,
+  StaffGroupList,
+  StaffList,
+} from 'app/domain/graphql/Staff';
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import DraggableDialog, {
@@ -11,30 +17,6 @@ import DraggableDialog, {
 } from 'app/components/DraggableDialog/DraggableDialog';
 import StaffForm from 'app/components/StaffForm/StaffForm';
 import Staff from 'app/domain/StaffInfo';
-
-const QUERY_STAFF = gql`
-  query Staff {
-    allStaff {
-      avatar
-      enabled
-      gender
-      id
-      maxTicketAllTime
-      maxTicketPerDay
-      mobilePhone
-      nickName
-      organizationId
-      password
-      personalizedSignature
-      realName
-      role
-      simultaneousService
-      staffGroupId
-      staffType
-      username
-    }
-  }
-`;
 
 type Graphql = StaffList;
 
@@ -45,7 +27,7 @@ const columns: GridColDef[] = [
   { field: 'realName', headerName: '实名', width: 150 },
   { field: 'role', headerName: '角色', width: 150 },
   { field: 'staffType', headerName: '客服类型', width: 150 },
-  { field: 'staffGroupId', headerName: '组名', width: 150 },
+  { field: 'groupName', headerName: '组名', width: 150 },
   { field: 'gender', headerName: '性别', width: 150 },
   { field: 'mobilePhone', headerName: '手机', width: 150 },
   {
@@ -72,11 +54,25 @@ const columns: GridColDef[] = [
 
 const defaultStaff = { staffType: 1 } as Staff;
 
+const MUTATION_STAFF = gql`
+  mutation DeleteStaff($ids: [Long!]!) {
+    deleteStaffByIds(ids: $ids)
+  }
+`;
+
 export default function AccountList() {
-  const { loading, data } = useQuery<Graphql>(QUERY_STAFF);
+  const { loading, data, refetch } = useQuery<Graphql>(QUERY_STAFF);
+  const { data: groupList } = useQuery<StaffGroupList>(QUERY_GROUP);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [staff, setStaff] = useState<Staff>(defaultStaff);
-  const rows = data?.allStaff ?? [];
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
+  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_STAFF);
+
+  const groupMap = _.groupBy(groupList?.allStaffGroup ?? [], (it) => it.id);
+  const rows = [...(data?.allStaff ?? [])].map((it) => {
+    it.groupName = groupMap[it.groupId][0].groupName;
+    return it;
+  });
 
   function newButtonClick() {
     setStaff(defaultStaff);
@@ -87,6 +83,12 @@ export default function AccountList() {
     setStaff(selectStaff);
     refOfDialog.current?.setOpen(true);
   };
+
+  function deleteButtonClick() {
+    if (selectionModel && selectionModel.length > 0) {
+      deleteStaffByIds({ variables: { ids: selectionModel } });
+    }
+  }
 
   return (
     <>
@@ -99,15 +101,26 @@ export default function AccountList() {
         columns={columns}
         components={{
           // TODO: 自定义分组
-          Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
+          Toolbar: CustomerGridToolbarCreater({
+            newButtonClick,
+            deleteButtonClick,
+            refetch: () => {
+              refetch();
+            },
+          }),
         }}
         onRowClick={(param) => {
           handleClickOpen(param.row as Staff);
         }}
         pagination
-        pageSize={20}
+        rowsPerPageOptions={[10, 20, 50, 100]}
         loading={loading}
         disableSelectionOnClick
+        checkboxSelection
+        onSelectionModelChange={(selectionId: GridRowId[]) => {
+          setSelectionModel(selectionId);
+        }}
+        selectionModel={selectionModel}
       />
     </>
   );

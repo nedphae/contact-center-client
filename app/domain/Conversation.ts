@@ -45,7 +45,7 @@ export interface Conversation {
   category: string | undefined;
   categoryDetail: string | undefined;
   closeReason: CloseReason | undefined;
-  endTime: Date | undefined;
+  endTime: number | undefined;
   evaluate: string | undefined;
   staffFirstReplyTime: Date | undefined;
   firstReplyCost: number;

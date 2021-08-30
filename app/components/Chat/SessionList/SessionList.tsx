@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { HotKeys } from 'react-hotkeys';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
 import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
 import Menu from '@material-ui/core/Menu';
@@ -20,18 +20,21 @@ import SignalWifiOffIcon from '@material-ui/icons/SignalWifiOff';
 import StarIcon from '@material-ui/icons/Star';
 
 import {
+  clearMessgeBadge,
   getSession,
+  hideSelectedSessionAndSetToLast,
   stickyCustomer,
   tagCustomer,
 } from 'app/state/session/sessionAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
-import { Tag } from 'app/domain/Session';
+import { Session, Tag } from 'app/domain/Session';
 import {
   getSelectedSession,
   setSelectedSession,
 } from 'app/state/chat/chatAction';
 import { Message } from 'app/domain/Message';
 import { MessageType } from 'app/domain/constant/Message';
+import UserHeader from 'app/components/Header/UserHeader';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -52,27 +55,26 @@ interface MenuState {
 }
 
 const initialState = {
-  mouseX: null,
-  mouseY: null,
+  mouseX: undefined,
+  mouseY: undefined,
 };
 
 function SessionList(props: SessionListProps) {
+  const { history } = props;
   const classes = useStyles();
   const dispatch = useDispatch();
   // 默认不选取
   const selectedSession = useSelector(getSelectedSession);
 
   const [state, setState] = useState<{
-    mouseX: null | number;
-    mouseY: null | number;
+    mouseX: undefined | number;
+    mouseY: undefined | number;
   }>(initialState);
   const [menuState, setMenuState] = useState<MenuState>({
     userId: undefined,
     sticky: false,
     tag: undefined,
   });
-
-  const { history } = props;
   const sessions = useSelector(getSession(history));
 
   const handleContextMenu = (
@@ -95,9 +97,10 @@ function SessionList(props: SessionListProps) {
 
   const handleListItemClick = (
     _event: React.MouseEvent<HTMLElement, MouseEvent>,
-    index: number
+    session: Session
   ) => {
-    dispatch(setSelectedSession(index));
+    dispatch(setSelectedSession(session));
+    dispatch(clearMessgeBadge(session.conversation.userId));
   };
 
   function doSticky(userId: number | undefined) {
@@ -172,75 +175,94 @@ function SessionList(props: SessionListProps) {
     return previewText;
   }
 
+  const escNode = () => {
+    if (selectedSession) {
+      // esc 隐藏会话
+      dispatch(
+        hideSelectedSessionAndSetToLast(selectedSession.conversation.userId)
+      );
+    }
+  };
+
+  const handlers = {
+    ESC_NODE: escNode,
+  };
+
   return (
-    <div className={classes.root}>
-      <List component="nav" aria-label="main mailbox folders">
-        {sessions.map(
-          ({ conversation, unread, lastMessage, user, sticky, tag }) => (
-            <React.Fragment key={conversation.id}>
-              <ListItem
-                button
-                selected={selectedSession === conversation.userId}
-                onClick={(event) =>
-                  handleListItemClick(event, conversation.userId)
-                }
-                // 右键菜单
-                onContextMenu={(event) =>
-                  handleContextMenu(event, {
-                    userId: conversation.userId,
-                    sticky,
-                    tag,
-                  })
-                }
-              >
-                <ListItemAvatar>
-                  {/* badgeContent 未读消息 */}
-                  <Badge badgeContent={unread} max={99} color="secondary">
-                    <Avatar />
-                  </Badge>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={user.name === undefined ? user.uid : user.name}
-                  secondary={
-                    <Typography noWrap variant="body2" color="textSecondary">
-                      {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
-                      {lastMessage === undefined ? (
-                        <>&nbsp;</>
-                      ) : (
-                        getMessagePreview(lastMessage)
-                      )}
-                    </Typography>
+    <HotKeys handlers={handlers}>
+      <div className={classes.root}>
+        <List component="nav" aria-label="main mailbox folders">
+          {sessions.map((session) => {
+            const { conversation, unread, lastMessage, user, sticky, tag } =
+              session;
+            return (
+              <React.Fragment key={conversation.id}>
+                <ListItem
+                  button
+                  selected={
+                    selectedSession?.conversation.userId === conversation.userId
                   }
-                />
-                {menuState.tag === 'important' && <StarIcon />}
-                {user.status &&
-                OnlineStatus.ONLINE === user.status.onlineStatus ? (
-                  <SyncAltIcon />
-                ) : (
-                  <SignalWifiOffIcon />
-                )}
-              </ListItem>
-            </React.Fragment>
-          )
-        )}
-        {/* 右键菜单 */}
-        <div onContextMenu={handleClose} style={{ cursor: 'context-menu' }}>
-          <Menu
-            keepMounted
-            open={state.mouseY !== null}
-            onClose={handleClose}
-            anchorReference="anchorPosition"
-            anchorPosition={
-              state.mouseY !== null && state.mouseX !== null
-                ? { top: state.mouseY, left: state.mouseX }
-                : undefined
-            }
-          >
-            {createMenuItem()}
-          </Menu>
-        </div>
-      </List>
-    </div>
+                  onClick={(event) => handleListItemClick(event, session)}
+                  // 右键菜单
+                  onContextMenu={(event) =>
+                    handleContextMenu(event, {
+                      userId: conversation.userId,
+                      sticky,
+                      tag,
+                    })
+                  }
+                >
+                  <ListItemAvatar>
+                    {/* badgeContent 未读消息 */}
+                    <Badge badgeContent={unread} max={99} color="secondary">
+                      {user && user.status && (
+                        <UserHeader status={user.status} />
+                      )}
+                    </Badge>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={user.name === undefined ? user.uid : user.name}
+                    secondary={
+                      <Typography noWrap variant="body2" color="textSecondary">
+                        {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
+                        {lastMessage === undefined ? (
+                          <>&nbsp;</>
+                        ) : (
+                          getMessagePreview(lastMessage)
+                        )}
+                      </Typography>
+                    }
+                  />
+                  {tag === 'important' && <StarIcon />}
+                  {user.status &&
+                  OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                    <SyncAltIcon />
+                  ) : (
+                    <SignalWifiOffIcon />
+                  )}
+                </ListItem>
+              </React.Fragment>
+            );
+          })}
+          {/* 右键菜单 */}
+          <div onContextMenu={handleClose} style={{ cursor: 'context-menu' }}>
+            <Menu
+              keepMounted
+              open={state.mouseY !== undefined}
+              onClose={handleClose}
+              anchorReference="anchorPosition"
+              anchorPosition={
+                state.mouseY !== undefined && state.mouseX !== undefined
+                  ? { top: state.mouseY, left: state.mouseX }
+                  : undefined
+              }
+            >
+              {createMenuItem()}
+            </Menu>
+          </div>
+        </List>
+      </div>
+    </HotKeys>
   );
 }
 

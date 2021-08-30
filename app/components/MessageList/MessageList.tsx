@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 
+import Viewer from 'react-viewer';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -12,6 +13,7 @@ import Avatar from '@material-ui/core/Avatar';
 import { Conversation } from 'app/domain/Conversation';
 import { CreatorType } from 'app/domain/constant/Message';
 import javaInstant2DateStr from 'app/utils/timeUtils';
+import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import {
   createContent,
   useMessageListStyles,
@@ -24,12 +26,27 @@ interface MessageListProps {
 export default function MessageList(props: MessageListProps) {
   const { conversation } = props;
   const classes = useMessageListStyles();
+  const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
+  const [imageViewer, setImageViewer] = useState<ImageDecorator>({
+    src: '',
+    alt: undefined,
+  });
+
   const messages = [...(conversation.chatMessages ?? [])].sort(
     (a, b) =>
       // 默认 seqId 为最大
       (a.seqId ?? Number.MAX_SAFE_INTEGER) -
       (b.seqId ?? Number.MAX_SAFE_INTEGER)
   );
+
+  function openImageViewer(src: string, alt: string) {
+    setImageViewer({ src, alt });
+    toggleShowImageViewerDialog(true);
+  }
+
+  function closeImageViewerDialog() {
+    toggleShowImageViewerDialog(false);
+  }
 
   return (
     <Paper square className={classes.paper}>
@@ -43,10 +60,10 @@ export default function MessageList(props: MessageListProps) {
                   <Avatar alt="Profile Picture" />
                 </ListItemAvatar>
               )}
-              {/* justify="flex-end" 如果是收到的消息就不设置这个 */}
+              {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
               <Grid
                 container
-                justify={
+                justifyContent={
                   creatorType === CreatorType.CUSTOMER
                     ? 'flex-start'
                     : 'flex-end'
@@ -58,13 +75,13 @@ export default function MessageList(props: MessageListProps) {
                       <Grid
                         container
                         alignItems="center"
-                        justify={
+                        justifyContent={
                           creatorType === CreatorType.CUSTOMER
                             ? 'flex-start'
                             : 'flex-end'
                         }
                       >
-                        {/* justify="flex-end" */}
+                        {/* justifyContent="flex-end" */}
                         <Typography
                           variant="subtitle1"
                           gutterBottom
@@ -93,7 +110,7 @@ export default function MessageList(props: MessageListProps) {
                       : classes.toMessagePaper
                   }
                 >
-                  {createContent(content, classes)}
+                  {createContent(content, classes, openImageViewer)}
                 </Paper>
               </Grid>
               {/* 客服发送的消息的头像 */}
@@ -106,6 +123,12 @@ export default function MessageList(props: MessageListProps) {
           </React.Fragment>
         ))}
       </List>
+      <Viewer
+        visible={showImageViewerDialog}
+        onClose={closeImageViewerDialog}
+        images={[imageViewer]}
+        zIndex={2000}
+      />
     </Paper>
   );
 }

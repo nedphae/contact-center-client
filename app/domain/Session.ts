@@ -22,6 +22,9 @@ export interface Session {
   sticky: boolean;
   /** 客服打的标签 */
   tag: Tag;
+  hasMore: boolean;
+  isHistoryMessage: boolean;
+  animated: boolean;
 }
 
 export interface TagParamer {
@@ -39,12 +42,15 @@ export function createSession(
     user,
     unread: 0,
     massageList: {},
-    lastMessageTime: new Date().getTime(),
+    lastMessageTime: conversation.startTime,
     lastMessage: undefined,
     hide: false,
     colorLogo: ColorLogo.NEW,
     sticky: false,
     tag: undefined,
+    hasMore: true,
+    isHistoryMessage: false,
+    animated: false,
   };
 }
 

@@ -17,7 +17,7 @@ import { getFilterQuickReply, getQuickReply } from 'app/state/chat/chatAction';
 import { QuickReplyDto } from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
 
-import NestedList from '../NestedList';
+import NestedList from './NestedList';
 import SplitButton from '../SplitButton';
 import AddQuickReply from './AddQuickReply';
 
@@ -95,7 +95,18 @@ export default function QuickReply() {
 
   const searchCallback = useCallback(
     (result: QuickReplyDto, sr: string) => {
-      const searchResult = fuse.search(sr).map((r) => r.item);
+      const searchResult = fuse
+        .search(sr)
+        .map((r) => r.item)
+        .filter((f) => {
+          if (selectedIndex === 0) {
+            return true;
+          }
+          return (
+            (selectedIndex === 1 && f.personal) ||
+            (selectedIndex === 2 && !f.personal)
+          );
+        });
       from(searchResult)
         .pipe(
           groupBy(
@@ -122,7 +133,7 @@ export default function QuickReply() {
           result.noGroup?.push(re);
         });
     },
-    [fuse]
+    [fuse, selectedIndex]
   );
 
   const getBySelectedIndex = useCallback((): QuickReplyDto => {
@@ -153,12 +164,25 @@ export default function QuickReply() {
       if (serarchText && serarchText !== '') {
         searchCallback(result, serarchText);
       } else {
-        addOrg();
-        addPersonal();
+        switch (selectedIndex) {
+          case 1: {
+            addPersonal();
+            break;
+          }
+          case 2: {
+            addOrg();
+            break;
+          }
+          default: {
+            addOrg();
+            addPersonal();
+            break;
+          }
+        }
       }
     }
     return result;
-  }, [serarchText, quickReplyList, searchCallback]);
+  }, [quickReplyList, serarchText, searchCallback, selectedIndex]);
 
   const quickReplyDtoList = getBySelectedIndex();
 
@@ -184,7 +208,10 @@ export default function QuickReply() {
             <SplitButton options={optionFun} selectedIndex={selectedIndex} />
           </Grid>
           <Grid item xs={12} className={classes.list}>
-            <NestedList quickReplyDto={quickReplyDtoList} />
+            <NestedList
+              quickReplyDto={quickReplyDtoList}
+              refetch={handleRefreshClick}
+            />
           </Grid>
         </Grid>
       </Paper>
@@ -194,7 +221,10 @@ export default function QuickReply() {
           <IconButton color="inherit" onClick={handleRefreshClick}>
             <RefreshIcon />
           </IconButton>
-          <AddQuickReply />
+          <AddQuickReply
+            quickReplyDto={quickReplyDtoList}
+            refetch={handleRefreshClick}
+          />
         </Toolbar>
       </AppBar>
     </Box>

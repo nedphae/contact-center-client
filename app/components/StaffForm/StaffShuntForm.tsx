@@ -1,17 +1,39 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import _ from 'lodash';
 
 import JSONEditor, { JSONEditorOptions } from 'jsoneditor';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import Button from '@material-ui/core/Button';
 import GroupIcon from '@material-ui/icons/Group';
-import { Typography, CircularProgress, Link } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {
+  Typography,
+  Link,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  MenuItem,
+  Select,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Grid,
+  Slider,
+  Switch,
+} from '@material-ui/core';
 
-import { StaffShunt } from 'app/domain/StaffInfo';
+import Staff, {
+  ShuntClass,
+  StaffConfig,
+  StaffShunt,
+} from 'app/domain/StaffInfo';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { ShuntUIConfig } from 'app/domain/Config';
+
+import './Jsoneditor.global.css';
+import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,26 +43,54 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
+    root: {
+      width: '100%',
+    },
+    heading: {
+      fontSize: theme.typography.pxToRem(15),
+    },
+    secondaryHeading: {
+      fontSize: theme.typography.pxToRem(15),
+      color: theme.palette.text.secondary,
+    },
+    icon: {
+      verticalAlign: 'bottom',
+      height: 20,
+      width: 20,
+    },
+    details: {
+      alignItems: 'center',
+    },
+    column: {
+      flexBasis: '50%',
+    },
+    helper: {
+      borderLeft: `2px solid ${theme.palette.divider}`,
+      padding: theme.spacing(1, 2),
+    },
+    link: {
+      color: theme.palette.primary.main,
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
     },
   })
 );
 
 interface FormProps {
   defaultValues: StaffShunt | undefined;
+  shuntClassList: ShuntClass[];
+  staffList: Staff[];
 }
 
 interface Graphql {
-  saveStaffShunt: StaffShunt | undefined;
-}
-interface ChatUIConfigGraphql {
-  saveChatUIConfig: ShuntUIConfig | undefined;
+  saveShunt: StaffShunt | undefined;
 }
 
 const MUTATION_STAFF_SHUNT = gql`
-  mutation StaffShunt($staffShuntInput: StaffShuntInput!) {
-    saveStaffShunt(staffShunt: $staffShuntInput) {
+  mutation StaffShunt($shuntInput: ShuntInput!) {
+    saveShunt(shunt: $shuntInput) {
       id
       organizationId
       shuntClassId
@@ -50,9 +100,14 @@ const MUTATION_STAFF_SHUNT = gql`
   }
 `;
 
+interface ChatUIConfigGraphql {
+  chatUIConfig: ShuntUIConfig | undefined;
+  saveChatUIConfig: ShuntUIConfig | undefined;
+}
+
 const MUTATION_UICONFIG = gql`
-  mutation ChatUIConfig($shuntUIConfigInput: ShuntUIConfigInput!) {
-    saveChatUIConfig(uiConfig: $shuntUIConfigInput) {
+  mutation ChatUIConfig($shuntUIConfig: ShuntUIConfigInput!) {
+    saveChatUIConfig(uiConfig: $shuntUIConfig) {
       id
       shuntId
       config
@@ -70,44 +125,116 @@ const QUERY_CHATUI_CONFIG = gql`
   }
 `;
 
-interface ChatUIConfigGraphql {
-  chatUIConfig: ShuntUIConfig | undefined;
+interface StaffConfigGraphql {
+  staffConfigByShuntId: StaffConfig[];
 }
 
+interface SavedStaffConfigGraphql {
+  saveStaffConfig: StaffConfig[];
+}
+
+const QUERY_STAFF_CONFIG = gql`
+  query StaffConfig($shuntId: Long!) {
+    staffConfigByShuntId(shuntId: $shuntId) {
+      id
+      shuntId
+      staffId
+      priority
+    }
+  }
+`;
+
+const MUTATION_STAFF_CONFIG = gql`
+  mutation StaffConfig($staffConfigList: [StaffConfigInput!]!) {
+    saveStaffConfig(staffConfigList: $staffConfigList) {
+      id
+      shuntId
+      staffId
+      priority
+    }
+  }
+`;
+
 export default function StaffShuntForm(props: FormProps) {
-  const { defaultValues } = props;
+  const { defaultValues, shuntClassList, staffList } = props;
   const classes = useStyles();
+
   const jsoneditorRef = useRef<HTMLDivElement>(null);
-  const [jsoneditor, setJsoneditor] = useState<JSONEditor | null>(null);
-  const { handleSubmit, register } = useForm<StaffShunt>({
+  const [jsoneditor, setJsoneditor] = useState<JSONEditor>();
+  const [tempStaffConfig, setTempStaffConfig] = useState<StaffConfig[]>();
+  const { handleSubmit, register, control } = useForm<StaffShunt>({
     defaultValues,
   });
 
   const [saveStaffShunt, { loading, data }] =
     useMutation<Graphql>(MUTATION_STAFF_SHUNT);
-  const [saveChatUIConfig, { data: savedChatUIConfig }] =
+  const [saveChatUIConfig, { loading: uiLoading, data: savedChatUIConfig }] =
     useMutation<ChatUIConfigGraphql>(MUTATION_UICONFIG);
   const [getChatUIConfig, { data: chatUIConfig }] =
-    useLazyQuery<ChatUIConfigGraphql>(QUERY_CHATUI_CONFIG, {
-      variables: { shuntId: defaultValues?.id },
+    useLazyQuery<ChatUIConfigGraphql>(QUERY_CHATUI_CONFIG);
+  const [getStaffConfigList, { data: staffConfigList }] =
+    useLazyQuery<StaffConfigGraphql>(QUERY_STAFF_CONFIG);
+  const [
+    saveStaffConfig,
+    { loading: configLoading, data: savedStaffConfigList },
+  ] = useMutation<SavedStaffConfigGraphql>(MUTATION_STAFF_CONFIG);
+
+  const success = data && savedChatUIConfig && staffConfigList;
+  const loadingAll = loading && uiLoading && configLoading;
+
+  useEffect(() => {
+    const staffConfigMap = _.groupBy(
+      savedStaffConfigList?.saveStaffConfig ??
+        staffConfigList?.staffConfigByShuntId,
+      'staffId'
+    );
+    // 根据获取的 StaffConfig list 创建一个临时列
+    const scl = staffList.map((staff) => {
+      const sc = staffConfigMap[staff.id];
+      if (sc) {
+        return _.assign(
+          {
+            staffName: staff.realName,
+            staffType: staff.staffType,
+            enabled: true,
+          },
+          sc[0]
+        );
+      }
+      return {
+        shuntId: defaultValues?.id,
+        priority: 15,
+        staffId: staff.id,
+        staffName: staff.realName,
+        staffType: staff.staffType,
+        enabled: false,
+      };
     });
+    setTempStaffConfig(scl);
+  }, [defaultValues, savedStaffConfigList, staffConfigList, staffList]);
 
   useEffect(() => {
     if (defaultValues && defaultValues.id) {
-      getChatUIConfig();
+      getChatUIConfig({
+        variables: { shuntId: defaultValues.id },
+      });
+      getStaffConfigList({
+        variables: { shuntId: defaultValues.id },
+      });
     }
-    const options: JSONEditorOptions = {
-      mode: 'tree',
-    };
-    if (jsoneditorRef.current) {
+    if (jsoneditorRef.current && !jsoneditor) {
+      const options: JSONEditorOptions = {
+        modes: ['tree', 'code'],
+      };
       setJsoneditor(new JSONEditor(jsoneditorRef.current, options));
     }
     return () => {
       if (jsoneditor) {
         jsoneditor.destroy();
+        setJsoneditor(undefined);
       }
     };
-  }, [defaultValues, getChatUIConfig, jsoneditor]);
+  }, [defaultValues, getChatUIConfig, getStaffConfigList, jsoneditor]);
 
   useEffect(() => {
     if (jsoneditorRef.current && jsoneditor) {
@@ -116,7 +243,7 @@ export default function StaffShuntForm(props: FormProps) {
         chatUIConfig.chatUIConfig &&
         chatUIConfig.chatUIConfig.config
       ) {
-        jsoneditor.updateText(chatUIConfig.chatUIConfig.config);
+        jsoneditor.setText(chatUIConfig.chatUIConfig.config);
       }
     }
   }, [chatUIConfig, jsoneditor]);
@@ -128,36 +255,136 @@ export default function StaffShuntForm(props: FormProps) {
         savedChatUIConfig.saveChatUIConfig &&
         savedChatUIConfig.saveChatUIConfig.config
       ) {
-        jsoneditor.updateText(savedChatUIConfig.saveChatUIConfig.config);
+        jsoneditor.setText(savedChatUIConfig.saveChatUIConfig.config);
       }
     }
   }, [savedChatUIConfig, jsoneditor]);
 
   const onSubmit: SubmitHandler<StaffShunt> = async (form) => {
     const shuntResult = await saveStaffShunt({
-      variables: { staffShuntInput: form },
+      variables: { shuntInput: form },
     });
-    if (shuntResult.data && shuntResult.data.saveStaffShunt) {
-      const shuntUIConfigInput: ShuntUIConfig = {
-        shuntId: shuntResult.data.saveStaffShunt.id,
+    if (shuntResult.data && shuntResult.data.saveShunt) {
+      const shuntUIConfig: ShuntUIConfig = {
+        id: chatUIConfig?.chatUIConfig?.id,
+        shuntId: shuntResult.data.saveShunt.id,
         config: jsoneditor?.getText(),
       };
       saveChatUIConfig({
-        variables: { shuntUIConfigInput },
+        variables: { shuntUIConfig },
       });
+      if (tempStaffConfig) {
+        const forSave = tempStaffConfig
+          .filter((sc) => sc.enabled)
+          .map((sc) =>
+            _.pick(
+              _.defaults({ shuntId: shuntResult?.data?.saveShunt?.id }, sc),
+              ['shuntId', 'priority', 'staffId']
+            )
+          );
+        saveStaffConfig({
+          variables: { staffConfigList: forSave },
+        });
+      }
     }
   };
 
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const changed = tempStaffConfig?.map((sc) => {
+      if (sc.staffId === parseInt(event.target.value, 10)) {
+        return _.assign(sc, { enabled: event.target.checked });
+      }
+      return sc;
+    });
+    setTempStaffConfig(changed);
+  };
+
+  const handleSliderChange =
+    (staffId?: number) =>
+    (_event: React.ChangeEvent<unknown>, value: number | number[]) => {
+      const changed = tempStaffConfig?.map((sc) => {
+        if (sc.staffId === staffId) {
+          return _.assign(sc, { priority: value });
+        }
+        return sc;
+      });
+      setTempStaffConfig(changed);
+    };
+
+  function createStaffConfigList(sc: StaffConfig) {
+    return (
+      <Grid key={sc.staffId} container spacing={2} alignItems="center">
+        <Grid item>
+          <Switch
+            checked={sc.enabled}
+            onChange={handleSwitchChange}
+            name={sc.staffName}
+            value={sc.staffId}
+            inputProps={{ 'aria-label': 'secondary checkbox' }}
+          />
+        </Grid>
+        <Grid item xs={8}>
+          <div className={classes.root}>
+            <Typography id="discrete-slider-small-steps" gutterBottom>
+              {sc.staffName}
+            </Typography>
+            <Slider
+              className={classes.root}
+              defaultValue={15}
+              value={sc.priority}
+              onChange={handleSliderChange(sc.staffId)}
+              aria-labelledby="discrete-slider-small-steps"
+              valueLabelDisplay="auto"
+              step={1}
+              marks
+              min={0}
+              max={15}
+            />
+          </div>
+        </Grid>
+      </Grid>
+    );
+  }
   return (
     <div className={classes.paper}>
-      {loading && <CircularProgress />}
-      {data && <Typography>Success!</Typography>}
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues?.id || data?.saveStaffShunt?.id || ''}
+          value={defaultValues?.id || data?.saveShunt?.id || ''}
           name="id"
           type="hidden"
           inputRef={register({ maxLength: 100, valueAsNumber: true })}
+        />
+        <Controller
+          control={control}
+          name="shuntClassId"
+          rules={{ required: '接待组分类必选' }}
+          render={({ onChange, value }, { invalid }) => (
+            <FormControl
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              error={invalid}
+            >
+              <InputLabel id="demo-mutiple-chip-label">接待组分类</InputLabel>
+              <Select
+                labelId="shuntClassId"
+                id="shuntClassId"
+                onChange={onChange}
+                value={value || ''}
+                label="接待组分类"
+              >
+                {shuntClassList &&
+                  shuntClassList.map((it) => {
+                    return (
+                      <MenuItem key={it.id} value={it.id}>
+                        {it.className}
+                      </MenuItem>
+                    );
+                  })}
+              </Select>
+              {invalid && <FormHelperText>Error</FormHelperText>}
+            </FormControl>
+          )}
         />
         <TextField
           variant="outlined"
@@ -188,7 +415,7 @@ export default function StaffShuntForm(props: FormProps) {
           id="code"
           name="code"
           label="接待组链接代码"
-          value={defaultValues?.code || data?.saveStaffShunt?.code || ''}
+          value={defaultValues?.code || data?.saveShunt?.code || ''}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -199,22 +426,55 @@ export default function StaffShuntForm(props: FormProps) {
           }}
           inputRef={register()}
         />
-        <Typography variant="h5" gutterBottom>
+        <div className={classes.root}>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1c-content"
+              id="panel1c-header"
+            >
+              <div className={classes.column}>
+                <Typography className={classes.heading}>设置客服</Typography>
+              </div>
+              <div className={classes.column}>
+                <Typography className={classes.secondaryHeading}>
+                  选择要加入此接待组的客服和优先级
+                </Typography>
+              </div>
+            </AccordionSummary>
+            <AccordionDetails className={classes.details}>
+              <Grid container spacing={1}>
+                <Grid item sm={6} xs={12}>
+                  <Typography variant="caption">机器人客服</Typography>
+                  {tempStaffConfig &&
+                    tempStaffConfig
+                      .filter((sc) => sc.staffType === 0)
+                      .map((sc) => createStaffConfigList(sc))}
+                </Grid>
+                <Grid item sm={6} xs={12} className={classes.helper}>
+                  <Typography variant="caption">人工客服</Typography>
+                  {tempStaffConfig &&
+                    tempStaffConfig
+                      .filter((sc) => sc.staffType === 1)
+                      .map((sc) => createStaffConfigList(sc))}
+                </Grid>
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
+        </div>
+        <Typography variant="h6" gutterBottom>
           配置ChatUI界面
-          <Link href="https://chatui.io/sdk/config-ui" variant="body2">
+          <Link
+            target="_blank"
+            href="https://chatui.io/sdk/config-ui"
+            variant="body2"
+            style={{ marginLeft: 10 }}
+          >
             查看ChatUI配置文档（推荐开发进行配置）
           </Link>
         </Typography>
-        <div ref={jsoneditorRef} />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          保存
-        </Button>
+        <div ref={jsoneditorRef} style={{ height: '500px' }} />
+        <SubmitButton loading={loadingAll} success={Boolean(success)} />
       </form>
     </div>
   );

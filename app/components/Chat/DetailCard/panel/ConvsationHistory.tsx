@@ -31,12 +31,6 @@ const useStyles = makeStyles(() =>
       alignItems: 'center',
       // width: 400,
     },
-    paper: {
-      display: 'flex',
-      alignItems: 'center',
-      height: '70vh',
-      // width: 400,
-    },
     input: {
       flex: 1,
       paddingRight: 10,
@@ -49,12 +43,13 @@ const useStyles = makeStyles(() =>
       top: 'auto',
       bottom: 0,
       marginBottom: 0,
+      zIndex: 'auto', // 2
     },
     grow: {
       flexGrow: 1,
     },
     list: {
-      height: 'calc(80vh - 160px)',
+      height: 'calc(80vh - 130px)',
       display: 'flex',
       overflow: 'auto',
     },
@@ -77,7 +72,7 @@ type Graphql = SearchConv;
 export default function ConvsationHistory() {
   const classes = useStyles();
   const user = useSelector(getSelectedConstomer);
-  const [selectedId, setSelectedId] = useState<SelectedType>(0);
+  const [selectedId, setSelectedId] = useState<SelectedType>(-1);
   const [searchConv, { data }] = useLazyQuery<Graphql>(QUERY);
 
   useEffect(() => {
@@ -90,7 +85,7 @@ export default function ConvsationHistory() {
     }
   }, [searchConv, user]);
 
-  const result = data ? data.searchConv : null;
+  const result = data?.searchConv;
   const rows =
     result && result.content ? result.content.map((it) => it.content) : [];
 
@@ -102,11 +97,6 @@ export default function ConvsationHistory() {
 
   return (
     <Box>
-      <Paper component="div" className={classes.paper}>
-        {selectConversation && (
-          <MessageList conversation={selectConversation} />
-        )}
-      </Paper>
       <AppBar position="sticky" color="primary" className={classes.appBar}>
         <Toolbar>
           <div className={classes.grow} />
@@ -119,9 +109,11 @@ export default function ConvsationHistory() {
               id="demo-simple-select-outlined"
               value={selectedId}
               onChange={handleChange}
-              label="Age"
+              label="选择会话"
             >
-              <MenuItem disabled>最近的20条会话</MenuItem>
+              <MenuItem disabled value="-1">
+                最近的20条会话
+              </MenuItem>
               {rows &&
                 rows.map((conv, index) => (
                   <MenuItem key={conv.id} value={index}>
@@ -132,6 +124,11 @@ export default function ConvsationHistory() {
           </FormControl>
         </Toolbar>
       </AppBar>
+      <Paper component="div" className={classes.list}>
+        {selectConversation && (
+          <MessageList conversation={selectConversation} />
+        )}
+      </Paper>
     </Box>
   );
 }

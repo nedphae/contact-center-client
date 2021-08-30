@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import { useDispatch } from 'react-redux';
 import Viewer from 'react-viewer';
@@ -22,7 +22,12 @@ import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import config from 'app/config/clientConfig';
-import { addHistoryMessage } from 'app/state/session/sessionAction';
+import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
+import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
+import { Session } from 'app/domain/Session';
+import getPageQuery from 'app/domain/graphql/Page';
+import { PageContent } from 'app/domain/Page';
+import { setIsHistoryMessage } from 'app/state/chat/chatAction';
 import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
@@ -151,9 +156,10 @@ export function createContent(
 }
 
 interface MessageListProps {
+  session: Session | undefined;
   messages: Message[];
   staff: Staff;
-  user: Customer | undefined | null;
+  user: Customer | undefined;
   loadMore?: boolean;
 }
 
@@ -191,16 +197,23 @@ const CONTENT_QUERY = gql`
   }
 `;
 
+const PAGE_QUERY = getPageQuery(
+  'MessagePage',
+  CONTENT_QUERY,
+  'MyMessageContent'
+);
+
 const QUERY = gql`
-  ${CONTENT_QUERY}
+  ${PAGE_QUERY}
   query HistoryMessage($userId: Long!, $cursor: Long, $limit: Int) {
     loadHistoryMessage(userId: $userId, cursor: $cursor, limit: $limit) {
-      ...MyMessageContent
+      ...PageOnMessagePage
     }
   }
 `;
+
 interface MessagePage {
-  loadHistoryMessage: Message[];
+  loadHistoryMessage: PageContent<Message>;
 }
 
 const styles = StyleSheet.create({
@@ -211,48 +224,61 @@ const styles = StyleSheet.create({
 });
 
 const MessageList = (props: MessageListProps) => {
-  const { messages, staff, user, loadMore } = props;
+  const { session, messages, staff, user, loadMore } = props;
   const classes = useMessageListStyles();
   const dispatch = useDispatch();
   const refOfScrollView = useRef<ScrollView>(null);
-  const [loadHistory, setLoadHistory] = useState<boolean>(false);
   const [loadHistoryMessage, { data }] = useLazyQuery<MessagePage>(QUERY, {
     fetchPolicy: 'no-cache',
   });
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
-  const [imageViewer, setImageViewer] = useState<{
-    src: string;
-    alt: string;
-  }>({ src: '', alt: 'null' });
+  const [imageViewer, setImageViewer] = useState<ImageDecorator>({
+    src: '',
+    alt: undefined,
+  });
 
   const lastSeqId = messages[0]?.seqId ?? null;
+  const hasMore = Boolean(session?.hasMore);
 
-  // 防止渲染 卡顿
-  useLayoutEffect(() => {
-    // 如果 fetchMore 就不滚动
-    if (refOfScrollView.current && !loadHistory) {
-      refOfScrollView.current.scrollToEnd({ animated: false });
-    }
-  }, [loadHistory, messages]);
+  // // 防止渲染 卡顿 用 handleContentSizeChange + 动画代替
+  // useLayoutEffect(() => {
+  //   // 如果 fetchMore 就不滚动
+  //   if (refOfScrollView.current && !session?.isHistoryMessage) {
+  //     refOfScrollView.current.scrollToEnd({ animated });
+  //     if (session?.conversation.userId) {
+  //       dispatch(clearAnimated(session?.conversation.userId));
+  //     }
+  //   }
+  // }, [animated, dispatch, session]);
 
   useEffect(() => {
     if (
       data &&
       data.loadHistoryMessage &&
-      data.loadHistoryMessage[0] &&
+      data.loadHistoryMessage.content[0] &&
       user &&
-      user.id
+      user.userId
     ) {
-      const historyMessage = _.reverse([...data.loadHistoryMessage]);
-      const userMessageMapList = {
-        [user.id]: _.defaults(
-          {},
-          ...historyMessage.map((m) => {
-            return { [m.uuid]: m } as MessagesMap;
+      const lastMessage = data.loadHistoryMessage.content[0];
+      if (user.userId === lastMessage.to || user.userId === lastMessage.from) {
+        const historyMessage = _.reverse([...data.loadHistoryMessage.content]);
+        const userMessageMapList = {
+          [user.userId]: _.defaults(
+            {},
+            ...historyMessage.map((m) => {
+              return { [m.uuid]: m } as MessagesMap;
+            })
+          ),
+        };
+        dispatch(setIsHistoryMessage(true));
+        dispatch(addHistoryMessage(userMessageMapList));
+        dispatch(
+          setHasMore({
+            userId: user.userId,
+            hasMore: !data.loadHistoryMessage.last,
           })
-        ),
-      };
-      dispatch(addHistoryMessage(userMessageMapList));
+        );
+      }
     }
   }, [data, dispatch, user]);
 
@@ -260,13 +286,18 @@ const MessageList = (props: MessageListProps) => {
     loadHistoryMessage({
       variables: { userId: user?.userId, cursor: lastSeqId, limit: 20 },
     });
-    setLoadHistory(true);
   }
 
   function handleContentSizeChange() {
     // 检查是否是读取历史记录
-    if (refOfScrollView.current && !loadHistory) {
-      refOfScrollView.current.scrollToEnd({ animated: false });
+    if (refOfScrollView.current) {
+      if (!session?.isHistoryMessage) {
+        refOfScrollView.current.scrollToEnd({
+          animated: Boolean(session?.animated),
+        });
+      } else {
+        dispatch(setIsHistoryMessage(false));
+      }
     }
   }
 
@@ -301,7 +332,7 @@ const MessageList = (props: MessageListProps) => {
     >
       {user && (
         <List className={classes.list}>
-          {loadMore && (
+          {loadMore && hasMore && (
             <ListItem button onClick={handleLoadMore}>
               <ListItemText
                 style={{ display: 'flex', justifyContent: 'center' }}

@@ -9,6 +9,8 @@ export const {
   setMonitoredMessage,
   setMonitorSelectedSession,
   setMonitorUser,
+  setAnimated,
+  setIsHistoryMessage,
 } = slice.actions;
 
 export const getSelectedSession = (state: RootState) =>

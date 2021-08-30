@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
@@ -10,10 +10,10 @@ import { TreeView } from '@material-ui/lab';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import SubjectIcon from '@material-ui/icons/Subject';
-import { DataGrid, GridColDef } from '@material-ui/data-grid';
+import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
-import { AllShunt } from 'app/domain/graphql/Staff';
+import { AllShunt, QUERY_STAFF, StaffList } from 'app/domain/graphql/Staff';
 import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
 import { ShuntClass, StaffShunt } from 'app/domain/StaffInfo';
 import DraggableDialog, {
@@ -21,6 +21,7 @@ import DraggableDialog, {
 } from 'app/components/DraggableDialog/DraggableDialog';
 import StaffShuntForm from 'app/components/StaffForm/StaffShuntForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
+import TreeToolbar from 'app/components/Header/TreeToolbar';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -52,13 +53,19 @@ const QUERY_SHUNT = gql`
   }
 `;
 
+const MUTATION_SHUNT = gql`
+  mutation DeleteShunt($ids: [Long!]!) {
+    deleteShuntByIds(ids: $ids)
+  }
+`;
+
 type Graphql = AllShunt;
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
   { field: 'name', headerName: '接待组名称', width: 150 },
-  { field: 'shuntClassId', headerName: '接待组所属分类', width: 150 },
-  { field: 'code', headerName: '接待组代码', width: 250 },
+  { field: 'shuntClassId', headerName: '接待组所属分类', width: 250 },
+  { field: 'code', headerName: '接待组代码', width: 350 },
 ];
 
 function buildTreeView(shuntClassList: ShuntClass[]) {
@@ -79,8 +86,11 @@ export default function Shunt() {
   const [staffShunt, setStaffShunt] = useState<StaffShunt | undefined>(
     undefined
   );
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
-  const { loading, data } = useQuery<Graphql>(QUERY_SHUNT);
+  const { loading, data, refetch } = useQuery<Graphql>(QUERY_SHUNT);
+  const { data: staffList } = useQuery<StaffList>(QUERY_STAFF);
+  const [deleteByIds] = useMutation<number>(MUTATION_SHUNT);
 
   function newButtonClick() {
     setStaffShunt(undefined);
@@ -95,21 +105,35 @@ export default function Shunt() {
   const rows = data?.allStaffShunt ?? [];
   const allShuntClass = _.groupBy(
     data?.allShuntClass,
-    (it) => it.catalogue ?? -2
+    (it) => it.catalogue ?? -1
   );
   const pShuntClass = data?.allShuntClass
     .map((it) => {
-      it.children = allShuntClass[it.id];
-      return it;
+      return _.assign(it, { children: allShuntClass[it.id] });
     })
-    .filter((it) => it.catalogue === undefined || it.catalogue === null);
+    .filter((it) => it.catalogue === -1);
+
+  function deleteButtonClick() {
+    if (selectionModel && selectionModel.length > 0) {
+      deleteByIds({ variables: { ids: selectionModel } });
+    }
+  }
 
   return (
     <Grid container className={classes.root}>
       <DraggableDialog title="添加/修改接待组" ref={refOfDialog}>
-        <StaffShuntForm defaultValues={staffShunt} />
+        <StaffShuntForm
+          defaultValues={staffShunt}
+          shuntClassList={data?.allShuntClass ?? []}
+          staffList={staffList?.allStaff ?? []}
+        />
       </DraggableDialog>
       <Grid item xs={12} sm={2}>
+        <TreeToolbar
+          refetch={refetch}
+          adderName="添加接待组分类"
+          add={() => {}}
+        />
         <TreeView
           className={classes.list}
           defaultCollapseIcon={<ArrowDropDownIcon />}
@@ -124,15 +148,28 @@ export default function Shunt() {
           rows={rows}
           columns={columns}
           components={{
-            Toolbar: CustomerGridToolbarCreater({ newButtonClick }),
+            Toolbar: CustomerGridToolbarCreater({
+              newButtonClick,
+              deleteButtonClick,
+              refetch: () => {
+                refetch();
+              },
+            }),
           }}
           onRowClick={(param) => {
             handleClickOpen(param.row as StaffShunt);
           }}
           pagination
+          paginationMode="client"
           pageSize={20}
+          rowsPerPageOptions={[20]}
           loading={loading}
           disableSelectionOnClick
+          checkboxSelection
+          onSelectionModelChange={(selectionId: GridRowId[]) => {
+            setSelectionModel(selectionId);
+          }}
+          selectionModel={selectionModel}
         />
       </Grid>
     </Grid>

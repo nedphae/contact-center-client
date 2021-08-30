@@ -16,6 +16,7 @@ export async function getCustomerByUserId(userId: number): Promise<Customer> {
   const result = await apolloClient.query({
     query: QUERY_CUSTOMER,
     variables: { userId },
+    fetchPolicy: 'no-cache',
   });
   return result.data.getCustomer;
 }

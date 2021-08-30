@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import {
   ApolloQueryResult,
+  FetchResult,
   gql,
   OperationVariables,
   useMutation,
@@ -31,12 +32,12 @@ import TopicAndKnowladgeContainer, {
   TopicOrKnowladge,
 } from 'app/components/Bot/TopicAndKnowladgeContainer';
 import unimplemented from 'app/utils/Error';
-import BotToolbar from './BotToolbar';
+import TreeToolbar from '../Header/TreeToolbar';
 import BotTreeView from './BotTreeView';
 
 type Select = {
-  mouseX: null | number;
-  mouseY: null | number;
+  mouseX: undefined | number;
+  mouseY: undefined | number;
 };
 
 type TopicOrKnowladgeWithKey = Object.Merge<
@@ -45,8 +46,8 @@ type TopicOrKnowladgeWithKey = Object.Merge<
 >;
 
 const initialState: Select = {
-  mouseX: null,
-  mouseY: null,
+  mouseX: undefined,
+  mouseY: undefined,
 };
 
 interface BotProps {
@@ -81,7 +82,7 @@ export default function BotSidecar(props: BotProps) {
   const [state, setState] = useState<Select>(initialState);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
-  const [configStaff, setConfigStaff] = useState<Staff | null>(null);
+  const [configStaff, setConfigStaff] = useState<Staff>();
   const [topicOrKnowladge, setTopicOrKnowladge] =
     useState<TopicOrKnowladgeWithKey>({} as TopicOrKnowladgeWithKey);
 
@@ -124,25 +125,20 @@ export default function BotSidecar(props: BotProps) {
 
   function newTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
     setState(initialState);
-    let updateTopicOrKnowladge = { topicOrKnowladgeKey };
     switch (topicOrKnowladgeKey) {
       case 'Topic': {
-        updateTopicOrKnowladge = _.assignIn(
-          {
-            topicOrKnowladgeKey,
-            // 表单 default value
-            Topic: { knowledgeBaseId: topicOrKnowladge.Knowladge?.id },
-          },
-          topicOrKnowladge
-        );
+        setTopicOrKnowladge({
+          topicOrKnowladgeKey,
+          // 表单 default value
+          Topic: { knowledgeBaseId: topicOrKnowladge.Knowladge?.id },
+        });
         break;
       }
       default: {
-        updateTopicOrKnowladge = { topicOrKnowladgeKey };
+        setTopicOrKnowladge({ topicOrKnowladgeKey });
         break;
       }
     }
-    setTopicOrKnowladge(updateTopicOrKnowladge);
     refOfKnowladgeDialog.current?.setOpen(true);
   }
 
@@ -150,36 +146,52 @@ export default function BotSidecar(props: BotProps) {
     setState(initialState);
     setTopicOrKnowladge(_.assignIn({ topicOrKnowladgeKey }, topicOrKnowladge));
     refOfKnowladgeDialog.current?.setOpen(true);
+    refetch();
   }
 
   function deleteTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
     setState(initialState);
+    let action: Promise<FetchResult<unknown>> | undefined;
     switch (topicOrKnowladgeKey) {
       case 'Topic': {
         const id = topicOrKnowladge.Topic?.id;
-        if (id) deleteTopicCategoryById({ variables: { ids: [id] } });
+        if (id) action = deleteTopicCategoryById({ variables: { ids: [id] } });
+
         break;
       }
       case 'Knowladge': {
         const id = topicOrKnowladge.Knowladge?.id;
         const botConfigId = topicOrKnowladge.Knowladge?.botConfig?.id;
         if (botConfigId) {
-          deleteBotConfigById({ variables: { ids: [botConfigId] } });
+          deleteBotConfigById({ variables: { ids: [botConfigId] } })
+            .then(refetch)
+            .catch((error) => {
+              throw error;
+            });
         }
         if (id) {
-          deleteKnowledgeBaseById({ variables: { ids: [id] } });
+          deleteKnowledgeBaseById({ variables: { ids: [id] } })
+            .then(refetch)
+            .catch((error) => {
+              throw error;
+            });
         }
         break;
       }
       default:
         unimplemented();
     }
-    refetch();
+    if (action) {
+      action.then(refetch).catch((error) => {
+        throw error;
+      });
+    }
   }
   /**
    * 关联知识库和机器人
    */
   const interrelateBot = () => {
+    setState(initialState);
     refOfDialog.current?.setOpen(true);
   };
 
@@ -191,7 +203,7 @@ export default function BotSidecar(props: BotProps) {
     memoData.botConfigMap[topicOrKnowladge.Knowladge?.id ?? -1] ?? [];
   const botConfig = botConfigList[0];
 
-  const staffId = botConfig ? botConfig?.botId : null;
+  const staffId = botConfig ? botConfig?.botId : undefined;
   const memoStaffAndBotConfig = {
     botConfig,
     staffId,
@@ -200,7 +212,11 @@ export default function BotSidecar(props: BotProps) {
   return (
     <Grid item xs={12} sm={2}>
       {/* 功能菜单 */}
-      <BotToolbar newTopicOrKnowladge={newTopicOrKnowladge} />
+      <TreeToolbar
+        refetch={refetch}
+        adderName="添加知识库"
+        add={() => newTopicOrKnowladge('Knowladge')}
+      />
       {/* 知识库，分类 树状列表 */}
       <BotTreeView
         allKnowledgeBase={memoData.allKnowledgeBase}
@@ -213,11 +229,11 @@ export default function BotSidecar(props: BotProps) {
       >
         <Menu
           keepMounted
-          open={state.mouseY !== null}
+          open={state.mouseY !== undefined}
           onClose={handleContextMenuClose}
           anchorReference="anchorPosition"
           anchorPosition={
-            state.mouseY !== null && state.mouseX !== null
+            state.mouseY !== undefined && state.mouseX !== undefined
               ? { top: state.mouseY, left: state.mouseX }
               : undefined
           }

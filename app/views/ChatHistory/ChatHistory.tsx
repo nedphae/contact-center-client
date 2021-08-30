@@ -16,7 +16,6 @@ import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
   ConversationQueryInput,
   CONV_PAGE_QUERY,
-  PageParam,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
 import { Conversation } from 'app/domain/Conversation';
@@ -28,9 +27,16 @@ import DraggableDialog, {
 } from 'app/components/DraggableDialog/DraggableDialog';
 import { AllStaffInfo } from 'app/domain/graphql/Staff';
 import { SelectKeyValue } from 'app/components/Form/ChipSelect';
+import { PageParam } from 'app/domain/graphql/Query';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
+  { field: 'staffId', headerName: '客服ID', width: 150 },
+  { field: 'realName', headerName: '客服实名', width: 150 },
+  { field: 'nickName', headerName: '客服昵称', width: 150 },
+  { field: 'startTime', headerName: '开始时间', width: 150 },
+  { field: 'userId', headerName: '客户ID', width: 150 },
+  { field: 'userName', headerName: '客户名称', width: 150 },
   { field: 'fromShuntName', headerName: '接待组', width: 150 },
   { field: 'fromGroupName', headerName: '客服组', width: 150 },
   { field: 'fromIp', headerName: '访客来源ip', width: 150 },
@@ -58,12 +64,6 @@ const columns: GridColDef[] = [
     },
   },
   { field: 'convType', headerName: '会话类型', width: 150 },
-  { field: 'staffId', headerName: '客服ID', width: 150 },
-  { field: 'realName', headerName: '客服实名', width: 150 },
-  { field: 'nickName', headerName: '客服昵称', width: 150 },
-  { field: 'startTime', headerName: '开始时间', width: 150 },
-  { field: 'userId', headerName: '客户ID', width: 150 },
-  { field: 'userName', headerName: '客户名称', width: 150 },
   { field: 'vipLevel', headerName: 'VIP', type: 'number', width: 150 },
   {
     field: 'visitRange',
@@ -163,7 +163,7 @@ const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
   page: new PageParam(),
-  timeRange: { from: dateFnsUtils.startOfDay(new Date()), to: new Date() },
+  timeRange: { from: dateFnsUtils.startOfMonth(new Date()), to: new Date() },
 };
 
 type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
@@ -208,13 +208,12 @@ const QUERY = gql`
   }
 `;
 
-export default function DataGridDemo() {
+export default function ChatHistory() {
   const refOfDialog = useRef<DraggableDialogRef>(null);
 
   const [conversationQueryInput, setConversationQueryInput] =
     useState<ConversationQueryInput>(defaultValue);
-  const [selectConversation, setSelectConversation] =
-    useState<Conversation | null>(null);
+  const [selectConversation, setSelectConversation] = useState<Conversation>();
 
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { conversationQueryInput },
@@ -249,10 +248,10 @@ export default function DataGridDemo() {
     refetch({ conversationQueryInput: searchParams });
   };
 
-  const result = data ? data.searchConv : null;
+  const result = data?.searchConv;
   const rows =
     result && result.content ? result.content.map((it) => it.content) : [];
-  const pageSize = result ? result.size : 0;
+  const pageSize = result ? result.size : 20;
   const rowCount = result ? result.totalElements : 0;
 
   const staffList = data ? data?.allStaff : [];
