@@ -17,12 +17,12 @@ import { gql, useLazyQuery } from '@apollo/client';
 import {
   ConversationQueryInput,
   CONV_PAGE_QUERY,
-  PageParam,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
 import { getSelectedConstomer } from 'app/state/session/sessionAction';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import MessageList from 'app/components/MessageList/MessageList';
+import { PageParam } from 'app/domain/graphql/Query';
 
 const useStyles = makeStyles(() =>
   createStyles({

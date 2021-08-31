@@ -70,7 +70,15 @@ export default function AccountList() {
 
   const groupMap = _.groupBy(groupList?.allStaffGroup ?? [], (it) => it.id);
   const rows = [...(data?.allStaff ?? [])].map((it) => {
-    it.groupName = groupMap[it.groupId][0].groupName;
+    const itGroup = groupMap[it.staffGroupId];
+    if (itGroup && itGroup.length > 0) {
+      return _.assign(
+        {
+          groupName: itGroup[0]?.groupName,
+        },
+        it
+      );
+    }
     return it;
   });
 

@@ -5,7 +5,8 @@ export default interface Staff {
   organizationId: number;
   id: number;
   /** use for colleague conversation */
-  groupId: number;
+  groupId?: number;
+  staffGroupId: number;
   groupName?: string;
   staffGroup: StaffGroup;
   /** type of role */
