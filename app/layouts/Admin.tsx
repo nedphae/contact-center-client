@@ -110,7 +110,7 @@ export default function Admin({ ...rest }) {
         {/** 侧边选项卡 */}
         <Sidebar
           routes={routes}
-          logoText="客服系统" // 客服
+          logoText="小白客服系统" // 客服
           logo={logo}
           image={image}
           handleDrawerToggle={handleDrawerToggle}
@@ -136,14 +136,14 @@ export default function Admin({ ...rest }) {
             <div className={classes.map}>{switchRoutes}</div>
           )}
           {/* {getRoute() ? <Footer /> : null} */}
-          <FixedPlugin
+          {/* <FixedPlugin
             handleImageClick={handleImageClick}
             handleColorClick={handleColorClick}
             bgColor={color}
             bgImage={image}
             handleFixedClick={handleFixedClick}
             fixedClasses={fixedClasses}
-          />
+          /> */}
         </div>
       </div>
     </WebSocketContext.Provider>

@@ -105,7 +105,13 @@ const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
   page: new PageParam(),
-  timeRange: { from: dateFnsUtils.startOfMonth(new Date()), to: new Date() },
+  timeRange: {
+    from: dateFnsUtils.format(
+      dateFnsUtils.startOfMonth(new Date()),
+      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+    ),
+    to: dateFnsUtils.format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSXX"),
+  },
 };
 
 export default function Crm() {

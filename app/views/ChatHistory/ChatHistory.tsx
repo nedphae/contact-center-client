@@ -163,7 +163,13 @@ const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
   page: new PageParam(),
-  timeRange: { from: dateFnsUtils.startOfMonth(new Date()), to: new Date() },
+  timeRange: {
+    from: dateFnsUtils.format(
+      dateFnsUtils.startOfDay(new Date()),
+      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+    ),
+    to: dateFnsUtils.format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSXX"),
+  },
 };
 
 type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
