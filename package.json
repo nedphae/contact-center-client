@@ -1,14 +1,15 @@
 {
-  "name": "electron-react-boilerplate",
-  "productName": "ElectronReact",
-  "description": "Electron application boilerplate based on React, React Router, Webpack, React Hot Loader for rapid application development",
+  "name": "contact-center-client",
+  "productName": "ContactCenterClient",
+  "description": "Contact center client based on React, React Router, Webpack, React Hot Loader, and Material-UI",
   "scripts": {
     "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.main.prod.babel.js",
     "build:renderer": "cross-env NODE_ENV=production webpack --config ./.erb/configs/webpack.config.renderer.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir app",
     "lint": "cross-env NODE_ENV=development eslint . --cache --ext .js,.jsx,.ts,.tsx",
-    "package": "yarn build && electron-builder build --publish never",
+    "clean": "node -r @babel/register ./.erb/scripts/clean.js dist release",
+    "package": "node -r @babel/register ./.erb/scripts/clean.js dist release && yarn build && electron-builder build --publish never",
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
     "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./app/main.dev.ts",
@@ -30,8 +31,8 @@
     ]
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "小白客服",
+    "appId": "com.qingzhu.ContactCenterClient",
     "files": [
       "dist/",
       "node_modules/",
@@ -86,34 +87,29 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "owner": "contact-center-client",
+      "repo": "contact-center-client"
     }
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/nedphae/contact-center-client.git"
   },
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "高万里",
+    "email": "nedphae@gmail.com",
+    "url": "https://github.com/nedphae/contact-center"
   },
   "contributors": [
     {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    },
-    {
-      "name": "John Tran",
-      "email": "jptran318@gmail.com",
-      "url": "https://github.com/jooohhn"
+      "name": "高万里",
+      "email": "nedphae@gmail.com",
+      "url": "https://github.com/nedphae"
     }
   ],
-  "license": "MIT",
+  "license": "Apache 2.0",
   "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
+    "url": "https://github.com/nedphae/contact-center-client/issues"
   },
   "keywords": [
     "electron",
@@ -126,7 +122,7 @@
     "hot",
     "reload"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
+  "homepage": "https://github.com/nedphae/contact-center-client#readme",
   "jest": {
     "testURL": "http://localhost/",
     "moduleNameMapper": {
@@ -184,6 +180,7 @@
     "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/history": "4.7.6",
     "@types/jest": "^26.0.15",
+    "@types/jsoneditor": "^8.6.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/jwk-to-pem": "^2.0.0",
     "@types/node": "14.14.10",
@@ -280,6 +277,7 @@
     "@apollo/client": "^3.4.3",
     "@date-io/date-fns": "1.3.13",
     "@fortawesome/fontawesome-free": "^5.15.0",
+    "@iconify/react": "^1.1.4",
     "@material-ui/core": "^4.12.3",
     "@material-ui/data-grid": "^4.0.0-alpha.35",
     "@material-ui/icons": "^4.9.1",
@@ -297,6 +295,7 @@
     "fuse.js": "^6.4.6",
     "graphql": "^15.5.1",
     "history": "^4.10.1",
+    "jsoneditor": "^9.5.1",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^2.0.4",
     "lodash": "^4.17.15",
@@ -315,6 +314,7 @@
     "react-cropper": "^2.1.8",
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.3",
+    "react-dropdown-tree-select": "^2.5.1",
     "react-google-maps": "^9.4.5",
     "react-hook-form": "^6.12.2",
     "react-hotkeys": "^2.0.0",
@@ -323,6 +323,7 @@
     "react-number-format": "^4.6.4",
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
+    "react-shadow": "^19.0.2",
     "react-swipeable-views": "^0.14.0",
     "react-viewer": "^3.2.2",
     "redux": "^4.0.5",
@@ -341,7 +342,7 @@
     "yarn": ">=1.21.3"
   },
   "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
+    "url": "https://github.com/nedphae"
   },
   "browserslist": [],
   "prettier": {
