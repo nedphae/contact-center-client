@@ -6,7 +6,7 @@ import { Badge, Button, MenuItem, MenuList } from '@material-ui/core';
 import ViewListIcon from '@material-ui/icons/ViewList';
 
 export interface GridToolbarDataProps {
-  newButtonClick: () => void;
+  newButtonClick?: () => void;
   deleteButtonClick?: () => void;
   refetch?: () => void;
 }
@@ -23,7 +23,9 @@ export const GridToolbarDataButton = forwardRef<
   const handleMenuClose = () => setAnchorEl(undefined);
   const handleNew = () => {
     // 打开新增接口
-    newButtonClick();
+    if (newButtonClick) {
+      newButtonClick();
+    }
     setAnchorEl(undefined);
   };
 
@@ -82,7 +84,7 @@ export const GridToolbarDataButton = forwardRef<
           autoFocusItem={Boolean(anchorEl)}
         >
           {refetch && <MenuItem onClick={handleRefetch}>刷新</MenuItem>}
-          <MenuItem onClick={handleNew}>新建</MenuItem>
+          {newButtonClick && <MenuItem onClick={handleNew}>新建</MenuItem>}
           {deleteButtonClick && (
             <MenuItem onClick={handleDelete}>删除</MenuItem>
           )}
@@ -93,12 +95,13 @@ export const GridToolbarDataButton = forwardRef<
 });
 
 GridToolbarDataButton.propTypes = {
-  newButtonClick: PropTypes.func.isRequired,
+  newButtonClick: PropTypes.func,
   deleteButtonClick: PropTypes.func,
   refetch: PropTypes.func,
 };
 
 GridToolbarDataButton.defaultProps = {
+  newButtonClick: undefined,
   deleteButtonClick: undefined,
   refetch: undefined,
 };

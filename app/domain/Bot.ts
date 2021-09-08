@@ -8,6 +8,11 @@ export interface KnowledgeBase {
   botConfig: BotConfig | undefined;
 }
 
+export interface Answer {
+  type: string;
+  content: string;
+}
+
 export interface Topic {
   id: string | undefined;
   /** 所属知识库ID * */
@@ -17,7 +22,7 @@ export interface Topic {
   /** 问题的md5 */
   md5: string;
   /** 问题的对外答案，如果是相似问题，可以设置为空 */
-  answer: string | undefined;
+  answer: Answer[] | undefined;
   /** 问题的对内答案 */
   innerAnswer: string | undefined;
   /** 问题的来源;0:用户手动添加;1:寒暄库;2:文件导入 */

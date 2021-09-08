@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, Control } from 'react-hook-form';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import clsx from 'clsx';
@@ -28,16 +28,13 @@ import {
 import { CustomerQueryInput } from 'app/domain/graphql/Customer';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 
-const useStyles = makeStyles((theme: Theme) =>
+export const useSearchFormStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       '& > *': {
         margin: theme.spacing(1),
+        width: '26ch',
       },
-    },
-    chips: {
-      display: 'flex',
-      flexWrap: 'wrap',
     },
     chip: {
       margin: 2,
@@ -70,14 +67,20 @@ interface FormProps {
   currentValues: FormType;
   selectKeyValueList: SelectKeyValue[];
   searchAction: (searchParams: FormType) => void;
+  customerForm?: (control: Control<FormType>) => React.ReactNode;
 }
 
 const dateFnsUtils = new DateFnsUtils();
 
 export default function SearchForm(props: FormProps) {
-  const { defaultValues, currentValues, selectKeyValueList, searchAction } =
-    props;
-  const classes = useStyles();
+  const {
+    defaultValues,
+    currentValues,
+    selectKeyValueList,
+    searchAction,
+    customerForm,
+  } = props;
+  const classes = useSearchFormStyles();
   const { handleSubmit, register, reset, control, getValues, setValue } =
     useForm<FormType>({ defaultValues: currentValues });
   const [expanded, setExpanded] = React.useState(false);
@@ -218,6 +221,7 @@ export default function SearchForm(props: FormProps) {
           </CardActions>
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <CardActions>
+              {customerForm && customerForm(control)}
               <ChipSelect
                 selectKeyValueList={selectKeyValueList}
                 control={control}
@@ -237,3 +241,6 @@ export default function SearchForm(props: FormProps) {
     </MuiPickersUtilsProvider>
   );
 }
+SearchForm.defaultProps = {
+  customerForm: undefined,
+};

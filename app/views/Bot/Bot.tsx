@@ -6,11 +6,22 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
-import { Topic, BotConfig, KnowledgeBase, TopicCategory } from 'app/domain/Bot';
+import {
+  Topic,
+  BotConfig,
+  KnowledgeBase,
+  TopicCategory,
+  Answer,
+} from 'app/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
-import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowId,
+  GridValueGetterParams,
+} from '@material-ui/data-grid';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import TopicForm from 'app/components/Bot/TopicForm';
@@ -39,7 +50,10 @@ const QUERY = gql`
       knowledgeBaseId
       question
       md5
-      answer
+      answer {
+        type
+        content
+      }
       innerAnswer
       fromType
       type
@@ -77,7 +91,14 @@ const columns: GridColDef[] = [
   { field: 'categoryId', headerName: '知识点所属分类', width: 150 },
   { field: 'question', headerName: '问题', width: 150 },
   { field: 'md5', headerName: '问题的md5', width: 150 },
-  { field: 'answer', headerName: '问题的对外答案', width: 150 },
+  {
+    field: 'answer',
+    headerName: '问题的对外答案',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      return (params.value as Answer[])[0]?.content;
+    },
+  },
   { field: 'innerAnswer', headerName: '问题的对内答案', width: 150 },
   { field: 'fromType', headerName: '问题的来源', width: 150 },
   { field: 'type', headerName: '问题类型', width: 150 },

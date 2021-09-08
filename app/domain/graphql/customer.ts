@@ -68,5 +68,5 @@ export interface CustomerQueryInput {
   page: PageParam;
 
   // 时间区间
-  timeRange?: RangeQuery<Date | string>;
+  timeRange?: RangeQuery<number | string>;
 }

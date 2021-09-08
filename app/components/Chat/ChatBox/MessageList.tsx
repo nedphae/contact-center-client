@@ -26,7 +26,7 @@ import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import { Session } from 'app/domain/Session';
 import getPageQuery from 'app/domain/graphql/Page';
-import { PageContent } from 'app/domain/Page';
+import { PageResult } from 'app/domain/Page';
 import { setIsHistoryMessage } from 'app/state/chat/chatAction';
 import FileCard from './FileCard';
 
@@ -213,7 +213,7 @@ const QUERY = gql`
 `;
 
 interface MessagePage {
-  loadHistoryMessage: PageContent<Message>;
+  loadHistoryMessage: PageResult<Message>;
 }
 
 const styles = StyleSheet.create({

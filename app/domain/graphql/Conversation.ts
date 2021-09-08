@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { Conversation, SearchHit } from '../Conversation';
-import { PageContent } from '../Page';
+import { PageResult } from '../Page';
 import getPageQuery from './Page';
 import { PageParam, RangeQuery } from './Query';
 
@@ -22,7 +22,7 @@ export interface ConversationQueryInput {
   staffIdList?: number[];
 
   // 时间区间
-  timeRange?: RangeQuery<Date | string>;
+  timeRange?: RangeQuery<number | string>;
 
   // 总消息条数
   totalMessageCount?: RangeQuery<number>;
@@ -32,6 +32,7 @@ export interface ConversationQueryInput {
   userId?: number;
 }
 
+// 监控使用
 export const CONVERSATION_QUERY = gql`
   fragment ConversationFields on Conversation {
     avgRespDuration
@@ -203,5 +204,5 @@ export const CONV_PAGE_QUERY = getPageQuery(
 );
 
 export interface SearchConv {
-  searchConv: PageContent<SearchHit<Conversation>>;
+  searchConv: PageResult<SearchHit<Conversation>>;
 }

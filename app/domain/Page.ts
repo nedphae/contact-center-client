@@ -13,7 +13,7 @@ export interface Pageable {
   unpaged: boolean;
 }
 
-export interface PageContent<T> {
+export interface PageResult<T> {
   content: T[];
   pageable: Pageable;
   last: boolean;

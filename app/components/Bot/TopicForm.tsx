@@ -52,7 +52,10 @@ const MUTATION_TOPIC = gql`
       knowledgeBaseId
       question
       md5
-      answer
+      answer {
+        type
+        content
+      }
       innerAnswer
       fromType
       type
@@ -223,15 +226,21 @@ export default function TopicForm(props: FormProps) {
         {questionType === 1 && (
           <>
             <TextField
+              name="answer.0.type"
+              type="hidden"
+              defaultValue="text"
+              inputRef={register()}
+            />
+            <TextField
               variant="outlined"
               margin="normal"
               fullWidth
               multiline
-              id="answer"
-              name="answer"
+              id="answer.0.content"
+              name="answer.0.content"
               label="问题的对外答案"
               error={errors.answer && true}
-              helperText={errors.answer?.message}
+              helperText={errors.answer && errors.answer[0]?.content?.message}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -280,6 +289,7 @@ export default function TopicForm(props: FormProps) {
           <Controller
             control={control}
             name="refId"
+            defaultValue={null}
             rules={{ required: '相似问题必选' }}
             render={({ onChange, value }, { invalid }) => (
               <FormControl

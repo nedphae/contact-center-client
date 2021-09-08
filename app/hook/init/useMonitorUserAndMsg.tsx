@@ -5,7 +5,7 @@ import { Object } from 'ts-toolbelt';
 import { gql, useQuery, useSubscription } from '@apollo/client';
 import { Message } from 'app/domain/Message';
 import { setMonitoredMessage, setMonitorUser } from 'app/state/chat/chatAction';
-import { PageContent } from 'app/domain/Page';
+import { PageResult } from 'app/domain/Page';
 import {
   CORE_CUSTOMER_FIELDS,
   CustomerGraphql,
@@ -22,7 +22,7 @@ const MONITOR_SUBSCRIPTION = gql`
 `;
 
 interface Graphql {
-  monitorMessageByUser: PageContent<Message>;
+  monitorMessageByUser: PageResult<Message>;
 }
 
 export const QUERY = gql`

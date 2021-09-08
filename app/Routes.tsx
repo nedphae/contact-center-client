@@ -26,6 +26,7 @@ import LocationOn from '@material-ui/icons/LocationOn';
 import Notifications from '@material-ui/icons/Notifications';
 import Unarchive from '@material-ui/icons/Unarchive';
 import Language from '@material-ui/icons/Language';
+import CommentIcon from '@material-ui/icons/Comment';
 import SettingsIcon from '@material-ui/icons/Settings';
 // core components/views for Admin layout
 import ChatHistory from 'app/views/ChatHistory/ChatHistory';
@@ -43,6 +44,7 @@ import NotificationsPage from './views/Notifications/Notifications';
 import UpgradeToPro from './views/UpgradeToPro/UpgradeToPro';
 // core components/views for RTL layout
 import RTLPage from './views/RTLPage/RTLPage';
+import CommentManagement from './views/Comment/CommentManagement';
 
 const dashboardRoutes = [
   {
@@ -67,6 +69,14 @@ const dashboardRoutes = [
     rtlName: 'لوحة القيادة',
     icon: QueryBuilderIcon,
     component: ChatHistory,
+    layout: '/admin',
+  },
+  {
+    path: '/comment',
+    name: '留言管理',
+    rtlName: 'لوحة القيادة',
+    icon: CommentIcon,
+    component: CommentManagement,
     layout: '/admin',
   },
   {

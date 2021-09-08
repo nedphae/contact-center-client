@@ -14,7 +14,7 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import { Divider } from '@material-ui/core';
-import { PageContent } from 'app/domain/Page';
+import { PageResult } from 'app/domain/Page';
 import { Customer } from 'app/domain/Customer';
 import getPageQuery from 'app/domain/graphql/Page';
 import CustomerForm, {
@@ -49,7 +49,7 @@ function PaperComponent(props: PaperProps) {
 }
 
 interface Graphql {
-  searchCustomer: PageContent<SearchHit<Customer>>;
+  searchCustomer: PageResult<SearchHit<Customer>>;
 }
 
 const CONTENT_QUERY = gql`
@@ -122,10 +122,6 @@ export default function Crm() {
   const [customerQueryInput, setCustomerQueryInput] =
     useState<CustomerQueryInput>(defaultValue);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
-  const [pageParams, setPageParams] = useState({
-    first: 20,
-    offset: 0,
-  });
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { customerQuery: customerQueryInput },
   });
@@ -160,13 +156,25 @@ export default function Crm() {
     }
   };
 
+  function setAndRefetch(searchParams: CustomerQueryInput) {
+    setCustomerQueryInput(searchParams);
+    refetch({ customerQuery: searchParams });
+  }
+
   const handlePageChange = (params: number) => {
-    const newPageParams = { first: pageParams.first, offset: params };
-    setPageParams(newPageParams);
+    customerQueryInput.page = new PageParam(
+      params,
+      customerQueryInput.page.size
+    );
+    setAndRefetch(customerQueryInput);
   };
+
   const handlePageSizeChange = (params: number) => {
-    const newPageParams = { first: params, offset: pageParams.offset };
-    setPageParams(newPageParams);
+    customerQueryInput.page = new PageParam(
+      customerQueryInput.page.page,
+      params
+    );
+    setAndRefetch(customerQueryInput);
   };
   const result = data?.searchCustomer;
   const rows =
