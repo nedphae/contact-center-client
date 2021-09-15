@@ -35,6 +35,9 @@ const useTreeItemStyles = makeStyles((theme: Theme) =>
       '& $content': {
         paddingLeft: theme.spacing(2),
       },
+      '& & $content': {
+        paddingLeft: theme.spacing(4),
+      },
     },
     expanded: {},
     selected: {},

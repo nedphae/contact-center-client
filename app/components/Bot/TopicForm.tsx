@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -113,14 +113,36 @@ export default function TopicForm(props: FormProps) {
     );
   };
 
-  const currentValues = getValues();
-  const treeData = makeTreeNode(
-    categoryList,
-    currentValues.categoryId ?? defaultValues?.categoryId,
-    (topicCategory: TopicCategory, node: TreeNodeProps) => {
-      node.knowledgeBaseId = topicCategory.knowledgeBaseId;
-    }
-  );
+  const dropdownTreeSelect = useMemo(() => {
+    const treeData = makeTreeNode(
+      categoryList,
+      defaultValues?.categoryId,
+      (topicCategory: TopicCategory, node: TreeNodeProps) => {
+        node.knowledgeBaseId = topicCategory.knowledgeBaseId;
+      }
+    );
+    return (
+      <DropdownTreeSelect
+        inlineSearchInput
+        data={treeData}
+        onChange={(_currentNode, selectedNodes) => {
+          setValue(
+            'knowledgeBaseId',
+            selectedNodes.map((it) => it.knowledgeBaseId)[0],
+            {
+              shouldValidate: true,
+            }
+          );
+          setValue('categoryId', selectedNodes.map((it) => it.value)[0], {
+            shouldValidate: true,
+          });
+        }}
+        texts={{ placeholder: '选择所属分类' }}
+        className="mdl-demo"
+        mode="radioSelect"
+      />
+    );
+  }, [categoryList, defaultValues, setValue]);
 
   return (
     <div className={classes.paper}>
@@ -158,25 +180,7 @@ export default function TopicForm(props: FormProps) {
           })}
         />
         <FormControl variant="outlined" margin="normal" fullWidth>
-          <DropdownTreeSelect
-            inlineSearchInput
-            data={treeData}
-            onChange={(_currentNode, selectedNodes) => {
-              setValue(
-                'knowledgeBaseId',
-                selectedNodes.map((it) => it.knowledgeBaseId)[0],
-                {
-                  shouldValidate: true,
-                }
-              );
-              setValue('categoryId', selectedNodes.map((it) => it.value)[0], {
-                shouldValidate: true,
-              });
-            }}
-            texts={{ placeholder: '选择所属分类' }}
-            className="mdl-demo"
-            mode="radioSelect"
-          />
+          {dropdownTreeSelect}
         </FormControl>
         <TextField
           variant="outlined"
@@ -306,7 +310,7 @@ export default function TopicForm(props: FormProps) {
                   value={value || ''}
                   label="相似问题"
                 >
-                  <MenuItem value="">
+                  <MenuItem>
                     <em>None</em>
                   </MenuItem>
                   {topicList &&

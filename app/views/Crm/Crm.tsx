@@ -1,16 +1,9 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import DateFnsUtils from '@date-io/date-fns';
 import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
-import Draggable from 'react-draggable';
-import Paper, { PaperProps } from '@material-ui/core/Paper';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import { Divider } from '@material-ui/core';
@@ -25,6 +18,9 @@ import { SearchHit } from 'app/domain/Conversation';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import { PageParam } from 'app/domain/graphql/Query';
 import { CustomerQueryInput } from 'app/domain/graphql/Customer';
+import DraggableDialog, {
+  DraggableDialogRef,
+} from 'app/components/DraggableDialog/DraggableDialog';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -35,18 +31,6 @@ const columns: GridColDef[] = [
   { field: 'vipLevel', headerName: 'vip等级', width: 150 },
   { field: 'remarks', headerName: '备注', width: 150 },
 ];
-
-function PaperComponent(props: PaperProps) {
-  return (
-    <Draggable
-      handle="#draggable-dialog-title"
-      cancel={'[class*="MuiDialogContent-root"]'}
-    >
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Paper {...props} />
-    </Draggable>
-  );
-}
 
 interface Graphql {
   searchCustomer: PageResult<SearchHit<Customer>>;
@@ -115,7 +99,7 @@ const defaultValue = {
 };
 
 export default function Crm() {
-  const [open, setOpen] = useState(false);
+  const refOfDialog = useRef<DraggableDialogRef>(null);
   const [selectCustomer, setSelectCustomer] = useState<
     CustomerFormValues | undefined
   >(undefined);
@@ -141,19 +125,7 @@ export default function Crm() {
       data: user.data,
     };
     setSelectCustomer(idUser);
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleDialogClose = (
-    _: unknown,
-    reason: 'backdropClick' | 'escapeKeyDown'
-  ) => {
-    if (reason !== 'backdropClick') {
-      handleClose();
-    }
+    refOfDialog.current?.setOpen(true);
   };
 
   function setAndRefetch(searchParams: CustomerQueryInput) {
@@ -184,7 +156,7 @@ export default function Crm() {
 
   function newButtonClick() {
     setSelectCustomer(undefined);
-    setOpen(true);
+    refOfDialog.current?.setOpen(true);
   }
 
   function deleteButtonClick() {
@@ -201,27 +173,9 @@ export default function Crm() {
 
   return (
     <div style={{ height: '80vh', width: '100%' }}>
-      <Dialog
-        disableEnforceFocus
-        fullWidth
-        maxWidth="lg"
-        open={open}
-        onClose={handleDialogClose}
-        PaperComponent={PaperComponent}
-        aria-labelledby="draggable-dialog-title"
-      >
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          详细用户信息
-        </DialogTitle>
-        <DialogContent>
-          <CustomerForm defaultValues={selectCustomer} shouldDispatch={false} />
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
-            取消
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DraggableDialog title="详细用户信息" ref={refOfDialog}>
+        <CustomerForm defaultValues={selectCustomer} shouldDispatch={false} />
+      </DraggableDialog>
       <SearchForm
         defaultValues={defaultValue}
         currentValues={customerQueryInput}

@@ -9,6 +9,7 @@ import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
 import TextField from '@material-ui/core/TextField';
 import DateFnsUtils from '@date-io/date-fns';
+import zhCN from 'date-fns/locale/zh-CN';
 import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
@@ -106,7 +107,7 @@ export default function SearchForm(props: FormProps) {
   };
 
   return (
-    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+    <MuiPickersUtilsProvider utils={DateFnsUtils} locale={zhCN}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         {/* 老式的折叠写法，新的参考 StaffShuntForm */}
         <Card>
@@ -165,7 +166,6 @@ export default function SearchForm(props: FormProps) {
                 name="timeRange.to"
                 render={({ onChange, value }) => (
                   <KeyboardDateTimePicker
-                    disableFuture
                     variant="inline"
                     format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"

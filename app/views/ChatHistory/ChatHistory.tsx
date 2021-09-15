@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 
@@ -21,13 +21,32 @@ import {
 import { Conversation } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm from 'app/components/SearchForm/SearchForm';
-import { Divider } from '@material-ui/core';
-import DraggableDialog, {
-  DraggableDialogRef,
-} from 'app/components/DraggableDialog/DraggableDialog';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Paper,
+  PaperProps,
+} from '@material-ui/core';
 import { AllStaffInfo } from 'app/domain/graphql/Staff';
 import { SelectKeyValue } from 'app/components/Form/ChipSelect';
 import { PageParam } from 'app/domain/graphql/Query';
+import Draggable from 'react-draggable';
+
+function PaperComponent(props: PaperProps) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <Paper {...props} />
+    </Draggable>
+  );
+}
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -215,8 +234,7 @@ const QUERY = gql`
 `;
 
 export default function ChatHistory() {
-  const refOfDialog = useRef<DraggableDialogRef>(null);
-
+  const [open, setOpen] = useState(false);
   const [conversationQueryInput, setConversationQueryInput] =
     useState<ConversationQueryInput>(defaultValue);
   const [selectConversation, setSelectConversation] = useState<Conversation>();
@@ -227,7 +245,7 @@ export default function ChatHistory() {
 
   const handleClickOpen = (conversation: Conversation) => {
     setSelectConversation(conversation);
-    refOfDialog.current?.setOpen(true);
+    setOpen(true);
   };
 
   const handlePageChange = (params: number) => {
@@ -294,13 +312,44 @@ export default function ChatHistory() {
     },
   ];
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleDialogClose = (
+    _event: unknown,
+    reason: 'backdropClick' | 'escapeKeyDown'
+  ) => {
+    if (reason !== 'backdropClick') {
+      handleClose();
+    }
+  };
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
-      <DraggableDialog title="详细聊天消息" ref={refOfDialog}>
-        {selectConversation && (
-          <MessageList conversation={selectConversation} />
-        )}
-      </DraggableDialog>
+      <Dialog
+        disableEnforceFocus
+        fullWidth
+        maxWidth="md"
+        open={open}
+        onClose={handleDialogClose}
+        PaperComponent={PaperComponent}
+        aria-labelledby="draggable-dialog-title"
+      >
+        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+          详细聊天消息
+        </DialogTitle>
+        <DialogContent>
+          {selectConversation && (
+            <MessageList conversation={selectConversation} />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose} color="primary">
+            取消
+          </Button>
+        </DialogActions>
+      </Dialog>
       <SearchForm
         defaultValues={defaultValue}
         currentValues={conversationQueryInput}

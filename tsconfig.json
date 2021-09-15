@@ -2,11 +2,14 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "CommonJS",
-    "lib": ["dom", "esnext"],
+    "lib": ["dom", "esnext", "es6"],
     "declaration": true,
     "declarationMap": true,
     "noEmit": true,
     "jsx": "react",
+    // highly recommended (required by few utilities)
+    "strictNullChecks": true,
+    // this is optional, but enable whenever possible
     "strict": true,
     "pretty": true,
     "sourceMap": true,

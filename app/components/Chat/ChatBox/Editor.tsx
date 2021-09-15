@@ -197,6 +197,12 @@ export default function Editor(selected: SelectedProps) {
           textMessage={textMessage}
           setMessage={setMessage}
           sendImageMessage={handleSendImageMessage}
+          blacklistInfo={{
+            preventStrategy: 'UID',
+            preventSource: selectedSession.user.uid,
+            ip: selectedSession.user.status?.ip ?? 'unknown',
+            uid: selectedSession.user.uid,
+          }}
         />
       )}
       <div

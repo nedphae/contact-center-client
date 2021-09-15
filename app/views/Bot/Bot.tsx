@@ -96,7 +96,8 @@ const columns: GridColDef[] = [
     headerName: '问题的对外答案',
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
-      return (params.value as Answer[])[0]?.content;
+      const answer = params.value as Answer[] | undefined;
+      return answer && answer[0]?.content;
     },
   },
   { field: 'innerAnswer', headerName: '问题的对内答案', width: 150 },

@@ -19,6 +19,7 @@ import Shunt from 'app/components/Settings/org/Shunt';
 import { Properties, RootProperties } from 'app/domain/Properties';
 import PropertiesFrom from 'app/components/Settings/org/PropertiesFrom';
 import ComingSoon from 'app/components/ComingSoon/ComingSoon';
+import BlacklistView from 'app/components/Settings/org/BlacklistView';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -85,8 +86,8 @@ function settingPage(
       result = <Shunt />;
       break;
     }
-    case 'org.BlackList': {
-      result = <ComingSoon />;
+    case 'org.Blacklist': {
+      result = <BlacklistView />;
       break;
     }
     case 'org.ConsultationType': {
@@ -120,7 +121,7 @@ type PageName =
   | 'org.Account'
   | 'org.Group'
   | 'org.Shunt'
-  | 'org.BlackList'
+  | 'org.Blacklist'
   | 'org.ConsultationType'
   | 'org.Properties';
 
@@ -194,9 +195,9 @@ export default function Setting() {
           />
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="黑名单设置"
+            labelText="黑名单"
             labelIcon={SubjectIcon}
-            onClick={() => setPageName('org.BlackList')}
+            onClick={() => setPageName('org.Blacklist')}
           />
           {properties &&
             _.keys(properties).map((k) => (

@@ -55,8 +55,6 @@ function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
   return (
     <Dialog
       disableEnforceFocus
-      fullWidth
-      maxWidth="lg"
       open={open}
       onClose={handleDialogClose}
       PaperComponent={PaperComponent}

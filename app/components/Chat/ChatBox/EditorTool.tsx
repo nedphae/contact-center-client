@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import _ from 'lodash';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -10,6 +10,7 @@ import AttachmentOutlinedIcon from '@material-ui/icons/AttachmentOutlined';
 import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
 import LaunchOutlinedIcon from '@material-ui/icons/LaunchOutlined';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import SpeakerNotesOffIcon from '@material-ui/icons/SpeakerNotesOff';
 import StarIcon from '@material-ui/icons/Star';
 import Tooltip from '@material-ui/core/Tooltip';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper';
@@ -22,6 +23,11 @@ import { RcFile } from 'rc-upload/lib/interface';
 
 import config from 'app/config/clientConfig';
 import { PhotoContent } from 'app/domain/Message';
+import BlacklistForm from 'app/components/Blacklist/BlacklistForm';
+import DraggableDialog, {
+  DraggableDialogRef,
+} from 'app/components/DraggableDialog/DraggableDialog';
+import { BlacklistFormProp } from 'app/domain/Blacklist';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -44,15 +50,21 @@ interface EditorProps {
   textMessage: string;
   setMessage(msg: string): void;
   sendImageMessage(photoContent: PhotoContent): void;
+  blacklistInfo: BlacklistFormProp;
 }
 
 function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
-  const { textMessage, setMessage, sendImageMessage } = props;
+  const { textMessage, setMessage, sendImageMessage, blacklistInfo } = props;
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>(undefined);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
+  const refOfDialog = useRef<DraggableDialogRef>(null);
+
+  function handleClickBlacklist() {
+    refOfDialog.current?.setOpen(true);
+  }
 
   const handleClick =
     (newPlacement: PopperPlacementType) =>
@@ -98,6 +110,9 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
 
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
+      <DraggableDialog title="添加黑名单" ref={refOfDialog}>
+        <BlacklistForm defaultValues={blacklistInfo} />
+      </DraggableDialog>
       <Popper
         open={open}
         anchorEl={anchorEl}
@@ -124,17 +139,17 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       >
         <InsertEmoticonOutlinedIcon />
       </IconButton>
-      <Upload {...fileUploadProps}>
+      {/* <Upload {...fileUploadProps}>
         <IconButton aria-label="upload file" size="small">
           <AttachmentOutlinedIcon />
         </IconButton>
-      </Upload>
+      </Upload> */}
       <Upload {...imgUploadProps}>
         <IconButton color="secondary" aria-label="upload image" size="small">
           <ImageOutlinedIcon />
         </IconButton>
       </Upload>
-      <Tooltip title="转接">
+      {/* <Tooltip title="转接">
         <IconButton color="primary" aria-label="transfer" size="small">
           <LaunchOutlinedIcon />
         </IconButton>
@@ -147,6 +162,16 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       <Tooltip title="评价">
         <IconButton color="primary" aria-label="evaluate" size="small">
           <StarIcon />
+        </IconButton>
+      </Tooltip> */}
+      <Tooltip title="拉黑">
+        <IconButton
+          color="secondary"
+          aria-label="evaluate"
+          size="small"
+          onClick={handleClickBlacklist}
+        >
+          <SpeakerNotesOffIcon />
         </IconButton>
       </Tooltip>
     </Toolbar>

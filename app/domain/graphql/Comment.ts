@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { CommentQuery } from '../Comment';
+import { CommentQuery, CommentPojo } from '../Comment';
 import { PageResult } from '../Page';
 import getPageQuery from './Page';
 
@@ -7,6 +7,7 @@ export type CommentQueryInput = CommentQuery;
 
 export const CORE_COMMENT_FIELDS = gql`
   fragment CommentFields on Comment {
+    id
     organizationId
     createdAt
     shuntId
@@ -48,8 +49,8 @@ export const MUTATION_COMMENT = gql`
 `;
 
 export interface CommentGraphql {
-  findComment: PageResult<Comment>;
+  findComment: PageResult<CommentPojo>;
 }
 export interface SaveCommentGraphql {
-  saveComment: Comment[];
+  saveComment: CommentPojo[];
 }
