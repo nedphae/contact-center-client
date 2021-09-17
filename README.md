@@ -24,3 +24,7 @@ yarn start
 ```bash
 yarn package
 ```
+### 修改配置
+
+在 [clientConfig](app/config/clientConfig.ts) 中修改后端服务地址
+ 
