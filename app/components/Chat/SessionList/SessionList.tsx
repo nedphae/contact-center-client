@@ -23,15 +23,13 @@ import {
   clearMessgeBadge,
   getSession,
   hideSelectedSessionAndSetToLast,
+  setSelectedSession,
   stickyCustomer,
   tagCustomer,
 } from 'app/state/session/sessionAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { Session, Tag } from 'app/domain/Session';
-import {
-  getSelectedSession,
-  setSelectedSession,
-} from 'app/state/chat/chatAction';
+import { getSelectedSession } from 'app/state/chat/chatAction';
 import { Message } from 'app/domain/Message';
 import { MessageType } from 'app/domain/constant/Message';
 import UserHeader from 'app/components/Header/UserHeader';
@@ -99,7 +97,7 @@ function SessionList(props: SessionListProps) {
     _event: React.MouseEvent<HTMLElement, MouseEvent>,
     session: Session
   ) => {
-    dispatch(setSelectedSession(session));
+    dispatch(setSelectedSession(session.conversation.userId));
     dispatch(clearMessgeBadge(session.conversation.userId));
   };
 

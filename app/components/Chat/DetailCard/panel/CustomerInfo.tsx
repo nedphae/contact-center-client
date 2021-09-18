@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
-import { getSelectedConstomer } from 'app/state/session/sessionAction';
+import { getSelectedConstomer } from 'app/state/chat/chatAction';
 import CustomerForm from './CustomerForm';
 
 export default function CustomerInfo() {
@@ -20,7 +20,8 @@ export default function CustomerInfo() {
       email: user.email,
       vipLevel: user.vipLevel,
       remarks: user.remarks,
-      detailData: user.detailData,
+      address: user.address,
+      data: user.data,
     };
     return (
       <Container component="main" maxWidth="xs">

@@ -1,11 +1,30 @@
 import { Object } from 'ts-toolbelt';
+import _ from 'lodash';
 
 import { Conversation } from './Conversation';
 import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
-import { Session } from './Session';
 import Staff from './StaffInfo';
+import { Session } from './Session';
 
+export function fromUserMessagesToMap(
+  userMessages: UserMessages
+): UserMessageMap {
+  const pairs = _.toPairs(userMessages).map((pair) => {
+    const userId = pair[0];
+    const messageList = pair[1];
+    return [
+      userId,
+      _.defaults(
+        {},
+        ...messageList.map((m) => {
+          return { [m.uuid]: m } as MessagesMap;
+        })
+      ),
+    ];
+  });
+  return _.fromPairs(pairs);
+}
 export interface UserMessageMap {
   [userId: number]: MessagesMap;
 }
@@ -16,21 +35,22 @@ export interface UserMessages {
 
 export interface MonitoredLazyData {
   monitoredUser?: Customer;
-  monitoredSession?: Conversation;
+  monitoredConversation?: Conversation;
 }
 
-export interface Monitored extends MonitoredLazyData {
+export interface Monitored {
   // 监控相关
   monitoredStaff: Staff;
   monitoredUserStatus: CustomerStatus;
-  monitoredMessageList: UserMessageMap;
+  monitoredMessageList?: MessagesMap;
+  monitoredSession?: Session;
 }
 
 export interface BaseChat {
-  selectedSession?: Session;
+  selectedSession?: number;
 }
 
-export type SetMonitored = Object.Merge<BaseChat, Monitored>;
+export type SetMonitored = Object.Merge<MonitoredLazyData, Monitored>;
 
 /**
  * 一些聊天状态

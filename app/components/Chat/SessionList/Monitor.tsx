@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { gql, useSubscription } from '@apollo/client';
-import { useDispatch, useSelector } from 'react-redux';
+import { useLazyQuery, useQuery } from '@apollo/client';
+import { useDispatch } from 'react-redux';
+import { Object } from 'ts-toolbelt';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -16,14 +17,17 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { CustomerStatus } from 'app/domain/Customer';
-import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
-import { from, of, zip } from 'rxjs';
+import Staff, { StaffGroup } from 'app/domain/StaffInfo';
+import { from, interval, of, Subscription, zip } from 'rxjs';
 import { groupBy, map, mergeMap, toArray } from 'rxjs/operators';
-import useMonitorUserAndMsg from 'app/hook/init/useMonitorUserAndMsg';
-import {
-  getMonitorSelectedSession,
-  setMonitorSelectedSession,
-} from 'app/state/chat/chatAction';
+import useMonitorUserAndMsg, {
+  QUERY,
+} from 'app/hook/init/useMonitorUserAndMsg';
+import { setMonitorSelectedSession } from 'app/state/chat/chatAction';
+import { MonitorGraphql, QUERY_MONITOR } from 'app/domain/graphql/Monitor';
+import { ConversationGraphql } from 'app/domain/graphql/Conversation';
+import { CustomerGraphql } from 'app/domain/graphql/Customer';
+import { Monitored } from 'app/domain/Chat';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,104 +41,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface Graphql {
-  staffOnlineList: {
-    staffStatusList: Staff[];
-    staffList: Staff[];
-    staffGroupList: StaffGroup[];
-    staffShuntList: StaffShunt[];
-    customerList: CustomerStatus[];
-  };
-}
-
-const MONITOR_SUBSCRIPTION = gql`
-  subscription monitor($seconds: Long) {
-    staffOnlineList(seconds: $seconds) {
-      staffStatusList {
-        autoBusy
-        currentServiceCount
-        groupId
-        loginTime
-        maxServiceCount
-        onlineStatus
-        organizationId
-        priorityOfShunt
-        role
-        shunt
-        id: staffId
-        staffType
-        userIdList
-      }
-      staffList {
-        avatar
-        enabled
-        gender
-        id
-        maxTicketAllTime
-        maxTicketPerDay
-        mobilePhone
-        nickName
-        organizationId
-        password
-        personalizedSignature
-        realName
-        role
-        simultaneousService
-        staffGroupId
-        staffType
-        username
-      }
-      staffGroupList {
-        groupName
-        id
-        organizationId
-      }
-      staffShuntList {
-        code
-        id
-        name
-        organizationId
-        shuntClassId
-      }
-      customerList {
-        fromType
-        # 指定客服组id
-        groupId
-        # 客户IP
-        ip
-        # 登录时间
-        loginTime
-        # 是否在线
-        onlineStatus
-        # 公司id
-        organizationId
-        # 自定义访客咨询来源页的url，不配置sdk会自动抓取，和title一起使用
-        referrer
-        # 机器人优先开关（访客分配）
-        robotShuntSwitch
-        # 访客选择多入口分流模版id
-        shuntId
-        # 指定客服id
-        staffId
-        # 自定义访客咨询来源页的标题，不配置sdk会自动抓取, 和referrer一起使用
-        title
-        # 客户提交id
-        uid
-        # 客户系统id
-        userId
-        # vip等级 1-10
-        vipLevel
-      }
-    }
-  }
-`;
-
 interface MonitorProps {
   refreshInterval?: number;
 }
 
-function SyncUserMessage(userId: number, refreshInterval = 5) {
-  useMonitorUserAndMsg(userId, refreshInterval);
+type CustomerAndConversationGraphql = Object.Merge<
+  CustomerGraphql,
+  ConversationGraphql
+>;
+
+function SyncUserMessage() {
+  useMonitorUserAndMsg(1000);
   return <></>;
 }
 
@@ -145,11 +62,45 @@ function Monitor(props: MonitorProps) {
 
   const [open, setOpen] = useState(-1);
   const [staffOpen, setStaffOpen] = useState(-1);
-  const selectedSession = useSelector(getMonitorSelectedSession);
+  const [monitored, setMonitored] = useState<Monitored>();
 
-  const { data } = useSubscription<Graphql>(MONITOR_SUBSCRIPTION, {
-    variables: { seconds: refreshInterval },
-  });
+  const { data, refetch } = useQuery<MonitorGraphql>(QUERY_MONITOR);
+  // 懒加载 用户信息，降低服务器一次性获取的数据量
+  const [getCustomerInfo, { data: monitoredUserData }] =
+    useLazyQuery<CustomerAndConversationGraphql>(QUERY);
+
+  useEffect(() => {
+    if (
+      monitored &&
+      monitoredUserData &&
+      monitoredUserData.getCustomer.userId ===
+        monitored.monitoredUserStatus.userId
+    ) {
+      dispatch(
+        setMonitorSelectedSession(
+          _.defaults({}, monitored, {
+            monitoredUser: monitoredUserData.getCustomer,
+            monitoredConversation: monitoredUserData.getConversation,
+          })
+        )
+      );
+    }
+  }, [dispatch, monitored, monitoredUserData]);
+
+  // 同步在线列表
+  useEffect(() => {
+    const tempSubscription: Subscription = interval(
+      refreshInterval ?? 5
+    ).subscribe(() => {
+      refetch();
+    });
+    return () => {
+      if (tempSubscription) {
+        tempSubscription.unsubscribe();
+      }
+      dispatch(setMonitorSelectedSession(undefined));
+    };
+  }, [dispatch, refetch, refreshInterval]);
 
   const handleClick = (index: number) => {
     setOpen(index);
@@ -160,23 +111,20 @@ function Monitor(props: MonitorProps) {
   };
 
   const handleClickCustomer = (
-    userId: number,
     monitoredStaff: Staff,
     monitoredUserStatus: CustomerStatus
   ) => {
-    dispatch(
-      setMonitorSelectedSession({
-        selectedSession: userId,
-        monitoredStaff,
-        monitoredUserStatus,
-        monitoredMessageList: {},
-      })
-    );
+    getCustomerInfo({
+      variables: { userId: monitoredUserStatus.userId },
+    });
+    setMonitored({
+      monitoredStaff,
+      monitoredUserStatus,
+    });
   };
 
   const grouOfStaff = new Map<number, Staff[]>();
-  let resultList: StaffGroup[] | undefined = undefined;
-  // TODO: group by staff Shunt 根据接待组进行分组展示
+  let resultList: StaffGroup[] | undefined;
   if (data) {
     const { staffStatusList, staffList, staffGroupList, customerList } =
       data.staffOnlineList;
@@ -186,21 +134,22 @@ function Monitor(props: MonitorProps) {
     from(staffStatusList)
       .pipe(
         map((s) => {
-          s.customerList = s.userIdList.map(
-            (id) => mapOfCustomer[id.toString()][0]
-          );
+          const tempCustomerList = s.userIdList
+            .map((id) => mapOfCustomer[id.toString()])
+            .filter((customer) => customer)
+            .map((id) => id[0]);
+          const tempStaff = _.defaults({ customerList: tempCustomerList }, s);
           // 合并 staff 和 status 对象
-          return _.defaults(s, mapOfStaffStatus[s.id.toString()][0]);
+          return _.defaults(tempStaff, mapOfStaffStatus[s.id.toString()][0]);
         }),
         groupBy((s) => s.groupId),
         mergeMap((group) => zip(of(group.key), group.pipe(toArray())))
       )
       .subscribe((z) => grouOfStaff.set(z[0], z[1]));
 
-    staffGroupList.forEach((element) => {
-      element.staffList = grouOfStaff.get(element.id);
-    });
-    resultList = staffGroupList;
+    resultList = staffGroupList.map((element) =>
+      _.defaults({ staffList: grouOfStaff.get(element.id) }, element)
+    );
   }
   return (
     <List
@@ -208,8 +157,7 @@ function Monitor(props: MonitorProps) {
       aria-labelledby="nested-list-subheader"
       className={classes.root}
     >
-      {selectedSession &&
-        SyncUserMessage(selectedSession.conversation.userId, refreshInterval)}
+      <SyncUserMessage />
       {resultList &&
         resultList.map((group, index) => (
           <React.Fragment key={group.id}>
@@ -251,9 +199,7 @@ function Monitor(props: MonitorProps) {
                                 <ListItem
                                   button
                                   className={classes.nested}
-                                  onClick={() =>
-                                    handleClickCustomer(cs.userId, st, cs)
-                                  }
+                                  onClick={() => handleClickCustomer(st, cs)}
                                 >
                                   <ListItemIcon>
                                     <ChatIcon />
@@ -275,7 +221,7 @@ function Monitor(props: MonitorProps) {
 }
 
 Monitor.defaultProps = {
-  refreshInterval: 5,
+  refreshInterval: 5000,
 };
 
 export default Monitor;

@@ -11,8 +11,8 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
 import Authorized from 'app/utils/Authorized';
-import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 import SessionList from './SessionList';
+import Monitor from './Monitor';
 // import Monitor from './Monitor';
 
 function a11yProps(index: number) {
@@ -110,7 +110,7 @@ export default function SessionPanel() {
       <TabPanel value={value} index={2}>
         <Authorized authority={['admin']} noMatch="非 Admin权限">
           {/* 添加权限的Dom */}
-          <ComingSoon />
+          <Monitor refreshInterval={2000} />
         </Authorized>
       </TabPanel>
     </div>

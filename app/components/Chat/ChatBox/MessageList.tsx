@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
 
 import _ from 'lodash';
@@ -17,17 +17,21 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 
-import { Content, Message, MessagesMap } from 'app/domain/Message';
+import { Content, Message } from 'app/domain/Message';
 import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import config from 'app/config/clientConfig';
-import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
+import {
+  addHistoryMessage,
+  setHasMore,
+  setIsHistoryMessage,
+} from 'app/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import { Session } from 'app/domain/Session';
 import getPageQuery from 'app/domain/graphql/Page';
 import { PageResult } from 'app/domain/Page';
-import { setIsHistoryMessage } from 'app/state/chat/chatAction';
+import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
 import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
@@ -227,6 +231,8 @@ const MessageList = (props: MessageListProps) => {
   const { session, messages, staff, user, loadMore } = props;
   const classes = useMessageListStyles();
   const dispatch = useDispatch();
+  // 查询是否是监控
+  const monitorSession = useSelector(getMonitor);
   const refOfScrollView = useRef<ScrollView>(null);
   const [loadHistoryMessage, { data }] = useLazyQuery<MessagePage>(QUERY, {
     fetchPolicy: 'no-cache',
@@ -262,16 +268,18 @@ const MessageList = (props: MessageListProps) => {
       const lastMessage = data.loadHistoryMessage.content[0];
       if (user.userId === lastMessage.to || user.userId === lastMessage.from) {
         const historyMessage = _.reverse([...data.loadHistoryMessage.content]);
-        const userMessageMapList = {
-          [user.userId]: _.defaults(
-            {},
-            ...historyMessage.map((m) => {
-              return { [m.uuid]: m } as MessagesMap;
-            })
-          ),
-        };
-        dispatch(setIsHistoryMessage(true));
-        dispatch(addHistoryMessage(userMessageMapList));
+        const userMessages = { [user.userId]: historyMessage };
+        // TODO: 拆分到独立的 ThunkAction 里
+        if (monitorSession) {
+          // 监控历史消息
+          dispatch(setMonitoredMessage(userMessages));
+        } else {
+          // 客服聊天历史消息
+          dispatch(addHistoryMessage(userMessages));
+        }
+        dispatch(
+          setIsHistoryMessage({ userId: user.userId, isHistoryMessage: true })
+        );
         dispatch(
           setHasMore({
             userId: user.userId,
@@ -280,7 +288,7 @@ const MessageList = (props: MessageListProps) => {
         );
       }
     }
-  }, [data, dispatch, user]);
+  }, [data, dispatch, monitorSession, user]);
 
   function handleLoadMore() {
     loadHistoryMessage({
@@ -290,13 +298,15 @@ const MessageList = (props: MessageListProps) => {
 
   function handleContentSizeChange() {
     // 检查是否是读取历史记录
-    if (refOfScrollView.current) {
+    if (refOfScrollView.current && user && user.userId) {
       if (!session?.isHistoryMessage) {
         refOfScrollView.current.scrollToEnd({
           animated: Boolean(session?.animated),
         });
       } else {
-        dispatch(setIsHistoryMessage(false));
+        dispatch(
+          setIsHistoryMessage({ userId: user.userId, isHistoryMessage: false })
+        );
       }
     }
   }

@@ -1,5 +1,7 @@
 export default {
   web: {
+    // gateway 配置地址
+    // 后端接口地址，仅修改此地址即可
     host: 'http://localhost:8800',
   },
   // jwt 配置
@@ -20,6 +22,7 @@ export default {
     Authorization: 'Basic dXNlcl9jbGllbnQ6dGVzdF9zZWNyZXQ=',
   },
   graphql: {
+    // webSocket 不在使用
     webSocketLink: 'ws://localhost:8880/subscriptions',
     graphql: '/graphql',
   },

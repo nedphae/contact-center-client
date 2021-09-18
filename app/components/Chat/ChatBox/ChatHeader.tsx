@@ -10,12 +10,12 @@ import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
+import { javaInstant2Num } from 'app/utils/timeUtils';
+import UserHeader from 'app/components/Header/UserHeader';
 import {
   getSelectedConstomer,
   getSelectedConv,
-} from 'app/state/session/sessionAction';
-import { javaInstant2Num } from 'app/utils/timeUtils';
-import UserHeader from 'app/components/Header/UserHeader';
+} from 'app/state/chat/chatAction';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -32,34 +32,35 @@ const useStyles = makeStyles(() =>
 
 export default function ChatHeader() {
   const classes = useStyles();
+  const conv = useSelector(getSelectedConv);
   const user = useSelector(getSelectedConstomer);
-  const session = useSelector(getSelectedConv);
   const [sessionDuration, setSessionDuration] = useState<number>();
 
   useEffect(() => {
     let timer: number;
-    if (session) {
-      if (session.endTime) {
+    if (conv) {
+      if (conv.endTime) {
         const duration =
-          (javaInstant2Num(session.endTime).getTime() -
-            javaInstant2Num(session.startTime).getTime()) /
+          (javaInstant2Num(conv.endTime).getTime() -
+            javaInstant2Num(conv.startTime).getTime()) /
           1000;
         setSessionDuration(Math.trunc(duration));
       } else {
         timer = setInterval(() => {
           const duration =
-            (new Date().getTime() -
-              javaInstant2Num(session.startTime).getTime()) /
+            (new Date().getTime() - javaInstant2Num(conv.startTime).getTime()) /
               1000 ?? 0;
           setSessionDuration(Math.trunc(duration));
         }, 1000);
       }
+    } else {
+      setSessionDuration(undefined);
     }
 
     return () => {
       clearInterval(timer);
     };
-  }, [session]);
+  }, [conv]);
 
   return (
     <AppBar position="sticky" className={classes.appBar}>

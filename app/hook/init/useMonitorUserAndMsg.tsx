@@ -1,36 +1,88 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { Object } from 'ts-toolbelt';
+import { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { gql, useQuery, useSubscription } from '@apollo/client';
+import { gql, useLazyQuery } from '@apollo/client';
 import { Message } from 'app/domain/Message';
-import { setMonitoredMessage, setMonitorUser } from 'app/state/chat/chatAction';
+import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
 import { PageResult } from 'app/domain/Page';
-import {
-  CORE_CUSTOMER_FIELDS,
-  CustomerGraphql,
-} from 'app/domain/graphql/Customer';
-import {
-  ConversationGraphql,
-  CONVERSATION_QUERY,
-} from 'app/domain/graphql/Conversation';
+import { CONVERSATION_QUERY } from 'app/domain/graphql/Conversation';
+import { interval, Subscription } from 'rxjs';
+import getPageQuery from 'app/domain/graphql/Page';
 
-const MONITOR_SUBSCRIPTION = gql`
-  subscription monitorMessage($userId: Long, $seconds: Long) {
-    monitorMessageByUser(userId: $userId, seconds: $seconds)
+const CONTENT_QUERY = gql`
+  fragment MyMessageContent on Message {
+    content {
+      contentType
+      sysCode
+      attachments {
+        mediaId
+        filename
+        size
+        type
+      }
+      photoContent {
+        mediaId
+        filename
+        picSize
+        type
+      }
+      textContent {
+        text
+      }
+    }
+    conversationId
+    createdAt
+    creatorType
+    from
+    nickName
+    organizationId
+    seqId
+    to
+    type
+    uuid
+  }
+`;
+
+const PAGE_QUERY = getPageQuery(
+  'MessagePage',
+  CONTENT_QUERY,
+  'MyMessageContent'
+);
+
+const QUERY_MONITOR_MESSAGE = gql`
+  ${PAGE_QUERY}
+  query SyncMessageByUser($userId: Long!, $cursor: Long) {
+    syncMessageByUser(userId: $userId, cursor: $cursor) {
+      ...PageOnMessagePage
+    }
   }
 `;
 
 interface Graphql {
-  monitorMessageByUser: PageResult<Message>;
+  syncMessageByUser: PageResult<Message>;
 }
 
 export const QUERY = gql`
-  ${CORE_CUSTOMER_FIELDS}
   ${CONVERSATION_QUERY}
   query Customer($userId: Long!) {
     getCustomer(userId: $userId) {
-      ...CustomerFields
+      organizationId
+      userId: id
+      uid
+      name
+      email
+      mobile
+      address
+      vipLevel
+      remarks
+      data {
+        key
+        label
+        value
+        index
+        hidden
+        href
+      }
     }
     getConversation(userId: $userId) {
       ...ConversationFields
@@ -38,42 +90,61 @@ export const QUERY = gql`
   }
 `;
 
-type CustomerAndConversationGraphql = Object.Merge<
-  CustomerGraphql,
-  ConversationGraphql
->;
-
-const useMonitorUserAndMsg = (userId: number, refreshInterval: number) => {
+const useMonitorUserAndMsg = (refreshInterval: number) => {
   const dispatch = useDispatch();
-  const { data } = useSubscription<Graphql>(MONITOR_SUBSCRIPTION, {
-    variables: { userId, seconds: refreshInterval },
-  });
-  // 懒加载 用户信息，降低服务器一次性获取的数据量
-  const { data: monitoredUserData } = useQuery<CustomerAndConversationGraphql>(
-    QUERY,
+  const monitorSession = useSelector(getMonitor);
+  const lastSeqIdRef = useRef<number>();
+  const subscription = useRef<Subscription>();
+  const [syncMessageByUser, { data, refetch }] = useLazyQuery<Graphql>(
+    QUERY_MONITOR_MESSAGE,
     {
-      variables: { userId },
+      fetchPolicy: 'no-cache',
     }
   );
 
-  useEffect(() => {
-    if (data !== undefined) {
-      const messageList = data.monitorMessageByUser.content;
-      const userMessages = { userId: messageList };
-      dispatch(setMonitoredMessage(userMessages));
-    }
-  }, [data, dispatch]);
+  const userId = monitorSession?.monitoredUserStatus?.userId;
 
   useEffect(() => {
-    if (monitoredUserData) {
-      dispatch(
-        setMonitorUser({
-          monitoredUser: monitoredUserData.getCustomer,
-          monitoredSession: monitoredUserData.getConversation,
-        })
-      );
+    if (userId) {
+      syncMessageByUser({
+        variables: { userId, cursor: undefined },
+      });
     }
-  }, [dispatch, monitoredUserData]);
+  }, [syncMessageByUser, userId]);
+
+  useEffect(() => {
+    if (
+      data &&
+      data.syncMessageByUser &&
+      userId &&
+      data.syncMessageByUser.content &&
+      data.syncMessageByUser.content.length > 0
+    ) {
+      const messageList = data.syncMessageByUser.content;
+      if (lastSeqIdRef.current !== messageList[0]?.seqId) {
+        lastSeqIdRef.current = messageList[0]?.seqId;
+      }
+      const userMessages = { [userId]: messageList };
+      dispatch(setMonitoredMessage(userMessages));
+    }
+  }, [data, dispatch, userId]);
+
+  // 同步消息
+  useEffect(() => {
+    if (userId && refetch && !subscription.current) {
+      subscription.current = interval(refreshInterval).subscribe(() => {
+        refetch({
+          variables: { userId, cursor: lastSeqIdRef.current },
+        });
+      });
+    }
+    return () => {
+      if (subscription.current) {
+        subscription.current.unsubscribe();
+      }
+      lastSeqIdRef.current = undefined;
+    };
+  }, [refetch, refreshInterval, userId]);
 };
 
 export default useMonitorUserAndMsg;

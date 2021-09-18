@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { SessionMap, Session, TagParamer } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 import { Customer, CustomerStatus } from 'app/domain/Customer';
-import { UserMessageMap } from 'app/domain/Chat';
+import { fromUserMessagesToMap, UserMessages } from 'app/domain/Chat';
 
 const initConver = {} as SessionMap;
 
@@ -79,8 +79,9 @@ const converSlice = createSlice({
       const conver = converMap[action.payload.userId];
       conver.tag = action.payload.tag;
     },
-    addHistoryMessage: (converMap, action: PayloadAction<UserMessageMap>) => {
-      const userMessageMap = action.payload;
+    addHistoryMessage: (converMap, action: PayloadAction<UserMessages>) => {
+      // TODO 判断是否是 监控
+      const userMessageMap = fromUserMessagesToMap(action.payload);
       const userIds = _.keys(userMessageMap);
       userIds.forEach((userIdStr) => {
         const userId = parseInt(userIdStr, 10);
@@ -123,6 +124,21 @@ const converSlice = createSlice({
           })
         )
         .subscribe();
+    },
+    // 动画相关
+    setAnimatedToConverMap: (
+      converMap,
+      action: PayloadAction<{ userId: number; animated: boolean }>
+    ) => {
+      const conver = converMap[action.payload.userId];
+      conver.animated = action.payload.animated;
+    },
+    setIsHistoryMessageToConverMap: (
+      converMap,
+      action: PayloadAction<{ userId: number; isHistoryMessage: boolean }>
+    ) => {
+      const conver = converMap[action.payload.userId];
+      conver.isHistoryMessage = action.payload.isHistoryMessage;
     },
   },
 });

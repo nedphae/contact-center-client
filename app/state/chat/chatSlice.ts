@@ -3,15 +3,14 @@ import Fuse from 'fuse.js';
 import _ from 'lodash';
 
 import Chat, {
-  SetMonitored,
-  MonitoredLazyData,
   QuickReply,
   QuickReplyAllDto,
   UserMessages,
+  SetMonitored,
+  fromUserMessagesToMap,
 } from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
-import { MessagesMap } from 'app/domain/Message';
-import { Session } from 'app/domain/Session';
+import { createSession } from 'app/domain/Session';
 
 const initChat = {} as Chat;
 
@@ -26,21 +25,65 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState: initChat,
   reducers: {
-    setSelectedSession: (chat, action: PayloadAction<Session>) => {
+    setSelectedSessionNumber: (
+      chat,
+      action: PayloadAction<number | undefined>
+    ) => {
       chat.monitored = undefined;
-      if (chat.selectedSession?.animated) {
-        chat.selectedSession.animated = false;
-      }
       chat.selectedSession = action.payload;
     },
-    setMonitorSelectedSession: (chat, action: PayloadAction<SetMonitored>) => {
-      chat.selectedSession = action.payload.selectedSession;
-      chat.monitored = _.omit(action.payload, 'selectedSession');
+    // 动画相关
+    setAnimatedToMonitored: (
+      chat,
+      action: PayloadAction<{ userId: number; animated: boolean }>
+    ) => {
+      const conver = chat.monitored?.monitoredSession;
+      if (conver) {
+        conver.animated = action.payload.animated;
+      }
     },
-    setMonitorUser: (chat, action: PayloadAction<MonitoredLazyData>) => {
-      if (chat.monitored) {
-        chat.monitored.monitoredUser = action.payload.monitoredUser;
-        chat.monitored.monitoredSession = action.payload.monitoredSession;
+    setIsHistoryMessageToMonitored: (
+      chat,
+      action: PayloadAction<{ userId: number; isHistoryMessage: boolean }>
+    ) => {
+      const conver = chat.monitored?.monitoredSession;
+      if (conver) {
+        conver.isHistoryMessage = action.payload.isHistoryMessage;
+      }
+    },
+    setMonitorSelectedSession: (
+      chat,
+      action: PayloadAction<SetMonitored | undefined>
+    ) => {
+      if (action.payload) {
+        chat.monitored = _.omit(
+          action.payload,
+          'monitoredUser',
+          'monitoredConversation'
+        );
+        const monitoredLazyData = _.pick(
+          action.payload,
+          'monitoredUser',
+          'monitoredConversation'
+        );
+        if (chat.monitored) {
+          const customer = _.defaults(
+            { status: chat.monitored.monitoredUserStatus },
+            monitoredLazyData.monitoredUser
+          );
+          const conversation = monitoredLazyData.monitoredConversation;
+          if (conversation) {
+            chat.monitored.monitoredSession = createSession(
+              conversation,
+              customer
+            );
+          }
+          chat.selectedSession = conversation?.userId;
+        }
+      } else {
+        // 如果传递的是空，就情况监控和当前选择会话
+        chat.monitored = undefined;
+        chat.selectedSession = undefined;
       }
     },
     setQuickReplySearchText: (chat, action: PayloadAction<string>) => {
@@ -51,16 +94,6 @@ const chatSlice = createSlice({
         noGroupResult.forEach((r) => result.push(r.item));
       }
       chat.searchQuickReply = result;
-    },
-    setAnimated: (chat, action: PayloadAction<boolean>) => {
-      if (chat.selectedSession) {
-        chat.selectedSession.animated = action.payload;
-      }
-    },
-    setIsHistoryMessage: (chat, action: PayloadAction<boolean>) => {
-      if (chat.selectedSession) {
-        chat.selectedSession.isHistoryMessage = action.payload;
-      }
     },
     setQuickReply: (chat, action: PayloadAction<QuickReplyAllDto>) => {
       chat.quickReply = action.payload;
@@ -93,18 +126,19 @@ const chatSlice = createSlice({
       );
     },
     setMonitoredMessage: (chat, action: PayloadAction<UserMessages>) => {
-      if (chat.monitored) {
-        const { userId } = chat.monitored.monitoredUserStatus;
-        if (userId) {
-          const messageMap = action.payload[userId].map((m) => {
-            return { [m.uuid]: m } as MessagesMap;
-          });
-          chat.monitored.monitoredMessageList[userId] = _.defaults(
-            chat.monitored.monitoredMessageList[userId],
-            ...messageMap
+      const userMessageMap = fromUserMessagesToMap(action.payload);
+      const userIds = _.keys(userMessageMap);
+      userIds.forEach((userIdStr) => {
+        const userId = parseInt(userIdStr, 10);
+        const messageMap = userMessageMap[userId];
+        if (chat.monitored) {
+          chat.monitored.monitoredMessageList = _.defaultsDeep(
+            {},
+            chat.monitored.monitoredMessageList,
+            messageMap
           );
         }
-      }
+      });
     },
   },
 });

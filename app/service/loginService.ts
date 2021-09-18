@@ -22,15 +22,17 @@ export async function oauthLogin(
   const oauthParam = {
     grant_type: clientConfig.oauth.grant_type,
     org_id: param.org_id,
-    username: param.username,
-    password: param.password,
   };
   const url = addParam(
     clientConfig.web.host + clientConfig.oauth.path,
     oauthParam
   );
-  const result = await axios.post<OauthToken>(url, null, {
+  const bodyFormData = new FormData();
+  bodyFormData.append('username', param.username);
+  bodyFormData.append('password', param.password);
+  const result = await axios.post<OauthToken>(url, bodyFormData, {
     headers: {
+      'Content-Type': 'multipart/form-data',
       Authorization: clientConfig.headers.Authorization,
     },
   });
