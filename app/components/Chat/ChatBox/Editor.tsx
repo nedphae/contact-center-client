@@ -33,7 +33,6 @@ const style = {
   // alignItems: 'center',
   justifyContent: 'center',
   border: 'solid 1px #ddd',
-  background: '#f0f0f0',
 } as const;
 
 const useStyles = makeStyles(() =>
@@ -44,6 +43,8 @@ const useStyles = makeStyles(() =>
       marginBlockEnd: 'auto',
       border: 0,
       resize: 'none',
+      backgroundColor: '#424242',
+      color: 'white',
     },
   })
 );

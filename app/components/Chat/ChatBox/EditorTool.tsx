@@ -33,7 +33,7 @@ const useStyles = makeStyles(() =>
   createStyles({
     toolBar: {
       minHeight: 30,
-      background: 'white',
+      background: '#222',
       borderRightStyle: 'solid',
       borderLeftStyle: 'solid',
       borderWidth: 1,
@@ -125,7 +125,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           // 不使用延迟
           // <Fade {...TransitionProps} timeout={350}>
           <ClickAwayListener onClickAway={onClose}>
-            <Picker onSelect={addEmoji} title="emoji" />
+            <Picker onSelect={addEmoji} title="emoji" theme={'dark'} />
           </ClickAwayListener>
           // </Fade>
         )}

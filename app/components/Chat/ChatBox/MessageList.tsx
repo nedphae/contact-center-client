@@ -56,7 +56,7 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       borderRadius: 10,
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopRightRadius: 0,
-      backgroundColor: '#98E165',
+      backgroundColor: '#508828',
     },
     fromMessagePaper: {
       padding: 7,
@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
   container: {
     maxHeight: '100%',
     width: '100%',
+    backgroundColor: '#424242',
   },
 });
 

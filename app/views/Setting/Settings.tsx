@@ -90,7 +90,7 @@ function settingPage(
       result = <BlacklistView />;
       break;
     }
-    case 'org.ConsultationType': {
+    case 'org.SessionCategory': {
       result = <ComingSoon />;
       break;
     }
@@ -122,7 +122,7 @@ type PageName =
   | 'org.Group'
   | 'org.Shunt'
   | 'org.Blacklist'
-  | 'org.ConsultationType'
+  | 'org.SessionCategory'
   | 'org.Properties';
 
 export default function Setting() {
@@ -191,7 +191,7 @@ export default function Setting() {
             nodeId={uuidv4()}
             labelText="咨询类型"
             labelIcon={SubjectIcon}
-            onClick={() => setPageName('org.ConsultationType')}
+            onClick={() => setPageName('org.SessionCategory')}
           />
           <StyledTreeItem
             nodeId={uuidv4()}
