@@ -42,4 +42,8 @@ export enum SysCode {
   ONLINE_STATUS_CHANGED,
   // 会话结束
   CONV_END,
+  // 自动回复
+  AUTO_REPLY,
+  // 管理员插入会话
+  STAFF_HELP,
 }

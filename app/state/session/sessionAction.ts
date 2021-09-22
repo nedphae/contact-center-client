@@ -182,6 +182,10 @@ export function sendMessage(message: Message): AppThunk {
   return (dispatch, getState) => {
     // 发送消息到服务器
     message.nickName = getState().staff.nickName;
+    if (getState().chat.monitored) {
+      // 如果是管理员插入的会话
+      message.content.sysCode = SysCode.STAFF_HELP;
+    }
     emitMessage(message)
       .pipe(
         map((r) => r.body),
@@ -209,8 +213,10 @@ export function sendMessage(message: Message): AppThunk {
         if (message.to) {
           dispatch(setAnimated({ userId: message.to, animated: true }));
         }
-        // 显示消息
-        dispatch(newMessage(messagesMap));
+        if (!getState().chat.monitored) {
+          // 显示消息
+          dispatch(newMessage(messagesMap));
+        }
       });
   };
 }
@@ -263,15 +269,17 @@ export const setNewMessage =
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const end = { [m!.uuid]: m } as MessagesMap;
             const { selectedSession } = getState().chat;
+            const userId =
+              m?.creatorType === CreatorType.CUSTOMER ? m?.from : m?.to;
             if (selectedSession) {
-              if (selectedSession !== m?.from) {
-                dispatch(addNewMessgeBadge(m?.from));
+              if (selectedSession !== userId) {
+                dispatch(addNewMessgeBadge(userId));
               } else {
-                dispatch(setAnimated({ userId: m.from, animated: true }));
+                dispatch(setAnimated({ userId, animated: true }));
               }
             }
             dispatch(newMessage(end));
-            dispatch(unhideSession(m?.from));
+            dispatch(unhideSession(userId));
           }
         })
       )

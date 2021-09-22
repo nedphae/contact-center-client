@@ -56,29 +56,35 @@ const chatSlice = createSlice({
       action: PayloadAction<SetMonitored | undefined>
     ) => {
       if (action.payload) {
-        chat.monitored = _.omit(
+        const newMonitored = _.omit(
           action.payload,
           'monitoredUser',
           'monitoredConversation'
         );
-        const monitoredLazyData = _.pick(
-          action.payload,
-          'monitoredUser',
-          'monitoredConversation'
-        );
-        if (chat.monitored) {
-          const customer = _.defaults(
-            { status: chat.monitored.monitoredUserStatus },
-            monitoredLazyData.monitoredUser
+        if (
+          chat.monitored?.monitoredUserStatus.userId !==
+          newMonitored.monitoredUserStatus.userId
+        ) {
+          chat.monitored = newMonitored;
+          const monitoredLazyData = _.pick(
+            action.payload,
+            'monitoredUser',
+            'monitoredConversation'
           );
-          const conversation = monitoredLazyData.monitoredConversation;
-          if (conversation) {
-            chat.monitored.monitoredSession = createSession(
-              conversation,
-              customer
+          if (chat.monitored) {
+            const customer = _.defaults(
+              { status: chat.monitored.monitoredUserStatus },
+              monitoredLazyData.monitoredUser
             );
+            const conversation = monitoredLazyData.monitoredConversation;
+            if (conversation) {
+              chat.monitored.monitoredSession = createSession(
+                conversation,
+                customer
+              );
+            }
+            chat.selectedSession = conversation?.userId;
           }
-          chat.selectedSession = conversation?.userId;
         }
       } else {
         // 如果传递的是空，就情况监控和当前选择会话

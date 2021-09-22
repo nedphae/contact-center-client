@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  findNodeHandle,
+} from 'react-native-web';
 import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
 
@@ -51,6 +56,7 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       borderRadius: 10,
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopRightRadius: 0,
+      backgroundColor: '#98E165',
     },
     fromMessagePaper: {
       padding: 7,
@@ -333,6 +339,7 @@ const MessageList = (props: MessageListProps) => {
     toggleShowImageViewerDialog(true);
   }
 
+  // TODO 使用 View + Map 精确跳转到置顶聊天消息
   return (
     <ScrollView
       style={styles.container}
