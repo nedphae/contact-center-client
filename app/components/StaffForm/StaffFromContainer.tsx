@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { gql, useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 
 import Staff from 'app/domain/StaffInfo';
+import { QUERY_STAFF_BY_ID, StaffGraphql } from 'app/domain/graphql/Staff';
 import StaffForm from './StaffForm';
 
 interface FormProps {
@@ -9,36 +10,9 @@ interface FormProps {
   mutationCallback?: (staff: Staff) => void | undefined;
 }
 
-interface Graphql {
-  getStaffById: Staff;
-}
-
-const QUERY_STAFF = gql`
-  query Staff($staffId: Long!) {
-    getStaffById(staffId: $staffId) {
-      id
-      organizationId
-      username
-      role
-      staffGroupId
-      realName
-      nickName
-      avatar
-      simultaneousService
-      maxTicketPerDay
-      maxTicketAllTime
-      staffType
-      gender
-      mobilePhone
-      personalizedSignature
-      enabled
-    }
-  }
-`;
-
 export default function StaffFormContainer(props: FormProps) {
   const { staffId, mutationCallback } = props;
-  const [getStaff, { data }] = useLazyQuery<Graphql>(QUERY_STAFF);
+  const [getStaff, { data }] = useLazyQuery<StaffGraphql>(QUERY_STAFF_BY_ID);
 
   useEffect(() => {
     if (staffId) {

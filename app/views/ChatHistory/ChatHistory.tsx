@@ -35,6 +35,7 @@ import { AllStaffInfo } from 'app/domain/graphql/Staff';
 import { SelectKeyValue } from 'app/components/Form/ChipSelect';
 import { PageParam } from 'app/domain/graphql/Query';
 import Draggable from 'react-draggable';
+import javaInstant2DateStr from 'app/utils/timeUtils';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -53,9 +54,41 @@ const columns: GridColDef[] = [
   { field: 'staffId', headerName: '客服ID', width: 150 },
   { field: 'realName', headerName: '客服实名', width: 150 },
   { field: 'nickName', headerName: '客服昵称', width: 150 },
-  { field: 'startTime', headerName: '开始时间', width: 150 },
   { field: 'userId', headerName: '客户ID', width: 150 },
   { field: 'userName', headerName: '客户名称', width: 150 },
+  {
+    field: 'startTime',
+    headerName: '开始时间',
+    type: 'dateTime',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
+  {
+    field: 'staffFirstReplyTime',
+    headerName: '客服首次响应的时间',
+    type: 'dateTime',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
+  {
+    field: 'firstReplyCost',
+    headerName: '客服首次响应时长',
+    type: 'number',
+    width: 200,
+  },
+  {
+    field: 'endTime',
+    headerName: '结束时间',
+    type: 'dateTime',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
   { field: 'fromShuntName', headerName: '接待组', width: 150 },
   { field: 'fromGroupName', headerName: '客服组', width: 150 },
   { field: 'fromIp', headerName: '访客来源ip', width: 150 },
@@ -111,19 +144,6 @@ const columns: GridColDef[] = [
   { field: 'category', headerName: '会话分类信息', width: 150 },
   { field: 'categoryDetail', headerName: '会话咨询分类明细', width: 150 },
   { field: 'closeReason', headerName: '会话关闭原因', width: 150 },
-  { field: 'endTime', headerName: '结束时间', width: 150 },
-  {
-    field: 'staffFirstReplyTime',
-    headerName: '客服首次响应的时间',
-    type: 'dateTime',
-    width: 150,
-  },
-  {
-    field: 'firstReplyCost',
-    headerName: '客服首次响应时长',
-    type: 'number',
-    width: 150,
-  },
   {
     field: 'stickDuration',
     headerName: '客服置顶时长',
@@ -345,7 +365,7 @@ export default function ChatHistory() {
           )}
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
+          <Button autoFocus onClick={handleClose}>
             取消
           </Button>
         </DialogActions>

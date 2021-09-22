@@ -32,25 +32,6 @@ const chatSlice = createSlice({
       chat.monitored = undefined;
       chat.selectedSession = action.payload;
     },
-    // 动画相关
-    setAnimatedToMonitored: (
-      chat,
-      action: PayloadAction<{ userId: number; animated: boolean }>
-    ) => {
-      const conver = chat.monitored?.monitoredSession;
-      if (conver) {
-        conver.animated = action.payload.animated;
-      }
-    },
-    setIsHistoryMessageToMonitored: (
-      chat,
-      action: PayloadAction<{ userId: number; isHistoryMessage: boolean }>
-    ) => {
-      const conver = chat.monitored?.monitoredSession;
-      if (conver) {
-        conver.isHistoryMessage = action.payload.isHistoryMessage;
-      }
-    },
     setMonitorSelectedSession: (
       chat,
       action: PayloadAction<SetMonitored | undefined>

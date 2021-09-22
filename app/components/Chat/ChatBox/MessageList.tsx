@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  findNodeHandle,
-} from 'react-native-web';
+import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
 
@@ -27,16 +22,13 @@ import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import config from 'app/config/clientConfig';
-import {
-  addHistoryMessage,
-  setHasMore,
-  setIsHistoryMessage,
-} from 'app/state/session/sessionAction';
+import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import { Session } from 'app/domain/Session';
 import getPageQuery from 'app/domain/graphql/Page';
 import { PageResult } from 'app/domain/Page';
 import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
+import { CreatorType } from 'app/domain/constant/Message';
 import FileCard from './FileCard';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
@@ -245,6 +237,8 @@ const MessageList = (props: MessageListProps) => {
     fetchPolicy: 'no-cache',
   });
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
+  const [animated, setAnimated] = useState<boolean>(false);
+  const [isHistoryMessage, setIsHistoryMessage] = useState<boolean>(false);
   const [imageViewer, setImageViewer] = useState<ImageDecorator>({
     src: '',
     alt: undefined,
@@ -284,9 +278,7 @@ const MessageList = (props: MessageListProps) => {
           // 客服聊天历史消息
           dispatch(addHistoryMessage(userMessages));
         }
-        dispatch(
-          setIsHistoryMessage({ userId: user.userId, isHistoryMessage: true })
-        );
+        setIsHistoryMessage(true);
         dispatch(
           setHasMore({
             userId: user.userId,
@@ -297,6 +289,12 @@ const MessageList = (props: MessageListProps) => {
     }
   }, [data, dispatch, monitorSession, user]);
 
+  useEffect(() => {
+    return () => {
+      setAnimated(false);
+    };
+  }, [user]);
+
   function handleLoadMore() {
     loadHistoryMessage({
       variables: { userId: user?.userId, cursor: lastSeqId, limit: 20 },
@@ -306,14 +304,15 @@ const MessageList = (props: MessageListProps) => {
   function handleContentSizeChange() {
     // 检查是否是读取历史记录
     if (refOfScrollView.current && user && user.userId) {
-      if (!session?.isHistoryMessage) {
+      if (!isHistoryMessage) {
         refOfScrollView.current.scrollToEnd({
-          animated: Boolean(session?.animated),
+          animated,
         });
+        if (!animated) {
+          setAnimated(true);
+        }
       } else {
-        dispatch(
-          setIsHistoryMessage({ userId: user.userId, isHistoryMessage: false })
-        );
+        setIsHistoryMessage(false);
       }
     }
   }
@@ -419,9 +418,14 @@ const MessageList = (props: MessageListProps) => {
                       </Paper>
                     </Grid>
                     {/* 发送的消息的头像 */}
-                    {creatorType === 1 && (
+                    {creatorType === CreatorType.STAFF && (
                       <ListItemAvatar className={classes.listItemAvatar}>
-                        <Avatar alt="Profile Picture" />
+                        <Avatar
+                          src={
+                            staff.avatar &&
+                            `${config.web.host}${config.oss.path}/staff/img/${staff.avatar}`
+                          }
+                        />
                       </ListItemAvatar>
                     )}
                   </ListItem>

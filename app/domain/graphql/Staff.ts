@@ -59,3 +59,30 @@ export const QUERY_STAFF = gql`
     }
   }
 `;
+
+export interface StaffGraphql {
+  getStaffById: Staff;
+}
+
+export const QUERY_STAFF_BY_ID = gql`
+  query Staff($staffId: Long!) {
+    getStaffById(staffId: $staffId) {
+      id
+      organizationId
+      username
+      role
+      staffGroupId
+      realName
+      nickName
+      avatar
+      simultaneousService
+      maxTicketPerDay
+      maxTicketAllTime
+      staffType
+      gender
+      mobilePhone
+      personalizedSignature
+      enabled
+    }
+  }
+`;

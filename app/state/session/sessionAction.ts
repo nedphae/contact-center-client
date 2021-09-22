@@ -21,11 +21,7 @@ import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { CreatorType, SysCode } from 'app/domain/constant/Message';
 import { CustomerStatus } from 'app/domain/Customer';
 import slice from './sessionSlice';
-import {
-  setAnimatedToMonitored,
-  setIsHistoryMessageToMonitored,
-  setSelectedSessionNumber,
-} from '../chat/chatAction';
+import { setSelectedSessionNumber } from '../chat/chatAction';
 
 const {
   newConver,
@@ -34,8 +30,6 @@ const {
   unhideSession,
   addNewMessgeBadge,
   hideSelectedSession,
-  setAnimatedToConverMap,
-  setIsHistoryMessageToConverMap,
 } = slice.actions;
 export const {
   stickyCustomer,
@@ -45,26 +39,6 @@ export const {
   clearMessgeBadge,
   setHasMore,
 } = slice.actions;
-
-export const setAnimated =
-  (data: { userId: number; animated: boolean }): AppThunk =>
-  async (dispatch, getState) => {
-    if (getState().chat.monitored) {
-      dispatch(setAnimatedToMonitored(data));
-    } else {
-      dispatch(setAnimatedToConverMap(data));
-    }
-  };
-
-export const setIsHistoryMessage =
-  (data: { userId: number; isHistoryMessage: boolean }): AppThunk =>
-  async (dispatch, getState) => {
-    if (getState().chat.monitored) {
-      dispatch(setIsHistoryMessageToMonitored(data));
-    } else {
-      dispatch(setIsHistoryMessageToConverMap(data));
-    }
-  };
 
 function getSessionByHide(session: SessionMap, hide: boolean) {
   return (
@@ -85,9 +59,6 @@ function getSessionByHide(session: SessionMap, hide: boolean) {
 export const setSelectedSession =
   (userId: number | undefined): AppThunk =>
   async (dispatch) => {
-    if (userId) {
-      dispatch(setAnimated({ userId, animated: false }));
-    }
     dispatch(setSelectedSessionNumber(userId));
   };
 
@@ -95,7 +66,6 @@ export const hideSelectedSessionAndSetToLast =
   (userId: number): AppThunk =>
   async (dispatch, getState) => {
     dispatch(hideSelectedSession(userId));
-    dispatch(setAnimated({ userId, animated: false }));
     const list = getSessionByHide(getState().session, false).filter(
       (se) => se.conversation.userId !== userId
     );
@@ -210,9 +180,6 @@ export function sendMessage(message: Message): AppThunk {
         })
       )
       .subscribe((messagesMap) => {
-        if (message.to) {
-          dispatch(setAnimated({ userId: message.to, animated: true }));
-        }
         if (!getState().chat.monitored) {
           // 显示消息
           dispatch(newMessage(messagesMap));
@@ -274,8 +241,6 @@ export const setNewMessage =
             if (selectedSession) {
               if (selectedSession !== userId) {
                 dispatch(addNewMessgeBadge(userId));
-              } else {
-                dispatch(setAnimated({ userId, animated: true }));
               }
             }
             dispatch(newMessage(end));

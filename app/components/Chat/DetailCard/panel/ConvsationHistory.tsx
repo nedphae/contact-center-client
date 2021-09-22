@@ -69,16 +69,19 @@ const QUERY = gql`
 `;
 type Graphql = SearchConv;
 
+const page = new PageParam();
+page.properties = ['id'];
+
 export default function ConvsationHistory() {
   const classes = useStyles();
   const user = useSelector(getSelectedConstomer);
-  const [selectedId, setSelectedId] = useState<SelectedType>(-1);
+  const [selectedId, setSelectedId] = useState<SelectedType>(0);
   const [searchConv, { data }] = useLazyQuery<Graphql>(QUERY);
 
   useEffect(() => {
     if (user && user.userId) {
       const searchParams: ConversationQueryInput = {
-        page: new PageParam(),
+        page,
         userId: user.userId,
       };
       searchConv({ variables: { conversationQueryInput: searchParams } });

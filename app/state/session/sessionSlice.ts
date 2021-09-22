@@ -125,21 +125,6 @@ const converSlice = createSlice({
         )
         .subscribe();
     },
-    // 动画相关
-    setAnimatedToConverMap: (
-      converMap,
-      action: PayloadAction<{ userId: number; animated: boolean }>
-    ) => {
-      const conver = converMap[action.payload.userId];
-      conver.animated = action.payload.animated;
-    },
-    setIsHistoryMessageToConverMap: (
-      converMap,
-      action: PayloadAction<{ userId: number; isHistoryMessage: boolean }>
-    ) => {
-      const conver = converMap[action.payload.userId];
-      conver.isHistoryMessage = action.payload.isHistoryMessage;
-    },
   },
 });
 

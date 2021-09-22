@@ -30,6 +30,15 @@ const useStyles = makeStyles(() =>
   })
 );
 
+function getDuration(sessionDuration: number) {
+  if (sessionDuration < 60) {
+    return `${sessionDuration} 秒`;
+  }
+  const minutes = Math.floor(sessionDuration / 60);
+  const seconds = sessionDuration % 60;
+  return `${minutes} 分 ${seconds} 秒`;
+}
+
 export default function ChatHeader() {
   const classes = useStyles();
   const conv = useSelector(getSelectedConv);
@@ -81,7 +90,8 @@ export default function ChatHeader() {
           <Grid item xs={3} zeroMinWidth>
             {sessionDuration && (
               <Typography noWrap align="center" variant="body2">
-                咨询时长：{sessionDuration} 秒 {/** 获取会话时长 */}
+                咨询时长：{getDuration(sessionDuration)}
+                {/** 获取会话时长 */}
               </Typography>
             )}
           </Grid>

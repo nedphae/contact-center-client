@@ -189,7 +189,7 @@ function SessionList(props: SessionListProps) {
   return (
     <HotKeys handlers={handlers}>
       <div className={classes.root}>
-        <List component="nav" aria-label="main mailbox folders">
+        <List aria-label="main mailbox folders">
           {sessions.map((session) => {
             const { conversation, unread, lastMessage, user, sticky, tag } =
               session;

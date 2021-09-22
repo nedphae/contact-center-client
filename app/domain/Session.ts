@@ -23,8 +23,6 @@ export interface Session {
   /** 客服打的标签 */
   tag: Tag;
   hasMore: boolean;
-  isHistoryMessage: boolean;
-  animated: boolean;
 }
 
 export interface TagParamer {
@@ -49,8 +47,6 @@ export function createSession(
     sticky: false,
     tag: undefined,
     hasMore: true,
-    isHistoryMessage: false,
-    animated: false,
   };
 }
 

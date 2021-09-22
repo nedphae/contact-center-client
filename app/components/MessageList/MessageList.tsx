@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { useQuery } from '@apollo/client';
+
 import Viewer from 'react-viewer';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -10,10 +12,12 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 
+import config from 'app/config/clientConfig';
 import { Conversation } from 'app/domain/Conversation';
 import { CreatorType } from 'app/domain/constant/Message';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
+import { StaffGraphql, QUERY_STAFF_BY_ID } from 'app/domain/graphql/Staff';
 import {
   createContent,
   useMessageListStyles,
@@ -31,6 +35,11 @@ export default function MessageList(props: MessageListProps) {
     src: '',
     alt: undefined,
   });
+  const { data } = useQuery<StaffGraphql>(QUERY_STAFF_BY_ID, {
+    variables: { staffId: conversation.staffId },
+  });
+
+  const staff = data?.getStaffById;
 
   const messages = [...(conversation.chatMessages ?? [])].sort(
     (a, b) =>
@@ -116,7 +125,13 @@ export default function MessageList(props: MessageListProps) {
               {/* 客服发送的消息的头像 */}
               {creatorType === CreatorType.STAFF && (
                 <ListItemAvatar className={classes.listItemAvatar}>
-                  <Avatar alt="Profile Picture" />
+                  <Avatar
+                    src={
+                      staff &&
+                      staff.avatar &&
+                      `${config.web.host}${config.oss.path}/staff/img/${staff.avatar}`
+                    }
+                  />
                 </ListItemAvatar>
               )}
             </ListItem>

@@ -8,7 +8,6 @@ import ChatIcon from '@material-ui/icons/Chat';
 import HistoryIcon from '@material-ui/icons/History';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 
 import Authorized from 'app/utils/Authorized';
 import SessionList from './SessionList';
@@ -24,8 +23,8 @@ function a11yProps(index: number) {
 
 interface TabPanelProps {
   children: React.ReactNode | undefined;
-  index: any;
-  value: any;
+  index: number;
+  value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -39,11 +38,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`scrollable-force-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box p={3}>
-          <Typography component="span">{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 }

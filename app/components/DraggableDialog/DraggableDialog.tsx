@@ -65,7 +65,7 @@ function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
       </DialogTitle>
       <DialogContent>{children}</DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={handleClose} color="primary">
+        <Button autoFocus onClick={handleClose}>
           取消
         </Button>
       </DialogActions>

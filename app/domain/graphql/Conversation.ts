@@ -192,7 +192,7 @@ const CONTENT_QUERY = gql`
     index
     innerHits
     nestedMetaData
-    score
+    # score
     sortValues
   }
 `;

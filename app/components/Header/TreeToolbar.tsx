@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     toolBar: {
       minHeight: 30,
-      background: 'white',
+      background: '#2d2d2d',
       borderRightStyle: 'solid',
       borderLeftStyle: 'solid',
       borderWidth: 1,
