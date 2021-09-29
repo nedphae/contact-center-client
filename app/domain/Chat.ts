@@ -6,6 +6,7 @@ import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
 import Staff from './StaffInfo';
 import { Session } from './Session';
+import { Color } from '@material-ui/lab/Alert';
 
 export function fromUserMessagesToMap(
   userMessages: UserMessages
@@ -46,8 +47,16 @@ export interface Monitored {
   monitoredSession?: Session;
 }
 
+export interface SnackbarProp {
+  open: boolean;
+  loadding?: boolean;
+  severity?: Color;
+  message?: string;
+}
+
 export interface BaseChat {
   selectedSession?: number;
+  snackbarProp?: SnackbarProp;
 }
 
 export type SetMonitored = Object.Merge<MonitoredLazyData, Monitored>;

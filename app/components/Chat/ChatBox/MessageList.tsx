@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
+import clsx from 'clsx';
 
 import _ from 'lodash';
 import { gql, useLazyQuery } from '@apollo/client';
@@ -38,35 +39,31 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
     },
     paper: {
       // paddingBottom: 50,
-      maxHeight: '100%',
+      maxHeight: '90%',
       width: '100%',
-      overflow: 'auto',
+    },
+    baseMessagePaper: {
+      padding: 7,
+      maxWidth: '70%',
+      borderRadius: 10,
     },
     toMessagePaper: {
-      padding: 7,
-      maxWidth: '90%',
-      borderRadius: 10,
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopRightRadius: 0,
       backgroundColor: '#508828',
     },
     fromMessagePaper: {
-      padding: 7,
-      maxWidth: '90%',
-      borderRadius: 10,
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopLeftRadius: 0,
     },
     listItemAvatar: {
+      // TODO 使用 float 优化 OR 使用 grid row-reverse
       marginBottom: 0,
       padding: 8,
       minWidth: 0,
     },
     list: {
       marginBottom: theme.spacing(2),
-    },
-    subheader: {
-      backgroundColor: theme.palette.background.paper,
     },
     appBar: {
       top: 'auto',
@@ -88,7 +85,11 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       padding: 2,
     },
     message: {
+      maxWidth: '100%',
       userSelect: 'text',
+      whiteSpace: 'pre-wrap',
+      wordWrap: 'break-word',
+      wordBreak: 'break-word',
     },
   })
 );
@@ -166,7 +167,7 @@ interface MessageListProps {
 }
 
 const CONTENT_QUERY = gql`
-  fragment MyMessageContent on Message {
+  fragment myMessageContent on Message {
     content {
       contentType
       sysCode
@@ -202,14 +203,14 @@ const CONTENT_QUERY = gql`
 const PAGE_QUERY = getPageQuery(
   'MessagePage',
   CONTENT_QUERY,
-  'MyMessageContent'
+  'myMessageContent'
 );
 
 const QUERY = gql`
   ${PAGE_QUERY}
   query HistoryMessage($userId: Long!, $cursor: Long, $limit: Int) {
     loadHistoryMessage(userId: $userId, cursor: $cursor, limit: $limit) {
-      ...PageOnMessagePage
+      ...pageOnMessagePage
     }
   }
 `;
@@ -233,9 +234,12 @@ const MessageList = (props: MessageListProps) => {
   // 查询是否是监控
   const monitorSession = useSelector(getMonitor);
   const refOfScrollView = useRef<ScrollView>(null);
-  const [loadHistoryMessage, { data }] = useLazyQuery<MessagePage>(QUERY, {
-    fetchPolicy: 'no-cache',
-  });
+  const [loadHistoryMessage, { data, variables }] = useLazyQuery<MessagePage>(
+    QUERY,
+    {
+      fetchPolicy: 'no-cache',
+    }
+  );
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
   const [animated, setAnimated] = useState<boolean>(false);
   const [isHistoryMessage, setIsHistoryMessage] = useState<boolean>(false);
@@ -259,35 +263,50 @@ const MessageList = (props: MessageListProps) => {
   // }, [animated, dispatch, session]);
 
   useEffect(() => {
-    if (
-      data &&
-      data.loadHistoryMessage &&
-      data.loadHistoryMessage.content[0] &&
-      user &&
-      user.userId
-    ) {
-      const lastMessage = data.loadHistoryMessage.content[0];
-      if (user.userId === lastMessage.to || user.userId === lastMessage.from) {
-        const historyMessage = _.reverse([...data.loadHistoryMessage.content]);
-        const userMessages = { [user.userId]: historyMessage };
-        // TODO: 拆分到独立的 ThunkAction 里
-        if (monitorSession) {
-          // 监控历史消息
-          dispatch(setMonitoredMessage(userMessages));
+    if (data && data.loadHistoryMessage) {
+      setIsHistoryMessage(true);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (data && data.loadHistoryMessage && user && user.userId && variables) {
+      const lastQueryUserId = variables.userId;
+      if (lastQueryUserId === user.userId) {
+        const lastMessage = data.loadHistoryMessage.content[0];
+        if (
+          lastMessage &&
+          (user.userId === lastMessage.to || user.userId === lastMessage.from)
+        ) {
+          const historyMessage = _.reverse([
+            ...data.loadHistoryMessage.content,
+          ]);
+          const userMessages = { [user.userId]: historyMessage };
+          // TODO: 拆分到独立的 ThunkAction 里
+          if (monitorSession) {
+            // 监控历史消息
+            dispatch(setMonitoredMessage(userMessages));
+          } else {
+            // 客服聊天历史消息
+            dispatch(addHistoryMessage(userMessages));
+          }
+          dispatch(
+            setHasMore({
+              userId: user.userId,
+              hasMore: !data.loadHistoryMessage.last,
+            })
+          );
         } else {
-          // 客服聊天历史消息
-          dispatch(addHistoryMessage(userMessages));
+          // 没有更多消息
+          dispatch(
+            setHasMore({
+              userId: user.userId,
+              hasMore: false,
+            })
+          );
         }
-        setIsHistoryMessage(true);
-        dispatch(
-          setHasMore({
-            userId: user.userId,
-            hasMore: !data.loadHistoryMessage.last,
-          })
-        );
       }
     }
-  }, [data, dispatch, monitorSession, user]);
+  }, [data, dispatch, monitorSession, user, variables]);
 
   useEffect(() => {
     return () => {
@@ -408,11 +427,12 @@ const MessageList = (props: MessageListProps) => {
                       </Grid>
                       <Paper
                         elevation={4}
-                        className={
+                        className={clsx(
                           creatorType !== 1
                             ? classes.fromMessagePaper
-                            : classes.toMessagePaper
-                        }
+                            : classes.toMessagePaper,
+                          classes.baseMessagePaper
+                        )}
                       >
                         {createContent(content, classes, openImageViewer)}
                       </Paper>

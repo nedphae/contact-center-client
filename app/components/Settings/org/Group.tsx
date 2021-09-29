@@ -12,6 +12,7 @@ import DraggableDialog, {
 } from 'app/components/DraggableDialog/DraggableDialog';
 import StaffGroupForm from 'app/components/StaffForm/StaffGroupForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
+import useAlert from 'app/hook/alert/useAlert';
 
 const MUTATION_GROUP = gql`
   mutation DeleteGroup($ids: [Long!]!) {
@@ -33,7 +34,18 @@ export default function Group() {
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_GROUP);
-  const [deleteByIds] = useMutation<number>(MUTATION_GROUP);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [deleteByIds, { loading: deleteLoading }] = useMutation<number>(
+    MUTATION_GROUP,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (deleteLoading) {
+    onLoadding(deleteLoading);
+  }
 
   function newButtonClick() {
     setStaffGroup(undefined);

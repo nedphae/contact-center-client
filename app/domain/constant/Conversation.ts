@@ -98,8 +98,13 @@ export enum SolveStatus {
   SOLVING,
 }
 
-export enum ColorLogo {
+export enum InteractionLogo {
+  // 新会话
   NEW,
-  WAITTING,
+  // 新消息未读,
+  UNREAD,
+  // 已读
+  READ_UNREPLIE,
+  // 已读已回
   REPLIED,
 }

@@ -5,16 +5,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { Grid } from '@material-ui/core';
+import { Grid, Menu, MenuItem } from '@material-ui/core';
 import { TreeView } from '@material-ui/lab';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
-import SubjectIcon from '@material-ui/icons/Subject';
 import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import { AllShunt, QUERY_STAFF, StaffList } from 'app/domain/graphql/Staff';
-import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
+import StyledTreeItem, {
+  CloseSquare,
+  MinusSquare,
+  PlusSquare,
+} from 'app/components/TreeView/StyledTreeItem';
 import { ShuntClass, StaffShunt } from 'app/domain/StaffInfo';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -22,6 +23,14 @@ import DraggableDialog, {
 import StaffShuntForm from 'app/components/StaffForm/StaffShuntForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import TreeToolbar from 'app/components/Header/TreeToolbar';
+import ShuntClassForm from 'app/components/StaffForm/ShuntClassForm';
+import {
+  QuickReplyGroupForm,
+  QuickReplyForm,
+} from 'app/components/Chat/DetailCard/panel/QuickReply/QuickReplyForm';
+import { QuickReplyGroup, QuickReply } from 'app/domain/Chat';
+import { MousePoint, initialMousePoint } from 'app/domain/Client';
+import useAlert from 'app/hook/alert/useAlert';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -68,29 +77,29 @@ const columns: GridColDef[] = [
   { field: 'code', headerName: '接待组代码', width: 350 },
 ];
 
-function buildTreeView(shuntClassList: ShuntClass[]) {
-  return shuntClassList.map((it) => (
-    <StyledTreeItem
-      key={it.id?.toString()}
-      nodeId={uuidv4()}
-      labelText={it.className}
-      labelIcon={SubjectIcon}
-    >
-      {it.children && buildTreeView(it.children)}
-    </StyledTreeItem>
-  ));
-}
-
 export default function Shunt() {
   const classes = useStyles();
-  const [staffShunt, setStaffShunt] = useState<StaffShunt | undefined>(
-    undefined
-  );
+  const [mousePoint, setMousePoint] = useState<MousePoint>(initialMousePoint);
+
+  const [staffShunt, setStaffShunt] = useState<StaffShunt>();
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
+  const [staffShuntClass, setStaffShuntClass] = useState<ShuntClass>();
+  const refOfClassDialog = useRef<DraggableDialogRef>(null);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_SHUNT);
   const { data: staffList } = useQuery<StaffList>(QUERY_STAFF);
-  const [deleteByIds] = useMutation<number>(MUTATION_SHUNT);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [deleteByIds, { loading: deleteLoading }] = useMutation<number>(
+    MUTATION_SHUNT,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (deleteLoading) {
+    onLoadding(deleteLoading);
+  }
 
   function newButtonClick() {
     setStaffShunt(undefined);
@@ -103,15 +112,44 @@ export default function Shunt() {
   };
 
   const rows = data?.allStaffShunt ?? [];
-  const allShuntClass = _.groupBy(
-    data?.allShuntClass,
-    (it) => it.catalogue ?? -1
+
+  const handleContextMenuOpen = (
+    event: React.MouseEvent<HTMLLIElement>,
+    selectStaffShuntClass: ShuntClass
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setMousePoint({
+      mouseX: event.clientX - 2,
+      mouseY: event.clientY - 4,
+    });
+    setStaffShuntClass(selectStaffShuntClass);
+  };
+
+  function buildTreeView(shuntClassList: ShuntClass[]) {
+    return shuntClassList.map((it) => (
+      <StyledTreeItem
+        key={it.id?.toString()}
+        nodeId={uuidv4()}
+        label={it.className}
+        onContextMenu={(event) => handleContextMenuOpen(event, it)}
+      >
+        {it.children && buildTreeView(it.children)}
+      </StyledTreeItem>
+    ));
+  }
+
+  const allShuntClass = _.cloneDeep(data?.allShuntClass ?? []);
+  const allShuntClassMap = _.groupBy(
+    _.cloneDeep(data?.allShuntClass),
+    (it) => it.catalogue
   );
-  const pShuntClass = data?.allShuntClass
+  const pShuntClass = allShuntClass
     .map((it) => {
-      return _.assign(it, { children: allShuntClass[it.id] });
+      it.children = allShuntClassMap[it.id];
+      return it;
     })
-    .filter((it) => it.catalogue === -1);
+    .filter((it) => it.catalogue);
 
   function deleteButtonClick() {
     if (selectionModel && selectionModel.length > 0) {
@@ -119,9 +157,47 @@ export default function Shunt() {
     }
   }
 
+  const handleContextMenuClose = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setMousePoint(initialMousePoint);
+  };
+
   return (
     <Grid container className={classes.root}>
-      <DraggableDialog title="添加/修改接待组" ref={refOfDialog}>
+      {/* 右键菜单 */}
+      <div
+        onContextMenu={handleContextMenuClose}
+        style={{ cursor: 'context-menu' }}
+      >
+        <Menu
+          keepMounted
+          open={mousePoint.mouseY !== undefined}
+          onClose={handleContextMenuClose}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            mousePoint.mouseY !== undefined && mousePoint.mouseX !== undefined
+              ? { top: mousePoint.mouseY, left: mousePoint.mouseX }
+              : undefined
+          }
+        >
+          <MenuItem
+            onClick={() => {
+              refOfClassDialog.current?.setOpen(true);
+              setMousePoint(initialMousePoint);
+            }}
+          >
+            修改接待组分类
+          </MenuItem>
+          <MenuItem onClick={() => {}}>删除接待组分类</MenuItem>
+        </Menu>
+      </div>
+      <DraggableDialog
+        title="添加/修改接待组"
+        ref={refOfDialog}
+        fullWidth
+        maxWidth="md"
+      >
         <StaffShuntForm
           defaultValues={staffShunt}
           shuntClassList={data?.allShuntClass ?? []}
@@ -129,15 +205,23 @@ export default function Shunt() {
         />
       </DraggableDialog>
       <Grid item xs={12} sm={2}>
+        <DraggableDialog title="添加/修改接待组分类" ref={refOfClassDialog}>
+          <ShuntClassForm defaultValues={staffShuntClass} />
+        </DraggableDialog>
         <TreeToolbar
+          title="接待组分类"
           refetch={refetch}
           adderName="添加接待组分类"
-          add={() => {}}
+          add={() => {
+            setStaffShuntClass(undefined);
+            refOfClassDialog.current?.setOpen(true);
+          }}
         />
         <TreeView
           className={classes.list}
-          defaultCollapseIcon={<ArrowDropDownIcon />}
-          defaultExpandIcon={<ArrowRightIcon />}
+          defaultCollapseIcon={<MinusSquare />}
+          defaultExpandIcon={<PlusSquare />}
+          defaultEndIcon={<CloseSquare />}
         >
           {pShuntClass && buildTreeView(pShuntClass)}
         </TreeView>

@@ -18,6 +18,7 @@ import {
   MUTATION_DELETE_QUICK_REPLY,
   MUTATION_DELETE_QUICK_REPLY_GROUP,
 } from 'app/domain/graphql/QuickReply';
+import useAlert from 'app/hook/alert/useAlert';
 import { QuickReplyForm, QuickReplyGroupForm } from './QuickReplyForm';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -55,11 +56,21 @@ export default function NestedList(prop: NestedListProps) {
     group?: boolean;
     form?: Form;
   }>(initialState);
+
+  const { onCompleted, onError } = useAlert();
   const [deleteQuickReplyByIds] = useMutation<unknown>(
-    MUTATION_DELETE_QUICK_REPLY
+    MUTATION_DELETE_QUICK_REPLY,
+    {
+      onCompleted,
+      onError,
+    }
   );
   const [deleteQuickReplyGroupByIds] = useMutation<unknown>(
-    MUTATION_DELETE_QUICK_REPLY_GROUP
+    MUTATION_DELETE_QUICK_REPLY_GROUP,
+    {
+      onCompleted,
+      onError,
+    }
   );
 
   const handleClick = (index: number) => {
@@ -169,6 +180,7 @@ export default function NestedList(prop: NestedListProps) {
       component="nav"
       aria-labelledby="nested-list-subheader"
       className={classes.root}
+      dense
     >
       {quickReplyDto.noGroup &&
         quickReplyDto.noGroup.map((qr) => (

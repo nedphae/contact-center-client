@@ -8,6 +8,7 @@ import Chat, {
   UserMessages,
   SetMonitored,
   fromUserMessagesToMap,
+  SnackbarProp,
 } from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
 import { createSession } from 'app/domain/Session';
@@ -25,6 +26,12 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState: initChat,
   reducers: {
+    setSnackbarProp: (
+      chat,
+      action: PayloadAction<SnackbarProp | undefined>
+    ) => {
+      chat.snackbarProp = action.payload;
+    },
     setSelectedSessionNumber: (
       chat,
       action: PayloadAction<number | undefined>

@@ -10,6 +10,7 @@ import { CssBaseline, FormControl } from '@material-ui/core';
 import DropdownTreeSelect from 'react-dropdown-tree-select';
 
 import { makeTreeNode, TopicCategory } from 'app/domain/Bot';
+import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles(() =>
@@ -50,7 +51,17 @@ export default function TopicCategoryForm(props: FormProps) {
     defaultValues,
   });
 
-  const [saveTopicCategory, { loading, data }] = useMutation<Graphql>(MUTATION);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveTopicCategory, { loading, data }] = useMutation<Graphql>(
+    MUTATION,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<TopicCategory> = (form) => {
     saveTopicCategory({ variables: { topicCategoryInput: form } });
@@ -122,7 +133,7 @@ export default function TopicCategoryForm(props: FormProps) {
             },
           })}
         />
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

@@ -5,7 +5,7 @@ import { CommentQuery } from '../Comment';
 export type CommentQueryInput = CommentQuery;
 
 export const CORE_BLACKLIST_FIELDS = gql`
-  fragment BlacklistFields on Blacklist {
+  fragment blacklistFields on Blacklist {
     id
     organizationId
     staffId
@@ -21,7 +21,7 @@ export const QUERY_BLACKLISTT = gql`
   ${CORE_BLACKLIST_FIELDS}
   query Blacklist($audited: Boolean!) {
     getAllBlacklist(audited: $audited) {
-      ...BlacklistFields
+      ...blacklistFields
     }
   }
 `;
@@ -33,7 +33,7 @@ export const QUERY_BLACKLISTT_BY = gql`
       preventStrategy: $preventStrategy
       preventSource: $preventSource
     ) {
-      ...BlacklistFields
+      ...blacklistFields
     }
   }
 `;
@@ -42,7 +42,7 @@ export const MUTATION_SAVE_BLACKLIST = gql`
   ${CORE_BLACKLIST_FIELDS}
   mutation Blacklist($blacklist: [BlacklistInput!]!) {
     saveBlacklist(blacklist: $blacklist) {
-      ...BlacklistFields
+      ...blacklistFields
     }
   }
 `;

@@ -6,46 +6,19 @@ import React, { useState } from 'react';
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 
 import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
 import QuickReply from './panel/QuickReply/QuickReply';
 import ConvsationHistory from './panel/ConvsationHistory';
+import TabPanel from '../Base/TabPanel';
 
 function a11yProps(index: number) {
   return {
     id: `scrollable-force-tab-${index}`,
     'aria-controls': `scrollable-force-tabpanel-${index}`,
   };
-}
-
-interface TabPanelProps {
-  children: React.ReactNode | undefined;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`scrollable-force-tabpanel-${index}`}
-      aria-labelledby={`scrollable-force-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box p={3}>
-          <Typography component="span">{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
 }
 
 export default function DetailCard() {

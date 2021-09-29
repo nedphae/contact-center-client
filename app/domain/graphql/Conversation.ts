@@ -34,7 +34,7 @@ export interface ConversationQueryInput {
 
 // 监控使用
 export const CONVERSATION_QUERY = gql`
-  fragment ConversationFields on Conversation {
+  fragment conversationFields on Conversation {
     avgRespDuration
     beginner
     category
@@ -98,7 +98,7 @@ export interface ConversationGraphql {
 }
 
 const CONTENT_QUERY = gql`
-  fragment MySearchHitContent on MySearchHit {
+  fragment mySearchHitContent on MySearchHit {
     content {
       avgRespDuration
       beginner
@@ -200,9 +200,21 @@ const CONTENT_QUERY = gql`
 export const CONV_PAGE_QUERY = getPageQuery(
   'SearchHitPage',
   CONTENT_QUERY,
-  'MySearchHitContent'
+  'mySearchHitContent'
 );
 
 export interface SearchConv {
   searchConv: PageResult<SearchHit<Conversation>>;
+}
+
+export const MUTATION_CONVERSATOIN = gql`
+  ${CONVERSATION_QUERY}
+  mutation Conversation($conversationCategory: ConversationCategoryInput!) {
+    updateConversationCategory(conversationCategory: $conversationCategory) {
+      ...conversationFields
+    }
+  }
+`;
+export interface MutationConversationGraphql {
+  updateCategory: Conversation;
 }

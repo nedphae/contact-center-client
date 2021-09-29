@@ -8,6 +8,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 import { BotConfig } from 'app/domain/Bot';
+import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles(() =>
@@ -47,7 +48,14 @@ export default function BotConfigForm(props: FormProps) {
     defaultValues,
   });
 
-  const [saveBotConfig, { loading, data }] = useMutation<Graphql>(MUTATION);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveBotConfig, { loading, data }] = useMutation<Graphql>(MUTATION, {
+    onCompleted,
+    onError,
+  });
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<BotConfig> = (form) => {
     saveBotConfig({ variables: { botConfigInput: form } });
@@ -102,7 +110,7 @@ export default function BotConfigForm(props: FormProps) {
             },
           })}
         />
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

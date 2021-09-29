@@ -24,6 +24,7 @@ import {
 } from 'app/domain/graphql/QuickReply';
 import { QuickReply, QuickReplyGroup } from 'app/domain/Chat';
 import SubmitButton from 'app/components/Form/SubmitButton';
+import useAlert from 'app/hook/alert/useAlert';
 
 interface QuickReplyGraphql {
   addQuickReply: { id: number };
@@ -59,13 +60,21 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
     defaultValues,
   });
 
-  const [addQuickReply, { loading, data }] =
-    useMutation<QuickReplyGraphql>(MUTATION_QUICK_REPLY);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [addQuickReply, { loading }] = useMutation<QuickReplyGraphql>(
+    MUTATION_QUICK_REPLY,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<QuickReply> = async (form) => {
-    addQuickReply({ variables: { quickReplyInput: form } });
-    handleClose();
-    refetch();
+    await addQuickReply({ variables: { quickReplyInput: form } });
+    await refetch();
   };
 
   return (
@@ -86,7 +95,13 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
           <Controller
             control={control}
             name="groupId"
-            rules={{ valueAsNumber: true }}
+            defaultValue=""
+            rules={{
+              // see https://github.com/react-hook-form/react-hook-form/issues/3963
+              setValueAs: (value?: string) => {
+                return value === '' || !value ? undefined : +value;
+              },
+            }}
             render={({ onChange, value }, { invalid }) => (
               <FormControl
                 variant="outlined"
@@ -139,6 +154,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             variant="outlined"
             margin="normal"
             fullWidth
+            multiline
             id="content"
             name="content"
             label="话术内容"
@@ -168,7 +184,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
               />
             )}
           />
-          <SubmitButton loading={loading} success={Boolean(data)} />
+          <SubmitButton />
         </form>
       </DialogContent>
       <DialogActions>
@@ -185,13 +201,22 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
   const { handleSubmit, register, control, errors } = useForm<QuickReplyGroup>({
     defaultValues,
   });
-  const [addQuickReplyGroup, { loading, data }] =
-    useMutation<QuickReplyGroupGraphql>(MUTATION_QUICK_REPLY_GROUP);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [addQuickReplyGroup, { loading }] = useMutation<QuickReplyGroupGraphql>(
+    MUTATION_QUICK_REPLY_GROUP,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<QuickReplyGroup> = async (form) => {
-    addQuickReplyGroup({ variables: { quickReplyGroupInput: form } });
-    handleClose();
-    refetch();
+    await addQuickReplyGroup({ variables: { quickReplyGroupInput: form } });
+    await refetch();
   };
 
   return (
@@ -200,7 +225,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
     >
-      <DialogTitle id="form-dialog-title">添加话术</DialogTitle>
+      <DialogTitle id="form-dialog-title">添加话术分组</DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
@@ -243,7 +268,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
               />
             )}
           />
-          <SubmitButton loading={loading} success={Boolean(data)} />
+          <SubmitButton />
         </form>
       </DialogContent>
       <DialogActions>

@@ -33,6 +33,7 @@ import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { ShuntUIConfig } from 'app/domain/Config';
 
 import './Jsoneditor.global.css';
+import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -166,10 +167,19 @@ export default function StaffShuntForm(props: FormProps) {
     defaultValues,
   });
 
-  const [saveStaffShunt, { loading, data }] =
-    useMutation<Graphql>(MUTATION_STAFF_SHUNT);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveStaffShunt, { loading, data }] = useMutation<Graphql>(
+    MUTATION_STAFF_SHUNT,
+    {
+      onCompleted,
+      onError,
+    }
+  );
   const [saveChatUIConfig, { loading: uiLoading, data: savedChatUIConfig }] =
-    useMutation<ChatUIConfigGraphql>(MUTATION_UICONFIG);
+    useMutation<ChatUIConfigGraphql>(MUTATION_UICONFIG, {
+      onCompleted,
+      onError,
+    });
   const [getChatUIConfig, { data: chatUIConfig }] =
     useLazyQuery<ChatUIConfigGraphql>(QUERY_CHATUI_CONFIG);
   const [getStaffConfigList, { data: staffConfigList }] =
@@ -177,10 +187,14 @@ export default function StaffShuntForm(props: FormProps) {
   const [
     saveStaffConfig,
     { loading: configLoading, data: savedStaffConfigList },
-  ] = useMutation<SavedStaffConfigGraphql>(MUTATION_STAFF_CONFIG);
-
-  const success = data && savedChatUIConfig && staffConfigList;
-  const loadingAll = loading && uiLoading && configLoading;
+  ] = useMutation<SavedStaffConfigGraphql>(MUTATION_STAFF_CONFIG, {
+    onCompleted,
+    onError,
+  });
+  const loadingAll = loading || uiLoading || configLoading;
+  if (loadingAll) {
+    onLoadding(loadingAll);
+  }
 
   useEffect(() => {
     const staffConfigMap = _.groupBy(
@@ -468,13 +482,14 @@ export default function StaffShuntForm(props: FormProps) {
             target="_blank"
             href="https://chatui.io/sdk/config-ui"
             variant="body2"
+            color="textPrimary"
             style={{ marginLeft: 10 }}
           >
             查看ChatUI配置文档（推荐开发进行配置）
           </Link>
         </Typography>
         <div ref={jsoneditorRef} style={{ height: '500px' }} />
-        <SubmitButton loading={loadingAll} success={Boolean(success)} />
+        <SubmitButton />
       </form>
     </div>
   );

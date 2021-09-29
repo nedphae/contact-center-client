@@ -99,7 +99,7 @@ export default function AdminNavbarLinks() {
   const [openProfile, setOpenProfile] = React.useState<any>(null);
   const mySelf = useSelector(getMyself);
   const [updateStaffStatus] = useMutation<Graphql>(MUTATION);
-  const [assignmentFromQueue] = useMutation<AssignmentGraphql>(MUTATION);
+  // const [assignmentFromQueue] = useMutation<AssignmentGraphql>(MUTATION);
 
   const handleClickNotification = (event: {
     target: any;
@@ -145,11 +145,11 @@ export default function AdminNavbarLinks() {
             dispatch(updateStatus(OnlineStatus[staffStatus.onlineStatusKey]));
             if (staffStatus.onlineStatus === OnlineStatus.ONLINE) {
               // 是在线状态，请求分配客服
-              assignmentFromQueue({
-                variables: {
-                  staffStatus,
-                },
-              });
+              // assignmentFromQueue({
+              //   variables: {
+              //     staffStatus,
+              //   },
+              // });
             }
           }
           return staffStatus;

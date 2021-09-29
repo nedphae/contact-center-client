@@ -2,7 +2,12 @@ import React, { useRef, useState } from 'react';
 
 import _ from 'lodash';
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowId,
+  GridValueGetterParams,
+} from '@material-ui/data-grid';
 
 import {
   QUERY_GROUP,
@@ -17,6 +22,7 @@ import DraggableDialog, {
 } from 'app/components/DraggableDialog/DraggableDialog';
 import StaffForm from 'app/components/StaffForm/StaffForm';
 import Staff from 'app/domain/StaffInfo';
+import useAlert from 'app/hook/alert/useAlert';
 
 type Graphql = StaffList;
 
@@ -26,9 +32,41 @@ const columns: GridColDef[] = [
   { field: 'nickName', headerName: '昵称', width: 150 },
   { field: 'realName', headerName: '实名', width: 150 },
   { field: 'role', headerName: '角色', width: 150 },
-  { field: 'staffType', headerName: '客服类型', width: 150 },
+  {
+    field: 'staffType',
+    headerName: '客服类型',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '机器人';
+      if (params.value === 1) {
+        result = '人工';
+      }
+      return result;
+    },
+  },
   { field: 'groupName', headerName: '组名', width: 150 },
-  { field: 'gender', headerName: '性别', width: 150 },
+  {
+    field: 'gender',
+    headerName: '性别',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '其他';
+      switch (params.value) {
+        case 0: {
+          result = '男';
+          break;
+        }
+        case 1: {
+          result = '女';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
   { field: 'mobilePhone', headerName: '手机', width: 150 },
   {
     field: 'simultaneousService',
@@ -66,7 +104,18 @@ export default function AccountList() {
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [staff, setStaff] = useState<Staff>(defaultStaff);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
-  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_STAFF);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [deleteStaffByIds, { loading: updateLoading }] = useMutation<unknown>(
+    MUTATION_STAFF,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (updateLoading) {
+    onLoadding(updateLoading);
+  }
 
   const groupMap = _.groupBy(groupList?.allStaffGroup ?? [], (it) => it.id);
   const rows = [...(data?.allStaff ?? [])].map((it) => {

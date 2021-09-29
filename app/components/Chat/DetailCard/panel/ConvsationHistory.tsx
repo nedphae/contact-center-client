@@ -49,7 +49,6 @@ const useStyles = makeStyles(() =>
       flexGrow: 1,
     },
     list: {
-      height: 'calc(80vh - 130px)',
       display: 'flex',
       overflow: 'auto',
     },
@@ -57,13 +56,13 @@ const useStyles = makeStyles(() =>
 );
 
 // 当前会话，或者会话ID
-type SelectedType = number;
+type SelectedType = string;
 
 const QUERY = gql`
   ${CONV_PAGE_QUERY}
   query Conversation($conversationQueryInput: ConversationQueryInput!) {
     searchConv(conversationQuery: $conversationQueryInput) {
-      ...PageOnSearchHitPage
+      ...pageOnSearchHitPage
     }
   }
 `;
@@ -75,7 +74,7 @@ page.properties = ['id'];
 export default function ConvsationHistory() {
   const classes = useStyles();
   const user = useSelector(getSelectedConstomer);
-  const [selectedId, setSelectedId] = useState<SelectedType>(0);
+  const [selectedId, setSelectedId] = useState<SelectedType>('');
   const [searchConv, { data }] = useLazyQuery<Graphql>(QUERY);
 
   useEffect(() => {
@@ -92,10 +91,10 @@ export default function ConvsationHistory() {
   const rows =
     result && result.content ? result.content.map((it) => it.content) : [];
 
-  const selectConversation = rows[selectedId];
+  const selectConversation = rows[parseInt(selectedId, 10)];
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedId(event.target.value as number);
+    setSelectedId(event.target.value as string);
   };
 
   return (
@@ -105,18 +104,15 @@ export default function ConvsationHistory() {
           <div className={classes.grow} />
           <FormControl variant="outlined" margin="normal" fullWidth>
             <InputLabel id="demo-simple-select-outlined-label">
-              选择会话
+              选择会话 最近的20条会话
             </InputLabel>
             <Select
               labelId="demo-simple-select-outlined-label"
               id="demo-simple-select-outlined"
               value={selectedId}
               onChange={handleChange}
-              label="选择会话"
+              label="选择会话 最近的20条会话"
             >
-              <MenuItem disabled value="-1">
-                最近的20条会话
-              </MenuItem>
               {rows &&
                 rows.map((conv, index) => (
                   <MenuItem key={conv.id} value={index}>

@@ -17,6 +17,7 @@ export interface Topic {
   id: string | undefined;
   /** 所属知识库ID * */
   knowledgeBaseId: number;
+  knowledgeBaseName?: string;
   /** 问题，使用ik分词器查询和索引 */
   question: string;
   /** 问题的md5 */
@@ -31,6 +32,7 @@ export interface Topic {
   type: number;
   /** 相似问题(type=10)对应的标准问题id */
   refId: string | undefined;
+  refQuestion?: string;
   /** 关联的问题id列表 */
   connectIds: string[] | undefined;
   /** 是否有效标记位 */
@@ -41,6 +43,7 @@ export interface Topic {
   failureTime: Date | undefined;
   /** 知识点所属分类 */
   categoryId: number | undefined;
+  categoryName?: string;
   /** 问题答案类型，0只有对外答案，1只有对内答案，2同时有对内和对外答案，undefined 相似问题，无答案 */
   faqType: number | undefined;
 }
@@ -80,7 +83,11 @@ export function makeTreeNode(
       node.checked = true;
     }
     if (it.children) {
-      node.children = makeTreeNode(it.children, selectValue);
+      node.children = makeTreeNode(
+        it.children,
+        selectValue,
+        setExtraProperties
+      );
     }
     if (setExtraProperties) {
       setExtraProperties(it, node);

@@ -1,7 +1,7 @@
 import { Conversation } from 'app/domain/Conversation';
 import { Customer } from 'app/domain/Customer';
 import { Message, MessagesMap } from 'app/domain/Message';
-import { ColorLogo } from './constant/Conversation';
+import { InteractionLogo } from './constant/Conversation';
 
 export type Tag = 'important' | '' | undefined;
 
@@ -17,7 +17,7 @@ export interface Session {
   lastMessage: Message | undefined;
   hide: boolean;
   /** 会话标识 */
-  colorLogo: ColorLogo;
+  interactionLogo: InteractionLogo;
   /** 是否置顶 */
   sticky: boolean;
   /** 客服打的标签 */
@@ -31,6 +31,13 @@ export interface TagParamer {
   tag: Tag;
 }
 
+export interface LogoUser {
+  userId: number;
+  /** 客服打的标签 */
+  interactionLogo: InteractionLogo;
+}
+
+
 export function createSession(
   conversation: Conversation,
   user: Customer
@@ -43,7 +50,7 @@ export function createSession(
     lastMessageTime: conversation.startTime,
     lastMessage: undefined,
     hide: false,
-    colorLogo: ColorLogo.NEW,
+    interactionLogo: InteractionLogo.NEW,
     sticky: false,
     tag: undefined,
     hasMore: true,

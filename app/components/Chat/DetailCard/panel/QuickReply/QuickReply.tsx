@@ -50,7 +50,7 @@ const useStyles = makeStyles(() =>
       flexGrow: 1,
     },
     list: {
-      height: 'calc(80vh - 160px)',
+      height: 'calc(80vh - 108px)',
       display: 'flex',
       overflow: 'auto',
     },
@@ -64,7 +64,7 @@ export default function QuickReply() {
   const [serarchText, setSerarchText] = useState('');
   const quickReplyList = useSelector(getQuickReply);
   const filterQuickReplyList = useSelector(getFilterQuickReply);
-  const [refetch] = useInitData();
+  const { refetchQuickReply: refetch } = useInitData();
 
   const optionFun = [
     {

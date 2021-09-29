@@ -20,8 +20,12 @@ import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { CreatorType, SysCode } from 'app/domain/constant/Message';
 import { CustomerStatus } from 'app/domain/Customer';
+import { InteractionLogo } from 'app/domain/constant/Conversation';
 import slice from './sessionSlice';
-import { setSelectedSessionNumber } from '../chat/chatAction';
+import {
+  getSelectedSession,
+  setSelectedSessionNumber,
+} from '../chat/chatAction';
 
 const {
   newConver,
@@ -38,6 +42,7 @@ export const {
   addHistoryMessage,
   clearMessgeBadge,
   setHasMore,
+  setInteractionLogo,
 } = slice.actions;
 
 function getSessionByHide(session: SessionMap, hide: boolean) {
@@ -58,20 +63,34 @@ function getSessionByHide(session: SessionMap, hide: boolean) {
 
 export const setSelectedSession =
   (userId: number | undefined): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    if (userId) {
+      const session = getState().session[userId];
+      if (session && session.interactionLogo === InteractionLogo.UNREAD) {
+        // 未读消息标记已读未回
+        dispatch(
+          setInteractionLogo({
+            userId,
+            interactionLogo: InteractionLogo.READ_UNREPLIE,
+          })
+        );
+      }
+    }
     dispatch(setSelectedSessionNumber(userId));
   };
 
 export const hideSelectedSessionAndSetToLast =
-  (userId: number): AppThunk =>
-  async (dispatch, getState) => {
-    dispatch(hideSelectedSession(userId));
-    const list = getSessionByHide(getState().session, false).filter(
-      (se) => se.conversation.userId !== userId
-    );
-    // 设置为等待时间最长的会话
-    const last = list[list.length - 1];
-    dispatch(setSelectedSession(last?.conversation?.userId));
+  (): AppThunk => async (dispatch, getState) => {
+    const userId = getSelectedSession(getState())?.conversation.userId;
+    if (userId) {
+      dispatch(hideSelectedSession(userId));
+      const list = getSessionByHide(getState().session, false).filter(
+        (se) => se.conversation.userId !== userId
+      );
+      // 设置为等待时间最长的会话
+      const last = list[list.length - 1];
+      dispatch(setSelectedSession(last?.conversation?.userId));
+    }
   };
 
 export const getSelectedMessageList = (state: RootState) => {
@@ -110,7 +129,7 @@ export const getSession = (hide = false) =>
     (session) => getSessionByHide(session, hide)
   );
 
-const updateConver =
+export const updateConver =
   (conver: Conversation): AppThunk =>
   async (dispatch, getState) => {
     const { userId } = conver;
@@ -166,6 +185,15 @@ export function sendMessage(message: Message): AppThunk {
             message.seqId = mr.seqId;
             message.createdAt = mr.createdAt;
             message.sync = true;
+            if (message.to) {
+              // 设置 客服已回消息
+              dispatch(
+                setInteractionLogo({
+                  userId: message.to,
+                  interactionLogo: InteractionLogo.REPLIED,
+                })
+              );
+            }
           }
           return message;
         }),
@@ -227,6 +255,7 @@ export const setNewMessage =
         tap(() => {
           cb(generateResponse(request.header, '"OK"'));
         }),
+        // TODO: 根据 pts 检查是否漏接了消息
         map((r) => r?.message),
         tap((m) => {
           if (m?.creatorType === CreatorType.SYS) {
@@ -238,9 +267,25 @@ export const setNewMessage =
             const { selectedSession } = getState().chat;
             const userId =
               m?.creatorType === CreatorType.CUSTOMER ? m?.from : m?.to;
-            if (selectedSession) {
+            if (selectedSession && userId) {
               if (selectedSession !== userId) {
+                // 设置未读消息数
                 dispatch(addNewMessgeBadge(userId));
+                // 设置未读消息状态
+                dispatch(
+                  setInteractionLogo({
+                    userId,
+                    interactionLogo: InteractionLogo.UNREAD,
+                  })
+                );
+              } else {
+                // 设置已读未回消息状态
+                dispatch(
+                  setInteractionLogo({
+                    userId,
+                    interactionLogo: InteractionLogo.READ_UNREPLIE,
+                  })
+                );
               }
             }
             dispatch(newMessage(end));

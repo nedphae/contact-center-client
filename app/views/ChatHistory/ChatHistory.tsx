@@ -217,7 +217,7 @@ const QUERY = gql`
   ${CONV_PAGE_QUERY}
   query Conversation($conversationQueryInput: ConversationQueryInput!) {
     searchConv(conversationQuery: $conversationQueryInput) {
-      ...PageOnSearchHitPage
+      ...pageOnSearchHitPage
     }
     allStaff {
       avatar

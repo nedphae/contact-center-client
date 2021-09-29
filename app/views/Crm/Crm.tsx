@@ -21,6 +21,7 @@ import { CustomerQueryInput } from 'app/domain/graphql/Customer';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
+import useAlert from 'app/hook/alert/useAlert';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -37,7 +38,7 @@ interface Graphql {
 }
 
 const CONTENT_QUERY = gql`
-  fragment CustomerSearchHitContent on CustomerSearchHit {
+  fragment customerSearchHitContent on CustomerSearchHit {
     content {
       organizationId
       id
@@ -69,14 +70,14 @@ const CONTENT_QUERY = gql`
 const CUSTOMER_PAGE_QUERY = getPageQuery(
   'CustomerSearchHitPage',
   CONTENT_QUERY,
-  'CustomerSearchHitContent'
+  'customerSearchHitContent'
 );
 
 const QUERY = gql`
   ${CUSTOMER_PAGE_QUERY}
   query FindAllCustomer($customerQuery: CustomerQueryInput!) {
     searchCustomer(customerQuery: $customerQuery) {
-      ...PageOnCustomerSearchHitPage
+      ...pageOnCustomerSearchHitPage
     }
   }
 `;
@@ -109,7 +110,15 @@ export default function Crm() {
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { customerQuery: customerQueryInput },
   });
-  const [deleteCustomerByIds] = useMutation<unknown>(MUTATION_CUSTOMER);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [deleteCustomerByIds, { loading: deleteLoading }] =
+    useMutation<unknown>(MUTATION_CUSTOMER, {
+      onCompleted,
+      onError,
+    });
+  if (deleteLoading) {
+    onLoadding(deleteLoading);
+  }
 
   const handleClickOpen = (user: Customer) => {
     const idUser = {
@@ -159,9 +168,10 @@ export default function Crm() {
     refOfDialog.current?.setOpen(true);
   }
 
-  function deleteButtonClick() {
+  async function deleteButtonClick() {
     if (selectionModel && selectionModel.length > 0) {
-      deleteCustomerByIds({ variables: { ids: selectionModel } });
+      await deleteCustomerByIds({ variables: { ids: selectionModel } });
+      await refetch();
     }
   }
 

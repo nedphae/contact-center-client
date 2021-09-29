@@ -63,7 +63,7 @@ export default function Chat() {
           style={style}
           defaultSize={{
             width: 'auto',
-            height: '60vh',
+            height: '65vh',
           }}
           maxHeight="70vh"
           minHeight="30vh"

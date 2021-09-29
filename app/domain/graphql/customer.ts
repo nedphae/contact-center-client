@@ -3,7 +3,7 @@ import { Customer } from '../Customer';
 import { PageParam, RangeQuery } from './Query';
 
 export const CORE_CUSTOMER_FIELDS = gql`
-  fragment CustomerFields on Customer {
+  fragment customerFields on Customer {
     organizationId
     userId: id
     uid
@@ -39,7 +39,7 @@ export const QUERY_CUSTOMER = gql`
   ${CORE_CUSTOMER_FIELDS}
   query Customer($userId: Long!) {
     getCustomer(userId: $userId) {
-      ...CustomerFields
+      ...customerFields
     }
   }
 `;
@@ -47,7 +47,7 @@ export const MUTATION_CUSTOMER = gql`
   ${CORE_CUSTOMER_FIELDS}
   mutation Customer($customerInput: CustomerInput!) {
     updateCustomer(customer: $customerInput) {
-      ...CustomerFields
+      ...customerFields
     }
   }
 `;

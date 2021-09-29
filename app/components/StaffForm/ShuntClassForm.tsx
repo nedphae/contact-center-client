@@ -1,13 +1,17 @@
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
+import { useMutation } from '@apollo/client';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
 
-import { StaffGroup } from 'app/domain/StaffInfo';
-import { gql, useMutation } from '@apollo/client';
+import { ShuntClass, StaffGroup } from 'app/domain/StaffInfo';
+import {
+  SaveShuntClassGraphql,
+  MUTATION_SHUNT_CLASS,
+} from 'app/domain/graphql/Staff';
 import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
@@ -23,24 +27,10 @@ const useStyles = makeStyles(() =>
 );
 
 interface FormProps {
-  defaultValues: StaffGroup | undefined;
+  defaultValues: ShuntClass | undefined;
 }
 
-interface Graphql {
-  saveStaffGroup: StaffGroup;
-}
-
-const MUTATION_STAFF_GROUP = gql`
-  mutation StaffGroup($staffGroupInput: StaffGroupInput!) {
-    saveStaffGroup(staffGroup: $staffGroupInput) {
-      id
-      organizationId
-      groupName
-    }
-  }
-`;
-
-export default function StaffGroupForm(props: FormProps) {
+export default function ShuntClassForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
   const { handleSubmit, register } = useForm<StaffGroup>({
@@ -48,27 +38,31 @@ export default function StaffGroupForm(props: FormProps) {
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
-  const [saveStaffGroup, { loading, data }] = useMutation<Graphql>(
-    MUTATION_STAFF_GROUP,
-    {
+  const [saveShuntClass, { loading, data }] =
+    useMutation<SaveShuntClassGraphql>(MUTATION_SHUNT_CLASS, {
       onCompleted,
       onError,
-    }
-  );
+    });
   if (loading) {
     onLoadding(loading);
   }
 
   const onSubmit: SubmitHandler<StaffGroup> = (form) => {
-    saveStaffGroup({ variables: { staffGroupInput: form } });
+    saveShuntClass({ variables: { staffGroupInput: form } });
   };
 
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues?.id || data?.saveStaffGroup.id || ''}
+          value={defaultValues?.id || data?.saveShuntClass.id || ''}
           name="id"
+          type="hidden"
+          inputRef={register({ valueAsNumber: true })}
+        />
+        <TextField
+          value={1}
+          name="catalogue"
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
@@ -76,9 +70,9 @@ export default function StaffGroupForm(props: FormProps) {
           variant="outlined"
           margin="normal"
           fullWidth
-          id="groupName"
-          name="groupName"
-          label="分组名称"
+          id="className"
+          name="className"
+          label="分类名称"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -87,10 +81,10 @@ export default function StaffGroupForm(props: FormProps) {
             ),
           }}
           inputRef={register({
-            required: '必须设置分组名称',
+            required: '必须设置分类名称',
             maxLength: {
               value: 50,
-              message: '分组名称不能大于50位',
+              message: '分类名称不能大于50位',
             },
           })}
         />

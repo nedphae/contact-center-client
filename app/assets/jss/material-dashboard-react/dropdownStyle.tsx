@@ -109,7 +109,7 @@ const dropdownStyle = (theme: { breakpoints: any }) => ({
     clear: 'both',
     fontWeight: '400',
     lineHeight: '1.42857143',
-    color: grayColor[8],
+    color: whiteColor,
     whiteSpace: 'nowrap',
     height: 'unset',
     minHeight: 'unset',

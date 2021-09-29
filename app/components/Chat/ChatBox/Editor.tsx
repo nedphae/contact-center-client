@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { debounceTime, Subject } from 'rxjs';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -10,6 +11,7 @@ import {
   ClickAwayListener,
   MenuList,
   MenuItem,
+  Typography,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
@@ -22,7 +24,6 @@ import {
 import { PhotoContent } from 'app/domain/Message';
 import {
   getSearchQuickReply,
-  getSearchText,
   setQuickReplySearchText,
 } from 'app/state/chat/chatAction';
 import { Session } from 'app/domain/Session';
@@ -32,7 +33,7 @@ const style = {
   display: 'flex',
   // alignItems: 'center',
   justifyContent: 'center',
-  border: 'solid 1px #ddd',
+  border: 'solid 0px #ddd',
 } as const;
 
 const useStyles = makeStyles(() =>
@@ -45,6 +46,10 @@ const useStyles = makeStyles(() =>
       resize: 'none',
       backgroundColor: '#424242',
       color: 'white',
+      borderColor: '#424242',
+    },
+    quickReply: {
+      width: '50vw',
     },
   })
 );
@@ -53,10 +58,12 @@ interface SelectedProps {
   selectedSession: Session | undefined;
 }
 
+const subjectSearchText = new Subject<string>();
+
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
-  const textMessage = useSelector(getSearchText);
+  const [tempTextMessage, setTempTextMessage] = useState<string>('');
   const dispatch = useDispatch();
   // 展示 快捷回复
   const [open, setOpen] = useState(true);
@@ -66,12 +73,21 @@ export default function Editor(selected: SelectedProps) {
   const classes = useStyles();
   const quickReplyList = useSelector(getSearchQuickReply);
 
+  const momeSubject = useMemo(() => {
+    return subjectSearchText.pipe(debounceTime(200)).subscribe({
+      next: (it) => {
+        dispatch(setQuickReplySearchText(it));
+      },
+    });
+  }, [dispatch]);
+
   function setMessage(message: string) {
-    dispatch(setQuickReplySearchText(message));
+    setTempTextMessage(message);
+    subjectSearchText.next(message);
   }
 
   const filterQuickReplyList = quickReplyList?.filter(
-    (it) => it.content !== textMessage
+    (it) => it.content !== tempTextMessage
   );
 
   const shouldOpen = Boolean(
@@ -84,9 +100,9 @@ export default function Editor(selected: SelectedProps) {
   }
 
   function handleSendTextMessage() {
-    if (selectedSession && textMessage !== '') {
+    if (selectedSession && tempTextMessage !== '') {
       dispatch(
-        sendTextMessage(selectedSession.conversation.userId, textMessage)
+        sendTextMessage(selectedSession.conversation.userId, tempTextMessage)
       );
       setMessage('');
     }
@@ -100,8 +116,17 @@ export default function Editor(selected: SelectedProps) {
     }
   }
 
+  const escNode = () => {
+    if (selectedSession) {
+      // esc 隐藏会话
+      dispatch(hideSelectedSessionAndSetToLast());
+    }
+  };
+
   function setFocusToQuickReplyMenu(event: React.KeyboardEvent) {
-    if (
+    if (event.key === 'Escape') {
+      escNode();
+    } else if (
       event.key === 'ArrowDown' ||
       (event.key === 'ArrowUp' && open && shouldOpen)
     ) {
@@ -138,17 +163,21 @@ export default function Editor(selected: SelectedProps) {
     }
   }
 
-  const escNode = () => {
+  useEffect(() => {
+    return () => {
+      momeSubject.unsubscribe();
+    };
+  }, [momeSubject]);
+
+  useEffect(() => {
     if (selectedSession) {
-      // esc 隐藏会话
-      dispatch(
-        hideSelectedSessionAndSetToLast(selectedSession.conversation.userId)
-      );
+      textFieldRef.current?.focus();
     }
-  };
+  }, [selectedSession]);
 
   return (
     <>
+      {/* TODO: 后期改为更丝滑的 QQ 操作 */}
       <Popper
         open={open && shouldOpen}
         anchorEl={anchorRef.current}
@@ -166,23 +195,24 @@ export default function Editor(selected: SelectedProps) {
                 placement === 'bottom' ? 'center top' : 'bottom center',
             }}
           >
-            <Paper>
+            <Paper className={classes.quickReply}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList
                   id="menu-list-grow"
                   onKeyDown={handleListKeyDown}
                   ref={menuListRef}
                 >
-                  <MenuItem disabled>
-                    按两次上下键选择 esc/tab 取消选择
-                  </MenuItem>
+                  <MenuItem disabled>按两次上下键选择 tab 取消选择</MenuItem>
                   {quickReplyList &&
                     quickReplyList.map((quickReply) => (
                       <MenuItem
                         key={quickReply.id}
                         onClick={handleSelectItem(quickReply.content)}
                       >
-                        {`[${quickReply.title}]: ${quickReply.content}`}
+                        <Typography variant="inherit" noWrap>
+                          <strong>{`[${quickReply.title}]: `}</strong>
+                          {quickReply.content}
+                        </Typography>
                       </MenuItem>
                     ))}
                 </MenuList>
@@ -191,19 +221,14 @@ export default function Editor(selected: SelectedProps) {
           </Grow>
         )}
       </Popper>
-      {/* TODO: 需要把  EditorTool 和 Editor 这两个组件合并到一块，防止渲染 MessageList */}
+      {/* 把  EditorTool 和 Editor 这两个组件合并到一块，防止渲染 MessageList */}
       {selectedSession && (
         <EditorTool
           ref={anchorRef}
-          textMessage={textMessage}
+          textMessage={tempTextMessage}
           setMessage={setMessage}
           sendImageMessage={handleSendImageMessage}
-          blacklistInfo={{
-            preventStrategy: 'UID',
-            preventSource: selectedSession.user.uid,
-            ip: selectedSession.user.status?.ip ?? 'unknown',
-            uid: selectedSession.user.uid,
-          }}
+          selectedSession={selectedSession}
         />
       )}
       <div
@@ -219,12 +244,12 @@ export default function Editor(selected: SelectedProps) {
               placeholder="请输入消息..."
               onChange={handleTextChange}
               onKeyDown={setFocusToQuickReplyMenu}
-              value={textMessage}
+              value={tempTextMessage}
               minRows={2}
             />
             <Button
               // 是否可用，通过 TextareaAutosize 判断
-              disabled={textMessage === ''}
+              disabled={tempTextMessage === ''}
               variant="contained"
               color="primary"
               endIcon={<Icon>send</Icon>}

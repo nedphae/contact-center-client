@@ -34,9 +34,14 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       width: '100%',
       backgroundColor: theme.palette.background.paper,
+      overflow: 'auto',
+      height: '80vh',
     },
     nested: {
       paddingLeft: theme.spacing(4),
+    },
+    nestedDouble: {
+      paddingLeft: theme.spacing(8),
     },
   })
 );
@@ -138,9 +143,13 @@ function Monitor(props: MonitorProps) {
             .map((id) => mapOfCustomer[id.toString()])
             .filter((customer) => customer)
             .map((id) => id[0]);
-          const tempStaff = _.defaults({ customerList: tempCustomerList }, s);
+
           // 合并 staff 和 status 对象
-          return _.defaults(tempStaff, mapOfStaffStatus[s.id.toString()][0]);
+          return _.defaults(
+            { customerList: tempCustomerList },
+            s,
+            mapOfStaffStatus[s.id.toString()][0]
+          );
         }),
         groupBy((s) => s.groupId),
         mergeMap((group) => zip(of(group.key), group.pipe(toArray())))
@@ -198,7 +207,7 @@ function Monitor(props: MonitorProps) {
                               <React.Fragment key={cs.userId}>
                                 <ListItem
                                   button
-                                  className={classes.nested}
+                                  className={classes.nestedDouble}
                                   onClick={() => handleClickCustomer(st, cs)}
                                 >
                                   <ListItemIcon>

@@ -21,6 +21,7 @@ import {
 
 import { makeTreeNode, Topic, TopicCategory } from 'app/domain/Bot';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
+import useAlert from 'app/hook/alert/useAlert';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
 
@@ -85,21 +86,34 @@ export default function TopicForm(props: FormProps) {
     defaultValues,
   });
 
-  const [saveTopic, { loading, data }] = useMutation<Graphql>(MUTATION_TOPIC);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveTopic, { loading, data }] = useMutation<Graphql>(MUTATION_TOPIC, {
+    onCompleted,
+    onError,
+  });
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<Topic> = (form) => {
     saveTopic({ variables: { topicInput: form } });
   };
 
   const questionType = watch('type', 1);
+  const knowledgeBaseId = watch('knowledgeBaseId', 1);
+  const categoryId = watch('categoryId', 1);
+
+  const id = data?.saveTopic.id || defaultValues?.id || '';
+  // 过滤自身
+  const filterTopicList = topicList.filter((it) => it.id !== id);
 
   const selectKeyValueList: SelectKeyValue[] = [
     {
       label: '关联问题',
       name: 'connectIds',
       selectList: _.zipObject(
-        topicList.map((it) => it.id ?? ''),
-        topicList.map((it) => it.question)
+        filterTopicList.map((it) => it.id ?? ''),
+        filterTopicList.map((it) => it.question)
       ),
       defaultValue: defaultValues?.connectIds ?? [],
     },
@@ -114,6 +128,7 @@ export default function TopicForm(props: FormProps) {
   };
 
   const dropdownTreeSelect = useMemo(() => {
+    // 防止 DropdownTreeSelect 多次刷新
     const treeData = makeTreeNode(
       categoryList,
       defaultValues?.categoryId,
@@ -128,14 +143,9 @@ export default function TopicForm(props: FormProps) {
         onChange={(_currentNode, selectedNodes) => {
           setValue(
             'knowledgeBaseId',
-            selectedNodes.map((it) => it.knowledgeBaseId)[0],
-            {
-              shouldValidate: true,
-            }
+            selectedNodes.map((it) => it.knowledgeBaseId)[0]
           );
-          setValue('categoryId', selectedNodes.map((it) => it.value)[0], {
-            shouldValidate: true,
-          });
+          setValue('categoryId', selectedNodes.map((it) => it.value)[0]);
         }}
         texts={{ placeholder: '选择所属分类' }}
         className="mdl-demo"
@@ -147,16 +157,9 @@ export default function TopicForm(props: FormProps) {
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+        <TextField value={id} name="id" type="hidden" inputRef={register()} />
         <TextField
-          value={data?.saveTopic.id || defaultValues?.id || ''}
-          name="id"
-          type="hidden"
-          inputRef={register()}
-        />
-        <TextField
-          defaultValue={
-            data?.saveTopic.categoryId || defaultValues?.categoryId || ''
-          }
+          defaultValue={data?.saveTopic.categoryId || categoryId || ''}
           name="categoryId"
           type="hidden"
           error={errors.categoryId && true}
@@ -168,9 +171,7 @@ export default function TopicForm(props: FormProps) {
         />
         <TextField
           defaultValue={
-            data?.saveTopic.knowledgeBaseId ||
-            defaultValues?.knowledgeBaseId ||
-            ''
+            data?.saveTopic.knowledgeBaseId || knowledgeBaseId || ''
           }
           name="knowledgeBaseId"
           type="hidden"
@@ -313,8 +314,8 @@ export default function TopicForm(props: FormProps) {
                   <MenuItem>
                     <em>None</em>
                   </MenuItem>
-                  {topicList &&
-                    topicList.map((it) => {
+                  {filterTopicList &&
+                    filterTopicList.map((it) => {
                       return (
                         <MenuItem key={it.id} value={it.id}>
                           {it.question}
@@ -344,7 +345,7 @@ export default function TopicForm(props: FormProps) {
             />
           )}
         />
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

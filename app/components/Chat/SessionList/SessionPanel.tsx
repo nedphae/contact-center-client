@@ -7,11 +7,11 @@ import Tab from '@material-ui/core/Tab';
 import ChatIcon from '@material-ui/icons/Chat';
 import HistoryIcon from '@material-ui/icons/History';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
-import Box from '@material-ui/core/Box';
 
 import Authorized from 'app/utils/Authorized';
 import SessionList from './SessionList';
 import Monitor from './Monitor';
+import TabPanel from '../Base/TabPanel';
 // import Monitor from './Monitor';
 
 function a11yProps(index: number) {
@@ -19,28 +19,6 @@ function a11yProps(index: number) {
     id: `scrollable-force-tab-${index}`,
     'aria-controls': `scrollable-force-tabpanel-${index}`,
   };
-}
-
-interface TabPanelProps {
-  children: React.ReactNode | undefined;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`scrollable-force-tabpanel-${index}`}
-      aria-labelledby={`scrollable-force-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box>{children}</Box>}
-    </div>
-  );
 }
 
 const useStyles = makeStyles((theme: Theme) => ({

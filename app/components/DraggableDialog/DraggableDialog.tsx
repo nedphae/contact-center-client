@@ -1,6 +1,8 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import { Object } from 'ts-toolbelt';
 
-import Dialog from '@material-ui/core/Dialog';
+import Dialog, { DialogProps } from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -20,7 +22,7 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
-interface Props {
+interface Props extends Object.Omit<DialogProps, 'open'> {
   title: string;
   children: React.ReactNode;
 }
@@ -30,7 +32,7 @@ export interface DraggableDialogRef {
 }
 
 function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
-  const { title, children } = props;
+  const { title, children, ...otherProps } = props;
   const [open, setOpen] = useState(false);
 
   const handleClose = () => {
@@ -55,10 +57,11 @@ function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
   return (
     <Dialog
       disableEnforceFocus
-      open={open}
+      {...otherProps}
       onClose={handleDialogClose}
       PaperComponent={PaperComponent}
       aria-labelledby="draggable-dialog-title"
+      open={open}
     >
       <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
         {title}

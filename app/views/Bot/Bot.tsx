@@ -26,7 +26,8 @@ import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToo
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import TopicForm from 'app/components/Bot/TopicForm';
 import BotSidecar from 'app/components/Bot/BotSidecar';
-import 'app/components/Bot/DropdownTreeSelect.global.css';
+import 'app/assets/css/DropdownTreeSelect.global.css';
+import useAlert from 'app/hook/alert/useAlert';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -87,26 +88,73 @@ const QUERY = gql`
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 200 },
-  { field: 'knowledgeBaseId', headerName: '所属知识库ID', width: 150 },
-  { field: 'categoryId', headerName: '知识点所属分类', width: 150 },
-  { field: 'question', headerName: '问题', width: 150 },
-  { field: 'md5', headerName: '问题的md5', width: 150 },
+  { field: 'knowledgeBaseName', headerName: '所属知识库', width: 200 },
+  { field: 'categoryName', headerName: '知识点所属分类', width: 200 },
+  { field: 'question', headerName: '问题', width: 250 },
   {
     field: 'answer',
     headerName: '问题的对外答案',
-    width: 150,
+    width: 250,
     valueGetter: (params: GridValueGetterParams) => {
       const answer = params.value as Answer[] | undefined;
       return answer && answer[0]?.content;
     },
   },
-  { field: 'innerAnswer', headerName: '问题的对内答案', width: 150 },
-  { field: 'fromType', headerName: '问题的来源', width: 150 },
-  { field: 'type', headerName: '问题类型', width: 150 },
-  { field: 'refId', headerName: '相似问题', width: 200 },
-  { field: 'enabled', headerName: '是否有效标记位', width: 150 },
-  { field: 'effectiveTime', headerName: '问题的有效时间', width: 150 },
+  { field: 'innerAnswer', headerName: '问题的对内答案', width: 250 },
+  {
+    field: 'fromType',
+    headerName: '问题的来源',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '其他';
+      switch (params.value) {
+        case 0: {
+          result = '用户手动添加';
+          break;
+        }
+        case 1: {
+          result = '文件导入';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
+  {
+    field: 'type',
+    headerName: '问题类型',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '其他';
+      switch (params.value) {
+        case 1: {
+          result = '标准问题';
+          break;
+        }
+        case 2: {
+          result = '相似问题';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
+  { field: 'refQuestion', headerName: '指向的相似问题', width: 250 },
+  {
+    field: 'enabled',
+    headerName: '是否有效标记位',
+    width: 150,
+    type: 'boolean',
+  },
+  { field: 'effectiveTime', headerName: '问题的有效时间', width: 200 },
   { field: 'failureTime', headerName: '有效期结束', width: 150 },
+  { field: 'md5', headerName: '问题的md5', width: 150 },
 ];
 
 const MUTATION_TOPIC = gql`
@@ -121,7 +169,18 @@ export default function Bot() {
   const [topic, setTopic] = useState<Topic>();
   const { data, loading, refetch } = useQuery<Graphql>(QUERY);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
-  const [deleteTopicById] = useMutation<unknown>(MUTATION_TOPIC);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [deleteTopicById, { loading: deleteLoading }] = useMutation<unknown>(
+    MUTATION_TOPIC,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (deleteLoading) {
+    onLoadding(deleteLoading);
+  }
 
   const handleClickOpen = (selectTopic: Topic) => {
     setTopic(selectTopic);
@@ -141,22 +200,25 @@ export default function Bot() {
 
   const memoData = useMemo(() => {
     // useMemo 优化一下
-    const botConfigMap = _.groupBy(data?.allBotConfig, 'knowledgeBaseId');
+    // 生成各种需要的Map, 根据 ID 填充名称
+    const allTopicCategory = _.cloneDeep(data?.allTopicCategory ?? []);
+    const allBotConfig = _.cloneDeep(data?.allBotConfig ?? []);
+    const allKnowledgeBase = _.cloneDeep(data?.allKnowledgeBase ?? []);
+    const memoAllTopic = _.cloneDeep(data?.allTopic ?? []);
+    const botConfigMap = _.groupBy(allBotConfig, 'knowledgeBaseId');
 
-    const topicCategoryPidGroup = _.groupBy(
-      data?.allTopicCategory,
-      (it) => it.pid ?? -2
-    );
+    const allKnowledgeBaseMap = _.groupBy(allKnowledgeBase, 'id');
+    const allTopicCategoryMap = _.groupBy(allTopicCategory, 'id');
+    const memoAllTopicMap = _.groupBy(memoAllTopic, 'id');
+
+    const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
     const topicCategoryGroup = _.groupBy(data?.allTopic, 'categoryId');
-    const pTopicCategory = data?.allTopicCategory
+
+    const pTopicCategory = allTopicCategory
       .map((it) => {
-        return _.assignIn(
-          {
-            topicList: topicCategoryGroup[it.id ?? -1],
-            children: topicCategoryPidGroup[it.id ?? -1],
-          },
-          it
-        );
+        it.children = topicCategoryPidGroup[it.id ?? -1];
+        it.topicList = topicCategoryGroup[it.id ?? -1];
+        return it;
       })
       .filter((it) => it.pid === undefined || it.pid === null);
 
@@ -164,26 +226,33 @@ export default function Bot() {
       pTopicCategory,
       'knowledgeBaseId'
     );
-    const memoAllKnowledgeBase =
-      data?.allKnowledgeBase.map((it) => {
-        const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
-        const knowledgeBase = _.assignIn(
-          {
-            categoryList: topicCategoryKnowledgeBaseGroup[it.id ?? -1],
-            botConfig,
-          },
-          it
-        );
-        return knowledgeBase as KnowledgeBase;
-      }) ?? [];
+    const memoAllKnowledgeBase = allKnowledgeBase.map((it) => {
+      const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
+      it.categoryList = topicCategoryKnowledgeBaseGroup[it.id ?? -1];
+      it.botConfig = botConfig;
+      return it;
+    });
+
+    memoAllTopic.forEach((it) => {
+      if (it.categoryId && it.knowledgeBaseId) {
+        it.categoryName = allTopicCategoryMap[it.categoryId.toString()][0].name;
+        it.knowledgeBaseName =
+          allKnowledgeBaseMap[it.knowledgeBaseId.toString()][0].name;
+      }
+      if (it.type === 2 && it.refId) {
+        it.refQuestion = memoAllTopicMap[it.refId][0].question;
+      }
+    });
 
     return {
       allKnowledgeBase: memoAllKnowledgeBase,
       botConfigMap,
+      allTopicCategory: pTopicCategory,
+      memoAllTopic,
     };
   }, [data]);
 
-  const rows = data?.allTopic ?? [];
+  const rows = memoData.memoAllTopic;
 
   return (
     <>
@@ -192,13 +261,13 @@ export default function Bot() {
         <TopicForm
           defaultValues={topic}
           topicList={rows}
-          categoryList={data?.allTopicCategory ?? []}
+          categoryList={memoData?.allTopicCategory ?? []}
         />
       </DraggableDialog>
       <Grid container className={classes.root}>
         <BotSidecar
           memoData={memoData}
-          allTopicCategory={data?.allTopicCategory}
+          allTopicCategory={memoData?.allTopicCategory}
           refetch={refetch}
         />
         <Grid item xs={12} sm={10}>

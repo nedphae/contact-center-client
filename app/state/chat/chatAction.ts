@@ -8,6 +8,7 @@ export const {
   setMonitoredMessage,
   setMonitorSelectedSession,
   setSelectedSessionNumber,
+  setSnackbarProp,
 } = slice.actions;
 
 export const getSelectedSession = (state: RootState) => {
@@ -41,3 +42,5 @@ export const getSelectedConv = (state: RootState) =>
 
 export const getSelectedConstomer = (state: RootState) =>
   getSelectedSession(state)?.user;
+
+export const getSnackbarProp = (state: RootState) => state.chat.snackbarProp;

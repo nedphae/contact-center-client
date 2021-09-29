@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { HotKeys } from 'react-hotkeys';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -22,7 +21,6 @@ import StarIcon from '@material-ui/icons/Star';
 import {
   clearMessgeBadge,
   getSession,
-  hideSelectedSessionAndSetToLast,
   setSelectedSession,
   stickyCustomer,
   tagCustomer,
@@ -33,6 +31,8 @@ import { getSelectedSession } from 'app/state/chat/chatAction';
 import { Message } from 'app/domain/Message';
 import { MessageType } from 'app/domain/constant/Message';
 import UserHeader from 'app/components/Header/UserHeader';
+import { InteractionLogo } from 'app/domain/constant/Conversation';
+import { Chip } from '@material-ui/core';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -173,94 +173,111 @@ function SessionList(props: SessionListProps) {
     return previewText;
   }
 
-  const escNode = () => {
-    if (selectedSession) {
-      // esc 隐藏会话
-      dispatch(
-        hideSelectedSessionAndSetToLast(selectedSession.conversation.userId)
-      );
+  function createLogo(interactionLogo: InteractionLogo) {
+    let logo;
+    switch (interactionLogo) {
+      case InteractionLogo.NEW: {
+        logo = <Chip label="新用户" size="small" />;
+        break;
+      }
+      case InteractionLogo.UNREAD: {
+        logo = <Chip label="未读" size="small" color="secondary" />;
+        break;
+      }
+      case InteractionLogo.READ_UNREPLIE: {
+        logo = <Chip label="已读未回" size="small" color="secondary" />;
+        break;
+      }
+      case InteractionLogo.REPLIED: {
+        logo = <Chip label="已读已回" size="small" color="primary" />;
+        break;
+      }
+      default: {
+        break;
+      }
     }
-  };
-
-  const handlers = {
-    ESC_NODE: escNode,
-  };
+    return logo;
+  }
 
   return (
-    <HotKeys handlers={handlers}>
-      <div className={classes.root}>
-        <List aria-label="main mailbox folders">
-          {sessions.map((session) => {
-            const { conversation, unread, lastMessage, user, sticky, tag } =
-              session;
-            return (
-              <React.Fragment key={conversation.id}>
-                <ListItem
-                  button
-                  selected={
-                    selectedSession?.conversation.userId === conversation.userId
-                  }
-                  onClick={(event) => handleListItemClick(event, session)}
-                  // 右键菜单
-                  onContextMenu={(event) =>
-                    handleContextMenu(event, {
-                      userId: conversation.userId,
-                      sticky,
-                      tag,
-                    })
-                  }
-                >
-                  <ListItemAvatar>
-                    {/* badgeContent 未读消息 */}
-                    <Badge badgeContent={unread} max={99} color="secondary">
-                      {user && user.status && (
-                        <UserHeader status={user.status} />
+    <div className={classes.root}>
+      <List>
+        {sessions.map((session) => {
+          const {
+            conversation,
+            unread,
+            lastMessage,
+            user,
+            sticky,
+            tag,
+            interactionLogo,
+          } = session;
+          return (
+            <React.Fragment key={conversation.id}>
+              <ListItem
+                button
+                selected={
+                  selectedSession?.conversation.userId === conversation.userId
+                }
+                onClick={(event) => handleListItemClick(event, session)}
+                // 右键菜单
+                onContextMenu={(event) =>
+                  handleContextMenu(event, {
+                    userId: conversation.userId,
+                    sticky,
+                    tag,
+                  })
+                }
+              >
+                <ListItemAvatar>
+                  {/* badgeContent 未读消息 */}
+                  <Badge badgeContent={unread} max={99} color="secondary">
+                    {user && user.status && <UserHeader status={user.status} />}
+                  </Badge>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={user.name === undefined ? user.uid : user.name}
+                  secondary={
+                    <Typography noWrap variant="body2" color="textSecondary">
+                      {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
+                      {lastMessage === undefined ? (
+                        <>&nbsp;</>
+                      ) : (
+                        getMessagePreview(lastMessage)
                       )}
-                    </Badge>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={user.name === undefined ? user.uid : user.name}
-                    secondary={
-                      <Typography noWrap variant="body2" color="textSecondary">
-                        {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
-                        {lastMessage === undefined ? (
-                          <>&nbsp;</>
-                        ) : (
-                          getMessagePreview(lastMessage)
-                        )}
-                      </Typography>
-                    }
-                  />
-                  {tag === 'important' && <StarIcon />}
-                  {user.status &&
-                  OnlineStatus.ONLINE === user.status.onlineStatus ? (
-                    <SyncAltIcon />
-                  ) : (
-                    <SignalWifiOffIcon />
-                  )}
-                </ListItem>
-              </React.Fragment>
-            );
-          })}
-          {/* 右键菜单 */}
-          <div onContextMenu={handleClose} style={{ cursor: 'context-menu' }}>
-            <Menu
-              keepMounted
-              open={state.mouseY !== undefined}
-              onClose={handleClose}
-              anchorReference="anchorPosition"
-              anchorPosition={
-                state.mouseY !== undefined && state.mouseX !== undefined
-                  ? { top: state.mouseY, left: state.mouseX }
-                  : undefined
-              }
-            >
-              {createMenuItem()}
-            </Menu>
-          </div>
-        </List>
-      </div>
-    </HotKeys>
+                    </Typography>
+                  }
+                />
+                {createLogo(interactionLogo)}
+                {tag === 'important' && <StarIcon />}
+                {user.status &&
+                OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                  <SyncAltIcon />
+                ) : (
+                  <SignalWifiOffIcon />
+                )}
+              </ListItem>
+            </React.Fragment>
+          );
+        })}
+        {/* 右键菜单 */}
+        <div onContextMenu={handleClose} style={{ cursor: 'context-menu' }}>
+          <Menu
+            keepMounted
+            open={state.mouseY !== undefined}
+            onClose={handleClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              state.mouseY !== undefined && state.mouseX !== undefined
+                ? { top: state.mouseY, left: state.mouseX }
+                : undefined
+            }
+          >
+            {createMenuItem()}
+          </Menu>
+        </div>
+      </List>
+    </div>
   );
 }
 

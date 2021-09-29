@@ -5,7 +5,6 @@ import { useMutation } from '@apollo/client';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -23,6 +22,8 @@ import {
 import { updateCustomer } from 'app/state/session/sessionAction';
 import { DetailData } from 'app/domain/Customer';
 import { Link } from '@material-ui/core';
+import SubmitButton from 'app/components/Form/SubmitButton';
+import useAlert from 'app/hook/alert/useAlert';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -59,9 +60,20 @@ export default function CustomerForm(props: CustomerFormProps) {
   const { defaultValues, shouldDispatch } = props;
   const classes = useStyles();
   const dispatch = useDispatch();
-  // TODO: 显示更新错误
-  const [editCustomer, { data }] =
-    useMutation<UpdateCustomerGraphql>(MUTATION_CUSTOMER);
+
+  // 显示更新错误
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [editCustomer, { loading, data }] = useMutation<UpdateCustomerGraphql>(
+    MUTATION_CUSTOMER,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
+
   const { register, handleSubmit, errors } = useForm<CustomerFormValues>({
     defaultValues,
   });
@@ -321,15 +333,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                 )}
               </React.Fragment>
             ))}
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          保存
-        </Button>
+        <SubmitButton />
       </form>
     </div>
   );

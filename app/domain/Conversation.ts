@@ -9,6 +9,7 @@ import {
 } from './constant/Conversation';
 import { CreatorType } from './constant/Message';
 import { Message } from './Message';
+import { SessionCategory } from './SessionCategory';
 
 /** 会话信息 */
 export interface Conversation {
@@ -74,4 +75,34 @@ export interface SearchHit<T> {
   highlightFields: [];
   innerHits: Record<string, unknown>;
   nestedMetaData: Record<string, unknown>;
+}
+
+/**
+ * 修改 会话总结
+ */
+export interface ConversationCategory {
+  id: number;
+  category?: string;
+  categoryDetail?: string;
+}
+
+function createDetailByParent(sessionCategory: SessionCategory): string {
+  if (sessionCategory.parentCategoryItem) {
+    return `${createDetailByParent(sessionCategory.parentCategoryItem)}/${
+      sessionCategory.categoryName
+    }`;
+  }
+  return sessionCategory.categoryName ?? '';
+}
+
+export function createConversationCategory(
+  conversationId: number,
+  sessionCategory: SessionCategory
+) {
+  const conversationCategory: ConversationCategory = {
+    id: conversationId,
+    category: sessionCategory.categoryName,
+    categoryDetail: createDetailByParent(sessionCategory),
+  };
+  return conversationCategory;
 }

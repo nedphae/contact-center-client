@@ -7,11 +7,12 @@ import { gql, useQuery } from '@apollo/client';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import Grid from '@material-ui/core/Grid';
-import SubjectIcon from '@material-ui/icons/Subject';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 
-import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
+import StyledTreeItem, {
+  CloseSquare,
+  MinusSquare,
+  PlusSquare,
+} from 'app/components/TreeView/StyledTreeItem';
 import Account from 'app/components/Settings/personal/Account';
 import Group from 'app/components/Settings/org/Group';
 import AccountList from 'app/components/Settings/org/AccountList';
@@ -20,6 +21,7 @@ import { Properties, RootProperties } from 'app/domain/Properties';
 import PropertiesFrom from 'app/components/Settings/org/PropertiesFrom';
 import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 import BlacklistView from 'app/components/Settings/org/BlacklistView';
+import SessionCategoryView from 'app/components/Settings/org/SessionCategoryView';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -91,7 +93,7 @@ function settingPage(
       break;
     }
     case 'org.SessionCategory': {
-      result = <ComingSoon />;
+      result = <SessionCategoryView />;
       break;
     }
     case 'org.Properties': {
@@ -141,62 +143,48 @@ export default function Setting() {
     return (
       <TreeView
         className={classes.list}
-        defaultExpanded={['default-expanded']}
+        defaultExpanded={['personal', 'org']}
         defaultSelected={['default-select']}
-        defaultCollapseIcon={<ArrowDropDownIcon />}
-        defaultExpandIcon={<ArrowRightIcon />}
+        defaultCollapseIcon={<MinusSquare />}
+        defaultExpandIcon={<PlusSquare />}
+        defaultEndIcon={<CloseSquare />}
       >
-        <StyledTreeItem
-          nodeId="default-expanded"
-          labelText="个人设置"
-          labelIcon={SubjectIcon}
-        >
+        <StyledTreeItem nodeId="personal" label="个人设置">
           <StyledTreeItem
             nodeId="default-select"
-            labelText="账号设置"
-            labelIcon={SubjectIcon}
+            label="账号设置"
             onClick={() => setPageName('personal.Account')}
           />
           {/* <StyledTreeItem
               nodeId={uuidv4()}
-              labelText="客户端设置"
-              labelIcon={SubjectIcon}
-              onClick={() => setPageName('personal.Client')}
+              label="客户端设置"
+                            onClick={() => setPageName('personal.Client')}
             /> */}
         </StyledTreeItem>
-        <StyledTreeItem
-          nodeId={uuidv4()}
-          labelText="企业设置"
-          labelIcon={SubjectIcon}
-        >
+        <StyledTreeItem nodeId="org" label="企业设置">
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="账号管理"
-            labelIcon={SubjectIcon}
+            label="账号管理"
             onClick={() => setPageName('org.Account')}
           />
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="客服组"
-            labelIcon={SubjectIcon}
+            label="客服组"
             onClick={() => setPageName('org.Group')}
           />
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="接待组"
-            labelIcon={SubjectIcon}
+            label="接待组"
             onClick={() => setPageName('org.Shunt')}
           />
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="咨询类型"
-            labelIcon={SubjectIcon}
+            label="咨询类型"
             onClick={() => setPageName('org.SessionCategory')}
           />
           <StyledTreeItem
             nodeId={uuidv4()}
-            labelText="黑名单"
-            labelIcon={SubjectIcon}
+            label="黑名单"
             onClick={() => setPageName('org.Blacklist')}
           />
           {properties &&
@@ -204,8 +192,7 @@ export default function Setting() {
               <StyledTreeItem
                 key={k}
                 nodeId={uuidv4()}
-                labelText={properties[k].label}
-                labelIcon={SubjectIcon}
+                label={properties[k].label}
               >
                 {_.keys(properties[k])
                   .filter(
@@ -217,8 +204,7 @@ export default function Setting() {
                       <StyledTreeItem
                         key={fk}
                         nodeId={uuidv4()}
-                        labelText={childProp.label}
-                        labelIcon={SubjectIcon}
+                        label={childProp.label}
                         onClick={() => {
                           setPageName('org.Properties');
                           setProperties4Set(`${k}.${fk}`);

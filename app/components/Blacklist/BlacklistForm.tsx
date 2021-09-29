@@ -13,6 +13,7 @@ import {
   SaveBlacklistGraphql,
   MUTATION_SAVE_BLACKLIST,
 } from 'app/domain/graphql/Blacklist';
+import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -35,9 +36,19 @@ interface BlacklistFormProps {
 export default function BlacklistForm(props: BlacklistFormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const [saveBlacklist, { loading, data }] = useMutation<SaveBlacklistGraphql>(
-    MUTATION_SAVE_BLACKLIST
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveBlacklist, { loading }] = useMutation<SaveBlacklistGraphql>(
+    MUTATION_SAVE_BLACKLIST,
+    {
+      onCompleted,
+      onError,
+    }
   );
+  if (loading) {
+    onLoadding(loading);
+  }
+
   const { register, handleSubmit, control, setValue } =
     useForm<BlacklistFormProp>({
       defaultValues,
@@ -128,7 +139,7 @@ export default function BlacklistForm(props: BlacklistFormProps) {
             <MenuItem value={24 * 7}>一周</MenuItem>
           </Select>
         </FormControl>
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

@@ -5,8 +5,8 @@ import getPageQuery from './Page';
 
 export type CommentQueryInput = CommentQuery;
 
-export const CORE_COMMENT_FIELDS = gql`
-  fragment CommentFields on Comment {
+const CORE_COMMENT_FIELDS = gql`
+  fragment commentFields on Comment {
     id
     organizationId
     createdAt
@@ -28,14 +28,14 @@ export const CORE_COMMENT_FIELDS = gql`
 const PAGE_QUERY = getPageQuery(
   'CommentPage',
   CORE_COMMENT_FIELDS,
-  'CommentFields'
+  'commentFields'
 );
 
 export const QUERY_COMMENT = gql`
   ${PAGE_QUERY}
   query Comment($commentQuery: CommentQueryInput!) {
     findComment(commentQuery: $commentQuery) {
-      ...PageOnCommentPage
+      ...pageOnCommentPage
     }
   }
 `;
@@ -43,7 +43,7 @@ export const MUTATION_COMMENT = gql`
   ${CORE_COMMENT_FIELDS}
   mutation Comment($commentList: [CommentInput!]!) {
     saveComment(commentList: $commentList) {
-      ...CommentFields
+      ...commentFields
     }
   }
 `;

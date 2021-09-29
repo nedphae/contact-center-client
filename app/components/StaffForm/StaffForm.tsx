@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -12,9 +12,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import LockIcon from '@material-ui/icons/Lock';
-import EmailIcon from '@material-ui/icons/Email';
 import { InlineIcon } from '@iconify/react';
-import vipLine from '@iconify-icons/ri/vip-line';
 import noteLine from '@iconify-icons/clarity/note-line';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
@@ -25,6 +23,7 @@ import {
   CircularProgress,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -33,6 +32,8 @@ import Upload from 'rc-upload';
 
 import config from 'app/config/clientConfig';
 import Staff from 'app/domain/StaffInfo';
+import { StaffGroupList, QUERY_GROUP } from 'app/domain/graphql/Staff';
+import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 function Alert(props: AlertProps) {
@@ -97,7 +98,18 @@ export default function StaffForm(props: FormProps) {
     });
   const [uploading, setUploading] = useState<boolean>();
   const [error, setError] = useState<string>();
-  const [saveStaff, { loading, data }] = useMutation<Graphql>(MUTATION_STAFF);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveStaff, { loading, data }] = useMutation<Graphql>(MUTATION_STAFF, {
+    onCompleted,
+    onError,
+  });
+  if (loading) {
+    onLoadding(loading);
+  }
+  const { data: groupData } = useQuery<StaffGroupList>(QUERY_GROUP);
+
+  const groupList = groupData?.allStaffGroup;
 
   const password = watch('password');
   const avatar = watch('avatar');
@@ -303,21 +315,41 @@ export default function StaffForm(props: FormProps) {
             </FormControl>
           )}
         />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          id="staffGroupId"
+        <Controller
+          control={control}
           name="staffGroupId"
-          label="所属分组"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <EmailIcon />
-              </InputAdornment>
-            ),
-          }}
-          inputRef={register({ maxLength: 150 })}
+          defaultValue={null}
+          rules={{ required: '所属分组必选' }}
+          render={({ onChange, value }, { invalid }) => (
+            <FormControl
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              error={invalid}
+            >
+              <InputLabel id="demo-mutiple-chip-label">所属分组</InputLabel>
+              <Select
+                labelId="staffGroupId"
+                id="staffGroupId"
+                onChange={onChange}
+                value={value || ''}
+                label="所属分组"
+              >
+                <MenuItem>
+                  <em>None</em>
+                </MenuItem>
+                {groupList &&
+                  groupList.map((it) => {
+                    return (
+                      <MenuItem key={it.id} value={it.id}>
+                        {it.groupName}
+                      </MenuItem>
+                    );
+                  })}
+              </Select>
+              {invalid && <FormHelperText>Error</FormHelperText>}
+            </FormControl>
+          )}
         />
         <TextField
           variant="outlined"
@@ -329,7 +361,7 @@ export default function StaffForm(props: FormProps) {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <InlineIcon icon={vipLine} />
+                <InlineIcon icon={noteLine} />
               </InputAdornment>
             ),
           }}
@@ -507,7 +539,7 @@ export default function StaffForm(props: FormProps) {
           }
           label="是否启用"
         />
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

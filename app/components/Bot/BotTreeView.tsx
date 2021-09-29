@@ -4,13 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
-import SubjectIcon from '@material-ui/icons/Subject';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 
 import { KnowledgeBase, TopicCategory } from 'app/domain/Bot';
-import StyledTreeItem from 'app/components/TreeView/StyledTreeItem';
+import StyledTreeItem, {
+  CloseSquare,
+  MinusSquare,
+  PlusSquare,
+} from 'app/components/TreeView/StyledTreeItem';
 import { TopicOrKnowladgeKey } from 'app/components/Bot/TopicAndKnowladgeContainer';
+import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,15 +63,14 @@ function buildTopicCategory(
     <StyledTreeItem
       key={cl.id?.toString()}
       nodeId={uuidv4()}
-      labelText={`${cl.id}: ${cl.name}`}
-      labelIcon={SubjectIcon}
+      label={cl.name}
       onContextMenu={(event) => {
         if (onContextMenu) {
           onContextMenu(event, 'Topic', undefined, cl);
         }
       }}
     >
-      {cl.children && buildTopicCategory(cl.children)}
+      {cl.children && buildTopicCategory(cl.children, onContextMenu)}
     </StyledTreeItem>
   ));
 }
@@ -91,16 +93,23 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
     <>
       <TreeView
         className={classes.list}
-        defaultCollapseIcon={<ArrowDropDownIcon />}
-        defaultExpandIcon={<ArrowRightIcon />}
+        defaultCollapseIcon={<MinusSquare />}
+        defaultExpandIcon={<PlusSquare />}
+        defaultEndIcon={<CloseSquare />}
       >
         {allKnowledgeBase &&
           allKnowledgeBase.map((base: KnowledgeBase) => (
             <StyledTreeItem
               key={base.id?.toString()}
               nodeId={uuidv4()}
-              labelText={`${base.id}: ${base.name}`}
-              labelIcon={SubjectIcon}
+              label={
+                <ListItem dense component="ul">
+                  <ListItemIcon>
+                    <LibraryBooksIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary={base.name} />
+                </ListItem>
+              }
               onContextMenu={(event) =>
                 handleContextMenuOpen(event, 'Knowladge', base)
               }

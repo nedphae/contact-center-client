@@ -4,7 +4,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuIcon from '@material-ui/icons/Menu';
-import { IconButton, Toolbar } from '@material-ui/core';
+import { IconButton, Toolbar, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -23,12 +23,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 interface BotToolbarProps {
+  title: string;
   refetch: () => void;
   adderName: string;
   add: () => void;
 }
 export default function TreeToolbar(props: BotToolbarProps) {
-  const { add, adderName, refetch } = props;
+  const { title, add, adderName, refetch } = props;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>(undefined);
 
@@ -51,6 +52,7 @@ export default function TreeToolbar(props: BotToolbarProps) {
       >
         <MenuIcon />
       </IconButton>
+      <Typography variant="h6">{title}</Typography>
       <Menu
         id="simple-menu"
         anchorEl={anchorEl}

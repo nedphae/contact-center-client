@@ -46,7 +46,17 @@ export default function KnowledgeBaseForm(props: FormProps) {
     defaultValues,
   });
 
-  const [saveKnowledgeBase, { loading, data }] = useMutation<Graphql>(MUTATION);
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveKnowledgeBase, { loading, data }] = useMutation<Graphql>(
+    MUTATION,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<KnowledgeBase> = (form) => {
     saveKnowledgeBase({ variables: { knowledgeBaseInput: form } });
@@ -108,7 +118,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
             },
           })}
         />
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

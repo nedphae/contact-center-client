@@ -10,6 +10,7 @@ import { Box } from '@material-ui/core';
 
 import { Properties, RootProperties } from 'app/domain/Properties';
 import SubmitButton from 'app/components/Form/SubmitButton';
+import useAlert from 'app/hook/alert/useAlert';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -55,8 +56,18 @@ export default function PropertiesFrom(props: FormProps) {
   const classes = useStyles();
 
   const { handleSubmit, register } = useForm<FormResult>();
-  const [updateProperties, { loading, data }] =
-    useMutation<Graphql>(MUTATION_PROPERTIES);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [updateProperties, { loading }] = useMutation<Graphql>(
+    MUTATION_PROPERTIES,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
 
   const onSubmit: SubmitHandler<FormResult> = (form) => {
     updateProperties({ variables: { properties: form.props } });
@@ -92,7 +103,7 @@ export default function PropertiesFrom(props: FormProps) {
                 </Box>
               );
             })}
-        <SubmitButton loading={loading} success={Boolean(data)} />
+        <SubmitButton />
       </form>
     </div>
   );

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const CORE_QUICK_REPLY_FIELDS = gql`
-  fragment QuickReplyFields on QuickReply {
+  fragment quickReplyFields on QuickReply {
     id
     organizationId
     title
@@ -13,9 +13,9 @@ const CORE_QUICK_REPLY_FIELDS = gql`
 
 const CORE_QUICK_REPLY_DTO_FIELDS = gql`
   ${CORE_QUICK_REPLY_FIELDS}
-  fragment QuickReplyDtoFields on QuickReplyDto {
+  fragment quickReplyDtoFields on QuickReplyDto {
     noGroup {
-      ...QuickReplyFields
+      ...quickReplyFields
     }
     withGroup {
       id
@@ -23,7 +23,7 @@ const CORE_QUICK_REPLY_DTO_FIELDS = gql`
       groupName
       personal
       quickReply {
-        ...QuickReplyFields
+        ...quickReplyFields
       }
     }
   }
@@ -36,10 +36,10 @@ export const QUERY_QUICK_REPLY = gql`
   query QuickReply {
     getQuickReply {
       org {
-        ...QuickReplyDtoFields
+        ...quickReplyDtoFields
       }
       personal {
-        ...QuickReplyDtoFields
+        ...quickReplyDtoFields
       }
     }
   }

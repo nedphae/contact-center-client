@@ -16,6 +16,7 @@ import {
   SaveCommentGraphql,
 } from 'app/domain/graphql/Comment';
 import javaInstant2DateStr from 'app/utils/timeUtils';
+import useAlert from 'app/hook/alert/useAlert';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,7 +38,18 @@ interface CommentFormProps {
 export default function CommentForm(props: CommentFormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const [saveComment] = useMutation<SaveCommentGraphql>(MUTATION_COMMENT);
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [saveComment, { loading }] = useMutation<SaveCommentGraphql>(
+    MUTATION_COMMENT,
+    {
+      onCompleted,
+      onError,
+    }
+  );
+  if (loading) {
+    onLoadding(loading);
+  }
   const { register, handleSubmit } = useForm<CommentPojo>({
     defaultValues,
   });

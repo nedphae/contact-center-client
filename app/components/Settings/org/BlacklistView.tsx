@@ -20,6 +20,7 @@ import {
   MUTATION_DELETE_BLACKLIST,
   QUERY_BLACKLISTT,
 } from 'app/domain/graphql/Blacklist';
+import useAlert from 'app/hook/alert/useAlert';
 
 export default function BlacklistView() {
   const classes = useSearchFormStyles();
@@ -30,9 +31,15 @@ export default function BlacklistView() {
     }
   );
 
-  const [deleteBlacklist] = useMutation<DeleteBlacklistGraphql>(
-    MUTATION_DELETE_BLACKLIST
-  );
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [deleteBlacklist, { loading: deleteLoading }] =
+    useMutation<DeleteBlacklistGraphql>(MUTATION_DELETE_BLACKLIST, {
+      onCompleted,
+      onError,
+    });
+  if (deleteLoading) {
+    onLoadding(deleteLoading);
+  }
 
   const rows = data?.getAllBlacklist ?? [];
   const pageSize = 20;

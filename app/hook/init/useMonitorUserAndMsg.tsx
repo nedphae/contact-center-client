@@ -10,7 +10,7 @@ import { interval, Subscription } from 'rxjs';
 import getPageQuery from 'app/domain/graphql/Page';
 
 const CONTENT_QUERY = gql`
-  fragment MyMessageContent on Message {
+  fragment myMessageContent on Message {
     content {
       contentType
       sysCode
@@ -46,14 +46,14 @@ const CONTENT_QUERY = gql`
 const PAGE_QUERY = getPageQuery(
   'MessagePage',
   CONTENT_QUERY,
-  'MyMessageContent'
+  'myMessageContent'
 );
 
 const QUERY_MONITOR_MESSAGE = gql`
   ${PAGE_QUERY}
   query SyncMessageByUser($userId: Long!, $cursor: Long) {
     syncMessageByUser(userId: $userId, cursor: $cursor) {
-      ...PageOnMessagePage
+      ...pageOnMessagePage
     }
   }
 `;
@@ -85,7 +85,7 @@ export const QUERY = gql`
       }
     }
     getConversation(userId: $userId) {
-      ...ConversationFields
+      ...conversationFields
     }
   }
 `;

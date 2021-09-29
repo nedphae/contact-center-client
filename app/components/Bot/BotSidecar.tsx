@@ -32,23 +32,15 @@ import TopicAndKnowladgeContainer, {
   TopicOrKnowladge,
 } from 'app/components/Bot/TopicAndKnowladgeContainer';
 import unimplemented from 'app/utils/Error';
+import { MousePoint, initialMousePoint } from 'app/domain/Client';
+import useAlert from 'app/hook/alert/useAlert';
 import TreeToolbar from '../Header/TreeToolbar';
 import BotTreeView from './BotTreeView';
-
-type Select = {
-  mouseX: undefined | number;
-  mouseY: undefined | number;
-};
 
 type TopicOrKnowladgeWithKey = Object.Merge<
   TopicOrKnowladge,
   { topicOrKnowladgeKey: TopicOrKnowladgeKey | undefined }
 >;
-
-const initialState: Select = {
-  mouseX: undefined,
-  mouseY: undefined,
-};
 
 interface BotProps {
   refetch: (
@@ -79,20 +71,32 @@ const MUTATION_TOPIC_CATEGORY = gql`
 
 export default function BotSidecar(props: BotProps) {
   const { memoData, allTopicCategory, refetch } = props;
-  const [state, setState] = useState<Select>(initialState);
+  const [state, setState] = useState<MousePoint>(initialMousePoint);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
   const [configStaff, setConfigStaff] = useState<Staff>();
   const [topicOrKnowladge, setTopicOrKnowladge] =
     useState<TopicOrKnowladgeWithKey>({} as TopicOrKnowladgeWithKey);
 
+  const { onCompleted, onError } = useAlert();
   // 删除 Mutation
-  const [deleteBotConfigById] = useMutation<unknown>(MUTATION_BOT_CONFIG);
+  const [deleteBotConfigById] = useMutation<unknown>(MUTATION_BOT_CONFIG, {
+    onCompleted,
+    onError,
+  });
   const [deleteKnowledgeBaseById] = useMutation<unknown>(
-    MUTATION_KNOWLEDGE_BASE
+    MUTATION_KNOWLEDGE_BASE,
+    {
+      onCompleted,
+      onError,
+    }
   );
   const [deleteTopicCategoryById] = useMutation<unknown>(
-    MUTATION_TOPIC_CATEGORY
+    MUTATION_TOPIC_CATEGORY,
+    {
+      onCompleted,
+      onError,
+    }
   );
 
   const handleContextMenuOpen = useCallback(
@@ -120,11 +124,11 @@ export default function BotSidecar(props: BotProps) {
   const handleContextMenuClose = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    setState(initialState);
+    setState(initialMousePoint);
   };
 
   function newTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
-    setState(initialState);
+    setState(initialMousePoint);
     switch (topicOrKnowladgeKey) {
       case 'Topic': {
         setTopicOrKnowladge({
@@ -143,14 +147,14 @@ export default function BotSidecar(props: BotProps) {
   }
 
   function editTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
-    setState(initialState);
+    setState(initialMousePoint);
     setTopicOrKnowladge(_.assignIn({ topicOrKnowladgeKey }, topicOrKnowladge));
     refOfKnowladgeDialog.current?.setOpen(true);
     refetch();
   }
 
   function deleteTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
-    setState(initialState);
+    setState(initialMousePoint);
     let action: Promise<FetchResult<unknown>> | undefined;
     switch (topicOrKnowladgeKey) {
       case 'Topic': {
@@ -191,7 +195,7 @@ export default function BotSidecar(props: BotProps) {
    * 关联知识库和机器人
    */
   const interrelateBot = () => {
-    setState(initialState);
+    setState(initialMousePoint);
     refOfDialog.current?.setOpen(true);
   };
 
@@ -213,6 +217,7 @@ export default function BotSidecar(props: BotProps) {
     <Grid item xs={12} sm={2}>
       {/* 功能菜单 */}
       <TreeToolbar
+        title="知识库"
         refetch={refetch}
         adderName="添加知识库"
         add={() => newTopicOrKnowladge('Knowladge')}
@@ -253,7 +258,7 @@ export default function BotSidecar(props: BotProps) {
             <MenuItem
               key="addTopicCategory"
               onClick={() => {
-                setState(initialState);
+                setState(initialMousePoint);
                 newTopicOrKnowladge('Topic');
               }}
             >

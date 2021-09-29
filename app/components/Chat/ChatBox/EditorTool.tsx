@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import _ from 'lodash';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -10,11 +11,14 @@ import AttachmentOutlinedIcon from '@material-ui/icons/AttachmentOutlined';
 import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
 import LaunchOutlinedIcon from '@material-ui/icons/LaunchOutlined';
 import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
+import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import SpeakerNotesOffIcon from '@material-ui/icons/SpeakerNotesOff';
 import StarIcon from '@material-ui/icons/Star';
 import Tooltip from '@material-ui/core/Tooltip';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import { Menu, MenuItem } from '@material-ui/core';
+import NestedMenuItem from 'material-ui-nested-menu-item';
 
 import './emoji-mart.global.css';
 import { Picker, BaseEmoji } from 'emoji-mart';
@@ -28,14 +32,27 @@ import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
 import { BlacklistFormProp } from 'app/domain/Blacklist';
+import useInitData from 'app/hook/init/useInitData';
+import { SessionCategory } from 'app/domain/SessionCategory';
+import { useMutation } from '@apollo/client';
+import {
+  MutationConversationGraphql,
+  MUTATION_CONVERSATOIN,
+} from 'app/domain/graphql/Conversation';
+import { Session } from 'app/domain/Session';
+import {
+  ConversationCategory,
+  createConversationCategory,
+} from 'app/domain/Conversation';
+import useAlert from 'app/hook/alert/useAlert';
+import { updateConver } from 'app/state/session/sessionAction';
 
 const useStyles = makeStyles(() =>
   createStyles({
     toolBar: {
       minHeight: 30,
-      background: '#222',
-      borderRightStyle: 'solid',
-      borderLeftStyle: 'solid',
+      background: '#424242',
+      borderTopStyle: 'solid',
       borderWidth: 1,
       // 是否将按钮调中间
       // justifyContent: 'center',
@@ -50,17 +67,71 @@ interface EditorProps {
   textMessage: string;
   setMessage(msg: string): void;
   sendImageMessage(photoContent: PhotoContent): void;
-  blacklistInfo: BlacklistFormProp;
+  selectedSession: Session;
+}
+
+function createSessionCategory(
+  sessionCategoryTreeList: SessionCategory[],
+  open: boolean,
+  handleItemClick: (sessionCategory: SessionCategory) => void
+) {
+  return sessionCategoryTreeList.map((it) => {
+    if (it.children) {
+      return (
+        <NestedMenuItem
+          label={it.categoryName}
+          key={it.id}
+          parentMenuOpen={open}
+          onClick={() => handleItemClick(it)}
+        >
+          {createSessionCategory(it.children, open, handleItemClick)}
+        </NestedMenuItem>
+      );
+    }
+    return (
+      <MenuItem key={it.id} onClick={() => handleItemClick(it)}>
+        {it.categoryName}
+      </MenuItem>
+    );
+  });
 }
 
 function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
-  const { textMessage, setMessage, sendImageMessage, blacklistInfo } = props;
+  const { textMessage, setMessage, sendImageMessage, selectedSession } = props;
+  const dispatch = useDispatch();
+
+  const blacklistInfo: BlacklistFormProp = {
+    preventStrategy: 'UID',
+    preventSource: selectedSession.user.uid,
+    ip: selectedSession.user.status?.ip ?? 'unknown',
+    uid: selectedSession.user.uid,
+  };
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
   const refOfDialog = useRef<DraggableDialogRef>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
+
+  const { onLoadding, onCompleted, onError } = useAlert();
+  const [updateCategory, { loading, data }] =
+    useMutation<MutationConversationGraphql>(MUTATION_CONVERSATOIN, {
+      onCompleted,
+      onError,
+    });
+  if (loading) {
+    onLoadding(loading);
+  }
+
+  useEffect(() => {
+    if (data && data.updateCategory) {
+      // 修改会话类型后更新本地的会话
+      dispatch(updateConver(data.updateCategory));
+    }
+  }, [data, dispatch]);
+
+  const { sessionCategoryTreeList } = useInitData();
 
   function handleClickBlacklist() {
     refOfDialog.current?.setOpen(true);
@@ -108,11 +179,53 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   fileUploadProps.action = `${config.web.host}/${config.oss.path}/chat/file`;
   fileUploadProps.accept = '*';
 
+  const handleMenuClose = () => {
+    setMenuAnchorEl(undefined);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (menuAnchorEl) {
+      return;
+    }
+    event.preventDefault();
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  async function updateConversationCategory(sessionCategory: SessionCategory) {
+    // 设置 总结
+    const conversationCategory: ConversationCategory =
+      createConversationCategory(
+        selectedSession.conversation.id,
+        sessionCategory
+      );
+    await updateCategory({ variables: { conversationCategory } });
+    // 关闭 menu
+    handleMenuClose();
+  }
+
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
       <DraggableDialog title="添加黑名单" ref={refOfDialog}>
         <BlacklistForm defaultValues={blacklistInfo} />
       </DraggableDialog>
+      <Menu
+        keepMounted
+        open={Boolean(menuAnchorEl)}
+        onClose={handleMenuClose}
+        anchorEl={menuAnchorEl}
+        transformOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        {/* 获取咨询分类列表 */}
+        {sessionCategoryTreeList &&
+          createSessionCategory(
+            sessionCategoryTreeList,
+            Boolean(menuAnchorEl),
+            updateConversationCategory
+          )}
+      </Menu>
       <Popper
         open={open}
         anchorEl={anchorEl}
@@ -125,7 +238,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           // 不使用延迟
           // <Fade {...TransitionProps} timeout={350}>
           <ClickAwayListener onClickAway={onClose}>
-            <Picker onSelect={addEmoji} title="emoji" theme={'dark'} />
+            <Picker onSelect={addEmoji} title="emoji" theme="dark" />
           </ClickAwayListener>
           // </Fade>
         )}
@@ -134,7 +247,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
         onClick={handleClick('top-start')}
         aria-label="emoji"
         disabled={false}
-        color="primary"
         size="small"
       >
         <InsertEmoticonOutlinedIcon />
@@ -164,6 +276,11 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <StarIcon />
         </IconButton>
       </Tooltip> */}
+      <Tooltip title="咨询分类">
+        <IconButton aria-label="invite" size="small" onClick={handleMenuOpen}>
+          <AssignmentTurnedInIcon />
+        </IconButton>
+      </Tooltip>
       <Tooltip title="拉黑">
         <IconButton
           color="secondary"

@@ -4,9 +4,12 @@
  */
 import React from 'react';
 
+import { useDispatch } from 'react-redux';
+import { HotKeys } from 'react-hotkeys';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
+import { hideSelectedSessionAndSetToLast } from 'app/state/session/sessionAction';
 import SessionList from './SessionList/SessionPanel';
 import Chat from './ChatBox/Chat';
 import DetailCard from './DetailCard/DetailCard';
@@ -21,21 +24,34 @@ const useStyles = makeStyles(() =>
 
 export default function ChatApp() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+
+  const escNode = () => {
+    // esc 隐藏会话
+    dispatch(hideSelectedSessionAndSetToLast());
+  };
+
+  const handlers = {
+    ESC_NODE: escNode,
+  };
+
   return (
-    <Grid container className={classes.root} spacing={0}>
-      <Grid item xs={12}>
-        <Grid container justifyContent="center" spacing={0}>
-          <Grid item xs={2}>
-            <SessionList />
-          </Grid>
-          <Grid item xs={7}>
-            <Chat />
-          </Grid>
-          <Grid item xs={3}>
-            <DetailCard />
+    <HotKeys handlers={handlers}>
+      <Grid container className={classes.root} spacing={0}>
+        <Grid item xs={12}>
+          <Grid container justifyContent="center" spacing={0}>
+            <Grid item xs={2}>
+              <SessionList />
+            </Grid>
+            <Grid item xs={7}>
+              <Chat />
+            </Grid>
+            <Grid item xs={3}>
+              <DetailCard />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </HotKeys>
   );
 }

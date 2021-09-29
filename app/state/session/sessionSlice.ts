@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 import { map, switchMap, filter, defaultIfEmpty } from 'rxjs/operators';
 import _ from 'lodash';
 
-import { SessionMap, Session, TagParamer } from 'app/domain/Session';
+import { SessionMap, Session, TagParamer, LogoUser } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 import { Customer, CustomerStatus } from 'app/domain/Customer';
 import { fromUserMessagesToMap, UserMessages } from 'app/domain/Chat';
@@ -78,6 +78,13 @@ const converSlice = createSlice({
       // 设置标签
       const conver = converMap[action.payload.userId];
       conver.tag = action.payload.tag;
+    },
+    setInteractionLogo: (converMap, action: PayloadAction<LogoUser>) => {
+      // 设置会话标识
+      const conver = converMap[action.payload.userId];
+      if (conver) {
+        conver.interactionLogo = action.payload.interactionLogo;
+      }
     },
     addHistoryMessage: (converMap, action: PayloadAction<UserMessages>) => {
       // TODO 判断是否是 监控
