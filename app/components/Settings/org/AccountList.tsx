@@ -119,7 +119,7 @@ export default function AccountList() {
 
   const groupMap = _.groupBy(groupList?.allStaffGroup ?? [], (it) => it.id);
   const rows = [...(data?.allStaff ?? [])].map((it) => {
-    const itGroup = groupMap[it.staffGroupId];
+    const itGroup = groupMap[it.groupId];
     if (itGroup && itGroup.length > 0) {
       return _.assign(
         {

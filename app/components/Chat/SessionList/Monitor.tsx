@@ -85,7 +85,7 @@ function Monitor(props: MonitorProps) {
         setMonitorSelectedSession(
           _.defaults({}, monitored, {
             monitoredUser: monitoredUserData.getCustomer,
-            monitoredConversation: monitoredUserData.getConversation,
+            monitoredConversation: monitoredUserData.getLastConversation,
           })
         )
       );

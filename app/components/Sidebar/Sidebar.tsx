@@ -1,5 +1,6 @@
 /*eslint-disable*/
 import React from "react";
+import { useSelector } from 'react-redux';
 import classNames from "classnames";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
@@ -16,14 +17,18 @@ import AdminNavbarLinks from "../Navbars/AdminNavbarLinks";
 import RTLNavbarLinks from "../Navbars/RTLNavbarLinks";
 
 import styles from "../../assets/jss/material-dashboard-react/components/sidebarStyle";
+import { RootState } from "app/store";
 
 const useStyles = makeStyles(styles);
 
 export default function Sidebar(props: { rtlActive?: any; open?: any; handleDrawerToggle?: any; color?: any; logo?: any; image?: any; logoText?: any; routes?: Array; }) {
   const classes = useStyles();
+  const currentPath = useSelector((state: RootState) => state.router.location.pathname);
   // verifies if routeName is the one active (in browser input)
   function activeRoute(routeName: string) {
-    return window.location.href.indexOf(routeName) > -1 ? true : false;
+    // 修复 生产版本无法刷新此组件的 bug
+    return currentPath.indexOf(routeName) > -1 ? true : false;
+    // return window.location.href.indexOf(routeName) > -1 ? true : false;
   }
   const { color, logo, image, logoText, routes } = props;
   var links = (

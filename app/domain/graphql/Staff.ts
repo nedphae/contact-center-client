@@ -53,7 +53,7 @@ export const QUERY_STAFF = gql`
       realName
       role
       simultaneousService
-      staffGroupId
+      groupId
       staffType
       username
     }
@@ -71,7 +71,7 @@ export const QUERY_STAFF_BY_ID = gql`
       organizationId
       username
       role
-      staffGroupId
+      groupId
       realName
       nickName
       avatar

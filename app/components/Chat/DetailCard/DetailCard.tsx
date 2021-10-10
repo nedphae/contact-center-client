@@ -4,6 +4,8 @@
  */
 import React, { useState } from 'react';
 
+import SwipeableViews from 'react-swipeable-views';
+import { useTheme } from '@material-ui/core';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
@@ -22,6 +24,7 @@ function a11yProps(index: number) {
 }
 
 export default function DetailCard() {
+  const theme = useTheme();
   const [value, setValue] = useState(0);
   const style = {
     minWidth: 'calc(100% / 4)',
@@ -33,6 +36,9 @@ export default function DetailCard() {
   ) => {
     setValue(newValue);
     event.preventDefault();
+  };
+  const handleChangeIndex = (index: number) => {
+    setValue(index);
   };
 
   return (
@@ -50,18 +56,24 @@ export default function DetailCard() {
         <Tab style={style} label="ERP" {...a11yProps(3)} />
         {/* TODO: 后面可以做成配置型的 */}
       </Tabs>
-      <TabPanel value={value} index={0}>
-        <CustomerInfo />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <ConvsationHistory />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <QuickReply />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        <ComingSoon />
-      </TabPanel>
+      <SwipeableViews
+        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+        index={value}
+        onChangeIndex={handleChangeIndex}
+      >
+        <TabPanel value={value} index={0}>
+          <CustomerInfo />
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <ConvsationHistory />
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <QuickReply />
+        </TabPanel>
+        <TabPanel value={value} index={3}>
+          <ComingSoon />
+        </TabPanel>
+      </SwipeableViews>
     </div>
   );
 }

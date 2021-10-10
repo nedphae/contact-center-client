@@ -46,4 +46,10 @@ export enum SysCode {
   AUTO_REPLY,
   // 管理员插入会话
   STAFF_HELP,
+  // 会话转接
+  TRANSFER,
+  // 会话转接请求
+  TRANSFER_REQUEST,
+  // 会话转接响应
+  TRANSFER_RESPONSE,
 }

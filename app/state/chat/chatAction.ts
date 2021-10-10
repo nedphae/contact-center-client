@@ -9,6 +9,10 @@ export const {
   setMonitorSelectedSession,
   setSelectedSessionNumber,
   setSnackbarProp,
+  setTransferMessageRecive,
+  setTransferMessageToSend,
+  removeTransferMessageToSend,
+  removeTransferMessageRecive,
 } = slice.actions;
 
 export const getSelectedSession = (state: RootState) => {
@@ -44,3 +48,6 @@ export const getSelectedConstomer = (state: RootState) =>
   getSelectedSession(state)?.user;
 
 export const getSnackbarProp = (state: RootState) => state.chat.snackbarProp;
+
+export const getFirstTransferMessageRecive = (state: RootState) =>
+  state.chat.transferMessageRecive && state.chat.transferMessageRecive[0];

@@ -17,21 +17,6 @@ import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      flexGrow: 1,
-    },
-    toolBar: {
-      minHeight: 30,
-      background: 'white',
-      borderRightStyle: 'solid',
-      borderLeftStyle: 'solid',
-      borderWidth: 1,
-      // 是否将按钮调中间
-      // justifyContent: 'center',
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
     list: {
       width: '100%',
       height: '80vh',

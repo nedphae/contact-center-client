@@ -14,6 +14,7 @@ import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
 import useInitData from 'app/hook/init/useInitData';
 import DefaultSnackbar from 'app/components/Snackbar/DefaultSnackbar';
+import TransferSnackbar from 'app/components/Snackbar/TransferSnackbar';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -115,6 +116,7 @@ export default function Admin({ ...rest }) {
   return (
     <WebSocketContext.Provider value={webSocket}>
       <ThemeProvider theme={darkTheme}>
+        <TransferSnackbar />
         <DefaultSnackbar />
         <div className={classes.wrapper}>
           {/* 修复样式错误 */}

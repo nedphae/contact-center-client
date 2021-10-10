@@ -43,9 +43,11 @@ import { Session } from 'app/domain/Session';
 import {
   ConversationCategory,
   createConversationCategory,
+  TransferQuery,
 } from 'app/domain/Conversation';
 import useAlert from 'app/hook/alert/useAlert';
 import { updateConver } from 'app/state/session/sessionAction';
+import TransferForm from './transfer/TransferForm';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -108,10 +110,16 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     uid: selectedSession.user.uid,
   };
 
+  const transferQuery: TransferQuery = {
+    type: 'STAFF',
+    userId: selectedSession.conversation.userId,
+  };
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
   const refOfDialog = useRef<DraggableDialogRef>(null);
+  const refOfTransferDialog = useRef<DraggableDialogRef>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -135,6 +143,10 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
 
   function handleClickBlacklist() {
     refOfDialog.current?.setOpen(true);
+  }
+
+  function handleClickTransfer() {
+    refOfTransferDialog.current?.setOpen(true);
   }
 
   const handleClick =
@@ -208,6 +220,12 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       <DraggableDialog title="添加黑名单" ref={refOfDialog}>
         <BlacklistForm defaultValues={blacklistInfo} />
       </DraggableDialog>
+      <DraggableDialog title="转接" ref={refOfTransferDialog}>
+        <TransferForm
+          defaultValues={transferQuery}
+          onClose={() => refOfTransferDialog.current?.setOpen(false)}
+        />
+      </DraggableDialog>
       <Menu
         keepMounted
         open={Boolean(menuAnchorEl)}
@@ -261,12 +279,17 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <ImageOutlinedIcon />
         </IconButton>
       </Upload>
-      {/* <Tooltip title="转接">
-        <IconButton color="primary" aria-label="transfer" size="small">
+      <Tooltip title="转接">
+        <IconButton
+          color="primary"
+          aria-label="transfer"
+          size="small"
+          onClick={handleClickTransfer}
+        >
           <LaunchOutlinedIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="邀请">
+      {/* <Tooltip title="邀请">
         <IconButton color="primary" aria-label="invite" size="small">
           <PersonAddOutlinedIcon />
         </IconButton>

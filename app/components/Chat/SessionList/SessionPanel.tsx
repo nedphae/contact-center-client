@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 
-import { makeStyles, Theme } from '@material-ui/core/styles';
+import SwipeableViews from 'react-swipeable-views';
+import { makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import ChatIcon from '@material-ui/icons/Chat';
@@ -33,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 export default function SessionPanel() {
   const [value, setValue] = useState(0);
   const classes = useStyles();
+  const theme = useTheme();
 
   const style = {
     minWidth: 'calc(100% / 3)',
@@ -44,6 +46,9 @@ export default function SessionPanel() {
   ) => {
     setValue(newValue);
     event.preventDefault();
+  };
+  const handleChangeIndex = (index: number) => {
+    setValue(index);
   };
 
   return (
@@ -74,18 +79,24 @@ export default function SessionPanel() {
           {...a11yProps(2)}
         />
       </Tabs>
-      <TabPanel value={value} index={0}>
-        <SessionList />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <SessionList history />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <Authorized authority={['admin']} noMatch="非 Admin权限">
-          {/* 添加权限的Dom */}
-          <Monitor refreshInterval={2000} />
-        </Authorized>
-      </TabPanel>
+      <SwipeableViews
+        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+        index={value}
+        onChangeIndex={handleChangeIndex}
+      >
+        <TabPanel value={value} index={0}>
+          <SessionList />
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <SessionList history />
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <Authorized authority={['admin']} noMatch="非 Admin权限">
+            {/* 添加权限的Dom */}
+            <Monitor refreshInterval={2000} />
+          </Authorized>
+        </TabPanel>
+      </SwipeableViews>
     </div>
   );
 }

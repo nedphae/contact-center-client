@@ -14,18 +14,35 @@ import {
   PhotoContent,
   UpdateMessage,
 } from 'app/domain/Message';
-import { Conversation } from 'app/domain/Conversation';
+import {
+  Conversation,
+  TransferMessageRequest,
+  TransferMessageResponse,
+  TransferQuery,
+} from 'app/domain/Conversation';
 import { createSession, SessionMap } from 'app/domain/Session';
 import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
 import { CreatorType, SysCode } from 'app/domain/constant/Message';
 import { CustomerStatus } from 'app/domain/Customer';
 import { InteractionLogo } from 'app/domain/constant/Conversation';
+import apolloClient from 'app/utils/apolloClient';
+import {
+  ConversationIdGraphql,
+  MutationTransferToGraphql,
+  MUTATION_CONV_TRANSFER,
+  QUERY_CONV_BY_ID,
+} from 'app/domain/graphql/Conversation';
 import slice from './sessionSlice';
 import {
   getSelectedSession,
+  removeTransferMessageToSend,
   setSelectedSessionNumber,
+  setSnackbarProp,
+  setTransferMessageRecive,
+  setTransferMessageToSend,
 } from '../chat/chatAction';
+import { getMyself } from '../staff/staffAction';
 
 const {
   newConver,
@@ -44,6 +61,9 @@ export const {
   setHasMore,
   setInteractionLogo,
 } = slice.actions;
+
+export const getSessionByUserId = (userId: number) => (state: RootState) =>
+  state.session[userId];
 
 function getSessionByHide(session: SessionMap, hide: boolean) {
   return (
@@ -79,17 +99,23 @@ export const setSelectedSession =
     dispatch(setSelectedSessionNumber(userId));
   };
 
+const setToLastAndFilter =
+  (userId: number): AppThunk =>
+  (dispatch, getState) => {
+    const list = getSessionByHide(getState().session, false).filter(
+      (se) => se.conversation.userId !== userId
+    );
+    // 设置为等待时间最长的会话
+    const last = list[list.length - 1];
+    dispatch(setSelectedSession(last?.conversation?.userId));
+  };
+
 export const hideSelectedSessionAndSetToLast =
-  (): AppThunk => async (dispatch, getState) => {
+  (): AppThunk => (dispatch, getState) => {
     const userId = getSelectedSession(getState())?.conversation.userId;
     if (userId) {
       dispatch(hideSelectedSession(userId));
-      const list = getSessionByHide(getState().session, false).filter(
-        (se) => se.conversation.userId !== userId
-      );
-      // 设置为等待时间最长的会话
-      const last = list[list.length - 1];
-      dispatch(setSelectedSession(last?.conversation?.userId));
+      dispatch(setToLastAndFilter(userId));
     }
   };
 
@@ -142,6 +168,7 @@ export const updateConver =
           { conversation: conver, user: customer },
           session
         );
+        // 更新 newSession
         dispatch(newConver(newSession));
       } else {
         dispatch(newConver(createSession(conver, customer)));
@@ -149,7 +176,12 @@ export const updateConver =
     }
   };
 
-// 分配会话
+/**
+ * 分配会话
+ * @param request websocket 会话信息请求
+ * @param cb
+ * @returns
+ */
 export const assignmentConver =
   (request: WebSocketRequest<Conversation>, cb: CallBack<string>): AppThunk =>
   async (dispatch) => {
@@ -216,6 +248,139 @@ export function sendMessage(message: Message): AppThunk {
   };
 }
 
+/**
+ * 客服同意转接，调用后台转接会话
+ * @param transferQuery 转接参数
+ * @returns
+ */
+export function transferTo(transferQuery: TransferQuery): AppThunk {
+  return async (dispatch, getState) => {
+    const { data } = await apolloClient.mutate<MutationTransferToGraphql>({
+      mutation: MUTATION_CONV_TRANSFER,
+      variables: { transferQuery: _.omit(transferQuery, 'remarks') },
+    });
+    const conversationView = data?.transferTo;
+    if (conversationView && conversationView.staffId) {
+      const { userId } = conversationView;
+      // 获取转接用户对应的会话
+      const { conversation } = getSessionByUserId(userId)(getState());
+      // 提示转接成功
+      dispatch(
+        setSnackbarProp({
+          open: true,
+          message: '转接成功',
+          severity: 'success',
+        })
+      );
+      // 转接成功 更新会话
+      const { data: conv } = await apolloClient.query<ConversationIdGraphql>({
+        query: QUERY_CONV_BY_ID,
+        variables: {
+          id: conversation.id,
+        },
+      });
+      if (conv?.getConversationById) {
+        dispatch(updateConver(conv?.getConversationById));
+      }
+      if (getSelectedSession(getState())?.conversation.userId === userId) {
+        // 是当前客户就转到其他客户
+        dispatch(setToLastAndFilter(userId));
+      }
+    } else {
+      // 转接失败
+      dispatch(
+        setSnackbarProp({
+          open: true,
+          message: '转接失败，无客服在线或空闲',
+          severity: 'error',
+        })
+      );
+    }
+  };
+}
+
+export function transferToUserId(userId: number): AppThunk {
+  return (dispatch, getState) => {
+    const { transferMessageToSend } = getState().chat;
+    if (transferMessageToSend) {
+      const transferQueryList = transferMessageToSend.filter(
+        (it) => it.userId === userId
+      );
+      if (transferQueryList && transferQueryList.length > 0) {
+        dispatch(transferTo(transferQueryList[0]));
+      }
+    }
+  };
+}
+
+export function sendTransferResponseMsg(
+  transferMessageResponse: TransferMessageResponse
+): AppThunk {
+  return (dispatch) => {
+    const content: Content = {
+      contentType: 'TEXT',
+      sysCode: SysCode.TRANSFER_RESPONSE,
+      textContent: {
+        text: JSON.stringify(transferMessageResponse),
+      },
+    };
+    // 发送转接消息
+    const message: Message = {
+      uuid: uuidv4().substr(0, 8),
+      to: transferMessageResponse.fromStaffId,
+      type: CreatorType.STAFF,
+      creatorType: CreatorType.SYS,
+      content,
+    };
+    dispatch(sendMessage(message));
+  };
+}
+
+/**
+ * 发送转接消息给指定客服，待客服同意后发送会话
+ * @param transferQuery
+ * @returns
+ */
+export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
+  return (dispatch, getState) => {
+    const { userId, toStaffId, remarks } = transferQuery;
+    if (toStaffId && remarks) {
+      const myStaffId = getMyself(getState()).id;
+      const transferMessage: TransferMessageRequest = {
+        userId,
+        fromStaffId: myStaffId,
+        toStaffId,
+        remarks,
+      };
+      const content: Content = {
+        contentType: 'TEXT',
+        sysCode: SysCode.TRANSFER_REQUEST,
+        textContent: {
+          text: JSON.stringify(transferMessage),
+        },
+      };
+      // 发送转接消息
+      const message: Message = {
+        uuid: uuidv4().substr(0, 8),
+        to: toStaffId,
+        type: CreatorType.STAFF,
+        creatorType: CreatorType.SYS,
+        content,
+      };
+
+      // 显示Loadding
+      dispatch(
+        setSnackbarProp({
+          open: true,
+          loadding: true,
+        })
+      );
+      dispatch(setTransferMessageToSend(transferQuery));
+      dispatch(sendMessage(message));
+    }
+  };
+}
+
 function runSysMsg(message: Message, dispatch: AppDispatch) {
   const { content } = message;
   switch (content.sysCode) {
@@ -232,6 +397,41 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
       if (msg) {
         const sysMsg = JSON.parse(msg) as Conversation;
         dispatch(updateConver(sysMsg));
+      }
+      break;
+    }
+    case SysCode.TRANSFER_REQUEST: {
+      const msg = content.textContent?.text;
+      if (msg) {
+        // 请求客服转接消息
+        const sysMsg = JSON.parse(msg) as TransferMessageRequest;
+        // 显示转接消息
+        dispatch(setTransferMessageRecive(sysMsg));
+      }
+      break;
+    }
+    case SysCode.TRANSFER_RESPONSE: {
+      const msg = content.textContent?.text;
+      if (msg) {
+        // 客服转接响应消息
+        const sysMsg = JSON.parse(msg) as TransferMessageResponse;
+        if (sysMsg && sysMsg.userId) {
+          // 根据 响应消息判断是否发送转发请求
+          if (sysMsg.accept) {
+            dispatch(transferToUserId(sysMsg.userId));
+          } else {
+            // 显示拒绝消息
+            dispatch(
+              setSnackbarProp({
+                open: true,
+                message: `转接被拒绝: ${sysMsg.reason}`,
+                severity: 'error',
+              })
+            );
+          }
+          // 清除转接列表
+          dispatch(removeTransferMessageToSend(sysMsg.userId));
+        }
       }
       break;
     }

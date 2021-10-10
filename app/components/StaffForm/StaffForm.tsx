@@ -67,7 +67,7 @@ const MUTATION_STAFF = gql`
       organizationId
       username
       role
-      staffGroupId
+      groupId
       realName
       nickName
       avatar
@@ -317,7 +317,7 @@ export default function StaffForm(props: FormProps) {
         />
         <Controller
           control={control}
-          name="staffGroupId"
+          name="groupId"
           defaultValue={null}
           rules={{ required: '所属分组必选' }}
           render={({ onChange, value }, { invalid }) => (
@@ -329,8 +329,8 @@ export default function StaffForm(props: FormProps) {
             >
               <InputLabel id="demo-mutiple-chip-label">所属分组</InputLabel>
               <Select
-                labelId="staffGroupId"
-                id="staffGroupId"
+                labelId="groupId"
+                id="groupId"
                 onChange={onChange}
                 value={value || ''}
                 label="所属分组"

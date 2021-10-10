@@ -7,15 +7,15 @@
 
  body {
    position: relative;
-   color: white;
+   /* color: white; */
    height: 100vh;
-   background-color: #232c39;
+   /* background-color: #232c39;
    background: linear-gradient(
     200.96deg,
     #000000 -29.09%,
     #dd5789 51.77%,
     #7a2c9e 129.35%
-  );
+  ); */
    font-family: Arial, Helvetica, Helvetica Neue, serif;
    overflow-y: hidden;
  }

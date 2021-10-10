@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Conversation, SearchHit } from '../Conversation';
+import { Conversation, ConversationView, SearchHit } from '../Conversation';
 import { PageResult } from '../Page';
 import getPageQuery from './Page';
 import { PageParam, RangeQuery } from './Query';
@@ -16,7 +16,7 @@ export interface ConversationQueryInput {
   page: PageParam;
 
   // 客服组
-  staffGroupId?: number[];
+  groupId?: number[];
 
   // 责任客服
   staffIdList?: number[];
@@ -92,10 +92,6 @@ export const CONVERSATION_QUERY = gql`
     visitRange
   }
 `;
-
-export interface ConversationGraphql {
-  getConversation: Conversation;
-}
 
 const CONTENT_QUERY = gql`
   fragment mySearchHitContent on MySearchHit {
@@ -217,4 +213,50 @@ export const MUTATION_CONVERSATOIN = gql`
 `;
 export interface MutationConversationGraphql {
   updateCategory: Conversation;
+}
+
+export const MUTATION_CONV_TRANSFER = gql`
+  mutation ConversationView($transferQuery: TransferQueryInput!) {
+    transferTo(transferQuery: $transferQuery) {
+      id
+      organizationId
+      staffId
+      userId
+      shuntId
+      nickName
+      interaction
+      endTime
+      queue
+      blockOnStaff
+    }
+  }
+`;
+export interface MutationTransferToGraphql {
+  transferTo: ConversationView;
+}
+
+export const QUERY_CONV = gql`
+  ${CONVERSATION_QUERY}
+  query Conversation($userId: Long!) {
+    getLastConversation(userId: $userId) {
+      ...conversationFields
+    }
+  }
+`;
+
+export interface ConversationGraphql {
+  getLastConversation: Conversation;
+}
+
+export const QUERY_CONV_BY_ID = gql`
+  ${CONVERSATION_QUERY}
+  query Conversation($id: Long!) {
+    getConversationById(id: $id) {
+      ...conversationFields
+    }
+  }
+`;
+
+export interface ConversationIdGraphql {
+  getConversationById: Conversation;
 }

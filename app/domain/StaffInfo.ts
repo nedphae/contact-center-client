@@ -6,7 +6,7 @@ export default interface Staff {
   id: number;
   /** use for colleague conversation */
   groupId: number;
-  staffGroupId: number;
+  groupId: number;
   groupName?: string;
   staffGroup: StaffGroup;
   /** type of role */
@@ -52,6 +52,7 @@ export interface StaffShunt {
   name: string;
   shuntClassId: number;
   code: string;
+  staffList?: Staff[];
 }
 
 export interface ShuntClass {

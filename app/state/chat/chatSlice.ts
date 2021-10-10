@@ -12,6 +12,7 @@ import Chat, {
 } from 'app/domain/Chat';
 import { noGroupOptions } from 'app/utils/fuseUtils';
 import { createSession } from 'app/domain/Session';
+import { TransferMessageRequest, TransferQuery } from 'app/domain/Conversation';
 
 const initChat = {} as Chat;
 
@@ -26,6 +27,35 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState: initChat,
   reducers: {
+    setTransferMessageRecive: (
+      chat,
+      action: PayloadAction<TransferMessageRequest>
+    ) => {
+      const transferMessageReciveList = chat.transferMessageRecive ?? [];
+      transferMessageReciveList.push(action.payload);
+      chat.transferMessageRecive = transferMessageReciveList;
+    },
+    removeTransferMessageRecive: (chat, action: PayloadAction<number>) => {
+      const { transferMessageRecive } = chat;
+      if (transferMessageRecive && transferMessageRecive.length > 0) {
+        chat.transferMessageRecive = transferMessageRecive.filter(
+          (it) => it.userId !== action.payload
+        );
+      }
+    },
+    setTransferMessageToSend: (chat, action: PayloadAction<TransferQuery>) => {
+      const transferMessageToSend = chat.transferMessageToSend ?? [];
+      transferMessageToSend.push(action.payload);
+      chat.transferMessageToSend = transferMessageToSend;
+    },
+    removeTransferMessageToSend: (chat, action: PayloadAction<number>) => {
+      const { transferMessageToSend } = chat;
+      if (transferMessageToSend && transferMessageToSend.length > 0) {
+        chat.transferMessageToSend = transferMessageToSend.filter(
+          (it) => it.userId !== action.payload
+        );
+      }
+    },
     setSnackbarProp: (
       chat,
       action: PayloadAction<SnackbarProp | undefined>

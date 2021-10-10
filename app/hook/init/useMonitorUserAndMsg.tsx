@@ -84,7 +84,7 @@ export const QUERY = gql`
         href
       }
     }
-    getConversation(userId: $userId) {
+    getLastConversation(userId: $userId) {
       ...conversationFields
     }
   }

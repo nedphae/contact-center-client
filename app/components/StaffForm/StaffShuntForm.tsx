@@ -181,9 +181,13 @@ export default function StaffShuntForm(props: FormProps) {
       onError,
     });
   const [getChatUIConfig, { data: chatUIConfig }] =
-    useLazyQuery<ChatUIConfigGraphql>(QUERY_CHATUI_CONFIG);
+    useLazyQuery<ChatUIConfigGraphql>(QUERY_CHATUI_CONFIG, {
+      fetchPolicy: 'no-cache',
+    });
   const [getStaffConfigList, { data: staffConfigList }] =
-    useLazyQuery<StaffConfigGraphql>(QUERY_STAFF_CONFIG);
+    useLazyQuery<StaffConfigGraphql>(QUERY_STAFF_CONFIG, {
+      fetchPolicy: 'no-cache',
+    });
   const [
     saveStaffConfig,
     { loading: configLoading, data: savedStaffConfigList },

@@ -100,7 +100,7 @@ type FormValues = {
 export default function Auth() {
   const dispatch = useDispatch();
   const classes = useStyles();
-  const { register, handleSubmit, control } = useForm<FormValues>();
+  const { register, handleSubmit, control, errors } = useForm<FormValues>();
   useAutoLogin(true);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -143,7 +143,7 @@ export default function Auth() {
               inputComponent: NumberFormatCustom as any,
             }}
             autoComplete="organization"
-            inputRef={register({ required: true, maxLength: 9 })}
+            inputRef={register({ required: true, maxLength: 12 })}
           />
           <TextField
             variant="outlined"
@@ -154,7 +154,7 @@ export default function Auth() {
             label="用户名"
             name="username"
             autoComplete="username"
-            inputRef={register({ required: true, maxLength: 15 })}
+            inputRef={register({ required: true, maxLength: 50 })}
           />
           <TextField
             variant="outlined"
@@ -165,8 +165,10 @@ export default function Auth() {
             label="密码"
             type="password"
             id="password"
+            error={errors.password && true}
+            helperText={errors.password?.message}
             autoComplete="current-password"
-            inputRef={register({ required: true, maxLength: 15 })}
+            inputRef={register({ required: true, maxLength: 50 })}
           />
           <Controller
             control={control}

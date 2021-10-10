@@ -27,6 +27,7 @@ import {
   setQuickReplySearchText,
 } from 'app/state/chat/chatAction';
 import { Session } from 'app/domain/Session';
+import { CloseReason } from 'app/domain/constant/Conversation';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -245,7 +246,15 @@ export default function Editor(selected: SelectedProps) {
               onChange={handleTextChange}
               onKeyDown={setFocusToQuickReplyMenu}
               value={tempTextMessage}
-              minRows={2}
+              minRows={3}
+              disabled={
+                // 如果会话是因为转接结束的，就不能再发消息
+                Boolean(selectedSession.conversation.endTime) &&
+                [CloseReason.TRANSLATE, CloseReason.ADMIN_TAKE_OVER].includes(
+                  selectedSession.conversation.closeReason ??
+                    CloseReason.USER_LEFT
+                )
+              }
             />
             <Button
               // 是否可用，通过 TextareaAutosize 判断

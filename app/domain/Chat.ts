@@ -1,7 +1,7 @@
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 
-import { Conversation } from './Conversation';
+import { Conversation, TransferMessageRequest, TransferQuery } from './Conversation';
 import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
 import Staff from './StaffInfo';
@@ -70,6 +70,8 @@ export default interface Chat extends BaseChat {
   searchQuickReply: QuickReply[];
   quickReplySearchText: string;
   monitored: Monitored | undefined;
+  transferMessageToSend?: TransferQuery[];
+  transferMessageRecive?: TransferMessageRequest[];
 }
 
 export interface QuickReplyAllDtoGraphql {

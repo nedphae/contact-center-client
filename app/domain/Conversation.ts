@@ -106,3 +106,49 @@ export function createConversationCategory(
   };
   return conversationCategory;
 }
+
+export type TransferQueryType = 'STAFF' | 'SHUNT' | 'GROUP';
+
+export interface TransferQuery {
+  type: TransferQueryType;
+  userId: number;
+  shuntId?: number;
+  groupId?: number;
+  toStaffId?: number;
+  // 可以由后台根据调用客服生成
+  fromStaffId?: number;
+  remarks?: string;
+}
+
+export interface ConversationView {
+  id?: number;
+  /** 公司id */
+  organizationId: number;
+  /** 客服id */
+  staffId?: number;
+  userId: number;
+  shuntId: number;
+  nickName?: number;
+  /** 0=机器人会话 1=客服正常会话 */
+  interaction?: number;
+  /** 会话结束时间 */
+  endTime?: number;
+  /** 当前排队信息 */
+  queue?: number;
+  blockOnStaff: number;
+}
+
+export interface TransferMessageRequest {
+  userId: number;
+  fromStaffId: number;
+  toStaffId: number;
+  remarks: string;
+}
+
+export interface TransferMessageResponse {
+  userId: number;
+  fromStaffId: number;
+  toStaffId: number;
+  accept: boolean;
+  reason?: string;
+}

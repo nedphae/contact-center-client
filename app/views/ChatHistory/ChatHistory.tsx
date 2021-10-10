@@ -234,7 +234,7 @@ const QUERY = gql`
       realName
       role
       simultaneousService
-      staffGroupId
+      groupId
       staffType
       username
     }
@@ -314,7 +314,7 @@ export default function ChatHistory() {
     },
     {
       label: '客服组',
-      name: 'staffGroupIdList',
+      name: 'groupIdList',
       selectList: _.zipObject(
         staffGroupList.map((value) => value.id),
         staffGroupList.map((value) => value.groupName)

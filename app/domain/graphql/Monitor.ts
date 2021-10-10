@@ -46,7 +46,7 @@ export const QUERY_MONITOR = gql`
         realName
         role
         simultaneousService
-        staffGroupId
+        groupId
         staffType
         username
       }
