@@ -22,6 +22,7 @@ import PropertiesFrom from 'app/components/Settings/org/PropertiesFrom';
 import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 import BlacklistView from 'app/components/Settings/org/BlacklistView';
 import SessionCategoryView from 'app/components/Settings/org/SessionCategoryView';
+import CustomerTagTable from 'app/components/Settings/CustomerTag/CustomerTagTable';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -96,6 +97,10 @@ function settingPage(
       result = <SessionCategoryView />;
       break;
     }
+    case 'org.CustomerTag': {
+      result = <CustomerTagTable />;
+      break;
+    }
     case 'org.Properties': {
       if (properties && properties4Set) {
         result = (
@@ -125,6 +130,7 @@ type PageName =
   | 'org.Shunt'
   | 'org.Blacklist'
   | 'org.SessionCategory'
+  | 'org.CustomerTag'
   | 'org.Properties';
 
 export default function Setting() {
@@ -186,6 +192,11 @@ export default function Setting() {
             nodeId={uuidv4()}
             label="黑名单"
             onClick={() => setPageName('org.Blacklist')}
+          />
+          <StyledTreeItem
+            nodeId={uuidv4()}
+            label="客户标签"
+            onClick={() => setPageName('org.CustomerTag')}
           />
           {properties &&
             _.keys(properties).map((k) => (

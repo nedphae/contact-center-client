@@ -25,6 +25,7 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client';
 import { HotKeys } from 'react-hotkeys';
 
+import { createTheme, ThemeProvider } from '@material-ui/core';
 import { Store } from './store';
 // core components
 import Admin from './layouts/Admin';
@@ -60,24 +61,35 @@ type Props = {
   store: Store;
   history: History;
 };
+
+const darkTheme = createTheme({
+  palette: {
+    type: 'dark',
+  },
+});
+
 const Root = ({ store, history }: Props) => {
   // check login
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <Switch>
-          {/* 原来的路由 */}
-          <Route path="/login" component={Auth} />
-          {/* 添加权限的路由 */}
-          <Authorized
-            authority={['admin']}
-            noMatch={<Route path="/" render={() => <Redirect to="/login" />} />}
-          >
-            <Route path="/admin" component={AdminContainer} />
-            <Route path="/rtl" component={RTL} />
-            <Redirect from="/" to="/admin/entertain" />
-          </Authorized>
-        </Switch>
+        <ThemeProvider theme={darkTheme}>
+          <Switch>
+            {/* 原来的路由 */}
+            <Route path="/login" component={Auth} />
+            {/* 添加权限的路由 */}
+            <Authorized
+              authority={['admin']}
+              noMatch={
+                <Route path="/" render={() => <Redirect to="/login" />} />
+              }
+            >
+              <Route path="/admin" component={AdminContainer} />
+              <Route path="/rtl" component={RTL} />
+              <Redirect from="/" to="/admin/entertain" />
+            </Authorized>
+          </Switch>
+        </ThemeProvider>
       </ConnectedRouter>
     </Provider>
   );

@@ -14,7 +14,7 @@ import {
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
-  ConversationQueryInput,
+  ConversationFilterInput,
   CONV_PAGE_QUERY,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
@@ -215,8 +215,8 @@ type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
 
 const QUERY = gql`
   ${CONV_PAGE_QUERY}
-  query Conversation($conversationQueryInput: ConversationQueryInput!) {
-    searchConv(conversationQuery: $conversationQueryInput) {
+  query Conversation($conversationFilterInput: ConversationFilterInput!) {
+    searchConv(conversationFilter: $conversationFilterInput) {
       ...pageOnSearchHitPage
     }
     allStaff {
@@ -255,12 +255,12 @@ const QUERY = gql`
 
 export default function ChatHistory() {
   const [open, setOpen] = useState(false);
-  const [conversationQueryInput, setConversationQueryInput] =
-    useState<ConversationQueryInput>(defaultValue);
+  const [conversationFilterInput, setConversationFilterInput] =
+    useState<ConversationFilterInput>(defaultValue);
   const [selectConversation, setSelectConversation] = useState<Conversation>();
 
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
-    variables: { conversationQueryInput },
+    variables: { conversationFilterInput },
   });
 
   const handleClickOpen = (conversation: Conversation) => {
@@ -270,26 +270,26 @@ export default function ChatHistory() {
 
   const handlePageChange = (params: number) => {
     // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
-    conversationQueryInput.page = new PageParam(
+    conversationFilterInput.page = new PageParam(
       params,
-      conversationQueryInput.page.size
+      conversationFilterInput.page.size
     );
-    setConversationQueryInput(conversationQueryInput);
-    refetch({ conversationQueryInput });
+    setConversationFilterInput(conversationFilterInput);
+    refetch({ conversationFilterInput });
   };
   const handlePageSizeChange = (params: number) => {
-    conversationQueryInput.page = new PageParam(
-      conversationQueryInput.page.page,
+    conversationFilterInput.page = new PageParam(
+      conversationFilterInput.page.page,
       params
     );
-    setConversationQueryInput(conversationQueryInput);
-    refetch({ conversationQueryInput });
+    setConversationFilterInput(conversationFilterInput);
+    refetch({ conversationFilterInput });
   };
 
-  const setSearchParams = (searchParams: ConversationQueryInput) => {
-    searchParams.page = conversationQueryInput.page;
-    setConversationQueryInput(searchParams);
-    refetch({ conversationQueryInput: searchParams });
+  const setSearchParams = (searchParams: ConversationFilterInput) => {
+    searchParams.page = conversationFilterInput.page;
+    setConversationFilterInput(searchParams);
+    refetch({ conversationFilterInput: searchParams });
   };
 
   const result = data?.searchConv;
@@ -372,7 +372,7 @@ export default function ChatHistory() {
       </Dialog>
       <SearchForm
         defaultValues={defaultValue}
-        currentValues={conversationQueryInput}
+        currentValues={conversationFilterInput}
         searchAction={setSearchParams}
         selectKeyValueList={selectKeyValueList}
       />

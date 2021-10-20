@@ -1,11 +1,4 @@
-import {
-  bindCallback,
-  Observable,
-  of,
-  throwError,
-  TimeoutError,
-  timer,
-} from 'rxjs';
+import { bindCallback, Observable, of, TimeoutError, timer } from 'rxjs';
 import { filter, mergeMap, retryWhen, delayWhen } from 'rxjs/operators';
 
 import {
@@ -55,7 +48,7 @@ export default function fetch<T, R>(
  */
 const genericRetryStrategy =
   (maxRetryAttempts = 3, scalingDuration = 5000) =>
-  <T>(attempts: Observable<T>) => {
+  (attempts: Observable<Error>) => {
     return attempts.pipe(
       // 这里 mergeMap 效果和 delayWhen 一样
       delayWhen((error, i) => {
@@ -66,7 +59,7 @@ const genericRetryStrategy =
           return timer(retryAttempt * scalingDuration);
         }
         // 不是我们想重试的，就抛出错误
-        return throwError(error);
+        throw error;
       })
       // finalize(() => console.log('We are done!'))
     );

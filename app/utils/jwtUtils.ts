@@ -6,6 +6,7 @@ import tokenConfig from '../config/clientConfig';
 
 const jwksClient = JwksRsa({
   jwksUri: tokenConfig.web.host + tokenConfig.oauth.jwks,
+  cache: true,
 });
 
 export default function verifyToken(token: string, callback: VerifyCallback) {

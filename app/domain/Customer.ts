@@ -27,6 +27,8 @@ export interface Customer {
   status?: CustomerStatus | undefined;
   /** 企业当前登录用户其他信息，JSON字符串 */
   data: DetailData[] | undefined;
+  // 用户标签
+  tags: CustomerTagView[] | undefined;
 }
 
 export interface CustomerStatus {
@@ -107,4 +109,22 @@ export interface DetailData {
 export interface CustomerRemark {
   userId: number;
   /** vip */
+}
+
+/**
+ * 客户标签
+ */
+export interface CustomerTag {
+  id?: number;
+  // 名称
+  name: string;
+  // 颜色：十六进制颜色名称
+  color: string;
+}
+
+export interface CustomerTagView {
+  // 名称
+  name: string;
+  // 颜色：十六进制颜色名称
+  color: string;
 }

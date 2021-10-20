@@ -55,14 +55,14 @@ const dashboardRoutes = [
     component: Entertain,
     layout: '/admin',
   },
-  // {
-  //   path: '/dashboard',
-  //   name: '仪表板',
-  //   rtlName: 'لوحة القيادة',
-  //   icon: Dashboard,
-  //   component: DashboardPage,
-  //   layout: '/admin',
-  // },
+  {
+    path: '/dashboard',
+    name: '监控统计',
+    rtlName: 'لوحة القيادة',
+    icon: Dashboard,
+    component: DashboardPage,
+    layout: '/admin',
+  },
   {
     path: '/history',
     name: '历史记录',

@@ -19,7 +19,7 @@ import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 import Button from '@material-ui/core/Button';
-import { ConversationQueryInput } from 'app/domain/graphql/Conversation';
+import { ConversationFilterInput } from 'app/domain/graphql/Conversation';
 import {
   Checkbox,
   FormControl,
@@ -61,7 +61,7 @@ export const useSearchFormStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type FormType = ConversationQueryInput | CustomerQueryInput;
+type FormType = ConversationFilterInput | CustomerQueryInput;
 
 interface FormProps {
   defaultValues: FormType;

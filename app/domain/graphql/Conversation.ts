@@ -4,7 +4,7 @@ import { PageResult } from '../Page';
 import getPageQuery from './Page';
 import { PageParam, RangeQuery } from './Query';
 
-export interface ConversationQueryInput {
+export interface ConversationFilterInput {
   time?: boolean;
   // 咨询类型
   categoryList?: string[];

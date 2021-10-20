@@ -1,12 +1,16 @@
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 
-import { Conversation, TransferMessageRequest, TransferQuery } from './Conversation';
+import { Color } from '@material-ui/lab/Alert';
+import {
+  Conversation,
+  TransferMessageRequest,
+  TransferQuery,
+} from './Conversation';
 import { Customer, CustomerStatus } from './Customer';
 import { Message, MessagesMap } from './Message';
 import Staff from './StaffInfo';
 import { Session } from './Session';
-import { Color } from '@material-ui/lab/Alert';
 
 export function fromUserMessagesToMap(
   userMessages: UserMessages

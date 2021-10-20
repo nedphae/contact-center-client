@@ -3,12 +3,17 @@ import React, { useRef, useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import DateFnsUtils from '@date-io/date-fns';
-import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
+import {
+  DataGrid,
+  GridCellParams,
+  GridColDef,
+  GridRowId,
+} from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
-import { Divider } from '@material-ui/core';
+import { Chip, Divider } from '@material-ui/core';
 import { PageResult } from 'app/domain/Page';
-import { Customer } from 'app/domain/Customer';
+import { Customer, CustomerTagView } from 'app/domain/Customer';
 import getPageQuery from 'app/domain/graphql/Page';
 import CustomerForm, {
   CustomerFormValues,
@@ -27,6 +32,29 @@ const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
   { field: 'uid', headerName: '用户标识', width: 150 },
   { field: 'name', headerName: '用户姓名', width: 150 },
+  {
+    field: 'tags',
+    headerName: '用户标签',
+    width: 300,
+    renderCell: function ColorIcon(params: GridCellParams) {
+      const { value } = params;
+      const customerTagViewList = value as CustomerTagView[];
+      return (
+        <>
+          {customerTagViewList.map(({ name, color: colorHex }) => (
+            <Chip
+              key={name}
+              size="small"
+              color="secondary"
+              label={name}
+              style={{ backgroundColor: colorHex as string }}
+              onDelete={() => {}}
+            />
+          ))}
+        </>
+      );
+    },
+  },
   { field: 'email', headerName: '用户邮箱', width: 150 },
   { field: 'mobile', headerName: '用户手机号', width: 150 },
   { field: 'vipLevel', headerName: 'vip等级', width: 150 },
@@ -121,19 +149,7 @@ export default function Crm() {
   }
 
   const handleClickOpen = (user: Customer) => {
-    const idUser = {
-      id: user.id,
-      organizationId: user.organizationId,
-      uid: user.uid,
-      name: user.name,
-      mobile: user.mobile,
-      address: user.address,
-      email: user.email,
-      vipLevel: user.vipLevel,
-      remarks: user.remarks,
-      data: user.data,
-    };
-    setSelectCustomer(idUser);
+    setSelectCustomer(user);
     refOfDialog.current?.setOpen(true);
   };
 

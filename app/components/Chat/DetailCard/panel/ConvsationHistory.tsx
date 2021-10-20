@@ -15,7 +15,7 @@ import {
 
 import { gql, useLazyQuery } from '@apollo/client';
 import {
-  ConversationQueryInput,
+  ConversationFilterInput,
   CONV_PAGE_QUERY,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
@@ -60,8 +60,8 @@ type SelectedType = string;
 
 const QUERY = gql`
   ${CONV_PAGE_QUERY}
-  query Conversation($conversationQueryInput: ConversationQueryInput!) {
-    searchConv(conversationQuery: $conversationQueryInput) {
+  query Conversation($conversationFilter: ConversationFilterInput!) {
+    searchConv(conversationFilter: $conversationFilter) {
       ...pageOnSearchHitPage
     }
   }
@@ -79,11 +79,11 @@ export default function ConvsationHistory() {
 
   useEffect(() => {
     if (user && user.userId) {
-      const searchParams: ConversationQueryInput = {
+      const searchParams: ConversationFilterInput = {
         page,
         userId: user.userId,
       };
-      searchConv({ variables: { conversationQueryInput: searchParams } });
+      searchConv({ variables: { conversationFilterInput: searchParams } });
     }
   }, [searchConv, user]);
 

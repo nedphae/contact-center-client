@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Customer } from '../Customer';
+import { Customer, CustomerTag } from '../Customer';
 import { PageParam, RangeQuery } from './Query';
 
 export const CORE_CUSTOMER_FIELDS = gql`
@@ -69,4 +69,38 @@ export interface CustomerQueryInput {
 
   // 时间区间
   timeRange?: RangeQuery<number | string>;
+}
+
+export const QUERY_CUSTOMER_TAG = gql`
+  query CustomerTag {
+    getAllCustomerTag {
+      id
+      name
+      color
+    }
+  }
+`;
+
+export interface CustomerTagGraphql {
+  getAllCustomerTag: CustomerTag[];
+}
+
+export const MUTATION_DELETE_CUSTOMER_TAG = gql`
+  mutation DeleteCustomerTag($ids: [Long!]!) {
+    deleteTagsByIds(ids: $ids)
+  }
+`;
+
+export const MUTATION_SAVE_CUSTOMER_TAG = gql`
+  mutation SaveCustomerTag($customerTags: [CustomerTagInput!]!) {
+    saveCustomerTag(customerTags: $customerTags) {
+      id
+      name
+      color
+    }
+  }
+`;
+
+export interface CustomerTagSaveGraphql {
+  saveCustomerTag: CustomerTag[];
 }
