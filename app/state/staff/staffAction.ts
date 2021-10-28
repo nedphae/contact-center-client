@@ -34,6 +34,7 @@ export const setUserAsync =
     // 获取当前聊天会话列表，刷新页面后
     staff.token = token.source;
     staff.onlineStatus = onlineStatus;
+    window.orgId = staff.organizationId;
     dispatch(setStaff(staff));
   };
 
@@ -42,7 +43,10 @@ export const configStaff = (): AppThunk => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
     // const staff = getStaff(getState()); // useSelector(getStaff);
     register(
-      configStatus(getState().staff.prevOnlineStatus ?? OnlineStatus.ONLINE)
+      configStatus(
+        getState().staff.prevOnlineStatus ?? OnlineStatus.ONLINE,
+        getState().staff.groupId
+      )
     ).subscribe(() => {
       // 注册成功, 设置状态同步成功
       dispatch(setOnline());

@@ -24,11 +24,6 @@ import StaffShuntForm from 'app/components/StaffForm/StaffShuntForm';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import TreeToolbar from 'app/components/Header/TreeToolbar';
 import ShuntClassForm from 'app/components/StaffForm/ShuntClassForm';
-import {
-  QuickReplyGroupForm,
-  QuickReplyForm,
-} from 'app/components/Chat/DetailCard/panel/QuickReply/QuickReplyForm';
-import { QuickReplyGroup, QuickReply } from 'app/domain/Chat';
 import { MousePoint, initialMousePoint } from 'app/domain/Client';
 import useAlert from 'app/hook/alert/useAlert';
 

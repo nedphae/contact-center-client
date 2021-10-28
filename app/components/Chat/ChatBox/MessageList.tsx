@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
 import clsx from 'clsx';
+import PerfectScrollbar from 'perfect-scrollbar';
 
 import _ from 'lodash';
 import { gql, useLazyQuery } from '@apollo/client';
@@ -22,7 +23,11 @@ import { Content, Message } from 'app/domain/Message';
 import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
-import config from 'app/config/clientConfig';
+import {
+  getDownloadOssChatFilePath,
+  getDownloadOssChatImgPath,
+  getDownloadOssStaffImgPath,
+} from 'app/config/clientConfig';
 import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import { Session } from 'app/domain/Session';
@@ -122,7 +127,9 @@ export function createContent(
       break;
     }
     case 'IMAGE': {
-      const imageUrl = `${config.web.host}${config.oss.path}/chat/img/${content.photoContent?.mediaId}`;
+      const imageUrl = `${getDownloadOssChatImgPath()}/${
+        content.photoContent?.mediaId
+      }`;
       const filename = content.photoContent?.filename;
       element = (
         <TouchableOpacity
@@ -143,7 +150,7 @@ export function createContent(
     case 'FILE': {
       if (content.attachments !== undefined) {
         const { filename, size, mediaId } = content.attachments;
-        const url = `${config.web.host}${config.oss.path}/chat/file/${mediaId}`;
+        const url = `${getDownloadOssChatFilePath()}/${mediaId}`;
         element = <FileCard filename={filename} fileSize={size} url={url} />;
       }
       break;
@@ -251,6 +258,19 @@ const MessageList = (props: MessageListProps) => {
   const lastSeqId = messages[0]?.seqId ?? null;
   const hasMore = Boolean(session?.hasMore);
 
+  useEffect(() => {
+    let ps: PerfectScrollbar;
+    if (refOfScrollView.current) {
+      ps = new PerfectScrollbar(refOfScrollView.current as unknown as Element, {
+        suppressScrollX: true,
+        suppressScrollY: false,
+      });
+    }
+    return () => {
+      ps.destroy();
+    };
+  }, [refOfScrollView]);
+
   // // 防止渲染 卡顿 用 handleContentSizeChange + 动画代替
   // useLayoutEffect(() => {
   //   // 如果 fetchMore 就不滚动
@@ -345,7 +365,7 @@ const MessageList = (props: MessageListProps) => {
       (message) => message.content.contentType === 'IMAGE'
     );
     const images = imageMessages.map((message) => {
-      const url = `${config.web.host}${config.oss.path}/chat/img/${message.content.photoContent?.mediaId}`;
+      const url = `${getDownloadOssChatImgPath}/${message.content.photoContent?.mediaId}`;
       return {
         url,
       };
@@ -443,7 +463,7 @@ const MessageList = (props: MessageListProps) => {
                         <Avatar
                           src={
                             staff.avatar &&
-                            `${config.web.host}${config.oss.path}/staff/img/${staff.avatar}`
+                            `${getDownloadOssStaffImgPath()}/${staff.avatar}`
                           }
                         />
                       </ListItemAvatar>

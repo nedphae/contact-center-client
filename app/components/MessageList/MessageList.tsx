@@ -12,7 +12,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 
-import config from 'app/config/clientConfig';
+import { getDownloadOssStaffImgPath } from 'app/config/clientConfig';
 import { Conversation } from 'app/domain/Conversation';
 import { CreatorType } from 'app/domain/constant/Message';
 import javaInstant2DateStr from 'app/utils/timeUtils';
@@ -129,7 +129,7 @@ export default function MessageList(props: MessageListProps) {
                     src={
                       staff &&
                       staff.avatar &&
-                      `${config.web.host}${config.oss.path}/staff/img/${staff.avatar}`
+                      `${getDownloadOssStaffImgPath()}${staff.avatar}`
                     }
                   />
                 </ListItemAvatar>

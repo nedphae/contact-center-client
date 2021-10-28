@@ -11,22 +11,10 @@ export default function CustomerInfo() {
   const user = useSelector(getSelectedConstomer);
 
   if (user) {
-    const defaultValues = {
-      id: user.userId,
-      organizationId: user.organizationId,
-      uid: user.uid,
-      name: user.name,
-      mobile: user.mobile,
-      email: user.email,
-      vipLevel: user.vipLevel,
-      remarks: user.remarks,
-      address: user.address,
-      data: user.data,
-    };
     return (
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        <CustomerForm defaultValues={defaultValues} shouldDispatch />
+        <CustomerForm defaultValues={user} shouldDispatch />
       </Container>
     );
   }

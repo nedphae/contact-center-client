@@ -79,11 +79,11 @@ export default function ConvsationHistory() {
 
   useEffect(() => {
     if (user && user.userId) {
-      const searchParams: ConversationFilterInput = {
+      const conversationFilter: ConversationFilterInput = {
         page,
         userId: user.userId,
       };
-      searchConv({ variables: { conversationFilterInput: searchParams } });
+      searchConv({ variables: { conversationFilter } });
     }
   }, [searchConv, user]);
 

@@ -225,7 +225,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                     return (
                       <MenuItem
                         key={tag.id}
-                        value={JSON.stringify(_.omit(tag, 'id'))}
+                        value={JSON.stringify(_.pick(tag, 'name', 'color'))}
                         style={getStyles(selected, theme, tag.color)}
                       >
                         {selected && (

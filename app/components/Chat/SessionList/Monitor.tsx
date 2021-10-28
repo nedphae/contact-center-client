@@ -95,7 +95,7 @@ function Monitor(props: MonitorProps) {
   // 同步在线列表
   useEffect(() => {
     const tempSubscription: Subscription = interval(
-      refreshInterval ?? 5
+      refreshInterval ?? 5000
     ).subscribe(() => {
       refetch();
     });

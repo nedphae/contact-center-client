@@ -50,7 +50,6 @@ const dashboardStyle: any = {
     marginBottom: '0',
   },
   cardTitle: {
-    color: grayColor[2],
     marginTop: '0px',
     minHeight: 'auto',
     fontWeight: '300',
@@ -58,7 +57,7 @@ const dashboardStyle: any = {
     marginBottom: '3px',
     textDecoration: 'none',
     '& small': {
-      color: grayColor[1],
+      color: grayColor[0],
       fontWeight: '400',
       lineHeight: '1',
     },

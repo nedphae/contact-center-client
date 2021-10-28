@@ -24,7 +24,7 @@ import { TransferMessageResponse } from 'app/domain/Conversation';
 import { useLazyQuery } from '@apollo/client';
 import { CustomerGraphql, QUERY_CUSTOMER } from 'app/domain/graphql/Customer';
 import { StaffGraphql, QUERY_STAFF_BY_ID } from 'app/domain/graphql/Staff';
-import config from 'app/config/clientConfig';
+import { getDownloadOssStaffImgPath } from 'app/config/clientConfig';
 import { sendTransferResponseMsg } from 'app/state/session/sessionAction';
 
 const useStyles = makeStyles((theme) => ({
@@ -109,7 +109,9 @@ export default function TransferSnackbar() {
                         alt={staff.getStaffById.realName}
                         src={
                           staff.getStaffById.avatar
-                            ? `${config.web.host}${config.oss.path}/staff/img/${staff.getStaffById.avatar}`
+                            ? `${getDownloadOssStaffImgPath()}/${
+                                staff.getStaffById.avatar
+                              }`
                             : undefined
                         }
                       />

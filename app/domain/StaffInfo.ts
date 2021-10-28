@@ -6,7 +6,6 @@ export default interface Staff {
   id: number;
   /** use for colleague conversation */
   groupId: number;
-  groupId: number;
   groupName?: string;
   staffGroup: StaffGroup;
   /** type of role */
@@ -79,10 +78,15 @@ export interface StaffConfig {
 
 export interface StaffConfigData {
   onlineStatus: OnlineStatus;
+  groupId: number;
 }
 
-export function configStatus(onlineStatus: OnlineStatus): StaffConfigData {
+export function configStatus(
+  onlineStatus: OnlineStatus,
+  groupId: number
+): StaffConfigData {
   return {
     onlineStatus,
+    groupId,
   };
 }

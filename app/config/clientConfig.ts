@@ -1,4 +1,4 @@
-export default {
+const clientConfig = {
   web: {
     // gateway 配置地址
     // 后端接口地址，仅修改此地址即可
@@ -55,3 +55,24 @@ export default {
     path: '/staff',
   },
 };
+
+export function getUploadOssChatImgPath() {
+  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/img/${window.orgId}`;
+}
+export function getUploadOssChatFilePath() {
+  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/file/${window.orgId}`;
+}
+export function getUploadOssStaffImgPath() {
+  return `${clientConfig.web.host}${clientConfig.oss.path}/staff/img/${window.orgId}`;
+}
+export function getDownloadOssChatImgPath() {
+  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/img`;
+}
+export function getDownloadOssChatFilePath() {
+  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/file`;
+}
+export function getDownloadOssStaffImgPath() {
+  return `${clientConfig.web.host}${clientConfig.oss.path}/staff/img`;
+}
+
+export default clientConfig;

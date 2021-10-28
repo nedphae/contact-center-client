@@ -30,7 +30,10 @@ import {
 } from '@material-ui/core';
 import Upload from 'rc-upload';
 
-import config from 'app/config/clientConfig';
+import {
+  getDownloadOssStaffImgPath,
+  getUploadOssStaffImgPath,
+} from 'app/config/clientConfig';
 import Staff from 'app/domain/StaffInfo';
 import { StaffGroupList, QUERY_GROUP } from 'app/domain/graphql/Staff';
 import useAlert from 'app/hook/alert/useAlert';
@@ -117,7 +120,7 @@ export default function StaffForm(props: FormProps) {
 
   const imgUploadProps = useMemo(() => {
     return {
-      action: `${config.web.host}${config.oss.path}/staff/img`,
+      action: getUploadOssStaffImgPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {
@@ -178,10 +181,7 @@ export default function StaffForm(props: FormProps) {
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
-            src={
-              avatar &&
-              `${config.web.host}${config.oss.path}/staff/img/${avatar}`
-            }
+            src={avatar && `${getDownloadOssStaffImgPath()}${avatar}`}
           >
             头像
           </Avatar>

@@ -14,7 +14,7 @@ export interface MonitorGraphql {
 }
 
 export const QUERY_MONITOR = gql`
-  query monitor {
+  query Monitor {
     staffOnlineList {
       staffStatusList {
         autoBusy

@@ -32,7 +32,7 @@ import { getMyself, updateStatus } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
-import config from 'app/config/clientConfig';
+import { getDownloadOssStaffImgPath } from 'app/config/clientConfig';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
@@ -346,7 +346,7 @@ export default function AdminNavbarLinks() {
               alt={mySelf.realName}
               src={
                 mySelf.avatar
-                  ? `${config.web.host}${config.oss.path}/staff/img/${mySelf.avatar}`
+                  ? `${getDownloadOssStaffImgPath()}/${mySelf.avatar}`
                   : undefined
               }
             />

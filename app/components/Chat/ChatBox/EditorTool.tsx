@@ -25,7 +25,10 @@ import { Picker, BaseEmoji } from 'emoji-mart';
 import Upload from 'rc-upload';
 import { RcFile } from 'rc-upload/lib/interface';
 
-import config from 'app/config/clientConfig';
+import {
+  getUploadOssChatFilePath,
+  getUploadOssChatImgPath,
+} from 'app/config/clientConfig';
 import { PhotoContent } from 'app/domain/Message';
 import BlacklistForm from 'app/components/Blacklist/BlacklistForm';
 import DraggableDialog, {
@@ -166,7 +169,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   };
 
   const imgUploadProps = {
-    action: `${config.web.host}${config.oss.path}/chat/img`,
+    action: `${getUploadOssChatImgPath()}`,
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onStart(file: RcFile) {
@@ -188,7 +191,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   };
 
   const fileUploadProps = _.clone(imgUploadProps);
-  fileUploadProps.action = `${config.web.host}/${config.oss.path}/chat/file`;
+  fileUploadProps.action = `${getUploadOssChatFilePath()}`;
   fileUploadProps.accept = '*';
 
   const handleMenuClose = () => {

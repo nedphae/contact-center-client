@@ -22,7 +22,7 @@ import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToo
 import { SearchHit } from 'app/domain/Conversation';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import { PageParam } from 'app/domain/graphql/Query';
-import { CustomerQueryInput } from 'app/domain/graphql/Customer';
+import { CORE_CUSTOMER_FIELDS, CustomerQueryInput } from 'app/domain/graphql/Customer';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
@@ -38,19 +38,20 @@ const columns: GridColDef[] = [
     width: 300,
     renderCell: function ColorIcon(params: GridCellParams) {
       const { value } = params;
-      const customerTagViewList = value as CustomerTagView[];
+      const customerTagViewList = value as CustomerTagView[] | undefined;
       return (
         <>
-          {customerTagViewList.map(({ name, color: colorHex }) => (
-            <Chip
-              key={name}
-              size="small"
-              color="secondary"
-              label={name}
-              style={{ backgroundColor: colorHex as string }}
-              onDelete={() => {}}
-            />
-          ))}
+          {customerTagViewList &&
+            customerTagViewList.map(({ name, color: colorHex }) => (
+              <Chip
+                key={name}
+                size="small"
+                color="secondary"
+                label={name}
+                style={{ backgroundColor: colorHex as string }}
+                onDelete={() => {}}
+              />
+            ))}
         </>
       );
     },
@@ -66,24 +67,10 @@ interface Graphql {
 }
 
 const CONTENT_QUERY = gql`
+  ${CORE_CUSTOMER_FIELDS}
   fragment customerSearchHitContent on CustomerSearchHit {
     content {
-      organizationId
-      id
-      uid
-      name
-      email
-      mobile
-      vipLevel
-      remarks
-      data {
-        key
-        label
-        value
-        index
-        hidden
-        href
-      }
+      ...customerFields
     }
     highlightFields
     id

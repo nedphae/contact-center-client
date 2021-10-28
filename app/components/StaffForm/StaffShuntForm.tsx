@@ -1,13 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
+/* eslint-disable react/jsx-props-no-spreading */
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import _ from 'lodash';
 
+import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import JSONEditor, { JSONEditorOptions } from 'jsoneditor';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import TitleIcon from '@material-ui/icons/Title';
 import {
   Typography,
   Link,
@@ -22,14 +31,21 @@ import {
   Grid,
   Slider,
   Switch,
+  CircularProgress,
+  Snackbar,
 } from '@material-ui/core';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+import Upload from 'rc-upload';
 
+import {
+  getDownloadOssChatImgPath,
+  getUploadOssChatImgPath,
+} from 'app/config/clientConfig';
 import Staff, {
   ShuntClass,
   StaffConfig,
   StaffShunt,
 } from 'app/domain/StaffInfo';
-import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { ShuntUIConfig } from 'app/domain/Config';
 
 import './Jsoneditor.global.css';
@@ -156,6 +172,10 @@ const MUTATION_STAFF_CONFIG = gql`
   }
 `;
 
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 export default function StaffShuntForm(props: FormProps) {
   const { defaultValues, shuntClassList, staffList } = props;
   const classes = useStyles();
@@ -163,6 +183,47 @@ export default function StaffShuntForm(props: FormProps) {
   const jsoneditorRef = useRef<HTMLDivElement>(null);
   const [jsoneditor, setJsoneditor] = useState<JSONEditor>();
   const [tempStaffConfig, setTempStaffConfig] = useState<StaffConfig[]>();
+  const [chatUIConfigObj, setChatUIConfigObj] = useState<any>();
+
+  const [uploading, setUploading] = useState<boolean>();
+  const [error, setError] = useState<string>();
+
+  const updateChatUIConfig = useCallback(
+    function updateChatUIConfig(newChatUIConfigObj: any) {
+      jsoneditor?.update(newChatUIConfigObj);
+      setChatUIConfigObj(newChatUIConfigObj);
+    },
+    [jsoneditor]
+  );
+
+  const imgUploadProps = useMemo(() => {
+    return {
+      action: getUploadOssChatImgPath(),
+      multiple: false,
+      accept: 'image/png,image/gif,image/jpeg',
+      onStart() {
+        setUploading(true);
+      },
+      onSuccess(response: unknown) {
+        const logoId = (response as string[])[0];
+        const newChatUIConfigObj = _.defaultsDeep(
+          {
+            navbar: {
+              logo: `${getDownloadOssChatImgPath()}${logoId}`,
+            },
+          },
+          jsoneditor?.get()
+        );
+        updateChatUIConfig(newChatUIConfigObj);
+        setUploading(false);
+      },
+      onError(e: Error) {
+        setUploading(false);
+        setError(e.message);
+      },
+    };
+  }, [jsoneditor, updateChatUIConfig]);
+
   const { handleSubmit, register, control } = useForm<StaffShunt>({
     defaultValues,
   });
@@ -243,6 +304,9 @@ export default function StaffShuntForm(props: FormProps) {
     if (jsoneditorRef.current && !jsoneditor) {
       const options: JSONEditorOptions = {
         modes: ['tree', 'code'],
+        onChangeText: (jsonString: string) => {
+          setChatUIConfigObj(JSON.parse(jsonString));
+        },
       };
       setJsoneditor(new JSONEditor(jsoneditorRef.current, options));
     }
@@ -262,6 +326,7 @@ export default function StaffShuntForm(props: FormProps) {
         chatUIConfig.chatUIConfig.config
       ) {
         jsoneditor.setText(chatUIConfig.chatUIConfig.config);
+        setChatUIConfigObj(jsoneditor.get());
       }
     }
   }, [chatUIConfig, jsoneditor]);
@@ -273,7 +338,7 @@ export default function StaffShuntForm(props: FormProps) {
         savedChatUIConfig.saveChatUIConfig &&
         savedChatUIConfig.saveChatUIConfig.config
       ) {
-        jsoneditor.setText(savedChatUIConfig.saveChatUIConfig.config);
+        jsoneditor.updateText(savedChatUIConfig.saveChatUIConfig.config);
       }
     }
   }, [savedChatUIConfig, jsoneditor]);
@@ -329,6 +394,25 @@ export default function StaffShuntForm(props: FormProps) {
       setTempStaffConfig(changed);
     };
 
+  const handleClose = (_event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setError(undefined);
+  };
+
+  function handleTitleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const newChatUIConfigObj = _.defaultsDeep(
+      {
+        navbar: {
+          title: event.target.value,
+        },
+      },
+      jsoneditor?.get()
+    );
+    updateChatUIConfig(newChatUIConfigObj);
+  }
+
   function createStaffConfigList(sc: StaffConfig) {
     return (
       <Grid key={sc.staffId} container spacing={2} alignItems="center">
@@ -365,6 +449,16 @@ export default function StaffShuntForm(props: FormProps) {
   }
   return (
     <div className={classes.paper}>
+      {uploading && <CircularProgress />}
+      <Snackbar
+        open={error !== undefined}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <Alert onClose={handleClose} severity="error">
+          上传失败:{error}
+        </Alert>
+      </Snackbar>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveShunt?.id || ''}
@@ -443,6 +537,31 @@ export default function StaffShuntForm(props: FormProps) {
             ),
           }}
           inputRef={register()}
+        />
+        <Upload {...imgUploadProps}>
+          <Typography variant="body1">自定义聊天Logo（点击修改）</Typography>
+          <img
+            src={chatUIConfigObj && chatUIConfigObj.navbar.logo}
+            alt="logo"
+            style={{ maxHeight: '40px' }}
+          />
+        </Upload>
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="chatTitle"
+          name="chatTitle"
+          label="自定义聊天标题"
+          value={chatUIConfigObj?.navbar?.title || ''}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={handleTitleChange}
         />
         <div className={classes.root}>
           <Accordion>

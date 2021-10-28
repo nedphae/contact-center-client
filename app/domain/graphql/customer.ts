@@ -6,6 +6,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
   fragment customerFields on Customer {
     organizationId
     userId: id
+    id
     uid
     name
     email
@@ -32,6 +33,10 @@ export const CORE_CUSTOMER_FIELDS = gql`
       index
       hidden
       href
+    }
+    tags {
+      name
+      color
     }
   }
 `;
