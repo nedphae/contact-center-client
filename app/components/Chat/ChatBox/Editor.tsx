@@ -18,10 +18,8 @@ import Icon from '@material-ui/core/Icon';
 
 import {
   hideSelectedSessionAndSetToLast,
-  sendImageMessage,
   sendTextMessage,
 } from 'app/state/session/sessionAction';
-import { PhotoContent } from 'app/domain/Message';
 import {
   getSearchQuickReply,
   setQuickReplySearchText,
@@ -106,14 +104,6 @@ export default function Editor(selected: SelectedProps) {
         sendTextMessage(selectedSession.conversation.userId, tempTextMessage)
       );
       setMessage('');
-    }
-  }
-
-  function handleSendImageMessage(photoContent: PhotoContent) {
-    if (selectedSession) {
-      dispatch(
-        sendImageMessage(selectedSession.conversation.userId, photoContent)
-      );
     }
   }
 
@@ -228,7 +218,6 @@ export default function Editor(selected: SelectedProps) {
           ref={anchorRef}
           textMessage={tempTextMessage}
           setMessage={setMessage}
-          sendImageMessage={handleSendImageMessage}
           selectedSession={selectedSession}
         />
       )}

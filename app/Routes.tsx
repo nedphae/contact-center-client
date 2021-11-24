@@ -89,7 +89,7 @@ const dashboardRoutes = [
   },
   {
     path: '/bot',
-    name: '机器人配置',
+    name: '机器人',
     rtlName: 'لوحة القيادة',
     icon: QueryBuilderIcon,
     component: Bot,

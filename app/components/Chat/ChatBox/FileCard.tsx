@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 
 interface FileProps {
   filename: string;
-  fileSize: string;
+  fileSize: number;
   url: string;
 }
 

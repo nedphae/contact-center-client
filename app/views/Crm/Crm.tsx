@@ -22,7 +22,10 @@ import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToo
 import { SearchHit } from 'app/domain/Conversation';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import { PageParam } from 'app/domain/graphql/Query';
-import { CORE_CUSTOMER_FIELDS, CustomerQueryInput } from 'app/domain/graphql/Customer';
+import {
+  CORE_CUSTOMER_FIELDS,
+  CustomerQueryInput,
+} from 'app/domain/graphql/Customer';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
@@ -49,7 +52,6 @@ const columns: GridColDef[] = [
                 color="secondary"
                 label={name}
                 style={{ backgroundColor: colorHex as string }}
-                onDelete={() => {}}
               />
             ))}
         </>

@@ -9,12 +9,13 @@ import { useTheme } from '@material-ui/core';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import ComingSoon from 'app/components/ComingSoon/ComingSoon';
+// import ComingSoon from 'app/components/ComingSoon/ComingSoon';
 import Style from './DetailCard.less';
 import CustomerInfo from './panel/CustomerInfo';
 import QuickReply from './panel/QuickReply/QuickReply';
 import ConvsationHistory from './panel/ConvsationHistory';
 import TabPanel from '../Base/TabPanel';
+import Erp from './panel/Erp';
 
 function a11yProps(index: number) {
   return {
@@ -71,7 +72,7 @@ export default function DetailCard() {
           <QuickReply />
         </TabPanel>
         <TabPanel value={value} index={3}>
-          <ComingSoon />
+          <Erp />
         </TabPanel>
       </SwipeableViews>
     </div>

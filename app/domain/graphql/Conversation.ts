@@ -6,6 +6,8 @@ import { PageParam, RangeQuery } from './Query';
 
 export interface ConversationFilterInput {
   time?: boolean;
+
+  evaluation?: boolean;
   // 咨询类型
   categoryList?: string[];
 
@@ -24,6 +26,9 @@ export interface ConversationFilterInput {
   // 时间区间
   timeRange?: RangeQuery<number | string>;
 
+  // 评分区间
+  evaluationRange?: RangeQuery<number>;
+
   // 总消息条数
   totalMessageCount?: RangeQuery<number>;
   /**
@@ -33,7 +38,7 @@ export interface ConversationFilterInput {
 }
 
 // 监控使用
-export const CONVERSATION_QUERY = gql`
+export const CONVERSATION_FIELD = gql`
   fragment conversationFields on Conversation {
     avgRespDuration
     beginner
@@ -204,7 +209,7 @@ export interface SearchConv {
 }
 
 export const MUTATION_CONVERSATOIN = gql`
-  ${CONVERSATION_QUERY}
+  ${CONVERSATION_FIELD}
   mutation Conversation($conversationCategory: ConversationCategoryInput!) {
     updateConversationCategory(conversationCategory: $conversationCategory) {
       ...conversationFields
@@ -235,8 +240,8 @@ export interface MutationTransferToGraphql {
   transferTo: ConversationView;
 }
 
-export const QUERY_CONV = gql`
-  ${CONVERSATION_QUERY}
+export const QUERY_CONV_BY_USERID = gql`
+  ${CONVERSATION_FIELD}
   query Conversation($userId: Long!) {
     getLastConversation(userId: $userId) {
       ...conversationFields
@@ -244,12 +249,12 @@ export const QUERY_CONV = gql`
   }
 `;
 
-export interface ConversationGraphql {
+export interface ConversationUserIdGraphql {
   getLastConversation: Conversation;
 }
 
 export const QUERY_CONV_BY_ID = gql`
-  ${CONVERSATION_QUERY}
+  ${CONVERSATION_FIELD}
   query Conversation($id: Long!) {
     getConversationById(id: $id) {
       ...conversationFields
@@ -259,4 +264,18 @@ export const QUERY_CONV_BY_ID = gql`
 
 export interface ConversationIdGraphql {
   getConversationById: Conversation;
+}
+
+export const QUERY_CONV_BY_STAFFID = gql`
+  ${CONVERSATION_FIELD}
+  query Conversation {
+    # staffId为空 获取当前客服的在线会话
+    onlineConversationByStaffId(staffId: null) {
+      ...conversationFields
+    }
+  }
+`;
+
+export interface ConversationStaffIdGraphql {
+  onlineConversationByStaffId: Conversation[];
 }

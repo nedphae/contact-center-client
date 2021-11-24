@@ -52,4 +52,6 @@ export enum SysCode {
   TRANSFER_REQUEST,
   // 会话转接响应
   TRANSFER_RESPONSE,
+  // 更新会话信息
+  CONV_UPDATE,
 }

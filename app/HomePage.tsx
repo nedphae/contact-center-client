@@ -26,6 +26,7 @@ import { ApolloProvider } from '@apollo/client';
 import { HotKeys } from 'react-hotkeys';
 
 import { createTheme, ThemeProvider } from '@material-ui/core';
+import { lightBlue } from '@material-ui/core/colors';
 import { Store } from './store';
 // core components
 import Admin from './layouts/Admin';
@@ -65,6 +66,7 @@ type Props = {
 const darkTheme = createTheme({
   palette: {
     type: 'dark',
+    primary: lightBlue,
   },
 });
 

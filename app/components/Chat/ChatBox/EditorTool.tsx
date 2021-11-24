@@ -29,7 +29,7 @@ import {
   getUploadOssChatFilePath,
   getUploadOssChatImgPath,
 } from 'app/config/clientConfig';
-import { PhotoContent } from 'app/domain/Message';
+import { Attachments, PhotoContent } from 'app/domain/Message';
 import BlacklistForm from 'app/components/Blacklist/BlacklistForm';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -49,7 +49,11 @@ import {
   TransferQuery,
 } from 'app/domain/Conversation';
 import useAlert from 'app/hook/alert/useAlert';
-import { updateConver } from 'app/state/session/sessionAction';
+import {
+  sendFileMessage,
+  sendImageMessage,
+  updateConver,
+} from 'app/state/session/sessionAction';
 import TransferForm from './transfer/TransferForm';
 
 const useStyles = makeStyles(() =>
@@ -71,7 +75,6 @@ const useStyles = makeStyles(() =>
 interface EditorProps {
   textMessage: string;
   setMessage(msg: string): void;
-  sendImageMessage(photoContent: PhotoContent): void;
   selectedSession: Session;
 }
 
@@ -103,7 +106,7 @@ function createSessionCategory(
 
 function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
-  const { textMessage, setMessage, sendImageMessage, selectedSession } = props;
+  const { textMessage, setMessage, selectedSession } = props;
   const dispatch = useDispatch();
 
   const blacklistInfo: BlacklistFormProp = {
@@ -152,6 +155,22 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     refOfTransferDialog.current?.setOpen(true);
   }
 
+  function handleSendImageMessage(photoContent: PhotoContent) {
+    if (selectedSession) {
+      dispatch(
+        sendImageMessage(selectedSession.conversation.userId, photoContent)
+      );
+    }
+  }
+
+  function handleSendFileMessage(attachments: Attachments) {
+    if (selectedSession) {
+      dispatch(
+        sendFileMessage(selectedSession.conversation.userId, attachments)
+      );
+    }
+  }
+
   const handleClick =
     (newPlacement: PopperPlacementType) =>
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -178,7 +197,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
       console.log('onSuccess', response);
       // 发送图片消息
-      sendImageMessage({
+      handleSendImageMessage({
         mediaId: (response as string[])[0],
         filename: file.name,
         picSize: file.size,
@@ -190,9 +209,27 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     },
   };
 
-  const fileUploadProps = _.clone(imgUploadProps);
-  fileUploadProps.action = `${getUploadOssChatFilePath()}`;
-  fileUploadProps.accept = '*';
+  const fileUploadProps = {
+    action: `${getUploadOssChatFilePath()}`,
+    multiple: false,
+    accept: '*',
+    onStart(file: RcFile) {
+      console.log('onStart', file, file.name);
+    },
+    onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
+      console.log('onSuccess', response);
+      // 发送图片消息
+      handleSendFileMessage({
+        mediaId: (response as string[])[0],
+        filename: file.name,
+        size: file.size,
+        type: file.type,
+      });
+    },
+    onError(error: Error, _ret: any, _file: RcFile) {
+      console.log('onError', error);
+    },
+  };
 
   const handleMenuClose = () => {
     setMenuAnchorEl(undefined);
@@ -272,11 +309,11 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       >
         <InsertEmoticonOutlinedIcon />
       </IconButton>
-      {/* <Upload {...fileUploadProps}>
+      <Upload {...fileUploadProps}>
         <IconButton aria-label="upload file" size="small">
           <AttachmentOutlinedIcon />
         </IconButton>
-      </Upload> */}
+      </Upload>
       <Upload {...imgUploadProps}>
         <IconButton color="secondary" aria-label="upload image" size="small">
           <ImageOutlinedIcon />

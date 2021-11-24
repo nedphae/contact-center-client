@@ -3,7 +3,7 @@
  * 权限页面
  * 配置登录，验证权限
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Avatar from '@material-ui/core/Avatar';
@@ -16,7 +16,14 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Box from '@material-ui/core/Box';
-import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Snackbar,
+  SnackbarCloseReason,
+} from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,6 +35,7 @@ import { history } from 'app/store';
 import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { saveOnlineStatus } from 'app/electron/jwtStorage';
+import { Alert } from '@material-ui/lab';
 
 function Copyright() {
   return (
@@ -101,23 +109,51 @@ export default function Auth() {
   const dispatch = useDispatch();
   const classes = useStyles();
   const { register, handleSubmit, control, errors } = useForm<FormValues>();
+  const [error, setError] = useState<string>();
   useAutoLogin(true);
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data: FormValues) => {
     // 清楚密码中的空格
     data.org_id = Number((data.org_id as string).replaceAll(' ', ''));
     if (typeof data.org_id === 'number') {
-      const token = await oauthLogin(data as LoginParamsType, data.remember);
-      dispatch(setUserAsync(token, data.onlineStatus));
-      // 保存在线状态
-      saveOnlineStatus(data.onlineStatus);
-      history.push('/');
+      try {
+        const token = await oauthLogin(data as LoginParamsType, data.remember);
+        dispatch(setUserAsync(token, data.onlineStatus));
+        // 保存在线状态
+        saveOnlineStatus(data.onlineStatus);
+        history.push('/');
+      } catch (ex) {
+        setError('登录失败，请检查用户名或密码');
+      }
     }
+  };
+
+  const handleClose = (
+    _event: React.SyntheticEvent<Element, Event>,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setError(undefined);
   };
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      {error && (
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          open={Boolean(error)}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert onClose={handleClose} severity="error">
+            {error}
+          </Alert>
+        </Snackbar>
+      )}
+
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
@@ -143,7 +179,12 @@ export default function Auth() {
               inputComponent: NumberFormatCustom as any,
             }}
             autoComplete="organization"
-            inputRef={register({ required: true, maxLength: 12 })}
+            error={errors.org_id && true}
+            helperText={errors.org_id?.message}
+            inputRef={register({
+              required: { value: true, message: '机构ID必填' },
+              maxLength: 50,
+            })}
           />
           <TextField
             variant="outlined"
@@ -154,7 +195,12 @@ export default function Auth() {
             label="用户名"
             name="username"
             autoComplete="username"
-            inputRef={register({ required: true, maxLength: 50 })}
+            error={errors.username && true}
+            helperText={errors.username?.message}
+            inputRef={register({
+              required: { value: true, message: '用户名必填' },
+              maxLength: 100,
+            })}
           />
           <TextField
             variant="outlined"
@@ -168,7 +214,10 @@ export default function Auth() {
             error={errors.password && true}
             helperText={errors.password?.message}
             autoComplete="current-password"
-            inputRef={register({ required: true, maxLength: 50 })}
+            inputRef={register({
+              required: { value: true, message: '密码必填' },
+              maxLength: 100,
+            })}
           />
           <Controller
             control={control}

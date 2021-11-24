@@ -23,19 +23,25 @@ import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
+  FormControlLabel,
+  Grid,
   Paper,
   PaperProps,
+  Slider,
+  Typography,
 } from '@material-ui/core';
 import { AllStaffInfo } from 'app/domain/graphql/Staff';
 import { SelectKeyValue } from 'app/components/Form/ChipSelect';
 import { PageParam } from 'app/domain/graphql/Query';
 import Draggable from 'react-draggable';
 import javaInstant2DateStr from 'app/utils/timeUtils';
+import { Control, Controller } from 'react-hook-form';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -287,9 +293,20 @@ export default function ChatHistory() {
   };
 
   const setSearchParams = (searchParams: ConversationFilterInput) => {
-    searchParams.page = conversationFilterInput.page;
-    setConversationFilterInput(searchParams);
-    refetch({ conversationFilterInput: searchParams });
+    let newSearchParams = searchParams;
+    if (searchParams.evaluation) {
+      newSearchParams = _.omit(newSearchParams, 'evaluation');
+    } else {
+      // 没有选择区间搜索，删除区间字段
+      newSearchParams = _.omit(
+        newSearchParams,
+        'evaluation',
+        'evaluationRange'
+      );
+    }
+    newSearchParams.page = conversationFilterInput.page;
+    setConversationFilterInput(newSearchParams);
+    refetch({ conversationFilterInput: newSearchParams });
   };
 
   const result = data?.searchConv;
@@ -345,6 +362,30 @@ export default function ChatHistory() {
     }
   };
 
+  const evaluateMarks = [
+    {
+      value: 1,
+      label: '非常不满意',
+    },
+    {
+      value: 25,
+      label: '不满意',
+    },
+
+    {
+      value: 50,
+      label: '不满意',
+    },
+    {
+      value: 75,
+      label: '满意',
+    },
+    {
+      value: 100,
+      label: '非常满意',
+    },
+  ];
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <Dialog
@@ -375,6 +416,54 @@ export default function ChatHistory() {
         currentValues={conversationFilterInput}
         searchAction={setSearchParams}
         selectKeyValueList={selectKeyValueList}
+        customerForm={(control: Control<ConversationFilterInput>) => (
+          <Grid container alignItems="center">
+            <Grid item xs={1}>
+              <Controller
+                control={control}
+                defaultValue
+                name="evaluation"
+                render={({ onChange, value }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={value}
+                        onChange={(e) => onChange(e.target.checked)}
+                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                      />
+                    }
+                    label="筛选满意度区间"
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <Typography id="range-slider" gutterBottom>
+                满意度区间
+              </Typography>
+              <Controller
+                control={control}
+                name="evaluationRange"
+                defaultValue={{ from: 1, to: 100 }}
+                render={({ onChange, value }) => (
+                  <Slider
+                    value={[value.from, value.to]}
+                    // valueLabelFormat={valueLabelFormat}
+                    // getAriaValueText={valuetext}
+                    valueLabelDisplay="auto"
+                    aria-labelledby="range-slider"
+                    step={null}
+                    marks={evaluateMarks}
+                    onChange={(_event, newValue) => {
+                      const arrayValue = newValue as number[];
+                      onChange({ from: arrayValue[0], to: arrayValue[1] });
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+        )}
       />
       <Divider variant="inset" component="li" />
       <DataGrid

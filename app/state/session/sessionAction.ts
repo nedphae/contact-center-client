@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WebSocketRequest, generateResponse } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
 import {
+  Attachments,
   Content,
   Message,
   MessagesMap,
@@ -29,9 +30,11 @@ import { InteractionLogo } from 'app/domain/constant/Conversation';
 import apolloClient from 'app/utils/apolloClient';
 import {
   ConversationIdGraphql,
+  ConversationUserIdGraphql,
   MutationTransferToGraphql,
   MUTATION_CONV_TRANSFER,
   QUERY_CONV_BY_ID,
+  QUERY_CONV_BY_USERID,
 } from 'app/domain/graphql/Conversation';
 import slice from './sessionSlice';
 import {
@@ -400,6 +403,14 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
       }
       break;
     }
+    case SysCode.CONV_UPDATE: {
+      const msg = content.textContent?.text;
+      if (msg) {
+        const sysMsg = JSON.parse(msg) as Conversation;
+        dispatch(updateConver(sysMsg));
+      }
+      break;
+    }
     case SysCode.TRANSFER_REQUEST: {
       const msg = content.textContent?.text;
       if (msg) {
@@ -457,7 +468,7 @@ export const setNewMessage =
         }),
         // TODO: 根据 pts 检查是否漏接了消息
         map((r) => r?.message),
-        tap((m) => {
+        tap(async (m) => {
           if (m?.creatorType === CreatorType.SYS) {
             // 系统消息，解析并执行操作
             runSysMsg(m, dispatch);
@@ -467,6 +478,22 @@ export const setNewMessage =
             const { selectedSession } = getState().chat;
             const userId =
               m?.creatorType === CreatorType.CUSTOMER ? m?.from : m?.to;
+            if (userId) {
+              const session = getSessionByUserId(userId)(getState());
+              if (!session) {
+                // 用户对应会话不存在，重新获取会话
+                const { data: conv } =
+                  await apolloClient.query<ConversationUserIdGraphql>({
+                    query: QUERY_CONV_BY_USERID,
+                    variables: {
+                      userId,
+                    },
+                  });
+                if (conv.getLastConversation) {
+                  dispatch(updateConver(conv.getLastConversation));
+                }
+              }
+            }
             if (selectedSession && userId) {
               if (selectedSession !== userId) {
                 // 设置未读消息数
@@ -529,6 +556,26 @@ export function sendImageMessage(
     const content: Content = {
       contentType: 'IMAGE',
       photoContent,
+    };
+    const message: Message = {
+      uuid: uuidv4().substr(0, 8),
+      to,
+      type: CreatorType.CUSTOMER,
+      creatorType: CreatorType.STAFF,
+      content,
+    };
+    dispatch(sendMessage(message));
+  };
+}
+
+export function sendFileMessage(
+  to: number,
+  attachments: Attachments
+): AppThunk {
+  return (dispatch) => {
+    const content: Content = {
+      contentType: 'FILE',
+      attachments,
     };
     const message: Message = {
       uuid: uuidv4().substr(0, 8),

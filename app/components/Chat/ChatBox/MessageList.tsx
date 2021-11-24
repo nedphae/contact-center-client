@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
@@ -334,11 +334,17 @@ const MessageList = (props: MessageListProps) => {
     };
   }, [user]);
 
-  function handleLoadMore() {
+  const handleLoadMore = useCallback(() => {
     loadHistoryMessage({
       variables: { userId: user?.userId, cursor: lastSeqId, limit: 20 },
     });
-  }
+  }, [lastSeqId, loadHistoryMessage, user]);
+
+  useEffect(() => {
+    if (user && user?.userId && messages.length === 0) {
+      handleLoadMore();
+    }
+  }, [handleLoadMore, messages, user]);
 
   function handleContentSizeChange() {
     // 检查是否是读取历史记录

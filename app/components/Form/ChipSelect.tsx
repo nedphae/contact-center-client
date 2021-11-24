@@ -31,8 +31,8 @@ function getStyles(name: string, keys: string[], theme: Theme) {
   return {
     fontWeight:
       keys.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
+        ? theme.typography.fontWeightLight
+        : theme.typography.fontWeightBold,
   };
 }
 
@@ -115,7 +115,7 @@ export default function ChipSelect(props: SelectProps) {
                   <MenuItem
                     key={id}
                     value={id}
-                    style={getStyles(id, _.keys(it.selectList), theme)}
+                    style={getStyles(id, value ?? [], theme)}
                   >
                     {it.selectList[id]}
                   </MenuItem>

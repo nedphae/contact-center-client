@@ -9,9 +9,14 @@ import React, {
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import _ from 'lodash';
 
-import { gql, useLazyQuery, useMutation } from '@apollo/client';
+import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import JSONEditor, { JSONEditorOptions } from 'jsoneditor';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  useTheme,
+} from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
@@ -24,6 +29,7 @@ import {
   InputLabel,
   FormHelperText,
   MenuItem,
+  Input,
   Select,
   Accordion,
   AccordionDetails,
@@ -33,6 +39,8 @@ import {
   Switch,
   CircularProgress,
   Snackbar,
+  Chip,
+  Button,
 } from '@material-ui/core';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import Upload from 'rc-upload';
@@ -50,7 +58,28 @@ import { ShuntUIConfig } from 'app/domain/Config';
 
 import './Jsoneditor.global.css';
 import useAlert from 'app/hook/alert/useAlert';
+import { TopicGraphql, QUERY_BOT_TOPIC } from 'app/domain/graphql/Bot';
 import SubmitButton from '../Form/SubmitButton';
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+function getStyles(name: string, keys: string[], theme: Theme) {
+  return {
+    fontWeight:
+      keys.indexOf(name) === -1
+        ? theme.typography.fontWeightLight
+        : theme.typography.fontWeightBold,
+  };
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -91,6 +120,13 @@ const useStyles = makeStyles((theme: Theme) =>
       '&:hover': {
         textDecoration: 'underline',
       },
+    },
+    chips: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+    chip: {
+      margin: 2,
     },
   })
 );
@@ -178,12 +214,15 @@ function Alert(props: AlertProps) {
 
 export default function StaffShuntForm(props: FormProps) {
   const { defaultValues, shuntClassList, staffList } = props;
+  const theme = useTheme();
   const classes = useStyles();
 
   const jsoneditorRef = useRef<HTMLDivElement>(null);
   const [jsoneditor, setJsoneditor] = useState<JSONEditor>();
   const [tempStaffConfig, setTempStaffConfig] = useState<StaffConfig[]>();
   const [chatUIConfigObj, setChatUIConfigObj] = useState<any>();
+
+  const { data: allTopic } = useQuery<TopicGraphql>(QUERY_BOT_TOPIC);
 
   const [uploading, setUploading] = useState<boolean>();
   const [error, setError] = useState<string>();
@@ -223,6 +262,46 @@ export default function StaffShuntForm(props: FormProps) {
       },
     };
   }, [jsoneditor, updateChatUIConfig]);
+
+  const avatarUploadProps = useMemo(() => {
+    return {
+      action: getUploadOssChatImgPath(),
+      multiple: false,
+      accept: 'image/png,image/gif,image/jpeg',
+      onStart() {
+        setUploading(true);
+      },
+      onSuccess(response: unknown) {
+        const logoId = (response as string[])[0];
+        const newChatUIConfigObj = _.defaultsDeep(
+          {
+            robot: {
+              avatar: `${getDownloadOssChatImgPath()}${logoId}`,
+            },
+          },
+          jsoneditor?.get()
+        );
+        updateChatUIConfig(newChatUIConfigObj);
+        setUploading(false);
+      },
+      onError(e: Error) {
+        setUploading(false);
+        setError(e.message);
+      },
+    };
+  }, [jsoneditor, updateChatUIConfig]);
+
+  function onDeleteLogoClick() {
+    let newChatUIConfigObj = jsoneditor?.get();
+    newChatUIConfigObj = _.omit(newChatUIConfigObj, 'navbar.logo');
+    updateChatUIConfig(newChatUIConfigObj);
+  }
+
+  function onDeleteAvatarClick() {
+    let newChatUIConfigObj = jsoneditor?.get();
+    newChatUIConfigObj = _.omit(newChatUIConfigObj, 'robot.avatar');
+    updateChatUIConfig(newChatUIConfigObj);
+  }
 
   const { handleSubmit, register, control } = useForm<StaffShunt>({
     defaultValues,
@@ -413,6 +492,52 @@ export default function StaffShuntForm(props: FormProps) {
     updateChatUIConfig(newChatUIConfigObj);
   }
 
+  function handleWelcomeMessageChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const newChatUIConfigObj = _.defaultsDeep(
+      {
+        messages: [
+          {
+            type: 'text',
+            content: {
+              text: event.target.value,
+            },
+          },
+        ],
+      },
+      jsoneditor?.get()
+    );
+    updateChatUIConfig(newChatUIConfigObj);
+  }
+
+  function handleConnectIdChange(
+    event: React.ChangeEvent<{
+      name?: string | undefined;
+      value: unknown;
+    }>
+  ) {
+    let newChatUIConfigObj = jsoneditor?.get();
+    if (event.target.value) {
+      newChatUIConfigObj = _.assign(newChatUIConfigObj, {
+        connectIds: event.target.value as string[],
+      });
+    } else {
+      newChatUIConfigObj = _.omit(newChatUIConfigObj, 'connectIds');
+    }
+    updateChatUIConfig(newChatUIConfigObj);
+  }
+
+  function handleConnectIdDelete(connectId: string) {
+    let newChatUIConfigObj = jsoneditor?.get();
+    newChatUIConfigObj = _.assign(newChatUIConfigObj, {
+      connectIds: newChatUIConfigObj.connectIds.filter(
+        (it: string) => it !== connectId
+      ),
+    });
+    updateChatUIConfig(newChatUIConfigObj);
+  }
+
   function createStaffConfigList(sc: StaffConfig) {
     return (
       <Grid key={sc.staffId} container spacing={2} alignItems="center">
@@ -538,14 +663,25 @@ export default function StaffShuntForm(props: FormProps) {
           }}
           inputRef={register()}
         />
-        <Upload {...imgUploadProps}>
-          <Typography variant="body1">自定义聊天Logo（点击修改）</Typography>
-          <img
-            src={chatUIConfigObj && chatUIConfigObj.navbar.logo}
-            alt="logo"
-            style={{ maxHeight: '40px' }}
-          />
-        </Upload>
+        <Grid container xs={12}>
+          <Grid item xs={6}>
+            <Upload {...imgUploadProps}>
+              <Typography variant="body1">
+                自定义导航栏Logo（点击添加/修改）
+              </Typography>
+              <img
+                src={chatUIConfigObj && chatUIConfigObj.navbar.logo}
+                alt="logo"
+                style={{ maxHeight: '40px' }}
+              />
+            </Upload>
+          </Grid>
+          <Grid item xs={6}>
+            <Button color="secondary" onClick={onDeleteLogoClick}>
+              删除图片
+            </Button>
+          </Grid>
+        </Grid>
         <TextField
           variant="outlined"
           margin="normal"
@@ -563,6 +699,92 @@ export default function StaffShuntForm(props: FormProps) {
           }}
           onChange={handleTitleChange}
         />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="chatTitle"
+          name="chatTitle"
+          label="欢迎语设置"
+          value={chatUIConfigObj?.messages[0]?.content?.text || ''}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={handleWelcomeMessageChange}
+        />
+        <Grid container xs={12}>
+          <Grid item xs={6}>
+            <Upload {...avatarUploadProps}>
+              <Typography variant="body1">
+                客服头像设置 (最大 108 * 108)
+              </Typography>
+              <img
+                src={chatUIConfigObj && chatUIConfigObj.robot.avatar}
+                alt="logo"
+                style={{ maxHeight: '40px' }}
+              />
+            </Upload>
+          </Grid>
+          <Grid item xs={6}>
+            <Button color="secondary" onClick={onDeleteAvatarClick}>
+              删除图片
+            </Button>
+          </Grid>
+        </Grid>
+        <FormControl variant="outlined" margin="normal" fullWidth>
+          <InputLabel id="demo-mutiple-chip-label">热门问题</InputLabel>
+          <Select
+            labelId="demo-mutiple-chip-label"
+            id="demo-mutiple-chip"
+            multiple
+            input={<Input id="select-multiple-chip" />}
+            onChange={handleConnectIdChange}
+            value={chatUIConfigObj?.connectIds ?? []}
+            label="热门问题"
+            renderValue={(selected) => (
+              <div className={classes.chips}>
+                {(selected as string[]).map((id) => (
+                  <Chip
+                    key={id}
+                    label={
+                      allTopic?.allTopic
+                        ?.filter((topic) => topic.id === id)
+                        ?.map((topic) => topic.question)[0] ?? ''
+                    }
+                    className={classes.chip}
+                    onDelete={() => {
+                      handleConnectIdDelete(id);
+                    }}
+                    onMouseDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            MenuProps={MenuProps}
+          >
+            {allTopic?.allTopic &&
+              allTopic.allTopic.map((topic) => (
+                <MenuItem
+                  key={topic.id}
+                  value={topic.id}
+                  style={getStyles(
+                    topic.id ?? '',
+                    chatUIConfigObj?.connectIds ?? [],
+                    theme
+                  )}
+                >
+                  {topic.question}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
         <div className={classes.root}>
           <Accordion>
             <AccordionSummary

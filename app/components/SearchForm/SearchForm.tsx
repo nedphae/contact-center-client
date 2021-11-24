@@ -25,6 +25,7 @@ import {
   FormControl,
   FormControlLabel,
   FormControlProps,
+  Grid,
 } from '@material-ui/core';
 import { CustomerQueryInput } from 'app/domain/graphql/Customer';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
@@ -221,19 +222,27 @@ export default function SearchForm(props: FormProps) {
           </CardActions>
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <CardActions>
-              {customerForm && customerForm(control)}
-              <ChipSelect
-                selectKeyValueList={selectKeyValueList}
-                control={control}
-                handleDelete={handleDelete}
-                CustomerFormControl={(formControlProps: FormControlProps) => (
-                  <FormControl
-                    className={classes.formControl}
-                    // eslint-disable-next-line react/jsx-props-no-spreading
-                    {...formControlProps}
+              <Grid container spacing={0}>
+                <Grid item xs={12}>
+                  {customerForm && customerForm(control)}
+                </Grid>
+                <Grid item xs={12}>
+                  <ChipSelect
+                    selectKeyValueList={selectKeyValueList}
+                    control={control}
+                    handleDelete={handleDelete}
+                    CustomerFormControl={(
+                      formControlProps: FormControlProps
+                    ) => (
+                      <FormControl
+                        className={classes.formControl}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...formControlProps}
+                      />
+                    )}
                   />
-                )}
-              />
+                </Grid>
+              </Grid>
             </CardActions>
           </Collapse>
         </Card>

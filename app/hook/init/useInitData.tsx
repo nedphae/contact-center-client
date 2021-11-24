@@ -15,6 +15,11 @@ import {
   QUERY_SESSION_CATEGORY,
 } from 'app/domain/graphql/SessionCategory';
 import { SessionCategory } from 'app/domain/SessionCategory';
+import {
+  ConversationStaffIdGraphql,
+  QUERY_CONV_BY_STAFFID,
+} from 'app/domain/graphql/Conversation';
+import { updateConver } from 'app/state/session/sessionAction';
 
 interface Result {
   refetchQuickReply(
@@ -25,6 +30,9 @@ interface Result {
   refetchSessionCategory(
     variables?: Partial<OperationVariables> | undefined
   ): Promise<ApolloQueryResult<SessionCategoryGraphql>>;
+  refetchOnlineConv(
+    variables?: Partial<OperationVariables> | undefined
+  ): Promise<ApolloQueryResult<ConversationStaffIdGraphql>>;
 }
 /**
  * 用于初始化数据，载入：
@@ -46,13 +54,21 @@ const useInitData = (): Result => {
     variables: { enabled: true },
   });
 
-  // TODO: 获取客服当前联系的会话，防止刷新了客户端后会话丢失
+  const { data: onlineConverList, refetch: refetchOnlineConv } =
+    useQuery<ConversationStaffIdGraphql>(QUERY_CONV_BY_STAFFID);
 
+  // 获取客服当前联系的会话，防止刷新了客户端后会话丢失
   useEffect(() => {
-    if (data !== undefined) {
+    if (data) {
       dispatch(setQuickReply(data.getQuickReply));
     }
-  }, [data, dispatch]);
+    if (onlineConverList && onlineConverList.onlineConversationByStaffId) {
+      onlineConverList.onlineConversationByStaffId.forEach((it) => {
+        // TODO: 优化为 batch
+        dispatch(updateConver(it));
+      });
+    }
+  }, [data, dispatch, onlineConverList]);
 
   const sessionCategoryTreeList = useMemo(() => {
     // 初始化 咨询类型 treeList
@@ -88,6 +104,7 @@ const useInitData = (): Result => {
     sessionCategoryList: sessionCategoryGraphqlResult?.getAllSessionCategory,
     sessionCategoryTreeList,
     refetchSessionCategory,
+    refetchOnlineConv,
   };
 };
 

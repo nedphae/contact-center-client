@@ -47,7 +47,7 @@ export interface Attachments {
   /** 文件名称 */
   filename: string;
   /** 文件大小 */
-  size: string;
+  size: number;
   /** 根据类型显示不同图标 */
   type: string;
 }

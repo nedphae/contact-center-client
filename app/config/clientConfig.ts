@@ -1,60 +1,75 @@
-const clientConfig = {
-  web: {
+class ClientConfig {
+  web = {
     // gateway 配置地址
     // 后端接口地址，仅修改此地址即可
-    host: 'http://localhost:8800',
-  },
+    host: 'http://localhost:8080',
+  };
+
   // jwt 配置
-  oauth: {
+  oauth = {
     jwks: '/.well-known/jwks.json',
     path: '/oauth/token',
-    clientId: 'user_client',
-    clientSecret: 'test_secret',
+    clientId: 'Xsrr8fXfGJ',
+    clientSecret: 'K&wroZ4M6z4@a!W62q$*Dks',
     grant_type: 'password',
     scope: 'staff',
     // json-storage 存储名称
     tokenName: 'jwt.token',
     // localStorage 存储名称
     accessTokenName: 'jwt.access_token',
-  },
+  };
+
   // clientId 配置
-  headers: {
-    Authorization: 'Basic dXNlcl9jbGllbnQ6dGVzdF9zZWNyZXQ=',
-  },
-  graphql: {
+  headers = {
+    Authorization: `Basic ${btoa(
+      `${this.oauth.clientId}:${this.oauth.clientSecret}`
+    )}`,
+  };
+
+  graphql = {
     // webSocket 不在使用
     webSocketLink: 'ws://localhost:8880/subscriptions',
     graphql: '/graphql',
-  },
-  websocket: {
+  };
+
+  websocket = {
     path: '/socket.io',
     namespace: '/im/staff',
-  },
-  im: {
+  };
+
+  im = {
     path: '/im',
-  },
-  bot: {
+  };
+
+  bot = {
     path: '/bot',
-  },
-  customer: {
+  };
+
+  customer = {
     path: '/customer',
-  },
-  dispatcher: {
+  };
+
+  dispatcher = {
     path: '/dispatcher',
-  },
-  oss: {
+  };
+
+  oss = {
     path: '/oss',
-  },
-  message: {
+  };
+
+  message = {
     path: '/message',
-  },
-  status: {
+  };
+
+  status = {
     path: '/status',
-  },
-  staff: {
+  };
+
+  staff = {
     path: '/staff',
-  },
-};
+  };
+}
+const clientConfig = new ClientConfig();
 
 export function getUploadOssChatImgPath() {
   return `${clientConfig.web.host}${clientConfig.oss.path}/chat/img/${window.orgId}`;

@@ -11,6 +11,13 @@ import { CreatorType } from './constant/Message';
 import { Message } from './Message';
 import { SessionCategory } from './SessionCategory';
 
+export interface Evaluate {
+  evaluationType: number;
+  evaluation: number;
+  evaluationRemark: string;
+  userResolvedStatus: number;
+}
+
 /** 会话信息 */
 export interface Conversation {
   id: number;
@@ -47,7 +54,7 @@ export interface Conversation {
   categoryDetail: string | undefined;
   closeReason: CloseReason | undefined;
   endTime: number | undefined;
-  evaluate: string | undefined;
+  evaluate: Evaluate | undefined;
   staffFirstReplyTime: Date | undefined;
   firstReplyCost: number;
   stickDuration: number;

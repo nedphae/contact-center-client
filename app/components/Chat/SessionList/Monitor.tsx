@@ -25,7 +25,7 @@ import useMonitorUserAndMsg, {
 } from 'app/hook/init/useMonitorUserAndMsg';
 import { setMonitorSelectedSession } from 'app/state/chat/chatAction';
 import { MonitorGraphql, QUERY_MONITOR } from 'app/domain/graphql/Monitor';
-import { ConversationGraphql } from 'app/domain/graphql/Conversation';
+import { ConversationUserIdGraphql } from 'app/domain/graphql/Conversation';
 import { CustomerGraphql } from 'app/domain/graphql/Customer';
 import { Monitored } from 'app/domain/Chat';
 
@@ -52,7 +52,7 @@ interface MonitorProps {
 
 type CustomerAndConversationGraphql = Object.Merge<
   CustomerGraphql,
-  ConversationGraphql
+  ConversationUserIdGraphql
 >;
 
 function SyncUserMessage() {

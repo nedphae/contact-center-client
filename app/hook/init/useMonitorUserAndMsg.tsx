@@ -5,7 +5,7 @@ import { gql, useLazyQuery } from '@apollo/client';
 import { Message } from 'app/domain/Message';
 import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
 import { PageResult } from 'app/domain/Page';
-import { CONVERSATION_QUERY } from 'app/domain/graphql/Conversation';
+import { CONVERSATION_FIELD } from 'app/domain/graphql/Conversation';
 import { interval, Subscription } from 'rxjs';
 import getPageQuery from 'app/domain/graphql/Page';
 
@@ -63,7 +63,7 @@ interface Graphql {
 }
 
 export const QUERY = gql`
-  ${CONVERSATION_QUERY}
+  ${CONVERSATION_FIELD}
   query Customer($userId: Long!) {
     getCustomer(userId: $userId) {
       organizationId

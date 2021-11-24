@@ -146,7 +146,7 @@ export default function Dashboard() {
             title="监控"
             width="100%"
             height={document.documentElement.clientHeight - 60}
-            src="http://192.168.50.110:5601"
+            src="http://192.168.50.110:5601/app/discover#"
           />
         </GridItem>
       </GridContainer>
