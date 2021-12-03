@@ -25,7 +25,7 @@ export const setUserAsync =
     token: AccessToken,
     onlineStatus: OnlineStatus = OnlineStatus.ONLINE
   ): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     setAuthority(
       token.authorities.map((role) => role.substring(5).toLowerCase())
     );
@@ -35,6 +35,10 @@ export const setUserAsync =
     staff.token = token.source;
     staff.onlineStatus = onlineStatus;
     window.orgId = staff.organizationId;
+    if (getMyself(getState()).id !== staff.id) {
+      // 不是同一个用户登录就清空所有缓存
+      dispatch({ type: 'CLEAR_ALL' });
+    }
     dispatch(setStaff(staff));
   };
 
