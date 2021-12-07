@@ -36,10 +36,15 @@ import {
   QUERY_CONV_BY_ID,
   QUERY_CONV_BY_USERID,
 } from 'app/domain/graphql/Conversation';
+import {
+  SyncMsgByStaffGraphql,
+  SYNC_MSG_BY_STAFF,
+} from 'app/domain/graphql/Message';
 import slice from './sessionSlice';
 import {
   getSelectedSession,
   removeTransferMessageToSend,
+  setPts,
   setSelectedSessionNumber,
   setSnackbarProp,
   setTransferMessageRecive,
@@ -466,58 +471,82 @@ export const setNewMessage =
         tap(() => {
           cb(generateResponse(request.header, '"OK"'));
         }),
-        // TODO: 根据 pts 检查是否漏接了消息
-        map((r) => r?.message),
-        tap(async (m) => {
-          if (m?.creatorType === CreatorType.SYS) {
-            // 系统消息，解析并执行操作
-            runSysMsg(m, dispatch);
-          } else {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const end = { [m!.uuid]: m } as MessagesMap;
-            const { selectedSession } = getState().chat;
-            const userId =
-              m?.creatorType === CreatorType.CUSTOMER ? m?.from : m?.to;
-            if (userId) {
-              const session = getSessionByUserId(userId)(getState());
-              if (!session) {
-                // 用户对应会话不存在，重新获取会话
-                const { data: conv } =
-                  await apolloClient.query<ConversationUserIdGraphql>({
-                    query: QUERY_CONV_BY_USERID,
-                    variables: {
-                      userId,
-                    },
-                  });
-                if (conv.getLastConversation) {
-                  dispatch(updateConver(conv.getLastConversation));
+        // map((update) => update?.message),
+        tap(async (update) => {
+          const syncMessageList = [update?.message];
+          const localPts = getState().chat.pts;
+          if (update?.pts && localPts && update?.pts > localPts) {
+            console.info('丢失消息，进行同步');
+            // 根据 pts 检查是否漏接了消息
+            const { data } = await apolloClient.query<SyncMsgByStaffGraphql>({
+              query: SYNC_MSG_BY_STAFF,
+              variables: {
+                staffId: getState().staff.id,
+                cursor: localPts,
+                end: update?.pts,
+              },
+            });
+            if (
+              data &&
+              data.syncMessageByStaff &&
+              data.syncMessageByStaff.content &&
+              data.syncMessageByStaff.content.length > 0
+            ) {
+              syncMessageList.push(...data.syncMessageByStaff.content);
+            }
+          }
+          syncMessageList.forEach(async (m) => {
+            if (m?.creatorType === CreatorType.SYS) {
+              // 系统消息，解析并执行操作
+              runSysMsg(m, dispatch);
+            } else {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const end = { [m!.uuid]: m } as MessagesMap;
+              const { selectedSession } = getState().chat;
+              const userId =
+                m?.creatorType === CreatorType.CUSTOMER ? m?.from : m?.to;
+              if (userId) {
+                const session = getSessionByUserId(userId)(getState());
+                if (!session) {
+                  // 用户对应会话不存在，重新获取会话
+                  const { data: conv } =
+                    await apolloClient.query<ConversationUserIdGraphql>({
+                      query: QUERY_CONV_BY_USERID,
+                      variables: {
+                        userId,
+                      },
+                    });
+                  if (conv.getLastConversation) {
+                    dispatch(updateConver(conv.getLastConversation));
+                  }
                 }
               }
-            }
-            if (selectedSession && userId) {
-              if (selectedSession !== userId) {
-                // 设置未读消息数
-                dispatch(addNewMessgeBadge(userId));
-                // 设置未读消息状态
-                dispatch(
-                  setInteractionLogo({
-                    userId,
-                    interactionLogo: InteractionLogo.UNREAD,
-                  })
-                );
-              } else {
-                // 设置已读未回消息状态
-                dispatch(
-                  setInteractionLogo({
-                    userId,
-                    interactionLogo: InteractionLogo.READ_UNREPLIE,
-                  })
-                );
+              if (selectedSession && userId) {
+                if (selectedSession !== userId) {
+                  // 设置未读消息数
+                  dispatch(addNewMessgeBadge(userId));
+                  // 设置未读消息状态
+                  dispatch(
+                    setInteractionLogo({
+                      userId,
+                      interactionLogo: InteractionLogo.UNREAD,
+                    })
+                  );
+                } else {
+                  // 设置已读未回消息状态
+                  dispatch(
+                    setInteractionLogo({
+                      userId,
+                      interactionLogo: InteractionLogo.READ_UNREPLIE,
+                    })
+                  );
+                }
               }
+              dispatch(newMessage(end));
+              dispatch(unhideSession(userId));
             }
-            dispatch(newMessage(end));
-            dispatch(unhideSession(userId));
-          }
+          });
+          dispatch(setPts(update?.message?.seqId));
         })
       )
       .subscribe();

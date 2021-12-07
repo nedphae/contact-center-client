@@ -162,6 +162,7 @@ function Monitor(props: MonitorProps) {
   }
   return (
     <List
+      dense
       component="nav"
       aria-labelledby="nested-list-subheader"
       className={classes.root}

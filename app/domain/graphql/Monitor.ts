@@ -90,6 +90,7 @@ export const QUERY_MONITOR = gql`
         userId
         # vip等级 1-10
         vipLevel
+        region
       }
     }
   }

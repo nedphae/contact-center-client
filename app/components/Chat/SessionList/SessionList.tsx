@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import _ from 'lodash';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -8,6 +9,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Badge from '@material-ui/core/Badge';
 import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -29,10 +31,12 @@ import { OnlineStatus } from 'app/domain/constant/Staff';
 import { Session, Tag } from 'app/domain/Session';
 import { getSelectedSession } from 'app/state/chat/chatAction';
 import { Message } from 'app/domain/Message';
-import { MessageType } from 'app/domain/constant/Message';
+import { CreatorType, MessageType } from 'app/domain/constant/Message';
 import UserHeader from 'app/components/Header/UserHeader';
 import { InteractionLogo } from 'app/domain/constant/Conversation';
 import { Chip } from '@material-ui/core';
+import { getDuration, javaInstant2Num } from 'app/utils/timeUtils';
+import useInterval from 'app/hook/useInterval';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -63,6 +67,10 @@ function SessionList(props: SessionListProps) {
   const dispatch = useDispatch();
   // 默认不选取
   const selectedSession = useSelector(getSelectedSession);
+  const sessions = useSelector(getSession(history));
+  const [sessionDuration, setSessionDuration] = useState<{
+    [sessionId: number]: number;
+  }>();
 
   const [state, setState] = useState<{
     mouseX: undefined | number;
@@ -73,7 +81,28 @@ function SessionList(props: SessionListProps) {
     sticky: false,
     tag: undefined,
   });
-  const sessions = useSelector(getSession(history));
+
+  useInterval(
+    () => {
+      const durationList = sessions
+        .filter((it) => Boolean(it.firstNeedReplyTime))
+        .map((it) => {
+          if (it.firstNeedReplyTime) {
+            const createdAtTime = javaInstant2Num(it.firstNeedReplyTime);
+            const timeDuration = Math.trunc(
+              (new Date().getTime() - createdAtTime.getTime()) / 1000
+            );
+            return {
+              [it.conversation.id]: timeDuration,
+            };
+          }
+          return {};
+        });
+      setSessionDuration(_.defaults({}, ...durationList));
+    },
+    1000,
+    true
+  );
 
   const handleContextMenu = (
     event: React.MouseEvent<HTMLDivElement>,
@@ -201,7 +230,7 @@ function SessionList(props: SessionListProps) {
 
   return (
     <div className={classes.root}>
-      <List>
+      <List dense>
         {sessions.map((session) => {
           const {
             conversation,
@@ -238,7 +267,12 @@ function SessionList(props: SessionListProps) {
                 <ListItemText
                   primary={user.name === undefined ? user.uid : user.name}
                   secondary={
-                    <Typography noWrap variant="body2" color="textSecondary">
+                    <Typography
+                      noWrap
+                      variant="caption"
+                      color="textSecondary"
+                      display="block"
+                    >
                       {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
                       {lastMessage === undefined ? (
                         <>&nbsp;</>
@@ -248,14 +282,22 @@ function SessionList(props: SessionListProps) {
                     </Typography>
                   }
                 />
-                {createLogo(interactionLogo)}
-                {tag === 'important' && <StarIcon />}
-                {user.status &&
-                OnlineStatus.ONLINE === user.status.onlineStatus ? (
-                  <SyncAltIcon />
-                ) : (
-                  <SignalWifiOffIcon />
-                )}
+                <small>
+                  {createLogo(interactionLogo)}
+                  <div>
+                    {tag === 'important' && <StarIcon />}
+                    {user.status &&
+                    OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                      <SyncAltIcon />
+                    ) : (
+                      <SignalWifiOffIcon />
+                    )}
+                    <br />
+                    {sessionDuration &&
+                      sessionDuration[conversation.id] &&
+                      getDuration(sessionDuration[conversation.id])}
+                  </div>
+                </small>
               </ListItem>
             </React.Fragment>
           );

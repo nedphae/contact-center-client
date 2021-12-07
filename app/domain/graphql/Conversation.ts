@@ -217,7 +217,7 @@ export const MUTATION_CONVERSATOIN = gql`
   }
 `;
 export interface MutationConversationGraphql {
-  updateCategory: Conversation;
+  updateConversationCategory: Conversation;
 }
 
 export const MUTATION_CONV_TRANSFER = gql`

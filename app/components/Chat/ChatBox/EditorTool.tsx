@@ -139,9 +139,9 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   }
 
   useEffect(() => {
-    if (data && data.updateCategory) {
+    if (data && data.updateConversationCategory) {
       // 修改会话类型后更新本地的会话
-      dispatch(updateConver(data.updateCategory));
+      dispatch(updateConver(data.updateConversationCategory));
     }
   }, [data, dispatch]);
 

@@ -21,3 +21,17 @@ export default function javaInstant2DateStr(
   }
   return date?.toLocaleString();
 }
+
+export function getDuration(timeDuration: number) {
+  if (timeDuration < 60) {
+    return `${timeDuration}`;
+  }
+  const minutes = Math.floor(timeDuration / 60);
+  const seconds = timeDuration % 60;
+  return `${minutes}:${seconds}`;
+}
+
+export function setIntervalAndExecute(handler: () => void, timeout: number) {
+  handler();
+  return setInterval(handler, timeout);
+}

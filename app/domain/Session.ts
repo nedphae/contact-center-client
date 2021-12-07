@@ -15,6 +15,8 @@ export interface Session {
   massageList: MessagesMap;
   lastMessageTime: number;
   lastMessage: Message | undefined;
+  // 客户需要回复消息的第一条的时间
+  firstNeedReplyTime: number | undefined;
   hide: boolean;
   /** 会话标识 */
   interactionLogo: InteractionLogo;
@@ -37,7 +39,6 @@ export interface LogoUser {
   interactionLogo: InteractionLogo;
 }
 
-
 export function createSession(
   conversation: Conversation,
   user: Customer
@@ -49,6 +50,7 @@ export function createSession(
     massageList: {},
     lastMessageTime: conversation.startTime,
     lastMessage: undefined,
+    firstNeedReplyTime: undefined,
     hide: false,
     interactionLogo: InteractionLogo.NEW,
     sticky: false,

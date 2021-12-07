@@ -8,6 +8,7 @@ import { SessionMap, Session, TagParamer, LogoUser } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 import { Customer, CustomerStatus } from 'app/domain/Customer';
 import { fromUserMessagesToMap, UserMessages } from 'app/domain/Chat';
+import { CreatorType } from 'app/domain/constant/Message';
 
 const initConver = {} as SessionMap;
 
@@ -122,9 +123,18 @@ const converSlice = createSlice({
                 if (c) {
                   c.lastMessageTime =
                     (msg.createdAt as number | null) ?? c.lastMessageTime;
+
                   [c.lastMessage] = _.valuesIn(m);
                   // 消息如果存在了就不在设置 change from _.merge
                   c.massageList = _.defaults(c.massageList, m);
+
+                  if (msg.creatorType === CreatorType.CUSTOMER) {
+                    if (c.firstNeedReplyTime === undefined) {
+                      c.firstNeedReplyTime = c.lastMessageTime;
+                    }
+                  } else if (!msg.content.sysCode) {
+                    c.firstNeedReplyTime = undefined;
+                  }
                 }
               })
             );

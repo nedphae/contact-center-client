@@ -73,6 +73,8 @@ export interface CustomerStatus {
 
   // vip等级 1-10
   vipLevel: number | undefined;
+
+  region: string | undefined;
 }
 
 export interface DetailData {

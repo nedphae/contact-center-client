@@ -7,52 +7,12 @@ import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
 import { PageResult } from 'app/domain/Page';
 import { CONVERSATION_FIELD } from 'app/domain/graphql/Conversation';
 import { interval, Subscription } from 'rxjs';
-import getPageQuery from 'app/domain/graphql/Page';
-
-const CONTENT_QUERY = gql`
-  fragment myMessageContent on Message {
-    content {
-      contentType
-      sysCode
-      attachments {
-        mediaId
-        filename
-        size
-        type
-      }
-      photoContent {
-        mediaId
-        filename
-        picSize
-        type
-      }
-      textContent {
-        text
-      }
-    }
-    conversationId
-    createdAt
-    creatorType
-    from
-    nickName
-    organizationId
-    seqId
-    to
-    type
-    uuid
-  }
-`;
-
-const PAGE_QUERY = getPageQuery(
-  'MessagePage',
-  CONTENT_QUERY,
-  'myMessageContent'
-);
+import { MSG_PAGE_QUERY } from 'app/domain/graphql/Message';
 
 const QUERY_MONITOR_MESSAGE = gql`
-  ${PAGE_QUERY}
+  ${MSG_PAGE_QUERY}
   query SyncMessageByUser($userId: Long!, $cursor: Long) {
-    syncMessageByUser(userId: $userId, cursor: $cursor) {
+    syncMessageByUser(userId: $userId, cursor: $cursor, end: null) {
       ...pageOnMessagePage
     }
   }

@@ -25,6 +25,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
       shuntId
       staffId
       title
+      region
     }
     data {
       key

@@ -27,6 +27,9 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState: initChat,
   reducers: {
+    setPts: (chat, action: PayloadAction<number | undefined>) => {
+      chat.pts = action.payload;
+    },
     setTransferMessageRecive: (
       chat,
       action: PayloadAction<TransferMessageRequest>

@@ -10,7 +10,11 @@ import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import { javaInstant2Num } from 'app/utils/timeUtils';
+import {
+  getDuration,
+  javaInstant2Num,
+  setIntervalAndExecute,
+} from 'app/utils/timeUtils';
 import UserHeader from 'app/components/Header/UserHeader';
 import {
   getSelectedConstomer,
@@ -30,15 +34,6 @@ const useStyles = makeStyles(() =>
   })
 );
 
-function getDuration(sessionDuration: number) {
-  if (sessionDuration < 60) {
-    return `${sessionDuration} 秒`;
-  }
-  const minutes = Math.floor(sessionDuration / 60);
-  const seconds = sessionDuration % 60;
-  return `${minutes} 分 ${seconds} 秒`;
-}
-
 export default function ChatHeader() {
   const classes = useStyles();
   const conv = useSelector(getSelectedConv);
@@ -55,7 +50,7 @@ export default function ChatHeader() {
           1000;
         setSessionDuration(Math.trunc(duration));
       } else {
-        timer = setInterval(() => {
+        timer = setIntervalAndExecute(() => {
           const duration =
             (new Date().getTime() - javaInstant2Num(conv.startTime).getTime()) /
               1000 ?? 0;
@@ -67,7 +62,9 @@ export default function ChatHeader() {
     }
 
     return () => {
-      clearInterval(timer);
+      if (timer) {
+        clearInterval(timer);
+      }
     };
   }, [conv]);
 
@@ -76,7 +73,7 @@ export default function ChatHeader() {
       <Toolbar className={classes.toolBar}>
         {user && user.status && <UserHeader status={user.status} />}
         <Grid container spacing={0}>
-          <Grid item xs={9} zeroMinWidth>
+          <Grid item xs={4} zeroMinWidth>
             <Typography
               noWrap
               style={{ paddingLeft: 10 }}
@@ -85,6 +82,19 @@ export default function ChatHeader() {
               display="inline"
             >
               {user?.name ?? user?.uid} {/** 获取用户信息 */}
+            </Typography>
+          </Grid>
+          <Grid item xs={5} zeroMinWidth>
+            <Typography
+              noWrap
+              style={{ paddingLeft: 10 }}
+              variant="body2"
+              // 后面看是否要删除 inline
+              display="inline"
+            >
+              {user &&
+                user.status &&
+                user.status?.region?.replaceAll(/\||0/g, '')}
             </Typography>
           </Grid>
           <Grid item xs={3} zeroMinWidth>
@@ -104,7 +114,7 @@ export default function ChatHeader() {
                     : `未评价`}
                 </Typography>
               </Grid>
-              <Grid item xs={4} zeroMinWidth>
+              <Grid item xs={8} zeroMinWidth>
                 <Typography noWrap variant="body2">
                   {conv.category ? `已总结: ${conv.category}` : `未总结`}
                 </Typography>

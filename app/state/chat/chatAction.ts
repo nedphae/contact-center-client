@@ -13,6 +13,7 @@ export const {
   setTransferMessageToSend,
   removeTransferMessageToSend,
   removeTransferMessageRecive,
+  setPts,
 } = slice.actions;
 
 export const getSelectedSession = (state: RootState) => {
