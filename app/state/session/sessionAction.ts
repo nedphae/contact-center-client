@@ -334,7 +334,7 @@ export function sendTransferResponseMsg(
     };
     // 发送转接消息
     const message: Message = {
-      uuid: uuidv4().substr(0, 8),
+      uuid: uuidv4().substring(0, 8),
       to: transferMessageResponse.fromStaffId,
       type: CreatorType.STAFF,
       creatorType: CreatorType.SYS,
@@ -386,6 +386,24 @@ export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
       dispatch(setTransferMessageToSend(transferQuery));
       dispatch(sendMessage(message));
     }
+  };
+}
+
+export function sendEvaluationInvitedMsg(userId: number): AppThunk {
+  return (dispatch) => {
+    const content: Content = {
+      contentType: 'TEXT',
+      sysCode: SysCode.TRANSFER_RESPONSE,
+    };
+    // 发送转接消息
+    const message: Message = {
+      uuid: uuidv4().substring(0, 8),
+      to: userId,
+      type: CreatorType.CUSTOMER,
+      creatorType: CreatorType.SYS,
+      content,
+    };
+    dispatch(sendMessage(message));
   };
 }
 

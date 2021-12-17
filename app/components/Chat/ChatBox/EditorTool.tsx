@@ -50,6 +50,7 @@ import {
 } from 'app/domain/Conversation';
 import useAlert from 'app/hook/alert/useAlert';
 import {
+  sendEvaluationInvitedMsg,
   sendFileMessage,
   sendImageMessage,
   updateConver,
@@ -128,7 +129,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const refOfTransferDialog = useRef<DraggableDialogRef>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
 
-  const { onLoadding, onCompleted, onError } = useAlert();
+  const { onLoadding, onCompleted, onError, onCompletedMsg } = useAlert();
   const [updateCategory, { loading, data }] =
     useMutation<MutationConversationGraphql>(MUTATION_CONVERSATOIN, {
       onCompleted,
@@ -255,6 +256,12 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     handleMenuClose();
   }
 
+  function sendEvaluationInvited() {
+    const { userId } = selectedSession.conversation;
+    dispatch(sendEvaluationInvitedMsg(userId));
+    onCompletedMsg('已发送评价邀请');
+  }
+
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
       <DraggableDialog title="添加黑名单" ref={refOfDialog}>
@@ -333,12 +340,17 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
         <IconButton color="primary" aria-label="invite" size="small">
           <PersonAddOutlinedIcon />
         </IconButton>
-      </Tooltip>
-      <Tooltip title="评价">
-        <IconButton color="primary" aria-label="evaluate" size="small">
+      </Tooltip> */}
+      <Tooltip title="邀请评价">
+        <IconButton
+          color="primary"
+          aria-label="evaluate"
+          size="small"
+          onClick={sendEvaluationInvited}
+        >
           <StarIcon />
         </IconButton>
-      </Tooltip> */}
+      </Tooltip>
       <Tooltip title="咨询分类">
         <IconButton aria-label="invite" size="small" onClick={handleMenuOpen}>
           <AssignmentTurnedInIcon />

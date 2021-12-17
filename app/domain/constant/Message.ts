@@ -54,4 +54,6 @@ export enum SysCode {
   TRANSFER_RESPONSE,
   // 更新会话信息
   CONV_UPDATE,
+  // 邀请评价
+  EVALUATION_INVITED,
 }
