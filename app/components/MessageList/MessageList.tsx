@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@apollo/client';
 
 import Viewer from 'react-viewer';
+import clsx from 'clsx';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
@@ -58,7 +59,11 @@ export default function MessageList(props: MessageListProps) {
   }
 
   return (
-    <Paper square className={classes.paper}>
+    <Paper
+      square
+      className={classes.paper}
+      style={{ overflowY: 'auto', maxHeight: '80vh' }}
+    >
       <List className={classes.list}>
         {messages.map(({ uuid, createdAt, content, creatorType }) => (
           <React.Fragment key={uuid}>
@@ -113,11 +118,12 @@ export default function MessageList(props: MessageListProps) {
                 </Grid>
                 <Paper
                   elevation={4}
-                  className={
+                  className={clsx(
                     creatorType === CreatorType.CUSTOMER
                       ? classes.fromMessagePaper
-                      : classes.toMessagePaper
-                  }
+                      : classes.toMessagePaper,
+                    classes.baseMessagePaper
+                  )}
                 >
                   {createContent(content, classes, openImageViewer)}
                 </Paper>

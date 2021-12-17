@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import _ from 'lodash';
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -170,6 +170,8 @@ export default function Bot() {
   const { data, loading, refetch } = useQuery<Graphql>(QUERY);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
+  const [selectTopicCategory, setSelectTopicCategory] = useState<number[]>();
+
   const { onLoadding, onCompleted, onError } = useAlert();
   const [deleteTopicById, { loading: deleteLoading }] = useMutation<unknown>(
     MUTATION_TOPIC,
@@ -252,7 +254,40 @@ export default function Bot() {
     };
   }, [data]);
 
-  const rows = memoData.memoAllTopic;
+  const onTopicCategoryClick = useCallback(
+    (clickTopicCategory?: TopicCategory) => {
+      function getAllTopicCategoryIds(
+        topicCategory?: TopicCategory
+      ): number[] | undefined {
+        if (topicCategory) {
+          const ids: number[] = [];
+          if (topicCategory.children) {
+            topicCategory.children.forEach((it) => {
+              const cids = getAllTopicCategoryIds(it);
+              if (cids) {
+                ids.push(...cids);
+              }
+            });
+          }
+          if (topicCategory.id) {
+            ids.push(topicCategory.id);
+          }
+          return ids;
+        }
+        return undefined;
+      }
+
+      const ids = getAllTopicCategoryIds(clickTopicCategory);
+      setSelectTopicCategory(ids);
+    },
+    []
+  );
+
+  const rows = memoData.memoAllTopic.filter(
+    (it) =>
+      selectTopicCategory === undefined ||
+      selectTopicCategory.includes(it.categoryId ?? -1)
+  );
 
   return (
     <>
@@ -269,6 +304,7 @@ export default function Bot() {
           memoData={memoData}
           allTopicCategory={memoData?.allTopicCategory}
           refetch={refetch}
+          onTopicCategoryClick={onTopicCategoryClick}
         />
         <Grid item xs={12} sm={10}>
           <DataGrid

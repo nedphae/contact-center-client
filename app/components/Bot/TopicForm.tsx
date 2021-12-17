@@ -100,8 +100,6 @@ export default function TopicForm(props: FormProps) {
   };
 
   const questionType = watch('type', 1);
-  const knowledgeBaseId = watch('knowledgeBaseId', 1);
-  const categoryId = watch('categoryId', 1);
 
   const id = data?.saveTopic.id || defaultValues?.id || '';
   // 过滤自身
@@ -131,7 +129,7 @@ export default function TopicForm(props: FormProps) {
     // 防止 DropdownTreeSelect 多次刷新
     const treeData = makeTreeNode(
       categoryList,
-      defaultValues?.categoryId,
+      data?.saveTopic.categoryId || defaultValues?.categoryId,
       (topicCategory: TopicCategory, node: TreeNodeProps) => {
         node.knowledgeBaseId = topicCategory.knowledgeBaseId;
       }
@@ -141,10 +139,10 @@ export default function TopicForm(props: FormProps) {
         inlineSearchInput
         data={treeData}
         onChange={(_currentNode, selectedNodes) => {
-          setValue(
-            'knowledgeBaseId',
-            selectedNodes.map((it) => it.knowledgeBaseId)[0]
-          );
+          // setValue(
+          //   'knowledgeBaseId',
+          //   selectedNodes.map((it) => it.knowledgeBaseId)[0]
+          // );
           setValue('categoryId', selectedNodes.map((it) => it.value)[0]);
         }}
         texts={{ placeholder: '选择所属分类' }}
@@ -152,14 +150,16 @@ export default function TopicForm(props: FormProps) {
         mode="radioSelect"
       />
     );
-  }, [categoryList, defaultValues, setValue]);
+  }, [data, categoryList, defaultValues, setValue]);
 
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField value={id} name="id" type="hidden" inputRef={register()} />
         <TextField
-          defaultValue={data?.saveTopic.categoryId || categoryId || ''}
+          defaultValue={
+            data?.saveTopic.categoryId || defaultValues?.categoryId || ''
+          }
           name="categoryId"
           type="hidden"
           error={errors.categoryId && true}
@@ -171,7 +171,9 @@ export default function TopicForm(props: FormProps) {
         />
         <TextField
           defaultValue={
-            data?.saveTopic.knowledgeBaseId || knowledgeBaseId || ''
+            data?.saveTopic.knowledgeBaseId ||
+            defaultValues?.knowledgeBaseId ||
+            ''
           }
           name="knowledgeBaseId"
           type="hidden"

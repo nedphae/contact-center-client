@@ -51,6 +51,7 @@ interface BotProps {
     botConfigMap: _.Dictionary<BotConfig[]>;
   };
   allTopicCategory: TopicCategory[] | undefined;
+  onTopicCategoryClick: (selectTopicCategory?: TopicCategory) => void;
 }
 
 const MUTATION_BOT_CONFIG = gql`
@@ -70,7 +71,7 @@ const MUTATION_TOPIC_CATEGORY = gql`
 `;
 
 export default function BotSidecar(props: BotProps) {
-  const { memoData, allTopicCategory, refetch } = props;
+  const { memoData, allTopicCategory, refetch, onTopicCategoryClick } = props;
   const [state, setState] = useState<MousePoint>(initialMousePoint);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
@@ -153,6 +154,11 @@ export default function BotSidecar(props: BotProps) {
     refetch();
   }
 
+  function selectTopic() {
+    setState(initialMousePoint);
+    onTopicCategoryClick(topicOrKnowladge.Topic);
+  }
+
   function deleteTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
     setState(initialMousePoint);
     let action: Promise<FetchResult<unknown>> | undefined;
@@ -221,6 +227,9 @@ export default function BotSidecar(props: BotProps) {
         refetch={refetch}
         adderName="添加知识库"
         add={() => newTopicOrKnowladge('Knowladge')}
+        clearTopicCategorySelect={() => {
+          onTopicCategoryClick(undefined);
+        }}
       />
       {/* 知识库，分类 树状列表 */}
       <BotTreeView
@@ -274,6 +283,14 @@ export default function BotSidecar(props: BotProps) {
             </MenuItem>,
           ]}
           {topicOrKnowladge.topicOrKnowladgeKey === 'Topic' && [
+            <MenuItem
+              key="selectTopic"
+              onClick={() => {
+                selectTopic();
+              }}
+            >
+              筛选知识库分类
+            </MenuItem>,
             <MenuItem
               key="editTopicOrKnowladge"
               onClick={() => {

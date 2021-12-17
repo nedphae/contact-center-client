@@ -1,15 +1,19 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
+import { useQuery } from '@apollo/client';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
 import { getSelectedConstomer } from 'app/state/chat/chatAction';
+import {
+  CustomerGraphql,
+  QUERY_OFFLINE_CUSTOMER,
+} from 'app/domain/graphql/Customer';
+import { Customer } from 'app/domain/Customer';
 import CustomerForm from './CustomerForm';
 
-export default function CustomerInfo() {
-  const user = useSelector(getSelectedConstomer);
-
+function customerFormWithContainer(user: Customer | undefined) {
   if (user) {
     return (
       <Container component="main" maxWidth="xs">
@@ -23,4 +27,21 @@ export default function CustomerInfo() {
       <CssBaseline />
     </Container>
   );
+}
+
+export default function CustomerInfo() {
+  const user = useSelector(getSelectedConstomer);
+  return customerFormWithContainer(user);
+}
+
+interface LazyCustomerInfoProps {
+  userId: number;
+}
+
+export function LazyCustomerInfo(props: LazyCustomerInfoProps) {
+  const { userId } = props;
+  const { data } = useQuery<CustomerGraphql>(QUERY_OFFLINE_CUSTOMER, {
+    variables: { userId },
+  });
+  return customerFormWithContainer(data?.getCustomer);
 }

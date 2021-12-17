@@ -31,7 +31,7 @@ import { OnlineStatus } from 'app/domain/constant/Staff';
 import { Session, Tag } from 'app/domain/Session';
 import { getSelectedSession } from 'app/state/chat/chatAction';
 import { Message } from 'app/domain/Message';
-import { CreatorType, MessageType } from 'app/domain/constant/Message';
+import { MessageType } from 'app/domain/constant/Message';
 import UserHeader from 'app/components/Header/UserHeader';
 import { InteractionLogo } from 'app/domain/constant/Conversation';
 import { Chip } from '@material-ui/core';
@@ -283,20 +283,30 @@ function SessionList(props: SessionListProps) {
                   }
                 />
                 <small>
-                  {createLogo(interactionLogo)}
-                  <div>
-                    {tag === 'important' && <StarIcon />}
-                    {user.status &&
-                    OnlineStatus.ONLINE === user.status.onlineStatus ? (
-                      <SyncAltIcon />
-                    ) : (
-                      <SignalWifiOffIcon />
-                    )}
-                    <br />
-                    {sessionDuration &&
-                      sessionDuration[conversation.id] &&
-                      getDuration(sessionDuration[conversation.id])}
-                  </div>
+                  <Grid
+                    container
+                    spacing={2}
+                    justifyContent="flex-start"
+                    alignItems="center"
+                  >
+                    <Grid item xs={8}>
+                      {createLogo(interactionLogo)}
+                    </Grid>
+                    <Grid item xs={4}>
+                      {tag === 'important' && <StarIcon />}
+                      {user.status &&
+                      OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                        <SyncAltIcon />
+                      ) : (
+                        <SignalWifiOffIcon />
+                      )}
+                      <br />
+                      {(sessionDuration &&
+                        sessionDuration[conversation.id] &&
+                        getDuration(sessionDuration[conversation.id])) ||
+                        ''}
+                    </Grid>
+                  </Grid>
                 </small>
               </ListItem>
             </React.Fragment>

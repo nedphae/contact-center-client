@@ -37,7 +37,7 @@ interface BotTreeViewProps {
 
 function buildTopicCategory(
   topicCategoryList: TopicCategory[],
-  onContextMenu?: (
+  onContextMenu: (
     event: React.MouseEvent<HTMLLIElement>,
     type: TopicOrKnowladgeKey,
     knowledgeBase?: KnowledgeBase | undefined,

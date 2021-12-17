@@ -42,6 +42,7 @@ import { PageParam } from 'app/domain/graphql/Query';
 import Draggable from 'react-draggable';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import { Control, Controller } from 'react-hook-form';
+import { LazyCustomerInfo } from 'app/components/Chat/DetailCard/panel/CustomerInfo';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -391,7 +392,7 @@ export default function ChatHistory() {
       <Dialog
         disableEnforceFocus
         fullWidth
-        maxWidth="md"
+        maxWidth="lg"
         open={open}
         onClose={handleDialogClose}
         PaperComponent={PaperComponent}
@@ -402,7 +403,18 @@ export default function ChatHistory() {
         </DialogTitle>
         <DialogContent>
           {selectConversation && (
-            <MessageList conversation={selectConversation} />
+            <Grid container alignItems="flex-start" justifyContent="center">
+              <Grid item xs={8}>
+                <MessageList conversation={selectConversation} />
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="h6" gutterBottom align="center">
+                  客户信息
+                </Typography>
+                <Divider />
+                <LazyCustomerInfo userId={selectConversation.userId} />
+              </Grid>
+            </Grid>
           )}
         </DialogContent>
         <DialogActions>
@@ -417,7 +429,7 @@ export default function ChatHistory() {
         searchAction={setSearchParams}
         selectKeyValueList={selectKeyValueList}
         customerForm={(control: Control<ConversationFilterInput>) => (
-          <Grid container alignItems="center">
+          <Grid container alignItems="flex-start">
             <Grid item xs={1}>
               <Controller
                 control={control}

@@ -494,7 +494,7 @@ export const setNewMessage =
           const syncMessageList = [update?.message];
           const localPts = getState().chat.pts;
           if (update?.pts && localPts && update?.pts > localPts) {
-            console.info('丢失消息，进行同步');
+            // console.info('丢失消息，进行同步');
             // 根据 pts 检查是否漏接了消息
             const { data } = await apolloClient.query<SyncMsgByStaffGraphql>({
               query: SYNC_MSG_BY_STAFF,

@@ -27,9 +27,10 @@ interface BotToolbarProps {
   refetch: () => void;
   adderName: string;
   add: () => void;
+  clearTopicCategorySelect: () => void;
 }
 export default function TreeToolbar(props: BotToolbarProps) {
-  const { title, add, adderName, refetch } = props;
+  const { title, add, adderName, refetch, clearTopicCategorySelect } = props;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>(undefined);
 
@@ -75,6 +76,14 @@ export default function TreeToolbar(props: BotToolbarProps) {
           }}
         >
           {adderName}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            clearTopicCategorySelect();
+            handleMenuClose();
+          }}
+        >
+          清除分类筛选
         </MenuItem>
       </Menu>
     </Toolbar>

@@ -41,6 +41,56 @@ export const CORE_CUSTOMER_FIELDS = gql`
     }
   }
 `;
+
+export const CORE_OFFLINE_CUSTOMER_FIELDS = gql`
+  fragment customerOfflineFields on Customer {
+    organizationId
+    userId: id
+    id
+    uid
+    name
+    email
+    mobile
+    address
+    vipLevel
+    remarks
+    status {
+      fromType
+      groupId
+      ip
+      loginTime
+      onlineStatus
+      referrer
+      robotShuntSwitch
+      shuntId
+      staffId
+      title
+      region
+    }
+    data {
+      key
+      label
+      value
+      index
+      hidden
+      href
+    }
+    tags {
+      name
+      color
+    }
+  }
+`;
+
+export const QUERY_OFFLINE_CUSTOMER = gql`
+  ${CORE_OFFLINE_CUSTOMER_FIELDS}
+  query OfflineCustomer($userId: Long!) {
+    getCustomer(userId: $userId) {
+      ...customerOfflineFields
+    }
+  }
+`;
+
 export const QUERY_CUSTOMER = gql`
   ${CORE_CUSTOMER_FIELDS}
   query Customer($userId: Long!) {

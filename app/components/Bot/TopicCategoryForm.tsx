@@ -68,8 +68,12 @@ export default function TopicCategoryForm(props: FormProps) {
   };
 
   const treeData = useMemo(
-    () => makeTreeNode(allTopicCategoryList, defaultValues?.pid),
-    [defaultValues, allTopicCategoryList]
+    () =>
+      makeTreeNode(
+        allTopicCategoryList,
+        data?.saveTopicCategory.pid || defaultValues?.pid
+      ),
+    [data, defaultValues, allTopicCategoryList]
   );
 
   return (
@@ -77,15 +81,15 @@ export default function TopicCategoryForm(props: FormProps) {
       <CssBaseline />
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues?.id || data?.saveTopicCategory.id || ''}
+          value={data?.saveTopicCategory.id || defaultValues?.id || ''}
           name="id"
           type="hidden"
           inputRef={register({ valueAsNumber: true })}
         />
         <TextField
           value={
-            defaultValues?.knowledgeBaseId ||
             data?.saveTopicCategory.knowledgeBaseId ||
+            defaultValues?.knowledgeBaseId ||
             ''
           }
           name="knowledgeBaseId"
@@ -93,7 +97,7 @@ export default function TopicCategoryForm(props: FormProps) {
           inputRef={register({ valueAsNumber: true })}
         />
         <TextField
-          value={defaultValues?.pid || data?.saveTopicCategory.pid || ''}
+          value={data?.saveTopicCategory.pid || defaultValues?.pid || ''}
           name="pid"
           type="hidden"
           inputRef={register({ valueAsNumber: true })}

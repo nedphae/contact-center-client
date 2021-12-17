@@ -6,6 +6,7 @@ export const {
   setQuickReply,
   setQuickReplySearchText,
   setMonitoredMessage,
+  setMonitoredHasMore,
   setMonitorSelectedSession,
   setSelectedSessionNumber,
   setSnackbarProp,

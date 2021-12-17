@@ -33,7 +33,11 @@ import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import { Session } from 'app/domain/Session';
 import getPageQuery from 'app/domain/graphql/Page';
 import { PageResult } from 'app/domain/Page';
-import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
+import {
+  getMonitor,
+  setMonitoredHasMore,
+  setMonitoredMessage,
+} from 'app/state/chat/chatAction';
 import { CreatorType } from 'app/domain/constant/Message';
 import FileCard from './FileCard';
 
@@ -44,7 +48,7 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
     },
     paper: {
       // paddingBottom: 50,
-      maxHeight: '90%',
+      maxHeight: '100%',
       width: '100%',
     },
     baseMessagePaper: {
@@ -239,7 +243,7 @@ const MessageList = (props: MessageListProps) => {
   const classes = useMessageListStyles();
   const dispatch = useDispatch();
   // 查询是否是监控
-  const monitorSession = useSelector(getMonitor);
+  const monitorSession = useSelector(getMonitor)?.monitoredSession;
   const refOfScrollView = useRef<ScrollView>(null);
   const [loadHistoryMessage, { data, variables }] = useLazyQuery<MessagePage>(
     QUERY,
@@ -305,14 +309,27 @@ const MessageList = (props: MessageListProps) => {
           if (monitorSession) {
             // 监控历史消息
             dispatch(setMonitoredMessage(userMessages));
+            dispatch(
+              setMonitoredHasMore({
+                userId: user.userId,
+                hasMore: !data.loadHistoryMessage.last,
+              })
+            );
           } else {
             // 客服聊天历史消息
             dispatch(addHistoryMessage(userMessages));
+            dispatch(
+              setHasMore({
+                userId: user.userId,
+                hasMore: !data.loadHistoryMessage.last,
+              })
+            );
           }
+        } else if (monitorSession) {
           dispatch(
-            setHasMore({
+            setMonitoredHasMore({
               userId: user.userId,
-              hasMore: !data.loadHistoryMessage.last,
+              hasMore: false,
             })
           );
         } else {
