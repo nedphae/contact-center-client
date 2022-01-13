@@ -213,6 +213,7 @@ export default function AdminNavbarLinks() {
   return (
     <div>
       <CssBaseline />
+{/*
       <div className={classes.searchWrapper}>
         <CustomInput
           formControlProps={{
@@ -229,6 +230,7 @@ export default function AdminNavbarLinks() {
           <Search />
         </Button>
       </div>
+       */}
       <NavLink
         className={classes.buttonLink}
         activeClassName="active"
@@ -247,6 +249,7 @@ export default function AdminNavbarLinks() {
           </Hidden>
         </Button>
       </NavLink>
+{/* 
       <div className={classes.manager}>
         <Button
           color={window.innerWidth > 959 ? 'transparent' : 'white'}
@@ -323,6 +326,7 @@ export default function AdminNavbarLinks() {
           )}
         </Poppers>
       </div>
+       */}
       <div className={classes.manager}>
         <Button
           color={window.innerWidth > 959 ? 'transparent' : 'white'}

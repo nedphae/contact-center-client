@@ -25,6 +25,8 @@ export interface Session {
   /** 客服打的标签 */
   tag: Tag;
   hasMore: boolean;
+  userTypingText?: string;
+  userTypingTime?: number;
 }
 
 export interface TagParamer {
@@ -61,4 +63,9 @@ export function createSession(
 
 export interface SessionMap {
   [userId: number]: Session;
+}
+
+export interface UserTyping {
+  userId: number;
+  userTypingText?: string;
 }

@@ -31,29 +31,36 @@ export enum CreatorType {
   GROUP,
 }
 
-export enum SysCode {
+export type SysCode =
+  // 用户正在输入信息
+  | 'USER_TYPING'
+  // 设置消息已读
+  | 'READ_HISTORY'
   // 更新列队
-  UPDATE_QUEUE,
+  | 'UPDATE_QUEUE'
   // 分配列队
-  ASSIGN,
+  | 'ASSIGN'
   // 无答案
-  NO_ANSWER,
+  | 'NO_ANSWER'
   // 修改在线状态
-  ONLINE_STATUS_CHANGED,
+  | 'ONLINE_STATUS_CHANGED'
   // 会话结束
-  CONV_END,
+  | 'CONV_END'
   // 自动回复
-  AUTO_REPLY,
+  | 'AUTO_REPLY'
   // 管理员插入会话
-  STAFF_HELP,
+  | 'STAFF_HELP'
   // 会话转接
-  TRANSFER,
+  | 'TRANSFER'
   // 会话转接请求
-  TRANSFER_REQUEST,
+  | 'TRANSFER_REQUEST'
   // 会话转接响应
-  TRANSFER_RESPONSE,
+  | 'TRANSFER_RESPONSE'
   // 更新会话信息
-  CONV_UPDATE,
+  | 'CONV_UPDATE'
   // 邀请评价
-  EVALUATION_INVITED,
-}
+  | 'EVALUATION_INVITED'
+  // GRAPHQL
+  | 'GRAPHQL'
+  // 自定义 JSON
+  | 'CUSTOMER';

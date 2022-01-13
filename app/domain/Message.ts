@@ -54,8 +54,10 @@ export interface Attachments {
 
 export interface Content {
   contentType: MessageTypeKey;
-  /** sys 消息类型 * */
+  /** sys 服务消息类型 * */
   sysCode?: SysCode;
+  /** 服务消息内容， JSON方式 * */
+  serviceContent?: string;
   /** 文字 */
   textContent?: TextContent;
   /** 图片 */

@@ -24,7 +24,7 @@ import {
 import { createSession, SessionMap } from 'app/domain/Session';
 import { getCustomerByUserId } from 'app/service/infoService';
 import { emitMessage, filterUndefinedWithCb } from 'app/service/socketService';
-import { CreatorType, SysCode } from 'app/domain/constant/Message';
+import { CreatorType } from 'app/domain/constant/Message';
 import { CustomerStatus } from 'app/domain/Customer';
 import { InteractionLogo } from 'app/domain/constant/Conversation';
 import apolloClient from 'app/utils/apolloClient';
@@ -68,6 +68,7 @@ export const {
   clearMessgeBadge,
   setHasMore,
   setInteractionLogo,
+  setTyping,
 } = slice.actions;
 
 export const getSessionByUserId = (userId: number) => (state: RootState) =>
@@ -213,7 +214,7 @@ export function sendMessage(message: Message): AppThunk {
     message.nickName = getState().staff.nickName;
     if (getState().chat.monitored) {
       // 如果是管理员插入的会话
-      message.content.sysCode = SysCode.STAFF_HELP;
+      message.content.sysCode = 'STAFF_HELP';
     }
     emitMessage(message)
       .pipe(
@@ -326,11 +327,9 @@ export function sendTransferResponseMsg(
 ): AppThunk {
   return (dispatch) => {
     const content: Content = {
-      contentType: 'TEXT',
-      sysCode: SysCode.TRANSFER_RESPONSE,
-      textContent: {
-        text: JSON.stringify(transferMessageResponse),
-      },
+      contentType: 'SYS',
+      sysCode: 'TRANSFER_RESPONSE',
+      serviceContent: JSON.stringify(transferMessageResponse),
     };
     // 发送转接消息
     const message: Message = {
@@ -361,11 +360,9 @@ export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
         remarks,
       };
       const content: Content = {
-        contentType: 'TEXT',
-        sysCode: SysCode.TRANSFER_REQUEST,
-        textContent: {
-          text: JSON.stringify(transferMessage),
-        },
+        contentType: 'SYS',
+        sysCode: 'TRANSFER_REQUEST',
+        serviceContent: JSON.stringify(transferMessage),
       };
       // 发送转接消息
       const message: Message = {
@@ -392,8 +389,8 @@ export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
 export function sendEvaluationInvitedMsg(userId: number): AppThunk {
   return (dispatch) => {
     const content: Content = {
-      contentType: 'TEXT',
-      sysCode: SysCode.TRANSFER_RESPONSE,
+      contentType: 'SYS',
+      sysCode: 'EVALUATION_INVITED',
     };
     // 发送转接消息
     const message: Message = {
@@ -409,46 +406,42 @@ export function sendEvaluationInvitedMsg(userId: number): AppThunk {
 
 function runSysMsg(message: Message, dispatch: AppDispatch) {
   const { content } = message;
+  const serviceMessage = content.serviceContent;
   switch (content.sysCode) {
-    case SysCode.ONLINE_STATUS_CHANGED: {
-      const msg = content.textContent?.text;
-      if (msg) {
-        const sysMsg = JSON.parse(msg) as CustomerStatus;
+    case 'ONLINE_STATUS_CHANGED': {
+      if (serviceMessage) {
+        const sysMsg = JSON.parse(serviceMessage) as CustomerStatus;
         dispatch(updateCustomerStatus(sysMsg));
       }
       break;
     }
-    case SysCode.CONV_END: {
-      const msg = content.textContent?.text;
-      if (msg) {
-        const sysMsg = JSON.parse(msg) as Conversation;
+    case 'CONV_END': {
+      if (serviceMessage) {
+        const sysMsg = JSON.parse(serviceMessage) as Conversation;
         dispatch(updateConver(sysMsg));
       }
       break;
     }
-    case SysCode.CONV_UPDATE: {
-      const msg = content.textContent?.text;
-      if (msg) {
-        const sysMsg = JSON.parse(msg) as Conversation;
+    case 'CONV_UPDATE': {
+      if (serviceMessage) {
+        const sysMsg = JSON.parse(serviceMessage) as Conversation;
         dispatch(updateConver(sysMsg));
       }
       break;
     }
-    case SysCode.TRANSFER_REQUEST: {
-      const msg = content.textContent?.text;
-      if (msg) {
+    case 'TRANSFER_REQUEST': {
+      if (serviceMessage) {
         // 请求客服转接消息
-        const sysMsg = JSON.parse(msg) as TransferMessageRequest;
+        const sysMsg = JSON.parse(serviceMessage) as TransferMessageRequest;
         // 显示转接消息
         dispatch(setTransferMessageRecive(sysMsg));
       }
       break;
     }
-    case SysCode.TRANSFER_RESPONSE: {
-      const msg = content.textContent?.text;
-      if (msg) {
+    case 'TRANSFER_RESPONSE': {
+      if (serviceMessage) {
         // 客服转接响应消息
-        const sysMsg = JSON.parse(msg) as TransferMessageResponse;
+        const sysMsg = JSON.parse(serviceMessage) as TransferMessageResponse;
         if (sysMsg && sysMsg.userId) {
           // 根据 响应消息判断是否发送转发请求
           if (sysMsg.accept) {
@@ -466,6 +459,16 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
           // 清除转接列表
           dispatch(removeTransferMessageToSend(sysMsg.userId));
         }
+      }
+      break;
+    }
+    case 'USER_TYPING': {
+      if (serviceMessage && message.from) {
+        const userTyping = {
+          userId: message.from,
+          userTypingText: serviceMessage,
+        };
+        dispatch(setTyping(userTyping));
       }
       break;
     }
@@ -514,7 +517,10 @@ export const setNewMessage =
             }
           }
           syncMessageList.forEach(async (m) => {
-            if (m?.creatorType === CreatorType.SYS) {
+            if (
+              m?.creatorType === CreatorType.SYS ||
+              m?.content.contentType === 'SYS'
+            ) {
               // 系统消息，解析并执行操作
               runSysMsg(m, dispatch);
             } else {
@@ -562,6 +568,13 @@ export const setNewMessage =
               }
               dispatch(newMessage(end));
               dispatch(unhideSession(userId));
+              if (userId) {
+                const userTyping = {
+                  userId,
+                  userTypingText: undefined,
+                };
+                dispatch(setTyping(userTyping));
+              }
             }
           });
           dispatch(setPts(update?.message?.seqId));
@@ -585,7 +598,7 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
       },
     };
     const message: Message = {
-      uuid: uuidv4().substr(0, 8),
+      uuid: uuidv4(),
       to,
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,

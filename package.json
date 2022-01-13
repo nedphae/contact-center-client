@@ -11,7 +11,7 @@
     "clean": "node -r @babel/register ./.erb/scripts/clean.js dist release",
     "package": "node -r @babel/register ./.erb/scripts/clean.js dist release && yarn build && electron-builder build --publish never",
     "postinstall": "node -r @babel/register .erb/scripts/CheckNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.babel.js && opencollective-postinstall && yarn-deduplicate yarn.lock",
-    "start": "node -r @babel/register ./.erb/scripts/CheckPortInUse.js && yarn start:renderer",
+    "start": "cross-env PORT=12121 node -r @babel/register ./.erb/scripts/CheckPortInUse.js && cross-env PORT=12121 yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./.erb/scripts/BabelRegister ./app/main.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./.erb/configs/webpack.config.renderer.dev.babel.js",
     "test": "jest"
@@ -341,6 +341,7 @@
     "source-map-support": "^0.5.19",
     "subscriptions-transport-ws": "^0.9.19",
     "ts-toolbelt": "^9.6.0",
+    "use-sound": "^4.0.1",
     "uuid": "^8.3.2"
   },
   "devEngines": {

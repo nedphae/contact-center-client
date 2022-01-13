@@ -19,6 +19,7 @@ import UserHeader from 'app/components/Header/UserHeader';
 import {
   getSelectedConstomer,
   getSelectedConv,
+  getSelectedSession,
 } from 'app/state/chat/chatAction';
 
 const useStyles = makeStyles(() =>
@@ -36,6 +37,7 @@ const useStyles = makeStyles(() =>
 
 export default function ChatHeader() {
   const classes = useStyles();
+  const session = useSelector(getSelectedSession);
   const conv = useSelector(getSelectedConv);
   const user = useSelector(getSelectedConstomer);
   const [sessionDuration, setSessionDuration] = useState<number>();
@@ -108,13 +110,25 @@ export default function ChatHeader() {
           {conv && (
             <>
               <Grid item xs={4} zeroMinWidth>
+                {session && session.userTypingText && (
+                  <Typography
+                    noWrap
+                    style={{ paddingLeft: 10 }}
+                    variant="body2"
+                  >
+                    <strong>正在输入: </strong>
+                    {session.userTypingText}
+                  </Typography>
+                )}
+              </Grid>
+              <Grid item xs={4} zeroMinWidth>
                 <Typography noWrap style={{ paddingLeft: 10 }} variant="body2">
                   {conv.evaluate
                     ? `评价结果: ${conv.evaluate.evaluation} 分`
                     : `未评价`}
                 </Typography>
               </Grid>
-              <Grid item xs={8} zeroMinWidth>
+              <Grid item xs={4} zeroMinWidth>
                 <Typography noWrap variant="body2">
                   {conv.category ? `已总结: ${conv.category}` : `未总结`}
                 </Typography>

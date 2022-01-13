@@ -146,7 +146,7 @@ export default function Dashboard() {
             title="监控"
             width="100%"
             height={document.documentElement.clientHeight - 60}
-            src="http://192.168.50.110:5601/app/discover#"
+            src="http://192.168.50.110:5601/app/dashboards#/view/b49fb5f0-525b-11ec-a3fb-7badbe8fcf22?_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-15m%2Cto%3Anow))"
           />
         </GridItem>
       </GridContainer>

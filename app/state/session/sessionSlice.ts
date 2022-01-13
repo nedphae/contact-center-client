@@ -4,7 +4,13 @@ import { of } from 'rxjs';
 import { map, switchMap, filter, defaultIfEmpty } from 'rxjs/operators';
 import _ from 'lodash';
 
-import { SessionMap, Session, TagParamer, LogoUser } from 'app/domain/Session';
+import {
+  SessionMap,
+  Session,
+  TagParamer,
+  LogoUser,
+  UserTyping,
+} from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 import { Customer, CustomerStatus } from 'app/domain/Customer';
 import { fromUserMessagesToMap, UserMessages } from 'app/domain/Chat';
@@ -119,6 +125,7 @@ const converSlice = createSlice({
               defaultIfEmpty<Session | undefined, Session | undefined>(
                 to ? converMap[to] : undefined
               ),
+              filter(() => msg.creatorType !== CreatorType.SYS),
               map((c) => {
                 if (c) {
                   c.lastMessageTime =
@@ -141,6 +148,12 @@ const converSlice = createSlice({
           })
         )
         .subscribe();
+    },
+    setTyping: (converMap, action: PayloadAction<UserTyping>) => {
+      const conver = converMap[action.payload.userId];
+      conver.userTypingText = action.payload.userTypingText;
+      conver.userTypingTime =
+        conver.userTypingText === undefined ? undefined : new Date().getTime();
     },
   },
 });

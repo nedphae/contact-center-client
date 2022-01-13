@@ -24,7 +24,7 @@ export const QUERY_MONITOR = gql`
         maxServiceCount
         onlineStatus
         organizationId
-        priorityOfShuntMap
+        priorityOfShunt
         role
         shunt
         id: staffId
