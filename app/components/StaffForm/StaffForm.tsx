@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -9,6 +9,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
+import Button from '@material-ui/core/Button';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import PhoneAndroidIcon from '@material-ui/icons/PhoneAndroid';
 import LockIcon from '@material-ui/icons/Lock';
@@ -38,6 +39,10 @@ import Staff from 'app/domain/StaffInfo';
 import { StaffGroupList, QUERY_GROUP } from 'app/domain/graphql/Staff';
 import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
+import DraggableDialog, {
+  DraggableDialogRef,
+} from '../DraggableDialog/DraggableDialog';
+import ChangePasswordForm from './ChangePasswordForm';
 
 function Alert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -94,6 +99,8 @@ type StaffWithPassword = Object.Merge<
 export default function StaffForm(props: FormProps) {
   const { defaultValues, mutationCallback } = props;
   const classes = useStyles();
+  const refOfDialog = useRef<DraggableDialogRef>(null);
+
   const { handleSubmit, register, control, setValue, watch, errors } =
     useForm<StaffWithPassword>({
       // 清除 password
@@ -235,7 +242,24 @@ export default function StaffForm(props: FormProps) {
             </FormControl>
           )}
         />
-        {staffType === 1 && (
+
+        {staffType === 1 && !!defaultValues.id && (
+          <>
+            <DraggableDialog title="修改密码" ref={refOfDialog}>
+              <ChangePasswordForm id={defaultValues.id} />
+            </DraggableDialog>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                refOfDialog.current?.setOpen(true);
+              }}
+            >
+              修改密码
+            </Button>
+          </>
+        )}
+        {staffType === 1 && !defaultValues.id && (
           <>
             <TextField
               variant="outlined"

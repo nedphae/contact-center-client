@@ -256,6 +256,8 @@ const QUERY = gql`
       name
       organizationId
       shuntClassId
+      openPush
+      authorization
     }
   }
 `;

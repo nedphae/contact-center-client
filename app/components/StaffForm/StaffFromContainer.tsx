@@ -12,7 +12,9 @@ interface FormProps {
 
 export default function StaffFormContainer(props: FormProps) {
   const { staffId, mutationCallback } = props;
-  const [getStaff, { data }] = useLazyQuery<StaffGraphql>(QUERY_STAFF_BY_ID);
+  const [getStaff, { data }] = useLazyQuery<StaffGraphql>(QUERY_STAFF_BY_ID, {
+    fetchPolicy: 'no-cache',
+  });
 
   useEffect(() => {
     if (staffId) {

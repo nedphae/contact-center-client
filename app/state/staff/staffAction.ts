@@ -1,13 +1,14 @@
 import { AppThunk, RootState } from 'app/store';
 import { setAuthority } from 'app/utils/authority';
 import { getCurrentStaff } from 'app/service/infoService';
-import { configStatus } from 'app/domain/StaffInfo';
+import Staff, { configStatus } from 'app/domain/StaffInfo';
 import { AccessToken } from 'app/domain/OauthToken';
 import { register } from 'app/service/socketService';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import slice from './staffSlice';
+import { setSnackbarProp } from '../chat/chatAction';
 
-export const { setStaff, setOnline, updateStatus } = slice.actions;
+export const { setStaff, setOnline, updateOnlineStatus } = slice.actions;
 export const getStaff = (state: RootState) => {
   if (state.chat.monitored) {
     return state.chat.monitored.monitoredStaff;
@@ -46,14 +47,29 @@ export const configStaff = (): AppThunk => {
   return (dispatch, getState) => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
     // const staff = getStaff(getState()); // useSelector(getStaff);
-    register(
+    register<Staff>(
       configStatus(
-        getState().staff.prevOnlineStatus ?? OnlineStatus.ONLINE,
+        getState().staff.prevOnlineStatus ?? getState().staff.onlineStatus,
         getState().staff.groupId
       )
-    ).subscribe(() => {
-      // 注册成功, 设置状态同步成功
-      dispatch(setOnline());
+    ).subscribe((staffResponse) => {
+      if (staffResponse.body) {
+        if (
+          staffResponse.body.onlineStatus === OnlineStatus.OFFLINE &&
+          getState().staff.onlineStatus !== staffResponse.body.onlineStatus
+        ) {
+          // 在线人数超过限制
+          dispatch(
+            setSnackbarProp({
+              open: true,
+              message: '在线客服人数已达上限，请稍后再试',
+              severity: 'warning',
+            })
+          );
+        }
+        // 注册成功, 设置状态同步成功
+        dispatch(setOnline(staffResponse.body.onlineStatus));
+      }
     });
   };
 };

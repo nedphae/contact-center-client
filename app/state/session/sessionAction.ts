@@ -590,7 +590,7 @@ export const setNewMessage =
  * @returns
  */
 export function sendTextMessage(to: number, textContent: string): AppThunk {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const content: Content = {
       contentType: 'TEXT',
       textContent: {
@@ -603,6 +603,7 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
+      nickName: getState().staff.nickName,
     };
     dispatch(sendMessage(message));
   };
@@ -612,7 +613,7 @@ export function sendImageMessage(
   to: number,
   photoContent: PhotoContent
 ): AppThunk {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const content: Content = {
       contentType: 'IMAGE',
       photoContent,
@@ -623,6 +624,7 @@ export function sendImageMessage(
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
+      nickName: getState().staff.nickName,
     };
     dispatch(sendMessage(message));
   };
@@ -632,7 +634,7 @@ export function sendFileMessage(
   to: number,
   attachments: Attachments
 ): AppThunk {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const content: Content = {
       contentType: 'FILE',
       attachments,
@@ -643,6 +645,7 @@ export function sendFileMessage(
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
+      nickName: getState().staff.nickName,
     };
     dispatch(sendMessage(message));
   };

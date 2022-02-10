@@ -38,6 +38,15 @@ export default interface Staff {
   customerList?: CustomerStatus[];
 }
 
+export interface PasswordChanger {
+  /**
+   * 员工编号 staffId
+   */
+  id: number;
+  oldPassword: string;
+  newPassword: string;
+}
+
 export interface StaffGroup {
   id: number;
   organizationId: number;
@@ -51,6 +60,8 @@ export interface StaffShunt {
   name: string;
   shuntClassId: number;
   code: string;
+  openPush?: string;
+  authorization?: string;
   staffList?: Staff[];
 }
 

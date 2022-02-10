@@ -1,6 +1,7 @@
 import { Conversation } from 'app/domain/Conversation';
 import { Customer } from 'app/domain/Customer';
 import { Message, MessagesMap } from 'app/domain/Message';
+import { NumericDictionary } from 'lodash';
 import { InteractionLogo } from './constant/Conversation';
 
 export type Tag = 'important' | '' | undefined;
@@ -61,9 +62,11 @@ export function createSession(
   };
 }
 
-export interface SessionMap {
+export interface OldSessionMap {
   [userId: number]: Session;
 }
+
+export type SessionMap = NumericDictionary<Session>;
 
 export interface UserTyping {
   userId: number;

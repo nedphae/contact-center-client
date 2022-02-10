@@ -16,6 +16,8 @@ import { TransferMessageRequest, TransferQuery } from 'app/domain/Conversation';
 
 const initChat = {} as Chat;
 
+// move to window
+// 使用全局变量
 let noGroupFuse: Fuse<QuickReply>;
 let noGroupIndex: Fuse.FuseIndex<QuickReply>;
 

@@ -54,7 +54,7 @@ class ClientConfig {
   };
 
   oss = {
-    path: '/oss',
+    path: '/s3',
   };
 
   message = {

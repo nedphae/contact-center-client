@@ -11,12 +11,17 @@ const staffSlice = createSlice({
     setStaff: (_, action: PayloadAction<Staff>) => action.payload,
     clear: () => initStaff,
     // 已经在服务器设置了状态
-    setOnline: (staff) => {
+    setOnline: (staff, action?: PayloadAction<OnlineStatus>) => {
       staff.syncState = true;
-      staff.onlineStatus = staff.prevOnlineStatus ?? OnlineStatus.ONLINE;
-      staff.prevOnlineStatus = OnlineStatus.OFFLINE;
+      if (action && action.payload) {
+        staff.prevOnlineStatus = staff.onlineStatus;
+        staff.onlineStatus = action.payload;
+      } else {
+        staff.onlineStatus = staff.prevOnlineStatus ?? OnlineStatus.ONLINE;
+        staff.prevOnlineStatus = OnlineStatus.OFFLINE;
+      }
     },
-    updateStatus: (staff, action: PayloadAction<OnlineStatus>) => {
+    updateOnlineStatus: (staff, action: PayloadAction<OnlineStatus>) => {
       staff.prevOnlineStatus = staff.onlineStatus;
       staff.onlineStatus = action.payload;
     },

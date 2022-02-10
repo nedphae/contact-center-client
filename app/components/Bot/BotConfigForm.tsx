@@ -19,6 +19,9 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
       alignItems: 'center',
     },
+    form: {
+      width: '100%',
+    },
   })
 );
 
@@ -63,7 +66,12 @@ export default function BotConfigForm(props: FormProps) {
 
   return (
     <div className={classes.paper}>
-      <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className={classes.form}
+        noValidate
+        autoComplete="off"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <TextField
           value={defaultValues?.id || data?.saveBotConfig.id || ''}
           name="id"

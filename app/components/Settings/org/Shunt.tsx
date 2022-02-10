@@ -48,6 +48,8 @@ const QUERY_SHUNT = gql`
       name
       organizationId
       shuntClassId
+      openPush
+      authorization
     }
     allShuntClass {
       id
@@ -70,6 +72,7 @@ const columns: GridColDef[] = [
   { field: 'name', headerName: '接待组名称', width: 150 },
   { field: 'shuntClassId', headerName: '接待组所属分类', width: 250 },
   { field: 'code', headerName: '接待组代码', width: 350 },
+  { field: 'openPush', headerName: '消息推送地址', width: 350 },
 ];
 
 export default function Shunt() {
@@ -211,6 +214,7 @@ export default function Shunt() {
             setStaffShuntClass(undefined);
             refOfClassDialog.current?.setOpen(true);
           }}
+          clearTopicCategorySelect={() => {}}
         />
         <TreeView
           className={classes.list}

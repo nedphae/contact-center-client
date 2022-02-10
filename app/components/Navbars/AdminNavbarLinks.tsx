@@ -28,11 +28,12 @@ import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
 import { Badge, Avatar, CssBaseline } from '@material-ui/core';
-import { getMyself, updateStatus } from 'app/state/staff/staffAction';
+import { getMyself, updateOnlineStatus } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
 import { getDownloadOssStaffImgPath } from 'app/config/clientConfig';
+import { setSnackbarProp } from 'app/state/chat/chatAction';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
@@ -142,15 +143,23 @@ export default function AdminNavbarLinks() {
         .then((data) => {
           const staffStatus = data.data?.updateStaffStatus;
           if (staffStatus) {
-            dispatch(updateStatus(OnlineStatus[staffStatus.onlineStatusKey]));
-            if (staffStatus.onlineStatus === OnlineStatus.ONLINE) {
-              // 是在线状态，请求分配客服
-              // assignmentFromQueue({
-              //   variables: {
-              //     staffStatus,
-              //   },
-              // });
+            if (
+              staffStatus.onlineStatus !== onlineStatus &&
+              staffStatus.onlineStatus === OnlineStatus.OFFLINE
+            ) {
+              // 在线状态设置失败，返回的状态不是设置的状态，则更新为离线状态
+              // 并提示用户设置失败
+              dispatch(
+                setSnackbarProp({
+                  open: true,
+                  message: '在线客服人数已达上限，请稍后再试',
+                  severity: 'warning',
+                })
+              );
             }
+            dispatch(
+              updateOnlineStatus(OnlineStatus[staffStatus.onlineStatusKey])
+            );
           }
           return staffStatus;
         })
@@ -213,7 +222,7 @@ export default function AdminNavbarLinks() {
   return (
     <div>
       <CssBaseline />
-{/*
+      {/*
       <div className={classes.searchWrapper}>
         <CustomInput
           formControlProps={{
@@ -249,7 +258,7 @@ export default function AdminNavbarLinks() {
           </Hidden>
         </Button>
       </NavLink>
-{/* 
+      {/*
       <div className={classes.manager}>
         <Button
           color={window.innerWidth > 959 ? 'transparent' : 'white'}

@@ -22,6 +22,8 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import TitleIcon from '@material-ui/icons/Title';
+import LinkIcon from '@material-ui/icons/Link';
+import HttpsIcon from '@material-ui/icons/Https';
 import {
   Typography,
   Link,
@@ -149,6 +151,8 @@ const MUTATION_STAFF_SHUNT = gql`
       shuntClassId
       name
       code
+      openPush
+      authorization
     }
   }
 `;
@@ -658,6 +662,38 @@ export default function StaffShuntForm(props: FormProps) {
             startAdornment: (
               <InputAdornment position="start">
                 <GroupIcon />
+              </InputAdornment>
+            ),
+          }}
+          inputRef={register()}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="openPush"
+          name="openPush"
+          label="接待组推送地址"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <LinkIcon />
+              </InputAdornment>
+            ),
+          }}
+          inputRef={register()}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="authorization"
+          name="authorization"
+          label="推送地址认证Token（如果不设置可为空）"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <HttpsIcon />
               </InputAdornment>
             ),
           }}
