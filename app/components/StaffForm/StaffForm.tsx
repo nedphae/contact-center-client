@@ -188,7 +188,7 @@ export default function StaffForm(props: FormProps) {
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
-            src={avatar && `${getDownloadOssStaffImgPath()}${avatar}`}
+            src={avatar && `${getDownloadOssStaffImgPath()}/${avatar}`}
           >
             头像
           </Avatar>
@@ -250,7 +250,7 @@ export default function StaffForm(props: FormProps) {
             </DraggableDialog>
             <Button
               variant="contained"
-              color="primary"
+              color="default"
               onClick={() => {
                 refOfDialog.current?.setOpen(true);
               }}

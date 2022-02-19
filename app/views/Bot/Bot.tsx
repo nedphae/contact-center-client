@@ -28,6 +28,9 @@ import TopicForm from 'app/components/Bot/TopicForm';
 import BotSidecar from 'app/components/Bot/BotSidecar';
 import 'app/assets/css/DropdownTreeSelect.global.css';
 import useAlert from 'app/hook/alert/useAlert';
+import { PageParam } from 'app/domain/graphql/Query';
+import { TopicFilterInput } from 'app/domain/graphql/Bot';
+import TopicSearchFrom from 'app/components/Bot/TopicSearchForm';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -37,16 +40,19 @@ const useStyles = makeStyles(() =>
   })
 );
 
-interface Graphql {
-  allTopic: Topic[];
+interface BotGraphql {
   allBotConfig: BotConfig[];
   allKnowledgeBase: KnowledgeBase[];
   allTopicCategory: TopicCategory[];
 }
 
-const QUERY = gql`
-  query Bot {
-    allTopic {
+interface TopicGraphql {
+  searchTopic: Topic[];
+}
+
+const QUERY_TOPIC = gql`
+  query Topic($topicFilterInput: TopicFilterInput!) {
+    searchTopic(topicFilter: $topicFilterInput) {
       id
       knowledgeBaseId
       question
@@ -66,6 +72,11 @@ const QUERY = gql`
       categoryId
       faqType
     }
+  }
+`;
+
+const QUERY_BOTS = gql`
+  query Bot {
     allBotConfig {
       id
       botId
@@ -163,11 +174,21 @@ const MUTATION_TOPIC = gql`
   }
 `;
 
+const defaultValue: TopicFilterInput = {};
+
 export default function Bot() {
   const classes = useStyles();
   const refOfTopicDialog = useRef<DraggableDialogRef>(null);
   const [topic, setTopic] = useState<Topic>();
-  const { data, loading, refetch } = useQuery<Graphql>(QUERY);
+  const [topicFilterInput, setTopicFilterInput] =
+    useState<TopicFilterInput>(defaultValue);
+  const { data, loading, refetch } = useQuery<BotGraphql>(QUERY_BOTS);
+  const { data: topicData, refetch: refetchTopic } = useQuery<TopicGraphql>(
+    QUERY_TOPIC,
+    {
+      variables: { topicFilterInput },
+    }
+  );
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
   const [selectTopicCategory, setSelectTopicCategory] = useState<number[]>();
@@ -206,7 +227,7 @@ export default function Bot() {
     const allTopicCategory = _.cloneDeep(data?.allTopicCategory ?? []);
     const allBotConfig = _.cloneDeep(data?.allBotConfig ?? []);
     const allKnowledgeBase = _.cloneDeep(data?.allKnowledgeBase ?? []);
-    const memoAllTopic = _.cloneDeep(data?.allTopic ?? []);
+    const memoAllTopic = _.cloneDeep(topicData?.searchTopic ?? []);
     const botConfigMap = _.groupBy(allBotConfig, 'knowledgeBaseId');
 
     const allKnowledgeBaseMap = _.groupBy(allKnowledgeBase, 'id');
@@ -214,7 +235,7 @@ export default function Bot() {
     const memoAllTopicMap = _.groupBy(memoAllTopic, 'id');
 
     const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
-    const topicCategoryGroup = _.groupBy(data?.allTopic, 'categoryId');
+    const topicCategoryGroup = _.groupBy(topicData?.searchTopic, 'categoryId');
 
     const pTopicCategory = allTopicCategory
       .map((it) => {
@@ -252,7 +273,7 @@ export default function Bot() {
       allTopicCategory: pTopicCategory,
       memoAllTopic,
     };
-  }, [data]);
+  }, [data, topicData]);
 
   const onTopicCategoryClick = useCallback(
     (clickTopicCategory?: TopicCategory) => {
@@ -279,6 +300,7 @@ export default function Bot() {
 
       const ids = getAllTopicCategoryIds(clickTopicCategory);
       setSelectTopicCategory(ids);
+      setTopicFilterInput({ ...topicFilterInput, categoryIds: ids });
     },
     []
   );
@@ -307,6 +329,13 @@ export default function Bot() {
           onTopicCategoryClick={onTopicCategoryClick}
         />
         <Grid item xs={12} sm={10}>
+          <TopicSearchFrom
+            defaultValues={defaultValue}
+            currentValues={topicFilterInput}
+            searchAction={(values) => {
+              refetchTopic({ variables: { topicFilterInput: values } });
+            }}
+          />
           <DataGrid
             localeText={GRID_DEFAULT_LOCALE_TEXT}
             rows={rows}
@@ -316,7 +345,7 @@ export default function Bot() {
                 newButtonClick,
                 deleteButtonClick,
                 refetch: () => {
-                  refetch();
+                  refetchTopic();
                 },
               }),
             }}

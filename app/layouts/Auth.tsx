@@ -159,7 +159,7 @@ export default function Auth() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          系统登陆
+          小白客服系统登录
         </Typography>
         <form
           className={classes.form}

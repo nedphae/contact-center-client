@@ -11,8 +11,10 @@ export enum MessageType {
   FILE = '文件',
   /** 链接消息 */
   LINK = '链接',
+  /** 自定义消息 */
+  CUSTOMER = '自定义消息',
 }
-
+// enum 作为 js 的 object，typeof 会返回 'object' 定义
 export type MessageTypeKey = keyof typeof MessageType;
 
 /**
