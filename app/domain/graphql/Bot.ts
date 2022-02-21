@@ -36,6 +36,8 @@ export interface TopicFilterInput {
 
   // 关键字
   keyword?: string;
+
+  enabled?: boolean;
   /**
    * 筛选的分类ID
    */

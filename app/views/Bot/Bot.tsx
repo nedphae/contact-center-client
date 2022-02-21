@@ -300,7 +300,8 @@ export default function Bot() {
 
       const ids = getAllTopicCategoryIds(clickTopicCategory);
       setSelectTopicCategory(ids);
-      setTopicFilterInput({ ...topicFilterInput, categoryIds: ids });
+      // TOOD: 更新数据，实现远程过滤
+      // setTopicFilterInput({ ...topicFilterInput, categoryIds: ids });
     },
     []
   );
@@ -333,7 +334,7 @@ export default function Bot() {
             defaultValues={defaultValue}
             currentValues={topicFilterInput}
             searchAction={(values) => {
-              refetchTopic({ variables: { topicFilterInput: values } });
+              refetchTopic({ topicFilterInput: values });
             }}
           />
           <DataGrid
