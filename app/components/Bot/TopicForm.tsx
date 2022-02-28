@@ -24,6 +24,7 @@ import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 import useAlert from 'app/hook/alert/useAlert';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
+import { getUploadOssChatImgPath } from 'app/config/clientConfig';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -100,6 +101,19 @@ export default function TopicForm(props: FormProps) {
   };
 
   const questionType = watch('type', 1);
+  const picSrc = watch('answer.1.content');
+
+  const imgUploadProps = {
+    action: `${getUploadOssChatImgPath()}`,
+    multiple: false,
+    accept: 'image/png,image/gif,image/jpeg',
+    onStart(file: RcFile) {},
+    onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
+      // 设置图片地址
+      setValue('answer.1.content', (response as string[])[0]);
+    },
+    onError(error: Error, _ret: any, _file: RcFile) {},
+  };
 
   const id = data?.saveTopic.id || defaultValues?.id || '';
   // 过滤自身
@@ -257,6 +271,18 @@ export default function TopicForm(props: FormProps) {
               }}
               inputRef={register()}
             />
+            <TextField
+              name="answer.1.type"
+              type="hidden"
+              defaultValue="image"
+              inputRef={register()}
+            />
+            <TextField
+              name="answer.1.content"
+              type="hidden"
+              inputRef={register()}
+            />
+            {picSrc && <img src={picSrc} alt="图片消息" />}
             <TextField
               variant="outlined"
               margin="normal"
