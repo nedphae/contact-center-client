@@ -111,6 +111,7 @@ export default function StaffForm(props: FormProps) {
   } = useForm<StaffWithPassword>({
     // 清除 password
     defaultValues: _.omit(defaultValues, 'password'),
+    shouldUnregister: true,
   });
   const [uploading, setUploading] = useState<boolean>();
   const [error, setError] = useState<string>();

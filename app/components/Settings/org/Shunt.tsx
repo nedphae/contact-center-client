@@ -49,7 +49,7 @@ const QUERY_SHUNT = gql`
       organizationId
       shuntClassId
       openPush
-      authorization
+      authorizationToken
     }
     allShuntClass {
       id

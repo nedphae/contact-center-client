@@ -59,6 +59,7 @@ export default function TopicCategoryForm(props: FormProps) {
     setValue,
   } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();

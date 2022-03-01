@@ -123,6 +123,7 @@ export default function CustomerForm(props: CustomerFormProps) {
     setValue,
   } = useForm<CustomerFormValues>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   useEffect(() => {
@@ -133,7 +134,11 @@ export default function CustomerForm(props: CustomerFormProps) {
 
   const onSubmit: SubmitHandler<CustomerFormValues> = async (form) => {
     // 用户信息表单
-    editCustomer({ variables: { customerInput: form } });
+    editCustomer({
+      variables: {
+        customerInput: _.omit(form, '__typename', 'status', 'userId'),
+      },
+    });
   };
 
   const handleDelete = (name: string) => {

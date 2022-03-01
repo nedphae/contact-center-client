@@ -39,6 +39,7 @@ export default function CustomerTagForm(props: FormProps) {
   const classes = useStyles();
   const { handleSubmit, register, control } = useForm<CustomerTag>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();

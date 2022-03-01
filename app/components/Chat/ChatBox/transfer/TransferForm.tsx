@@ -72,6 +72,7 @@ export default function TransferForm(props: TransferFormProps) {
     setValue,
   } = useForm<TransferQuery>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const handleChange = (

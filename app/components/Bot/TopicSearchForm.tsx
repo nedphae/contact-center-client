@@ -59,6 +59,7 @@ export default function TopicSearchFrom(props: FormProps) {
   const classes = useSearchFormStyles();
   const { handleSubmit, register, reset } = useForm<FormType>({
     defaultValues: currentValues,
+    shouldUnregister: true,
   });
   const [expanded, setExpanded] = React.useState(false);
 

@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo } from 'react';
+import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -33,6 +34,7 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
     formState: { errors },
   } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -46,7 +48,9 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
   }
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {
-    await saveSessionCategory({ variables: { sessionCategoryList: [form] } });
+    await saveSessionCategory({
+      variables: { sessionCategoryList: [_.omit(form, '__typename')] },
+    });
     refetch();
   };
 

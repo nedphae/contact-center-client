@@ -98,6 +98,7 @@ export default function CommentManagement() {
   });
   const { handleSubmit, reset, control } = useForm<CommentQuery>({
     defaultValues: commentQuery,
+    shouldUnregister: true,
   });
 
   function setAndRefetch(searchParams: CommentQuery) {
@@ -130,9 +131,9 @@ export default function CommentManagement() {
 
   const onSubmit: SubmitHandler<CommentQuery> = (form) => {
     if (form.time) {
-      setSearchParams(_.omit(form, 'time'));
+      setSearchParams(_.omit(form, 'time', '__typename'));
     } else {
-      setSearchParams(_.omit(form, 'time', 'timeRange'));
+      setSearchParams(_.omit(form, 'time', 'timeRange', '__typename'));
     }
   };
 

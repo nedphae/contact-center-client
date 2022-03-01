@@ -53,11 +53,12 @@ export default function BlacklistForm(props: BlacklistFormProps) {
   const { register, handleSubmit, control, setValue } =
     useForm<BlacklistFormProp>({
       defaultValues,
+      shouldUnregister: true,
     });
 
   const onSubmit: SubmitHandler<BlacklistFormProp> = (form) => {
     form.preventSource = form.preventStrategy === 'UID' ? form.uid : form.ip;
-    const blacklist = _.omit(form, 'ip', 'uid');
+    const blacklist = _.omit(form, 'ip', 'uid', '__typename');
     saveBlacklist({ variables: { blacklist: [blacklist] } });
   };
   return (

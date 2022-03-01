@@ -54,6 +54,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
     formState: { errors },
   } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();

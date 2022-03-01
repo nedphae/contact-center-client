@@ -86,7 +86,10 @@ export default function SearchForm(props: FormProps) {
   } = props;
   const classes = useSearchFormStyles();
   const { handleSubmit, register, reset, control, getValues, setValue } =
-    useForm<FormType>({ defaultValues: currentValues });
+    useForm<FormType>({
+      defaultValues: currentValues,
+      shouldUnregister: true,
+    });
   const [expanded, setExpanded] = React.useState(false);
 
   const handleExpandClick = () => {

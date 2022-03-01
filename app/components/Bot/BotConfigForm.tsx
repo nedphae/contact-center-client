@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import _ from 'lodash';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
@@ -54,6 +55,7 @@ export default function BotConfigForm(props: FormProps) {
     formState: { errors },
   } = useForm<BotConfig>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -66,7 +68,9 @@ export default function BotConfigForm(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<BotConfig> = (form) => {
-    saveBotConfig({ variables: { botConfigInput: form } });
+    saveBotConfig({
+      variables: { botConfigInput: _.omit(form, '__typename') },
+    });
   };
 
   return (

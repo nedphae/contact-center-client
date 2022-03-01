@@ -53,6 +53,7 @@ export default function CommentForm(props: CommentFormProps) {
   }
   const { register, handleSubmit } = useForm<CommentPojo>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const onSubmit: SubmitHandler<CommentPojo> = async (form) => {

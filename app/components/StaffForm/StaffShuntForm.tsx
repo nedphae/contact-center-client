@@ -156,7 +156,7 @@ const MUTATION_STAFF_SHUNT = gql`
       name
       code
       openPush
-      authorization
+      authorizationToken
     }
   }
 `;
@@ -256,7 +256,7 @@ export default function StaffShuntForm(props: FormProps) {
         const newChatUIConfigObj = _.defaultsDeep(
           {
             navbar: {
-              logo: `${getDownloadOssChatImgPath()}${logoId}`,
+              logo: `${getDownloadOssChatImgPath()}/${logoId}`,
             },
           },
           jsoneditor?.get()
@@ -313,6 +313,7 @@ export default function StaffShuntForm(props: FormProps) {
 
   const { handleSubmit, register, control } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -432,7 +433,7 @@ export default function StaffShuntForm(props: FormProps) {
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {
     const shuntResult = await saveStaffShunt({
-      variables: { shuntInput: form },
+      variables: { shuntInput: _.omit(form, '__typename') },
     });
     if (shuntResult.data && shuntResult.data.saveShunt) {
       const shuntUIConfig: ShuntUIConfig = {
@@ -441,7 +442,7 @@ export default function StaffShuntForm(props: FormProps) {
         config: jsoneditor?.getText(),
       };
       saveChatUIConfig({
-        variables: { shuntUIConfig },
+        variables: { shuntUIConfig: _.omit(shuntUIConfig, '__typename') },
       });
       if (tempStaffConfig) {
         const forSave = tempStaffConfig
@@ -453,7 +454,7 @@ export default function StaffShuntForm(props: FormProps) {
             )
           );
         saveStaffConfig({
-          variables: { staffConfigList: forSave },
+          variables: { staffConfigList: _.omit(forSave, '__typename') },
         });
       }
     }
@@ -549,7 +550,7 @@ export default function StaffShuntForm(props: FormProps) {
   function createStaffConfigList(sc: StaffConfig) {
     return (
       <Grid key={sc.staffId} container spacing={2} alignItems="center">
-        <Grid item>
+        <Grid item xs={4}>
           <Switch
             checked={sc.enabled}
             onChange={handleSwitchChange}
@@ -692,7 +693,7 @@ export default function StaffShuntForm(props: FormProps) {
           variant="outlined"
           margin="normal"
           fullWidth
-          id="authorization"
+          id="authorizationToken"
           label="推送地址认证Token（如果不验证Token可为空）"
           InputProps={{
             startAdornment: (
@@ -701,7 +702,7 @@ export default function StaffShuntForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          {...register('authorization')}
+          {...register('authorizationToken')}
         />
         <Grid container xs={12}>
           <Grid item xs={6}>

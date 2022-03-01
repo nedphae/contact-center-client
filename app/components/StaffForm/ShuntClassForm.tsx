@@ -40,6 +40,7 @@ export default function ShuntClassForm(props: FormProps) {
   const classes = useStyles();
   const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();

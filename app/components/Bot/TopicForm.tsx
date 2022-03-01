@@ -18,10 +18,12 @@ import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import {
   Button,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
   FormControlProps,
   FormHelperText,
+  Grid,
   InputLabel,
   MenuItem,
   Select,
@@ -98,6 +100,7 @@ export default function TopicForm(props: FormProps) {
     formState: { errors },
   } = useForm<Topic>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -110,7 +113,15 @@ export default function TopicForm(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<Topic> = (form) => {
-    saveTopic({ variables: { topicInput: form } });
+    const filterObj = _.defaults(
+      { answer: form?.answer?.map((ans) => _.omit(ans, '__typename')) },
+      _.omit(form, '__typename', 'categoryName', 'knowledgeBaseName')
+    );
+    saveTopic({
+      variables: {
+        topicInput: filterObj,
+      },
+    });
   };
 
   const questionType = watch('type', 1);
@@ -298,18 +309,23 @@ export default function TopicForm(props: FormProps) {
                 alt="图片消息"
               />
             )}
-            <Upload {...imgUploadProps}>
-              <Button variant="contained" color="primary">
-                添加图片
+
+            <Grid container alignItems="center">
+              <Upload {...imgUploadProps}>
+                <Button variant="contained" color="primary">
+                  添加图片
+                </Button>
+              </Upload>
+              <Divider orientation="vertical" />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleDeletePic}
+              >
+                删除图片
               </Button>
-            </Upload>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleDeletePic}
-            >
-              删除图片
-            </Button>
+            </Grid>
+
             <TextField
               variant="outlined"
               margin="normal"

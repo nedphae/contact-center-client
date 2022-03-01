@@ -54,6 +54,7 @@ export default function ChangePasswordForm(props: FormProps) {
     formState: { errors },
   } = useForm<PasswordChangerWithRepeat>({
     defaultValues: { id },
+    shouldUnregister: true,
   });
 
   const password = watch('newPassword');

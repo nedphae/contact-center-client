@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
@@ -60,6 +61,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
     formState: { errors },
   } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -75,7 +77,9 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
   }
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {
-    await addQuickReply({ variables: { quickReplyInput: form } });
+    await addQuickReply({
+      variables: { quickReplyInput: _.omit(form, '__typename') },
+    });
     await refetch();
   };
 
@@ -216,6 +220,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
     formState: { errors },
   } = useForm<QuickReplyGroupFormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -231,7 +236,11 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
   }
 
   const onSubmit: SubmitHandler<QuickReplyGroupFormType> = async (form) => {
-    await addQuickReplyGroup({ variables: { quickReplyGroupInput: form } });
+    await addQuickReplyGroup({
+      variables: {
+        quickReplyGroupInput: _.omit(form, '__typename', 'quickReply'),
+      },
+    });
     await refetch();
   };
 

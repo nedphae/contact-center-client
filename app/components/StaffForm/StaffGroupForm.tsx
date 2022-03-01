@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import _ from 'lodash';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -50,6 +51,7 @@ export default function StaffGroupForm(props: FormProps) {
   const classes = useStyles();
   const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
+    shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -65,7 +67,9 @@ export default function StaffGroupForm(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<FormType> = (form) => {
-    saveStaffGroup({ variables: { staffGroupInput: form } });
+    saveStaffGroup({
+      variables: { staffGroupInput: _.omit(form, '__typename') },
+    });
   };
 
   return (
