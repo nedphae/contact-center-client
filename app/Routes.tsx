@@ -62,6 +62,7 @@ const dashboardRoutes = [
     icon: Dashboard,
     component: DashboardPage,
     layout: '/admin',
+    authority: ['admin'],
   },
   {
     path: '/history',
@@ -94,6 +95,7 @@ const dashboardRoutes = [
     icon: QueryBuilderIcon,
     component: Bot,
     layout: '/admin',
+    authority: ['admin'],
   },
   {
     path: '/setting',
@@ -168,5 +170,7 @@ const dashboardRoutes = [
   //   layout: '/admin',
   // },
 ];
+
+export type RouteType = typeof dashboardRoutes;
 
 export default dashboardRoutes;

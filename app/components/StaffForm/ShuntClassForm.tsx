@@ -1,4 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { useMutation } from '@apollo/client';
@@ -7,7 +9,7 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
 
-import { ShuntClass, StaffGroup } from 'app/domain/StaffInfo';
+import { ShuntClass } from 'app/domain/StaffInfo';
 import {
   SaveShuntClassGraphql,
   MUTATION_SHUNT_CLASS,
@@ -26,14 +28,17 @@ const useStyles = makeStyles(() =>
   })
 );
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<ShuntClass, 'children'>;
+
 interface FormProps {
-  defaultValues: ShuntClass | undefined;
+  defaultValues: FormType | undefined;
 }
 
 export default function ShuntClassForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const { handleSubmit, register } = useForm<StaffGroup>({
+  const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
   });
 
@@ -47,7 +52,7 @@ export default function ShuntClassForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<StaffGroup> = (form) => {
+  const onSubmit: SubmitHandler<FormType> = (form) => {
     saveShuntClass({ variables: { staffGroupInput: form } });
   };
 
@@ -56,22 +61,19 @@ export default function ShuntClassForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveShuntClass.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           value={1}
-          name="catalogue"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('catalogue', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="className"
-          name="className"
           label="分类名称"
           InputProps={{
             startAdornment: (
@@ -80,7 +82,7 @@ export default function ShuntClassForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('className', {
             required: '必须设置分类名称',
             maxLength: {
               value: 50,

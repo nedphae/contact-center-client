@@ -322,7 +322,7 @@
     "react-draggable": "^4.4.3",
     "react-dropdown-tree-select": "^2.5.1",
     "react-google-maps": "^9.4.5",
-    "react-hook-form": "^6.12.2",
+    "react-hook-form": "^7.27.1",
     "react-hotkeys": "^2.0.0",
     "react-loading": "^2.0.3",
     "react-native-web": "^0.17.1",

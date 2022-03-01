@@ -11,6 +11,7 @@ import useWebSocket from 'app/hook/websocket/useWebSocket';
 import useInitData from 'app/hook/init/useInitData';
 import DefaultSnackbar from 'app/components/Snackbar/DefaultSnackbar';
 import TransferSnackbar from 'app/components/Snackbar/TransferSnackbar';
+import Authorized from 'app/components/Authorized/Authorized';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';

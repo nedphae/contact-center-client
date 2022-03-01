@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
 import { useMutation } from '@apollo/client';
@@ -63,27 +64,23 @@ export default function CommentForm(props: CommentFormProps) {
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.organizationId || ''}
-          name="organizationId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('organizationId', { valueAsNumber: true })}
         />
         <TextField
           value={defaultValues?.shuntId || ''}
-          name="shuntId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('shuntId', { valueAsNumber: true })}
         />
         <TextField
           value={defaultValues?.userId || ''}
-          name="userId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('userId', { valueAsNumber: true })}
         />
         <TextField
           value={defaultValues?.createdAt || ''}
-          name="createdAt"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('createdAt', { valueAsNumber: true })}
         />
         <Typography variant="h6" gutterBottom>
           创建时间：
@@ -94,7 +91,6 @@ export default function CommentForm(props: CommentFormProps) {
           margin="normal"
           fullWidth
           id="uid"
-          name="uid"
           label="用户标识"
           InputProps={{
             readOnly: true,
@@ -104,14 +100,13 @@ export default function CommentForm(props: CommentFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('uid')}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="name"
-          name="name"
           label="用户姓名"
           InputProps={{
             readOnly: true,
@@ -121,14 +116,13 @@ export default function CommentForm(props: CommentFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('name')}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="mobile"
-          name="mobile"
           label="手机"
           InputProps={{
             readOnly: true,
@@ -138,14 +132,13 @@ export default function CommentForm(props: CommentFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('mobile')}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="email"
-          name="email"
           label="邮箱"
           InputProps={{
             readOnly: true,
@@ -155,7 +148,7 @@ export default function CommentForm(props: CommentFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('email')}
         />
         <TextField
           variant="outlined"
@@ -163,7 +156,6 @@ export default function CommentForm(props: CommentFormProps) {
           fullWidth
           multiline
           id="message"
-          name="message"
           label="留言内容"
           InputProps={{
             readOnly: true,
@@ -173,7 +165,7 @@ export default function CommentForm(props: CommentFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('message')}
         />
         <Typography variant="subtitle1" gutterBottom>
           来源页：

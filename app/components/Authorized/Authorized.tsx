@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /**
  * Authorized 元素权限配置
  * 搭配 JWT 进行 OAuth2 认证

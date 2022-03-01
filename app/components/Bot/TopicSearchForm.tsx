@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -84,8 +85,7 @@ export default function TopicSearchFrom(props: FormProps) {
               <TextField
                 id="standard-basic"
                 label="关键字"
-                name="keyword"
-                inputRef={register()}
+                {...register('keyword')}
               />
             </div>
             <Button

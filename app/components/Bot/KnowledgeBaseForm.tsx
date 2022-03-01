@@ -1,4 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
@@ -8,6 +10,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 import { KnowledgeBase } from 'app/domain/Bot';
+import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles(() =>
@@ -21,12 +24,15 @@ const useStyles = makeStyles(() =>
   })
 );
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<KnowledgeBase, 'categoryList'>;
+
 interface FormProps {
-  defaultValues: KnowledgeBase | undefined;
+  defaultValues: FormType | undefined;
 }
 
 interface Graphql {
-  saveKnowledgeBase: KnowledgeBase;
+  saveKnowledgeBase: FormType;
 }
 
 const MUTATION = gql`
@@ -42,7 +48,11 @@ const MUTATION = gql`
 export default function KnowledgeBaseForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const { handleSubmit, register, errors } = useForm<KnowledgeBase>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<FormType>({
     defaultValues,
   });
 
@@ -58,7 +68,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<KnowledgeBase> = (form) => {
+  const onSubmit: SubmitHandler<FormType> = (form) => {
     saveKnowledgeBase({ variables: { knowledgeBaseInput: form } });
   };
 
@@ -67,16 +77,14 @@ export default function KnowledgeBaseForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveKnowledgeBase.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="name"
-          name="name"
           label="知识库名称"
           InputProps={{
             startAdornment: (
@@ -87,7 +95,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
           }}
           error={errors.name && true}
           helperText={errors.name?.message}
-          inputRef={register({
+          {...register('name', {
             required: '必须提供知识库名称',
             maxLength: {
               value: 200,
@@ -100,7 +108,6 @@ export default function KnowledgeBaseForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="description"
-          name="description"
           label="知识库描述"
           InputProps={{
             startAdornment: (
@@ -111,7 +118,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
           }}
           error={errors.description && true}
           helperText={errors.description?.message}
-          inputRef={register({
+          {...register('description', {
             maxLength: {
               value: 500,
               message: '知识库描述 长度不能大于500个字符',

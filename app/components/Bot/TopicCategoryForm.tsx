@@ -1,4 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo } from 'react';
+import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
@@ -24,13 +26,16 @@ const useStyles = makeStyles(() =>
   })
 );
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<TopicCategory, 'children'>;
+
 interface FormProps {
-  defaultValues: TopicCategory | undefined;
-  allTopicCategoryList: TopicCategory[];
+  defaultValues: FormType | undefined;
+  allTopicCategoryList: FormType[];
 }
 
 interface Graphql {
-  saveTopicCategory: TopicCategory;
+  saveTopicCategory: FormType;
 }
 
 const MUTATION = gql`
@@ -47,7 +52,12 @@ const MUTATION = gql`
 export default function TopicCategoryForm(props: FormProps) {
   const { defaultValues, allTopicCategoryList } = props;
   const classes = useStyles();
-  const { handleSubmit, register, errors, setValue } = useForm<TopicCategory>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    setValue,
+  } = useForm<FormType>({
     defaultValues,
   });
 
@@ -82,9 +92,8 @@ export default function TopicCategoryForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={data?.saveTopicCategory.id || defaultValues?.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           value={
@@ -92,22 +101,23 @@ export default function TopicCategoryForm(props: FormProps) {
             defaultValues?.knowledgeBaseId ||
             ''
           }
-          name="knowledgeBaseId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('knowledgeBaseId', { valueAsNumber: true })}
         />
         <TextField
           value={data?.saveTopicCategory.pid || defaultValues?.pid || ''}
-          name="pid"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('pid', { valueAsNumber: true })}
         />
         <FormControl variant="outlined" margin="normal" fullWidth>
           <DropdownTreeSelect
             inlineSearchInput
             data={treeData}
             onChange={(_currentNode, selectedNodes) => {
-              setValue('pid', selectedNodes.map((it) => it.value)[0]);
+              setValue(
+                'pid',
+                parseInt(selectedNodes.map((it) => it.value)[0], 10)
+              );
             }}
             texts={{ placeholder: '选择上级分类' }}
             className="mdl-demo"
@@ -119,7 +129,6 @@ export default function TopicCategoryForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="name"
-          name="name"
           label="分类名称"
           InputProps={{
             startAdornment: (
@@ -130,7 +139,7 @@ export default function TopicCategoryForm(props: FormProps) {
           }}
           error={errors.name && true}
           helperText={errors.name?.message}
-          inputRef={register({
+          {...register('name', {
             maxLength: {
               value: 500,
               message: '分类名称 长度不能大于500个字符',

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -47,7 +48,11 @@ const MUTATION = gql`
 export default function BotConfigForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const { handleSubmit, register, errors } = useForm<BotConfig>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<BotConfig>({
     defaultValues,
   });
 
@@ -74,15 +79,13 @@ export default function BotConfigForm(props: FormProps) {
       >
         <TextField
           value={defaultValues?.id || data?.saveBotConfig.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           value={defaultValues?.botId || data?.saveBotConfig.botId || ''}
-          name="botId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('botId', { valueAsNumber: true })}
         />
         <TextField
           value={
@@ -90,9 +93,8 @@ export default function BotConfigForm(props: FormProps) {
             data?.saveBotConfig.knowledgeBaseId ||
             ''
           }
-          name="knowledgeBaseId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('knowledgeBaseId', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
@@ -100,7 +102,6 @@ export default function BotConfigForm(props: FormProps) {
           fullWidth
           multiline
           id="noAnswerReply"
-          name="noAnswerReply"
           label="没有找到答案时的回复"
           InputProps={{
             startAdornment: (
@@ -111,7 +112,7 @@ export default function BotConfigForm(props: FormProps) {
           }}
           error={errors.noAnswerReply && true}
           helperText={errors.noAnswerReply?.message}
-          inputRef={register({
+          {...register('noAnswerReply', {
             maxLength: {
               value: 500,
               message: '没有找到答案时的回复 长度不能大于500个字符',

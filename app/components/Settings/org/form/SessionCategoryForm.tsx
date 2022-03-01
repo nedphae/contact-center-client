@@ -1,4 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo } from 'react';
+import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { FormControl, TextField } from '@material-ui/core';
@@ -13,19 +15,25 @@ import {
 } from 'app/domain/graphql/SessionCategory';
 import useAlert from 'app/hook/alert/useAlert';
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<SessionCategory, 'children' | 'parentCategoryItem'>;
+
 interface SessionCategoryFormProps {
-  defaultValues: SessionCategory | undefined;
+  defaultValues: FormType | undefined;
   treeNodeProps: TreeNodeProps[];
   refetch: () => void;
 }
 
 export default function SessionCategoryForm(props: SessionCategoryFormProps) {
   const { defaultValues, treeNodeProps, refetch } = props;
-  const { handleSubmit, register, setValue, errors } = useForm<SessionCategory>(
-    {
-      defaultValues,
-    }
-  );
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    formState: { errors },
+  } = useForm<FormType>({
+    defaultValues,
+  });
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [saveSessionCategory, { loading, data }] =
@@ -37,7 +45,7 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<SessionCategory> = async (form) => {
+  const onSubmit: SubmitHandler<FormType> = async (form) => {
     await saveSessionCategory({ variables: { sessionCategoryList: [form] } });
     refetch();
   };
@@ -49,7 +57,7 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
         data={treeNodeProps}
         onChange={(_currentNode, selectedNodes) => {
           const value = selectedNodes.map((it) => it.value)[0];
-          setValue('parentCategory', value);
+          setValue('parentCategory', +value);
         }}
         texts={{ placeholder: '选择咨询类型所属父类' }}
         className="mdl-demo"
@@ -62,15 +70,13 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
       <TextField
         defaultValue={defaultValues?.id || ''}
-        name="id"
         type="hidden"
-        inputRef={register({ valueAsNumber: true })}
+        {...register('id', { valueAsNumber: true })}
       />
       <TextField
         defaultValue={defaultValues?.enabled || true}
-        name="enabled"
         type="hidden"
-        inputRef={register()}
+        {...register('enabled')}
       />
       <TextField
         defaultValue={
@@ -78,11 +84,10 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
           defaultValues?.parentCategory ||
           ''
         }
-        name="parentCategory"
         type="hidden"
         error={errors.parentCategory && true}
         helperText={errors.parentCategory?.message}
-        inputRef={register({
+        {...register('parentCategory', {
           valueAsNumber: true,
         })}
       />
@@ -95,11 +100,10 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
         fullWidth
         autoFocus
         id="categoryName"
-        name="categoryName"
         label="咨询类型名称"
         error={errors.categoryName && true}
         helperText={errors.categoryName?.message}
-        inputRef={register({
+        {...register('categoryName', {
           required: true,
           maxLength: {
             value: 50,

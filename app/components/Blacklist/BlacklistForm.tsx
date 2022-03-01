@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
 import _ from 'lodash';
@@ -63,32 +64,28 @@ export default function BlacklistForm(props: BlacklistFormProps) {
     <div className={classes.paper}>
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <TextField
-          value={defaultValues.uid || ''}
-          name="uid"
+          defaultValue={defaultValues.uid || ''}
           type="hidden"
-          inputRef={register({ required: true })}
+          {...register('uid', { required: true })}
         />
         <TextField
-          value={defaultValues.ip || ''}
-          name="ip"
+          defaultValue={defaultValues.ip || ''}
           type="hidden"
-          inputRef={register({ required: true })}
+          {...register('ip', { required: true })}
         />
         <TextField
-          name="effectiveTime"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('effectiveTime', { valueAsNumber: true })}
         />
         <TextField
-          name="failureTime"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('failureTime', { valueAsNumber: true })}
         />
         <Controller
           control={control}
           name="preventStrategy"
           defaultValue="UID"
-          render={({ onChange, value }) => (
+          render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="role-simple-select-outlined-label">
                 黑名单类型

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -8,6 +9,7 @@ import GroupIcon from '@material-ui/icons/Group';
 
 import { StaffGroup } from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
+import { Object } from 'ts-toolbelt';
 import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
@@ -22,12 +24,15 @@ const useStyles = makeStyles(() =>
   })
 );
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<StaffGroup, 'staffList'>;
+
 interface FormProps {
-  defaultValues: StaffGroup | undefined;
+  defaultValues: FormType | undefined;
 }
 
 interface Graphql {
-  saveStaffGroup: StaffGroup;
+  saveStaffGroup: FormType;
 }
 
 const MUTATION_STAFF_GROUP = gql`
@@ -43,7 +48,7 @@ const MUTATION_STAFF_GROUP = gql`
 export default function StaffGroupForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
-  const { handleSubmit, register } = useForm<StaffGroup>({
+  const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
   });
 
@@ -59,7 +64,7 @@ export default function StaffGroupForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<StaffGroup> = (form) => {
+  const onSubmit: SubmitHandler<FormType> = (form) => {
     saveStaffGroup({ variables: { staffGroupInput: form } });
   };
 
@@ -68,16 +73,14 @@ export default function StaffGroupForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveStaffGroup.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="groupName"
-          name="groupName"
           label="分组名称"
           InputProps={{
             startAdornment: (
@@ -86,7 +89,7 @@ export default function StaffGroupForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('groupName', {
             required: '必须设置分组名称',
             maxLength: {
               value: 50,

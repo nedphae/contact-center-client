@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
@@ -60,16 +61,14 @@ export default function CustomerTagForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveCustomerTag[0]?.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="name"
-          name="name"
           label="标签名称"
           InputProps={{
             startAdornment: (
@@ -78,7 +77,7 @@ export default function CustomerTagForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('name', {
             required: '必须设置标签名称',
             maxLength: {
               value: 50,
@@ -90,7 +89,7 @@ export default function CustomerTagForm(props: FormProps) {
           control={control}
           name="color"
           defaultValue="#009688"
-          render={({ onChange: onchangeValue, value }) => (
+          render={({ field: { onChange: onchangeValue, value } }) => (
             <Grid container justifyContent="center">
               <SketchPicker
                 color={value}

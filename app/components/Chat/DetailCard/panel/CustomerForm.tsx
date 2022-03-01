@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 
 import _ from 'lodash';
@@ -113,10 +114,16 @@ export default function CustomerForm(props: CustomerFormProps) {
     onLoadding(loading);
   }
 
-  const { register, handleSubmit, errors, control, getValues, setValue } =
-    useForm<CustomerFormValues>({
-      defaultValues,
-    });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    control,
+    getValues,
+    setValue,
+  } = useForm<CustomerFormValues>({
+    defaultValues,
+  });
 
   useEffect(() => {
     if (data && shouldDispatch) {
@@ -141,22 +148,19 @@ export default function CustomerForm(props: CustomerFormProps) {
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           value={defaultValues?.organizationId || ''}
-          name="organizationId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('organizationId', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="uid"
-          name="uid"
           label="用户标识"
           InputProps={{
             readOnly: true,
@@ -166,7 +170,7 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('uid')}
         />
         <Controller
           control={control}
@@ -176,7 +180,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           //   setValueAs: (val) =>
           //     val.map((v: string) => parseInt(v, 10)),
           // }}
-          render={({ onChange, value }) => (
+          render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="demo-mutiple-chip-label">客户标签</InputLabel>
               <Select
@@ -246,7 +250,6 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="name"
-          name="name"
           label="用户姓名"
           InputProps={{
             startAdornment: (
@@ -257,7 +260,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           }}
           error={errors.name && true}
           helperText={errors.name?.message}
-          inputRef={register({
+          {...register('name', {
             maxLength: {
               value: 80,
               message: '用户姓名长度不能大于80个字符',
@@ -269,7 +272,6 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="mobile"
-          name="mobile"
           label="手机"
           InputProps={{
             startAdornment: (
@@ -280,7 +282,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           }}
           error={errors.mobile && true}
           helperText={errors.mobile?.message}
-          inputRef={register({
+          {...register('mobile', {
             maxLength: {
               value: 20,
               message: '手机号码长度不能大于20个字符',
@@ -292,7 +294,6 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="email"
-          name="email"
           label="邮箱"
           error={errors.email && true}
           helperText={errors.email?.message}
@@ -303,7 +304,7 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('email', {
             maxLength: {
               value: 150,
               message: '邮箱长度不能大于150个字符',
@@ -316,7 +317,6 @@ export default function CustomerForm(props: CustomerFormProps) {
           fullWidth
           multiline
           id="address"
-          name="address"
           label="地址"
           error={errors.address && true}
           helperText={errors.address?.message}
@@ -327,14 +327,13 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('address')}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="vipLevel"
-          name="vipLevel"
           label="Vip 等级"
           type="number"
           error={errors.vipLevel && true}
@@ -350,7 +349,7 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('vipLevel', {
             min: {
               value: 0,
               message: 'VIP 等级最小为0',
@@ -368,7 +367,6 @@ export default function CustomerForm(props: CustomerFormProps) {
           fullWidth
           multiline
           id="remarks"
-          name="remarks"
           label="备注"
           error={errors.remarks && true}
           helperText={errors.remarks?.message}
@@ -379,7 +377,7 @@ export default function CustomerForm(props: CustomerFormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('remarks', {
             maxLength: {
               value: 500,
               message: '备注长度不能大于500个字符',
@@ -399,39 +397,33 @@ export default function CustomerForm(props: CustomerFormProps) {
                 <TextField
                   type="hidden"
                   id={`${detail.key}.key`}
-                  name={`data.${index}.key`}
-                  inputRef={register()}
+                  {...register(`data.${index}.key`)}
                 />
                 <TextField
                   type="hidden"
                   id={`${detail.key}.label`}
-                  name={`data.${index}.label`}
-                  inputRef={register()}
+                  {...register(`data.${index}.label`)}
                 />
                 <TextField
                   type="hidden"
                   id={`${detail.key}.index`}
-                  name={`data.${index}.index`}
-                  inputRef={register()}
+                  {...register(`data.${index}.index`)}
                 />
                 <TextField
                   type="hidden"
                   id={`${detail.key}.hidden`}
-                  name={`data.${index}.hidden`}
-                  inputRef={register()}
+                  {...register(`data.${index}.hidden`)}
                 />
                 <TextField
                   type="hidden"
                   id={`${detail.key}.href`}
-                  name={`data.${index}.href`}
-                  inputRef={register()}
+                  {...register(`data.${index}.href`)}
                 />
                 <TextField
                   variant="outlined"
                   margin="normal"
                   fullWidth
                   id={`${detail.key}.value`}
-                  name={`data.${index}.value`}
                   label={detail.label}
                   InputProps={{
                     startAdornment: (
@@ -440,7 +432,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                       </InputAdornment>
                     ),
                   }}
-                  inputRef={register()}
+                  {...register(`data.${index}.value`)}
                 />
                 {detail.href && (
                   <Link

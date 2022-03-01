@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
 import _ from 'lodash';
@@ -85,9 +86,8 @@ export default function PropertiesFrom(props: FormProps) {
                 <Box key={`${properties4Set}.${fk}`}>
                   <TextField
                     value={childProp.id}
-                    name={`props[${index}].id`}
                     type="hidden"
-                    inputRef={register({ valueAsNumber: true })}
+                    {...register(`props.${index}.id`, { valueAsNumber: true })}
                   />
                   <TextField
                     variant="outlined"
@@ -97,8 +97,7 @@ export default function PropertiesFrom(props: FormProps) {
                     label={childProp.label}
                     defaultValue={childProp.value}
                     id={`${properties4Set}.${fk}.value`}
-                    name={`props[${index}].value`}
-                    inputRef={register()}
+                    {...register(`props.${index}.value`)}
                   />
                 </Box>
               );

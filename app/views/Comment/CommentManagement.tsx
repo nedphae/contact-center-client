@@ -151,7 +151,7 @@ export default function CommentManagement() {
                   control={control}
                   defaultValue={false}
                   name="time"
-                  render={({ onChange, value }) => (
+                  render={({ field: { onChange, value } }) => (
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -167,7 +167,7 @@ export default function CommentManagement() {
                 <Controller
                   control={control}
                   name="timeRange.from"
-                  render={({ onChange, value }) => (
+                  render={({ field: { onChange, value } }) => (
                     <KeyboardDateTimePicker
                       disableFuture
                       variant="inline"
@@ -195,7 +195,7 @@ export default function CommentManagement() {
                 <Controller
                   control={control}
                   name="timeRange.to"
-                  render={({ onChange, value }) => (
+                  render={({ field: { onChange, value } }) => (
                     <KeyboardDateTimePicker
                       variant="inline"
                       format="yyyy-MM-dd HH:mm:ss"
@@ -222,9 +222,7 @@ export default function CommentManagement() {
                 <Controller
                   control={control}
                   name="solved"
-                  defaultValue=""
-                  rules={{ valueAsNumber: true }}
-                  render={({ onChange, value }) => (
+                  render={({ field: { onChange, value } }) => (
                     <FormControl variant="outlined" margin="normal">
                       <InputLabel id="demo-mutiple-chip-label">
                         解决状态
@@ -232,7 +230,12 @@ export default function CommentManagement() {
                       <Select
                         labelId="solved"
                         id="solved"
-                        onChange={onChange}
+                        onChange={(event) => {
+                          const tempId = event.target.value as string;
+                          onChange(
+                            tempId === '' || !tempId ? undefined : +tempId
+                          );
+                        }}
                         value={value}
                         label="解决状态"
                       >
@@ -248,9 +251,7 @@ export default function CommentManagement() {
                 <Controller
                   control={control}
                   name="solvedWay"
-                  defaultValue=""
-                  rules={{ valueAsNumber: true }}
-                  render={({ onChange, value }) => (
+                  render={({ field: { onChange, value } }) => (
                     <FormControl variant="outlined" margin="normal">
                       <InputLabel id="demo-mutiple-chip-label">
                         解决方式
@@ -258,7 +259,12 @@ export default function CommentManagement() {
                       <Select
                         labelId="solvedWay"
                         id="solvedWay"
-                        onChange={onChange}
+                        onChange={(event) => {
+                          const tempId = event.target.value as string;
+                          onChange(
+                            tempId === '' || !tempId ? undefined : +tempId
+                          );
+                        }}
                         value={value}
                         label="解决方式"
                       >

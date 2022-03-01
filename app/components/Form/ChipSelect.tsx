@@ -58,8 +58,7 @@ export interface SelectKeyValue {
 export interface SelectProps {
   selectKeyValueList: SelectKeyValue[];
   CustomerFormControl: (porps: FormControlProps) => JSX.Element;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<Record<string, any>>;
+  control: Control<Record<string, unknown>>;
   handleDelete: (name: string, value: string) => void;
 }
 
@@ -81,7 +80,7 @@ export default function ChipSelect(props: SelectProps) {
           //   setValueAs: (val) =>
           //     val.map((v: string) => parseInt(v, 10)),
           // }}
-          render={({ onChange, value }) => (
+          render={({ field: { onChange, value } }) => (
             <CustomerFormControl>
               <InputLabel id="demo-mutiple-chip-label">{it.label}</InputLabel>
               <Select
@@ -115,7 +114,7 @@ export default function ChipSelect(props: SelectProps) {
                   <MenuItem
                     key={id}
                     value={id}
-                    style={getStyles(id, value ?? [], theme)}
+                    style={getStyles(id, (value as string[]) ?? [], theme)}
                   >
                     {it.selectList[id]}
                   </MenuItem>

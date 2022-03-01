@@ -437,7 +437,7 @@ export default function ChatHistory() {
                 control={control}
                 defaultValue
                 name="evaluation"
-                render={({ onChange, value }) => (
+                render={({ field: { onChange, value } }) => (
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -459,9 +459,9 @@ export default function ChatHistory() {
                 control={control}
                 name="evaluationRange"
                 defaultValue={{ from: 1, to: 100 }}
-                render={({ onChange, value }) => (
+                render={({ field: { onChange, value } }) => (
                   <Slider
-                    value={[value.from, value.to]}
+                    value={[value?.from ?? 1, value?.to ?? 100]}
                     // valueLabelFormat={valueLabelFormat}
                     // getAriaValueText={valuetext}
                     valueLabelDisplay="auto"

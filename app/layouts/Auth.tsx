@@ -108,7 +108,12 @@ type FormValues = {
 export default function Auth() {
   const dispatch = useDispatch();
   const classes = useStyles();
-  const { register, handleSubmit, control, errors } = useForm<FormValues>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<FormValues>();
   const [error, setError] = useState<string>();
   useAutoLogin(true);
 
@@ -173,7 +178,6 @@ export default function Auth() {
             fullWidth
             id="org"
             label="机构ID"
-            name="org_id"
             autoFocus
             InputProps={{
               inputComponent: NumberFormatCustom as any,
@@ -181,7 +185,7 @@ export default function Auth() {
             autoComplete="organization"
             error={errors.org_id && true}
             helperText={errors.org_id?.message}
-            inputRef={register({
+            {...register('org_id', {
               required: { value: true, message: '机构ID必填' },
               maxLength: 50,
             })}
@@ -193,11 +197,10 @@ export default function Auth() {
             fullWidth
             id="username"
             label="用户名"
-            name="username"
             autoComplete="username"
             error={errors.username && true}
             helperText={errors.username?.message}
-            inputRef={register({
+            {...register('username', {
               required: { value: true, message: '用户名必填' },
               maxLength: 100,
             })}
@@ -207,14 +210,13 @@ export default function Auth() {
             margin="normal"
             required
             fullWidth
-            name="password"
             label="密码"
             type="password"
             id="password"
             error={errors.password && true}
             helperText={errors.password?.message}
             autoComplete="current-password"
-            inputRef={register({
+            {...register('password', {
               required: { value: true, message: '密码必填' },
               maxLength: 100,
             })}
@@ -223,7 +225,7 @@ export default function Auth() {
             control={control}
             name="onlineStatus"
             defaultValue={1}
-            render={({ onChange, value }) => (
+            render={({ field: { onChange, value } }) => (
               <FormControl variant="outlined" margin="normal" fullWidth>
                 <InputLabel id="demo-mutiple-chip-label">在线状态</InputLabel>
                 <Select
@@ -246,7 +248,7 @@ export default function Auth() {
             control={
               <Checkbox
                 color="primary"
-                inputRef={register({ required: false })}
+                {...register('remember', { required: false })}
               />
             }
             label="记住我"

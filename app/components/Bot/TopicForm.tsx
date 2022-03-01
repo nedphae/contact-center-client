@@ -1,6 +1,13 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo } from 'react';
 import _ from 'lodash';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import {
+  useForm,
+  SubmitHandler,
+  Controller,
+  useFieldArray,
+  Control,
+} from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -9,6 +16,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -18,13 +26,18 @@ import {
   MenuItem,
   Select,
 } from '@material-ui/core';
+import Upload from 'rc-upload';
 
 import { makeTreeNode, Topic, TopicCategory } from 'app/domain/Bot';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 import useAlert from 'app/hook/alert/useAlert';
+import {
+  getDownloadOssChatImgPath,
+  getUploadOssChatImgPath,
+} from 'app/config/clientConfig';
+import { RcFile } from 'rc-upload/lib/interface';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
-import { getUploadOssChatImgPath } from 'app/config/clientConfig';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -80,9 +93,9 @@ export default function TopicForm(props: FormProps) {
     register,
     control,
     watch,
-    errors,
     getValues,
     setValue,
+    formState: { errors },
   } = useForm<Topic>({
     defaultValues,
   });
@@ -101,19 +114,23 @@ export default function TopicForm(props: FormProps) {
   };
 
   const questionType = watch('type', 1);
-  const picSrc = watch('answer.1.content');
+  const { fields, update, remove } = useFieldArray({ name: 'answer', control });
+  const picSrc = fields[1]?.content;
 
   const imgUploadProps = {
     action: `${getUploadOssChatImgPath()}`,
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
-    onStart(file: RcFile) {},
-    onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
+    onSuccess(response: unknown) {
       // 设置图片地址
-      setValue('answer.1.content', (response as string[])[0]);
+      update(1, { type: 'image', content: (response as string[])[0] });
     },
     onError(error: Error, _ret: any, _file: RcFile) {},
   };
+
+  function handleDeletePic() {
+    remove(1);
+  }
 
   const id = data?.saveTopic.id || defaultValues?.id || '';
   // 过滤自身
@@ -131,7 +148,7 @@ export default function TopicForm(props: FormProps) {
     },
   ];
 
-  const handleDelete = (name: string, value: string) => {
+  const handleDelete = (name: keyof Topic, value: string) => {
     const values = getValues(name) as string[];
     setValue(
       name,
@@ -157,7 +174,10 @@ export default function TopicForm(props: FormProps) {
           //   'knowledgeBaseId',
           //   selectedNodes.map((it) => it.knowledgeBaseId)[0]
           // );
-          setValue('categoryId', selectedNodes.map((it) => it.value)[0]);
+          setValue(
+            'categoryId',
+            parseInt(selectedNodes.map((it) => it.value)[0], 10)
+          );
         }}
         texts={{ placeholder: '选择所属分类' }}
         className="mdl-demo"
@@ -169,16 +189,15 @@ export default function TopicForm(props: FormProps) {
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-        <TextField value={id} name="id" type="hidden" inputRef={register()} />
+        <TextField value={id} type="hidden" {...register('id')} />
         <TextField
           defaultValue={
             data?.saveTopic.categoryId || defaultValues?.categoryId || ''
           }
-          name="categoryId"
           type="hidden"
           error={errors.categoryId && true}
           helperText={errors.categoryId?.message}
-          inputRef={register({
+          {...register('categoryId', {
             required: '必须选择知识库分类',
             valueAsNumber: true,
           })}
@@ -189,9 +208,8 @@ export default function TopicForm(props: FormProps) {
             defaultValues?.knowledgeBaseId ||
             ''
           }
-          name="knowledgeBaseId"
           type="hidden"
-          inputRef={register({
+          {...register('knowledgeBaseId', {
             required: '必须选择知识库',
             valueAsNumber: true,
           })}
@@ -205,7 +223,6 @@ export default function TopicForm(props: FormProps) {
           fullWidth
           multiline
           id="question"
-          name="question"
           label="问题"
           InputProps={{
             startAdornment: (
@@ -216,7 +233,7 @@ export default function TopicForm(props: FormProps) {
           }}
           error={errors.question && true}
           helperText={errors.question?.message}
-          inputRef={register({
+          {...register('question', {
             required: '问题必填',
             maxLength: {
               value: 500,
@@ -228,7 +245,7 @@ export default function TopicForm(props: FormProps) {
           control={control}
           name="type"
           defaultValue={1}
-          render={({ onChange, value }) => (
+          render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="demo-mutiple-chip-label">问题类型</InputLabel>
               <Select
@@ -247,10 +264,9 @@ export default function TopicForm(props: FormProps) {
         {questionType === 1 && (
           <>
             <TextField
-              name="answer.0.type"
               type="hidden"
               defaultValue="text"
-              inputRef={register()}
+              {...register('answer.0.type')}
             />
             <TextField
               variant="outlined"
@@ -258,7 +274,6 @@ export default function TopicForm(props: FormProps) {
               fullWidth
               multiline
               id="answer.0.content"
-              name="answer.0.content"
               label="问题的对外答案"
               error={errors.answer && true}
               helperText={errors.answer && errors.answer[0]?.content?.message}
@@ -269,27 +284,38 @@ export default function TopicForm(props: FormProps) {
                   </InputAdornment>
                 ),
               }}
-              inputRef={register()}
+              {...register('answer.0.content')}
             />
             <TextField
-              name="answer.1.type"
               type="hidden"
               defaultValue="image"
-              inputRef={register()}
+              {...register('answer.1.type')}
             />
-            <TextField
-              name="answer.1.content"
-              type="hidden"
-              inputRef={register()}
-            />
-            {picSrc && <img src={picSrc} alt="图片消息" />}
+            <TextField type="hidden" {...register('answer.1.content')} />
+            {picSrc && (
+              <img
+                src={`${getDownloadOssChatImgPath()}/${picSrc}`}
+                alt="图片消息"
+              />
+            )}
+            <Upload {...imgUploadProps}>
+              <Button variant="contained" color="primary">
+                添加图片
+              </Button>
+            </Upload>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDeletePic}
+            >
+              删除图片
+            </Button>
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
               multiline
               id="innerAnswer"
-              name="innerAnswer"
               label="问题的对内答案"
               error={errors.innerAnswer && true}
               helperText={errors.innerAnswer?.message}
@@ -300,12 +326,16 @@ export default function TopicForm(props: FormProps) {
                   </InputAdornment>
                 ),
               }}
-              inputRef={register()}
+              {...register('innerAnswer')}
             />
             <ChipSelect
               selectKeyValueList={selectKeyValueList}
-              control={control}
-              handleDelete={handleDelete}
+              control={
+                control as unknown as Control<Record<string, unknown>, unknown>
+              }
+              handleDelete={
+                handleDelete as (name: string, value: string) => void
+              }
               CustomerFormControl={(formControlProps: FormControlProps) => (
                 <FormControl
                   variant="outlined"
@@ -322,9 +352,12 @@ export default function TopicForm(props: FormProps) {
           <Controller
             control={control}
             name="refId"
-            defaultValue={null}
+            defaultValue={undefined}
             rules={{ required: '相似问题必选' }}
-            render={({ onChange, value }, { invalid }) => (
+            render={({
+              field: { onChange, value },
+              fieldState: { invalid, error: refIdError },
+            }) => (
               <FormControl
                 variant="outlined"
                 margin="normal"
@@ -351,7 +384,9 @@ export default function TopicForm(props: FormProps) {
                       );
                     })}
                 </Select>
-                {invalid && <FormHelperText>Error</FormHelperText>}
+                {invalid && (
+                  <FormHelperText>{refIdError?.message}</FormHelperText>
+                )}
               </FormControl>
             )}
           />
@@ -360,7 +395,7 @@ export default function TopicForm(props: FormProps) {
           control={control}
           defaultValue
           name="enabled"
-          render={({ onChange, value }) => (
+          render={({ field: { onChange, value } }) => (
             <FormControlLabel
               control={
                 <Checkbox

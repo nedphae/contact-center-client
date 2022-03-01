@@ -6,6 +6,7 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import _ from 'lodash';
 
@@ -133,14 +134,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<StaffShunt, 'staffList'>;
+
 interface FormProps {
-  defaultValues: StaffShunt | undefined;
+  defaultValues: FormType | undefined;
   shuntClassList: ShuntClass[];
   staffList: Staff[];
 }
 
 interface Graphql {
-  saveShunt: StaffShunt | undefined;
+  saveShunt: FormType | undefined;
 }
 
 const MUTATION_STAFF_SHUNT = gql`
@@ -307,7 +311,7 @@ export default function StaffShuntForm(props: FormProps) {
     updateChatUIConfig(newChatUIConfigObj);
   }
 
-  const { handleSubmit, register, control } = useForm<StaffShunt>({
+  const { handleSubmit, register, control } = useForm<FormType>({
     defaultValues,
   });
 
@@ -426,7 +430,7 @@ export default function StaffShuntForm(props: FormProps) {
     }
   }, [savedChatUIConfig, jsoneditor]);
 
-  const onSubmit: SubmitHandler<StaffShunt> = async (form) => {
+  const onSubmit: SubmitHandler<FormType> = async (form) => {
     const shuntResult = await saveStaffShunt({
       variables: { shuntInput: form },
     });
@@ -591,15 +595,17 @@ export default function StaffShuntForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={defaultValues?.id || data?.saveShunt?.id || ''}
-          name="id"
           type="hidden"
-          inputRef={register({ maxLength: 100, valueAsNumber: true })}
+          {...register('id', { maxLength: 100, valueAsNumber: true })}
         />
         <Controller
           control={control}
           name="shuntClassId"
           rules={{ required: '接待组分类必选' }}
-          render={({ onChange, value }, { invalid }) => (
+          render={({
+            field: { onChange, value },
+            fieldState: { invalid, error: shuntClassIdError },
+          }) => (
             <FormControl
               variant="outlined"
               margin="normal"
@@ -623,7 +629,9 @@ export default function StaffShuntForm(props: FormProps) {
                     );
                   })}
               </Select>
-              {invalid && <FormHelperText>Error</FormHelperText>}
+              {invalid && (
+                <FormHelperText>{shuntClassIdError?.message}</FormHelperText>
+              )}
             </FormControl>
           )}
         />
@@ -632,7 +640,6 @@ export default function StaffShuntForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="name"
-          name="name"
           label="接待组名称"
           InputProps={{
             startAdornment: (
@@ -641,7 +648,7 @@ export default function StaffShuntForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register({
+          {...register('name', {
             required: '必须设置接待组名称',
             maxLength: {
               value: 50,
@@ -654,7 +661,6 @@ export default function StaffShuntForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="code"
-          name="code"
           label="接待组链接代码"
           value={defaultValues?.code || data?.saveShunt?.code || ''}
           InputProps={{
@@ -665,14 +671,13 @@ export default function StaffShuntForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('code')}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="openPush"
-          name="openPush"
           label="接待组推送地址"
           InputProps={{
             startAdornment: (
@@ -681,15 +686,14 @@ export default function StaffShuntForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('openPush')}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="authorization"
-          name="authorization"
-          label="推送地址认证Token（如果不设置可为空）"
+          label="推送地址认证Token（如果不验证Token可为空）"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -697,7 +701,7 @@ export default function StaffShuntForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('authorization')}
         />
         <Grid container xs={12}>
           <Grid item xs={6}>

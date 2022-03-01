@@ -65,7 +65,12 @@ export default function TransferForm(props: TransferFormProps) {
   const dispatch = useDispatch();
   const [tab, setTab] = useState(0);
   const { data } = useQuery<MonitorGraphql>(QUERY_MONITOR);
-  const { handleSubmit, register, errors, setValue } = useForm<TransferQuery>({
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+    setValue,
+  } = useForm<TransferQuery>({
     defaultValues,
   });
 
@@ -119,17 +124,15 @@ export default function TransferForm(props: TransferFormProps) {
   return (
     <div className={classes.root}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-        <TextField name="type" type="hidden" inputRef={register()} />
+        <TextField type="hidden" {...register('type')} />
         <TextField
           value={defaultValues.userId || ''}
-          name="userId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('userId', { valueAsNumber: true })}
         />
         <TextField
-          name="toStaffId"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('toStaffId', { valueAsNumber: true })}
         />
         <Tabs
           value={tab}
@@ -211,7 +214,6 @@ export default function TransferForm(props: TransferFormProps) {
           fullWidth
           multiline
           id="remarks"
-          name="remarks"
           label="转接原因"
           InputProps={{
             startAdornment: (
@@ -222,7 +224,7 @@ export default function TransferForm(props: TransferFormProps) {
           }}
           error={errors.remarks && true}
           helperText={errors.remarks?.message}
-          inputRef={register({
+          {...register('remarks', {
             required: '转接原因必填',
             maxLength: {
               value: 500,

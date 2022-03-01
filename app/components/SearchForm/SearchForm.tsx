@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller, Control } from 'react-hook-form';
@@ -91,12 +93,9 @@ export default function SearchForm(props: FormProps) {
     setExpanded(!expanded);
   };
 
-  const handleDelete = (name: string, value: string) => {
+  const handleDelete = (name: keyof FormType, value: string) => {
     const values = getValues(name) as string[];
-    setValue(
-      name,
-      _.remove(values, (v) => v !== value)
-    );
+    setValue(name, _.remove(values, (v) => v !== value) as any);
   };
 
   const onSubmit: SubmitHandler<FormType> = (form) => {
@@ -117,14 +116,13 @@ export default function SearchForm(props: FormProps) {
               <TextField
                 id="standard-basic"
                 label="关键字"
-                name="keyword"
-                inputRef={register()}
+                {...register('keyword')}
               />
               <Controller
                 control={control}
                 defaultValue
                 name="time"
-                render={({ onChange, value }) => (
+                render={({ field: { onChange, value } }) => (
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -140,7 +138,7 @@ export default function SearchForm(props: FormProps) {
               <Controller
                 control={control}
                 name="timeRange.from"
-                render={({ onChange, value }) => (
+                render={({ field: { onChange, value } }) => (
                   <KeyboardDateTimePicker
                     disableFuture
                     variant="inline"
@@ -165,7 +163,7 @@ export default function SearchForm(props: FormProps) {
               <Controller
                 control={control}
                 name="timeRange.to"
-                render={({ onChange, value }) => (
+                render={({ field: { onChange, value } }) => (
                   <KeyboardDateTimePicker
                     variant="inline"
                     format="yyyy-MM-dd HH:mm:ss"
@@ -229,8 +227,15 @@ export default function SearchForm(props: FormProps) {
                 <Grid item xs={12}>
                   <ChipSelect
                     selectKeyValueList={selectKeyValueList}
-                    control={control}
-                    handleDelete={handleDelete}
+                    control={
+                      control as unknown as Control<
+                        Record<string, unknown>,
+                        unknown
+                      >
+                    }
+                    handleDelete={
+                      handleDelete as (name: string, value: string) => void
+                    }
                     CustomerFormControl={(
                       formControlProps: FormControlProps
                     ) => (

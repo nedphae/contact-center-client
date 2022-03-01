@@ -18,10 +18,13 @@ import RTLNavbarLinks from "../Navbars/RTLNavbarLinks";
 
 import styles from "../../assets/jss/material-dashboard-react/components/sidebarStyle";
 import { RootState } from "app/store";
+import { RouteType } from "app/routes";
+import { checkPermissions } from "../Authorized/CheckPermissions";
+import { CURRENT } from "../Authorized/renderAuthorize";
 
 const useStyles = makeStyles(styles);
 
-export default function Sidebar(props: { rtlActive?: any; open?: any; handleDrawerToggle?: any; color?: any; logo?: any; image?: any; logoText?: any; routes?: Array; }) {
+export default function Sidebar(props: { rtlActive?: any; open?: any; handleDrawerToggle?: any; color?: any; logo?: any; image?: any; logoText?: any; routes?: RouteType; }) {
   const classes = useStyles();
   const currentPath = useSelector((state: RootState) => state.router.location.pathname);
   // verifies if routeName is the one active (in browser input)
@@ -34,7 +37,7 @@ export default function Sidebar(props: { rtlActive?: any; open?: any; handleDraw
   var links = (
     <List className={classes.list}>
       {/* TODO: 过滤权限 */ }
-      {routes.filter(() => true).map((prop: { path: string; layout: any; icon: any | null | undefined; rtlName: React.ReactNode; name: React.ReactNode; }, key: string | number | undefined) => {
+      {routes && routes.filter((it) => checkPermissions(it.authority, CURRENT, true, false)).map((prop: { path: string; layout: any; icon: any | null | undefined; rtlName: React.ReactNode; name: React.ReactNode; }, key: string | number | undefined) => {
         var activePro = " ";
         var listItemClasses;
         if (prop.path === "/upgrade-to-pro") {

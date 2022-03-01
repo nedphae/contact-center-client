@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -46,10 +47,14 @@ type PasswordChangerWithRepeat = Object.Merge<
 export default function ChangePasswordForm(props: FormProps) {
   const { id } = props;
   const classes = useStyles();
-  const { handleSubmit, register, errors, watch } =
-    useForm<PasswordChangerWithRepeat>({
-      defaultValues: { id },
-    });
+  const {
+    handleSubmit,
+    register,
+    watch,
+    formState: { errors },
+  } = useForm<PasswordChangerWithRepeat>({
+    defaultValues: { id },
+  });
 
   const password = watch('newPassword');
 
@@ -74,16 +79,14 @@ export default function ChangePasswordForm(props: FormProps) {
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
           value={id}
-          name="id"
           type="hidden"
-          inputRef={register({ valueAsNumber: true })}
+          {...register('id', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
           id="oldPassword"
-          name="oldPassword"
           type="password"
           label="旧密码"
           InputProps={{
@@ -93,7 +96,7 @@ export default function ChangePasswordForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          inputRef={register()}
+          {...register('oldPassword')}
         />
         <Divider />
         <TextField
@@ -101,7 +104,6 @@ export default function ChangePasswordForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="newPassword"
-          name="newPassword"
           type="password"
           label="新密码"
           InputProps={{
@@ -113,7 +115,7 @@ export default function ChangePasswordForm(props: FormProps) {
           }}
           error={errors.newPassword && true}
           helperText={errors.newPassword?.message}
-          inputRef={register({
+          {...register('newPassword', {
             maxLength: {
               value: 50,
               message: '密码不能大于50位',
@@ -133,7 +135,6 @@ export default function ChangePasswordForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="password_repeat"
-          name="password_repeat"
           type="password"
           label="确认密码"
           InputProps={{
@@ -145,7 +146,7 @@ export default function ChangePasswordForm(props: FormProps) {
           }}
           error={errors.password_repeat && true}
           helperText={errors.password_repeat?.message}
-          inputRef={register({
+          {...register('password_repeat', {
             validate: (value) => value === password || '密码不相符',
           })}
         />

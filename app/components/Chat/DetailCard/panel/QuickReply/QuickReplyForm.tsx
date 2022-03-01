@@ -1,6 +1,7 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { Object } from 'ts-toolbelt';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
 import {
   Dialog,
@@ -39,24 +40,25 @@ interface DefaultFormProps {
   refetch: () => void;
 }
 
+// 去除掉没用的循环属性
+type FormType = Object.Omit<QuickReply, 'group'>;
+
 type QuickReplyFormProps = Object.Merge<
   {
-    defaultValues?: QuickReply;
+    defaultValues?: FormType;
     quickReplyGroup: QuickReplyGroup[];
-  },
-  DefaultFormProps
->;
-
-type QuickReplyGroupFormProps = Object.Merge<
-  {
-    defaultValues?: QuickReplyGroup;
   },
   DefaultFormProps
 >;
 
 export function QuickReplyForm(props: QuickReplyFormProps) {
   const { open, handleClose, defaultValues, refetch, quickReplyGroup } = props;
-  const { handleSubmit, register, control, errors } = useForm<QuickReply>({
+  const {
+    handleSubmit,
+    register,
+    control,
+    formState: { errors },
+  } = useForm<FormType>({
     defaultValues,
   });
 
@@ -72,7 +74,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<QuickReply> = async (form) => {
+  const onSubmit: SubmitHandler<FormType> = async (form) => {
     await addQuickReply({ variables: { quickReplyInput: form } });
     await refetch();
   };
@@ -88,21 +90,17 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
             value={defaultValues?.id || ''}
-            name="id"
             type="hidden"
-            inputRef={register({ valueAsNumber: true })}
+            {...register('id', { valueAsNumber: true })}
           />
           <Controller
             control={control}
             name="groupId"
-            defaultValue=""
-            rules={{
-              // see https://github.com/react-hook-form/react-hook-form/issues/3963
-              setValueAs: (value?: string) => {
-                return value === '' || !value ? undefined : +value;
-              },
-            }}
-            render={({ onChange, value }, { invalid }) => (
+            defaultValue={undefined}
+            render={({
+              field: { onChange, value },
+              fieldState: { invalid, error: groupIdError },
+            }) => (
               <FormControl
                 variant="outlined"
                 margin="normal"
@@ -113,8 +111,12 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
                 <Select
                   labelId="groupId"
                   id="groupId"
-                  onChange={onChange}
-                  value={value || ''}
+                  // see https://github.com/react-hook-form/react-hook-form/issues/3963
+                  onChange={(event) => {
+                    const groupId = event.target.value as string;
+                    onChange(groupId === '' || !groupId ? undefined : +groupId);
+                  }}
+                  value={value}
                   label="分组"
                 >
                   <MenuItem value="">
@@ -129,7 +131,9 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
                       );
                     })}
                 </Select>
-                {invalid && <FormHelperText>Error</FormHelperText>}
+                {invalid && (
+                  <FormHelperText>{groupIdError?.message}</FormHelperText>
+                )}
               </FormControl>
             )}
           />
@@ -139,11 +143,10 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             fullWidth
             autoFocus
             id="title"
-            name="title"
             label="话术标题"
             error={errors.title && true}
             helperText={errors.title?.message}
-            inputRef={register({
+            {...register('title', {
               maxLength: {
                 value: 80,
                 message: '话术标题长度不能大于80个字符',
@@ -156,11 +159,10 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             fullWidth
             multiline
             id="content"
-            name="content"
             label="话术内容"
             error={errors.content && true}
             helperText={errors.content?.message}
-            inputRef={register({
+            {...register('content', {
               maxLength: {
                 value: 500,
                 message: '话术内容长度不能大于500个字符',
@@ -171,7 +173,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             control={control}
             defaultValue
             name="personal"
-            render={({ onChange, value }) => (
+            render={({ field: { onChange, value } }) => (
               <FormControlLabel
                 control={
                   <Checkbox
@@ -196,9 +198,23 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
   );
 }
 
+type QuickReplyGroupFormType = Object.Omit<QuickReplyGroup, 'quickReply'>;
+
+type QuickReplyGroupFormProps = Object.Merge<
+  {
+    defaultValues?: QuickReplyGroupFormType;
+  },
+  DefaultFormProps
+>;
+
 export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
   const { open, handleClose, defaultValues, refetch } = props;
-  const { handleSubmit, register, control, errors } = useForm<QuickReplyGroup>({
+  const {
+    handleSubmit,
+    register,
+    control,
+    formState: { errors },
+  } = useForm<QuickReplyGroupFormType>({
     defaultValues,
   });
 
@@ -214,7 +230,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<QuickReplyGroup> = async (form) => {
+  const onSubmit: SubmitHandler<QuickReplyGroupFormType> = async (form) => {
     await addQuickReplyGroup({ variables: { quickReplyGroupInput: form } });
     await refetch();
   };
@@ -230,9 +246,8 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
             value={defaultValues?.id || ''}
-            name="id"
             type="hidden"
-            inputRef={register({ valueAsNumber: true })}
+            {...register('id', { valueAsNumber: true })}
           />
           <TextField
             variant="outlined"
@@ -240,11 +255,10 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
             fullWidth
             autoFocus
             id="groupName"
-            name="groupName"
             label="分组名称"
             error={errors.groupName && true}
             helperText={errors.groupName?.message}
-            inputRef={register({
+            {...register('groupName', {
               maxLength: {
                 value: 50,
                 message: '分组名称长度不能大于50个字符',
@@ -255,7 +269,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
             control={control}
             defaultValue
             name="personal"
-            render={({ onChange, value }) => (
+            render={({ field: { onChange, value } }) => (
               <FormControlLabel
                 control={
                   <Checkbox
