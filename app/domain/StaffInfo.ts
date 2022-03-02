@@ -59,6 +59,7 @@ export interface StaffShunt {
   id: number;
   name: string;
   shuntClassId: number;
+  shuntClassName?: string;
   code: string;
   openPush?: string;
   authorizationToken?: string;

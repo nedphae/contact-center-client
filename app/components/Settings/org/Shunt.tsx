@@ -70,7 +70,7 @@ type Graphql = AllShunt;
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
   { field: 'name', headerName: '接待组名称', width: 150 },
-  { field: 'shuntClassId', headerName: '接待组所属分类', width: 250 },
+  { field: 'shuntClassName', headerName: '接待组所属分类', width: 250 },
   { field: 'code', headerName: '接待组代码', width: 350 },
   { field: 'openPush', headerName: '消息推送地址', width: 350 },
 ];
@@ -109,8 +109,6 @@ export default function Shunt() {
     refOfDialog.current?.setOpen(true);
   };
 
-  const rows = data?.allStaffShunt ?? [];
-
   const handleContextMenuOpen = (
     event: React.MouseEvent<HTMLLIElement>,
     selectStaffShuntClass: ShuntClass
@@ -142,6 +140,10 @@ export default function Shunt() {
     _.cloneDeep(data?.allShuntClass),
     (it) => it.catalogue
   );
+  const allShuntClassIdMap = _.groupBy(
+    _.cloneDeep(data?.allShuntClass),
+    (it) => it.id
+  );
   const pShuntClass = allShuntClass
     .map((it) => {
       it.children = allShuntClassMap[it.id];
@@ -160,6 +162,10 @@ export default function Shunt() {
     event.stopPropagation();
     setMousePoint(initialMousePoint);
   };
+
+  const rows = (data?.allStaffShunt ?? []).map((item) =>
+    _.defaults({ shuntClassName: allShuntClassIdMap[item.shuntClassId] }, item)
+  );
 
   return (
     <Grid container className={classes.root}>
