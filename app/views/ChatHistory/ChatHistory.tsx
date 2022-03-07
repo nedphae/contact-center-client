@@ -257,7 +257,7 @@ const QUERY = gql`
       organizationId
       shuntClassId
       openPush
-      authorization
+      authorizationToken
     }
   }
 `;
@@ -491,7 +491,7 @@ export default function ChatHistory() {
         pageSize={pageSize}
         // 全部的列表
         rowCount={rowCount}
-        rowsPerPageOptions={[10, 20, 50, 100]}
+        rowsPerPageOptions={[10, 20, 50]}
         paginationMode="server"
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}

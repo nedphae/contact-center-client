@@ -53,7 +53,7 @@ export default function DetailCard() {
       >
         <Tab style={style} label="客户信息" {...a11yProps(0)} />
         <Tab style={style} label="历史会话" {...a11yProps(1)} />
-        <Tab style={style} label="常用话术" {...a11yProps(2)} />
+        <Tab style={style} label="快捷回复" {...a11yProps(2)} />
         <Tab style={style} label="ERP" {...a11yProps(3)} />
         {/* TODO: 后面可以做成配置型的 */}
       </Tabs>

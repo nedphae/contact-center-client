@@ -705,19 +705,25 @@ export default function StaffShuntForm(props: FormProps) {
           {...register('authorizationToken')}
         />
         <Grid container xs={12}>
-          <Grid item xs={6}>
+          <Grid item xs={7}>
             <Upload {...imgUploadProps}>
               <Typography variant="body1">
-                自定义导航栏Logo（点击添加/修改）
+                自定义导航栏Logo（点击头像或上传添加/修改）
               </Typography>
-              <img
-                src={chatUIConfigObj && chatUIConfigObj.navbar.logo}
-                alt="logo"
-                style={{ maxHeight: '40px' }}
-              />
+              {chatUIConfigObj && chatUIConfigObj.navbar.logo ? (
+                <img
+                  src={chatUIConfigObj.navbar.logo}
+                  alt="logo"
+                  style={{ maxHeight: '40px' }}
+                />
+              ) : (
+                <Button variant="contained" color="primary">
+                  上传图片
+                </Button>
+              )}
             </Upload>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <Button color="secondary" onClick={onDeleteLogoClick}>
               删除图片
             </Button>
@@ -759,19 +765,25 @@ export default function StaffShuntForm(props: FormProps) {
           onChange={handleWelcomeMessageChange}
         />
         <Grid container xs={12}>
-          <Grid item xs={6}>
+          <Grid item xs={7}>
             <Upload {...avatarUploadProps}>
               <Typography variant="body1">
-                客服头像设置 (最大 108 * 108)
+                客服头像设置 (最大 108 * 108，点击头像或上传添加/修改)
               </Typography>
-              <img
-                src={chatUIConfigObj && chatUIConfigObj.robot.avatar}
-                alt="logo"
-                style={{ maxHeight: '40px' }}
-              />
+              {chatUIConfigObj && chatUIConfigObj.robot.avatar ? (
+                <img
+                  src={chatUIConfigObj.robot.avatar}
+                  alt="logo"
+                  style={{ maxHeight: '40px' }}
+                />
+              ) : (
+                <Button variant="contained" color="primary">
+                  上传图片
+                </Button>
+              )}
             </Upload>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <Button color="secondary" onClick={onDeleteAvatarClick}>
               删除图片
             </Button>

@@ -10,7 +10,6 @@ import wechatIcon from '@iconify/icons-mdi/wechat';
 import weiboFill from '@iconify-icons/ri/weibo-fill';
 
 import { CustomerStatus } from 'app/domain/Customer';
-import { FromType } from 'app/domain/constant/Conversation';
 
 interface UserHeaderProps {
   status: CustomerStatus;
@@ -19,24 +18,24 @@ interface UserHeaderProps {
 function createUserAvatar(status: CustomerStatus) {
   let result;
   switch (status.fromType) {
-    case FromType.WEB: {
+    case 'WEB': {
       result = <WebIcon />;
       break;
     }
-    case FromType.IOS: {
+    case 'IOS': {
       result = <PhoneIphoneIcon />;
       break;
     }
-    case FromType.ANDROID: {
+    case 'ANDROID': {
       result = <AndroidIcon />;
       break;
     }
-    case FromType.WX_MA:
-    case FromType.WX: {
+    case 'WX_MA':
+    case 'WX': {
       result = <Icon icon={wechatIcon} />;
       break;
     }
-    case FromType.WB: {
+    case 'WB': {
       result = <Icon icon={weiboFill} />;
       break;
     }

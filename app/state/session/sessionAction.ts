@@ -44,6 +44,7 @@ import slice from './sessionSlice';
 import {
   getSelectedSession,
   removeTransferMessageToSend,
+  setPlayNewMessageSound,
   setPts,
   setSelectedSessionNumber,
   setSnackbarProp,
@@ -565,6 +566,11 @@ export const setNewMessage =
                     })
                   );
                 }
+              } // 设置提示音
+              const currentPath = getState().router.location.pathname;
+
+              if (!currentPath.includes('/entertain') || document.hidden) {
+                dispatch(setPlayNewMessageSound());
               }
               dispatch(newMessage(end));
               dispatch(unhideSession(userId));

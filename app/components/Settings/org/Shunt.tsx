@@ -164,7 +164,10 @@ export default function Shunt() {
   };
 
   const rows = (data?.allStaffShunt ?? []).map((item) =>
-    _.defaults({ shuntClassName: allShuntClassIdMap[item.shuntClassId] }, item)
+    _.defaults(
+      { shuntClassName: allShuntClassIdMap[item.shuntClassId][0].className },
+      item
+    )
   );
 
   return (

@@ -32,6 +32,13 @@ const chatSlice = createSlice({
     setPts: (chat, action: PayloadAction<number | undefined>) => {
       chat.pts = action.payload;
     },
+    setPlayNewMessageSound: (chat) => {
+      // 新消息声音提醒
+      chat.playNewMessageSound = true;
+    },
+    clearPlayNewMessageSound: (chat) => {
+      chat.playNewMessageSound = false;
+    },
     setTransferMessageRecive: (
       chat,
       action: PayloadAction<TransferMessageRequest>

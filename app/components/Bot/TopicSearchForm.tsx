@@ -84,6 +84,7 @@ export default function TopicSearchFrom(props: FormProps) {
           <CardActions disableSpacing>
             <div className={classes.root}>
               <TextField
+                fullWidth
                 id="standard-basic"
                 label="关键字"
                 {...register('keyword')}

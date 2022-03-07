@@ -54,7 +54,7 @@ export default {
         ],
       },
       {
-        test: /\.(mp3)(\?.*)?$/,
+        test: /\.(mp3|wav)(\?.*)?$/,
         loader: 'url-loader',
         options: {
           limit: 4096,

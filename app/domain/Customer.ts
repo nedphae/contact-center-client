@@ -31,9 +31,11 @@ export interface Customer {
   tags: CustomerTagView[] | undefined;
 }
 
+export type FromTypeString = keyof typeof FromType;
+
 export interface CustomerStatus {
   // 客户来源类型
-  fromType: FromType;
+  fromType: FromTypeString;
 
   // 指定客服组id
   groupId: number | undefined;

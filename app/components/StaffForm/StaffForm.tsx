@@ -359,9 +359,6 @@ export default function StaffForm(props: FormProps) {
                 value={value || ''}
                 label="所属分组"
               >
-                <MenuItem>
-                  <em>None</em>
-                </MenuItem>
                 {groupList &&
                   groupList.map((it) => {
                     return (

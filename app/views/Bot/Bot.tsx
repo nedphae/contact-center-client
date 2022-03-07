@@ -222,57 +222,64 @@ export default function Bot() {
   }
 
   const memoData = useMemo(() => {
-    // useMemo 优化一下
-    // 生成各种需要的Map, 根据 ID 填充名称
-    const allTopicCategory = _.cloneDeep(data?.allTopicCategory ?? []);
-    const allBotConfig = _.cloneDeep(data?.allBotConfig ?? []);
-    const allKnowledgeBase = _.cloneDeep(data?.allKnowledgeBase ?? []);
-    const memoAllTopic = _.cloneDeep(topicData?.searchTopic ?? []);
-    const botConfigMap = _.groupBy(allBotConfig, 'knowledgeBaseId');
+    if (data) {
+      // useMemo 优化一下
+      // 生成各种需要的Map, 根据 ID 填充名称
+      const allTopicCategory = _.cloneDeep(data?.allTopicCategory ?? []);
+      const allBotConfig = _.cloneDeep(data?.allBotConfig ?? []);
+      const allKnowledgeBase = _.cloneDeep(data?.allKnowledgeBase ?? []);
+      const memoAllTopic = _.cloneDeep(topicData?.searchTopic ?? []);
+      const botConfigMap = _.groupBy(allBotConfig, 'knowledgeBaseId');
 
-    const allKnowledgeBaseMap = _.groupBy(allKnowledgeBase, 'id');
-    const allTopicCategoryMap = _.groupBy(allTopicCategory, 'id');
-    const memoAllTopicMap = _.groupBy(memoAllTopic, 'id');
+      const allKnowledgeBaseMap = _.groupBy(allKnowledgeBase, 'id');
+      const allTopicCategoryMap = _.groupBy(allTopicCategory, 'id');
+      const memoAllTopicMap = _.groupBy(memoAllTopic, 'id');
 
-    const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
-    const topicCategoryGroup = _.groupBy(topicData?.searchTopic, 'categoryId');
+      const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
+      const topicCategoryGroup = _.groupBy(
+        topicData?.searchTopic,
+        'categoryId'
+      );
 
-    const pTopicCategory = allTopicCategory
-      .map((it) => {
-        it.children = topicCategoryPidGroup[it.id ?? -1];
-        it.topicList = topicCategoryGroup[it.id ?? -1];
+      const pTopicCategory = allTopicCategory
+        .map((it) => {
+          it.children = topicCategoryPidGroup[it.id ?? -1];
+          it.topicList = topicCategoryGroup[it.id ?? -1];
+          return it;
+        })
+        .filter((it) => it.pid === undefined || it.pid === null);
+
+      const topicCategoryKnowledgeBaseGroup = _.groupBy(
+        pTopicCategory,
+        'knowledgeBaseId'
+      );
+      const memoAllKnowledgeBase = allKnowledgeBase.map((it) => {
+        const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
+        it.categoryList = topicCategoryKnowledgeBaseGroup[it.id ?? -1];
+        it.botConfig = botConfig;
         return it;
-      })
-      .filter((it) => it.pid === undefined || it.pid === null);
+      });
 
-    const topicCategoryKnowledgeBaseGroup = _.groupBy(
-      pTopicCategory,
-      'knowledgeBaseId'
-    );
-    const memoAllKnowledgeBase = allKnowledgeBase.map((it) => {
-      const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
-      it.categoryList = topicCategoryKnowledgeBaseGroup[it.id ?? -1];
-      it.botConfig = botConfig;
-      return it;
-    });
+      memoAllTopic.forEach((it) => {
+        if (it.categoryId && it.knowledgeBaseId) {
+          it.categoryName =
+            allTopicCategoryMap[it.categoryId.toString()][0].name;
+          it.knowledgeBaseName =
+            allKnowledgeBaseMap[it.knowledgeBaseId.toString()][0].name;
+        }
+        if (it.type === 2 && it.refId) {
+          it.refQuestion = memoAllTopicMap[it.refId][0].question;
+        }
+      });
 
-    memoAllTopic.forEach((it) => {
-      if (it.categoryId && it.knowledgeBaseId) {
-        it.categoryName = allTopicCategoryMap[it.categoryId.toString()][0].name;
-        it.knowledgeBaseName =
-          allKnowledgeBaseMap[it.knowledgeBaseId.toString()][0].name;
-      }
-      if (it.type === 2 && it.refId) {
-        it.refQuestion = memoAllTopicMap[it.refId][0].question;
-      }
-    });
-
-    return {
-      allKnowledgeBase: memoAllKnowledgeBase,
-      botConfigMap,
-      allTopicCategory: pTopicCategory,
-      memoAllTopic,
-    };
+      return {
+        allKnowledgeBase: memoAllKnowledgeBase,
+        botConfigMap,
+        allTopicCategory: pTopicCategory,
+        memoAllTopic,
+      };
+    }
+    return undefined;
   }, [data, topicData]);
 
   const onTopicCategoryClick = useCallback(
@@ -306,11 +313,12 @@ export default function Bot() {
     []
   );
 
-  const rows = memoData.memoAllTopic.filter(
-    (it) =>
-      selectTopicCategory === undefined ||
-      selectTopicCategory.includes(it.categoryId ?? -1)
-  );
+  const rows =
+    memoData?.memoAllTopic?.filter(
+      (it) =>
+        selectTopicCategory === undefined ||
+        selectTopicCategory.includes(it.categoryId ?? -1)
+    ) ?? [];
 
   return (
     <>
@@ -323,12 +331,14 @@ export default function Bot() {
         />
       </DraggableDialog>
       <Grid container className={classes.root}>
-        <BotSidecar
-          memoData={memoData}
-          allTopicCategory={memoData?.allTopicCategory}
-          refetch={refetch}
-          onTopicCategoryClick={onTopicCategoryClick}
-        />
+        {memoData && (
+          <BotSidecar
+            memoData={memoData}
+            allTopicCategory={memoData?.allTopicCategory}
+            refetch={refetch}
+            onTopicCategoryClick={onTopicCategoryClick}
+          />
+        )}
         <Grid item xs={12} sm={10}>
           <TopicSearchFrom
             defaultValues={defaultValue}

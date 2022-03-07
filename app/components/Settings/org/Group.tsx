@@ -23,7 +23,7 @@ const MUTATION_GROUP = gql`
 type Graphql = StaffGroupList;
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
+  // { field: 'id', headerName: 'ID', width: 90 },
   { field: 'groupName', headerName: '组名', width: 150 },
 ];
 

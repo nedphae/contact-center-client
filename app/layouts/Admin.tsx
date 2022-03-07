@@ -1,7 +1,10 @@
-import React, { createContext } from 'react';
+import React, { createContext, useEffect, useMemo } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { debounceTime, Subject } from 'rxjs';
 // creates a beautiful scrollbar
 import PerfectScrollbar from 'perfect-scrollbar';
+import useSound from 'use-sound';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -9,9 +12,14 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import useWebSocket from 'app/hook/websocket/useWebSocket';
 // core components
 import useInitData from 'app/hook/init/useInitData';
+import { RootState } from 'app/store';
 import DefaultSnackbar from 'app/components/Snackbar/DefaultSnackbar';
 import TransferSnackbar from 'app/components/Snackbar/TransferSnackbar';
 import Authorized from 'app/components/Authorized/Authorized';
+import {
+  clearPlayNewMessageSound,
+  getPlayNewMessageSound,
+} from 'app/state/chat/chatAction';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -22,6 +30,7 @@ import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
 import bgImage from '../assets/img/sidebar-2.jpg';
 import logo from '../assets/img/reactlogo.png';
+import newMsgSound from '../assets/sounds/new-msg.wav';
 
 let ps: PerfectScrollbar;
 
@@ -49,9 +58,12 @@ export const WebSocketContext = createContext<
   SocketIOClient.Socket | undefined
 >(undefined);
 
+const subjectSearchText = new Subject<void>();
+
 export default function Admin({ ...rest }) {
   // styles
   const classes = useStyles();
+  const dispatch = useDispatch();
   // ref to help us initialize PerfectScrollbar on windows devices
   const mainPanel = React.createRef<HTMLDivElement>();
   // states and functions
@@ -61,6 +73,37 @@ export default function Admin({ ...rest }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [webSocket] = useWebSocket();
   useInitData();
+  const [play] = useSound(newMsgSound);
+
+  const momeSubject = useMemo(() => {
+    return subjectSearchText.pipe(debounceTime(1500)).subscribe({
+      next: () => {
+        play();
+        dispatch(clearPlayNewMessageSound());
+      },
+    });
+  }, [dispatch, play]);
+
+  const currentPath = useSelector(
+    (state: RootState) => state.router.location.pathname
+  );
+  const playNewMessageSound = useSelector(getPlayNewMessageSound);
+  // 判断是否在聊天界面
+  useEffect(() => {
+    if (
+      playNewMessageSound &&
+      (!currentPath.includes('/entertain') || document.hidden)
+    ) {
+      // 延迟设置提示音，防止太多提示音
+      subjectSearchText.next();
+    }
+  }, [currentPath, dispatch, play, playNewMessageSound]);
+
+  useEffect(() => {
+    return () => {
+      momeSubject.unsubscribe();
+    };
+  }, [momeSubject]);
 
   const handleImageClick = (selectImage: React.SetStateAction<string>) => {
     setImage(selectImage);

@@ -15,6 +15,8 @@ export const {
   removeTransferMessageToSend,
   removeTransferMessageRecive,
   setPts,
+  setPlayNewMessageSound,
+  clearPlayNewMessageSound,
 } = slice.actions;
 
 export const getSelectedSession = (state: RootState) => {
@@ -53,3 +55,6 @@ export const getSnackbarProp = (state: RootState) => state.chat.snackbarProp;
 
 export const getFirstTransferMessageRecive = (state: RootState) =>
   state.chat.transferMessageRecive && state.chat.transferMessageRecive[0];
+
+export const getPlayNewMessageSound = (state: RootState) =>
+  state.chat.playNewMessageSound;

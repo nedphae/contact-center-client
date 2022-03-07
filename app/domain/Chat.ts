@@ -77,6 +77,7 @@ export default interface Chat extends BaseChat {
   transferMessageToSend?: TransferQuery[];
   transferMessageRecive?: TransferMessageRequest[];
   pts: number | undefined;
+  playNewMessageSound: boolean | undefined;
 }
 
 export interface QuickReplyAllDtoGraphql {
