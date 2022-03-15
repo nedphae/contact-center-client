@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,13 +12,14 @@ import LocalOffer from '@material-ui/icons/LocalOffer';
 import Update from '@material-ui/icons/Update';
 import Accessibility from '@material-ui/icons/Accessibility';
 // core components
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import {
   RealTimeStatisticsGraphql,
   QUERY_REALTIME_STATISTICS,
 } from 'app/domain/graphql/RealTimeStatistics';
 import { defaultRealTimeStatistics } from 'app/domain/RealTimeStatistics';
 import { interval, Subscription } from 'rxjs';
+import useAlert from 'app/hook/alert/useAlert';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 import Danger from '../../components/Typography/Danger';
@@ -30,8 +32,68 @@ import styles from '../../assets/jss/material-dashboard-react/views/dashboardSty
 
 const useStyles = makeStyles(styles);
 
+interface KibanaUrl {
+  kibanaUsername?: string;
+  kibanaPassword?: string;
+  kibanaUrl?: string;
+}
+
+interface KibanaUrlGraphql {
+  getKibanaUrl: KibanaUrl;
+}
+
+export const QUERY_KIBANA_URL = gql`
+  query KibanaUrl {
+    getKibanaUrl {
+      kibanaUsername
+      kibanaPassword
+      kibanaUrl
+    }
+  }
+`;
+
 export default function Dashboard() {
   const classes = useStyles();
+  const { onErrorMsg } = useAlert();
+
+  const { data: kibanaUrlGraphql } =
+    useQuery<KibanaUrlGraphql>(QUERY_KIBANA_URL);
+  const [kibanaUrl, setKibanaUrl] = useState<string>();
+
+  useEffect(() => {
+    (async function runAsync() {
+      const kibanaData = kibanaUrlGraphql?.getKibanaUrl;
+      if (kibanaData && kibanaData?.kibanaUrl) {
+        const kibanaLoginUrl =
+          process.env.NODE_ENV === 'production'
+            ? 'https://xbcs.top:5601/internal/security/login'
+            : 'http://192.168.50.105:5601/internal/security/login';
+        const currentUrl =
+          process.env.NODE_ENV === 'production'
+            ? 'https://xbcs.top:5601/login'
+            : 'http://192.168.50.105:5601/login';
+        const kibanaLoginBody = {
+          providerType: 'basic',
+          providerName: 'basic',
+          currentURL: currentUrl,
+          params: {
+            username: kibanaData?.kibanaUsername,
+            password: kibanaData?.kibanaPassword,
+          },
+        };
+        const result = await axios.post<void>(kibanaLoginUrl, kibanaLoginBody, {
+          headers: {
+            'Content-Type': 'application/json',
+            'kbn-version': '7.16.1',
+          },
+        });
+        if (result.status !== 200) {
+          onErrorMsg('登录Kibana失败，请联系管理员');
+        }
+        setKibanaUrl(kibanaData?.kibanaUrl);
+      }
+    })();
+  }, [kibanaUrlGraphql, onErrorMsg]);
 
   const { data, refetch } = useQuery<RealTimeStatisticsGraphql>(
     QUERY_REALTIME_STATISTICS,
@@ -142,12 +204,14 @@ export default function Dashboard() {
       </GridContainer>
       <GridContainer>
         <GridItem xs={12} sm={12}>
-          <iframe
-            title="监控"
-            width="100%"
-            height={document.documentElement.clientHeight - 60}
-            src="http://192.168.50.110:5601/app/dashboards#/view/b49fb5f0-525b-11ec-a3fb-7badbe8fcf22?_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-15m%2Cto%3Anow))"
-          />
+          {kibanaUrl && (
+            <iframe
+              title="监控"
+              width="100%"
+              height={document.documentElement.clientHeight - 60}
+              src={kibanaUrl}
+            />
+          )}
         </GridItem>
       </GridContainer>
     </div>
