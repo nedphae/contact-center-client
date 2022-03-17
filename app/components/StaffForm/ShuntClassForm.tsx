@@ -54,7 +54,7 @@ export default function ShuntClassForm(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<FormType> = (form) => {
-    saveShuntClass({ variables: { staffGroupInput: form } });
+    saveShuntClass({ variables: { shuntClass: form } });
   };
 
   return (

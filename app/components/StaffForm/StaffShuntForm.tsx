@@ -24,6 +24,7 @@ import GroupIcon from '@material-ui/icons/Group';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import TitleIcon from '@material-ui/icons/Title';
 import LinkIcon from '@material-ui/icons/Link';
+import CodeIcon from '@material-ui/icons/Code';
 import HttpsIcon from '@material-ui/icons/Https';
 import {
   Typography,
@@ -48,7 +49,7 @@ import {
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import Upload from 'rc-upload';
 
-import {
+import config, {
   getDownloadOssChatImgPath,
   getUploadOssChatImgPath,
 } from 'app/config/clientConfig';
@@ -311,10 +312,39 @@ export default function StaffShuntForm(props: FormProps) {
     updateChatUIConfig(newChatUIConfigObj);
   }
 
-  const { handleSubmit, register, control } = useForm<FormType>({
+  const { handleSubmit, register, control, watch } = useForm<FormType>({
     defaultValues,
     shouldUnregister: true,
   });
+
+  const shuntCode = watch('code');
+  const webLink = `${config.web.host}/chat/?sc=${shuntCode}`;
+  const webEmbedded = `<script src="${config.web.host}/chat/web-embedded.js"></script>
+<script>
+    const params = {
+        // 接待组代码
+        sc: '${shuntCode}',
+        // 可空，uid，企业当前登录用户标识，不传表示匿名用户，由客服系统自动生成
+        // uid: 'my-company-uid',
+        // 可空，指定客服 Id，如果不传，则由系统自动分配客服
+        // staffId: '',
+        // 可空，指定客服组 Id
+        // groupid: '',
+        // 可空，客户名称，如果不传，则由系统自动生成，如果客服系统已经有该客户信息（uid 关联），则会忽略
+        // name: '',
+        // 可空，客户邮箱
+        // email: '',
+        // 可空，客户手机号码
+        // mobile: '',
+        // 可空，客户 Vip 等级
+        // vipLevel: '',
+        // 可空，客户当前咨询页标题
+        // title: '',
+        // 可空，客户当前咨询页
+        // referrer: '',
+    }
+    initXiaobaiChat(params);
+</script>`;
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [saveStaffShunt, { loading, data }] = useMutation<Graphql>(
@@ -668,12 +698,49 @@ export default function StaffShuntForm(props: FormProps) {
             readOnly: true,
             startAdornment: (
               <InputAdornment position="start">
-                <GroupIcon />
+                <LinkIcon />
               </InputAdornment>
             ),
           }}
           {...register('code')}
         />
+        {shuntCode && webLink && (
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="webJs"
+            label="web 链接接入（uid 等参数可以添加到 url 参数后）"
+            value={webLink}
+            InputProps={{
+              readOnly: true,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CodeIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        )}
+        {shuntCode && webLink && (
+          <Link target="_blank" href={webLink}>
+            测试接待组链接
+          </Link>
+        )}
+        {shuntCode && (
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            multiline
+            id="webJs"
+            label="web-js 弹出接入"
+            value={webEmbedded}
+            InputProps={{
+              readOnly: true,
+            }}
+          />
+        )}
         <TextField
           variant="outlined"
           margin="normal"

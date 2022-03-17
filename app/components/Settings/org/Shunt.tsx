@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo, useCallback } from 'react';
 
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -59,9 +59,15 @@ const QUERY_SHUNT = gql`
   }
 `;
 
-const MUTATION_SHUNT = gql`
+const MUTATION_DELETE_SHUNT = gql`
   mutation DeleteShunt($ids: [Long!]!) {
     deleteShuntByIds(ids: $ids)
+  }
+`;
+
+const MUTATION_DELETE_SHUNT_CLASS = gql`
+  mutation DeleteShuntClass($ids: [Long!]!) {
+    deleteShuntClassByIds(ids: $ids)
   }
 `;
 
@@ -89,7 +95,7 @@ export default function Shunt() {
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [deleteByIds, { loading: deleteLoading }] = useMutation<number>(
-    MUTATION_SHUNT,
+    MUTATION_DELETE_SHUNT,
     {
       onCompleted,
       onError,
@@ -97,6 +103,15 @@ export default function Shunt() {
   );
   if (deleteLoading) {
     onLoadding(deleteLoading);
+  }
+
+  const [deleteClasByIds, { loading: deleteClassLoading }] =
+    useMutation<number>(MUTATION_DELETE_SHUNT_CLASS, {
+      onCompleted,
+      onError,
+    });
+  if (deleteClassLoading) {
+    onLoadding(deleteClassLoading);
   }
 
   function newButtonClick() {
@@ -122,38 +137,10 @@ export default function Shunt() {
     setStaffShuntClass(selectStaffShuntClass);
   };
 
-  function buildTreeView(shuntClassList: ShuntClass[]) {
-    return shuntClassList.map((it) => (
-      <StyledTreeItem
-        key={it.id?.toString()}
-        nodeId={uuidv4()}
-        label={it.className}
-        onContextMenu={(event) => handleContextMenuOpen(event, it)}
-      >
-        {it.children && buildTreeView(it.children)}
-      </StyledTreeItem>
-    ));
-  }
-
-  const allShuntClass = _.cloneDeep(data?.allShuntClass ?? []);
-  const allShuntClassMap = _.groupBy(
-    _.cloneDeep(data?.allShuntClass),
-    (it) => it.catalogue
-  );
-  const allShuntClassIdMap = _.groupBy(
-    _.cloneDeep(data?.allShuntClass),
-    (it) => it.id
-  );
-  const pShuntClass = allShuntClass
-    .map((it) => {
-      it.children = allShuntClassMap[it.id];
-      return it;
-    })
-    .filter((it) => it.catalogue);
-
-  function deleteButtonClick() {
+  async function deleteButtonClick() {
     if (selectionModel && selectionModel.length > 0) {
-      deleteByIds({ variables: { ids: selectionModel } });
+      await deleteByIds({ variables: { ids: selectionModel } });
+      refetch();
     }
   }
 
@@ -163,12 +150,43 @@ export default function Shunt() {
     setMousePoint(initialMousePoint);
   };
 
-  const rows = (data?.allStaffShunt ?? []).map((item) =>
-    _.defaults(
-      { shuntClassName: allShuntClassIdMap[item.shuntClassId][0].className },
-      item
-    )
-  );
+  const buildTreeView = useCallback((shuntClassList: ShuntClass[]) => {
+    return shuntClassList.map((it) => (
+      <StyledTreeItem
+        key={it.id?.toString()}
+        nodeId={it.catalogue === -1 ? 'root' : uuidv4()}
+        label={it.className}
+        onContextMenu={(event) => handleContextMenuOpen(event, it)}
+      >
+        {it.children && buildTreeView(it.children)}
+      </StyledTreeItem>
+    ));
+  }, []);
+
+  const [memoTreeView, rows] = useMemo(() => {
+    const allShuntClass = _.cloneDeep(data?.allShuntClass ?? []);
+    const allShuntClassMap = _.groupBy(
+      _.cloneDeep(data?.allShuntClass),
+      (it) => it.catalogue
+    );
+    const allShuntClassIdMap = _.groupBy(
+      _.cloneDeep(data?.allShuntClass),
+      (it) => it.id
+    );
+    const pShuntClass = allShuntClass
+      .map((it) => {
+        it.children = allShuntClassMap[it.id];
+        return it;
+      })
+      .filter((it) => it.catalogue === -1);
+    const tempRows = (data?.allStaffShunt ?? []).map((item) =>
+      _.defaults(
+        { shuntClassName: allShuntClassIdMap[item.shuntClassId][0].className },
+        item
+      )
+    );
+    return [buildTreeView(pShuntClass), tempRows];
+  }, [buildTreeView, data]);
 
   return (
     <Grid container className={classes.root}>
@@ -196,7 +214,21 @@ export default function Shunt() {
           >
             修改接待组分类
           </MenuItem>
-          <MenuItem onClick={() => {}}>删除接待组分类</MenuItem>
+          {staffShuntClass && staffShuntClass.catalogue !== -1 && (
+            <MenuItem
+              onClick={async () => {
+                if (staffShuntClass) {
+                  await deleteClasByIds({
+                    variables: { ids: [staffShuntClass.id] },
+                  });
+                  refetch();
+                }
+                setMousePoint(initialMousePoint);
+              }}
+            >
+              删除接待组分类
+            </MenuItem>
+          )}
         </Menu>
       </div>
       <DraggableDialog
@@ -223,15 +255,16 @@ export default function Shunt() {
             setStaffShuntClass(undefined);
             refOfClassDialog.current?.setOpen(true);
           }}
-          clearTopicCategorySelect={() => {}}
         />
         <TreeView
           className={classes.list}
+          defaultExpanded={['root']}
+          defaultSelected={['root']}
           defaultCollapseIcon={<MinusSquare />}
           defaultExpandIcon={<PlusSquare />}
           defaultEndIcon={<CloseSquare />}
         >
-          {pShuntClass && buildTreeView(pShuntClass)}
+          {memoTreeView}
         </TreeView>
       </Grid>
       <Grid item xs={12} sm={10}>

@@ -26,6 +26,9 @@ import {
 } from 'app/state/chat/chatAction';
 import { Session } from 'app/domain/Session';
 import { CloseReason } from 'app/domain/constant/Conversation';
+import { getMyself } from 'app/state/staff/staffAction';
+import { OnlineStatus } from 'app/domain/constant/Staff';
+import useAlert from 'app/hook/alert/useAlert';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -72,6 +75,9 @@ export default function Editor(selected: SelectedProps) {
   const classes = useStyles();
   const quickReplyList = useSelector(getSearchQuickReply);
 
+  const mySelf = useSelector(getMyself);
+  const { onErrorMsg } = useAlert();
+
   const momeSubject = useMemo(() => {
     return subjectSearchText.pipe(debounceTime(200)).subscribe({
       next: (it) => {
@@ -99,11 +105,15 @@ export default function Editor(selected: SelectedProps) {
   }
 
   function handleSendTextMessage() {
-    if (selectedSession && tempTextMessage !== '') {
-      dispatch(
-        sendTextMessage(selectedSession.conversation.userId, tempTextMessage)
-      );
-      setMessage('');
+    if (mySelf.onlineStatus !== OnlineStatus.OFFLINE) {
+      if (selectedSession && tempTextMessage !== '') {
+        dispatch(
+          sendTextMessage(selectedSession.conversation.userId, tempTextMessage)
+        );
+        setMessage('');
+      }
+    } else {
+      onErrorMsg('当前用户不在线，无法发送消息');
     }
   }
 

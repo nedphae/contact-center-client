@@ -27,7 +27,7 @@ interface BotToolbarProps {
   refetch: () => void;
   adderName: string;
   add: () => void;
-  clearTopicCategorySelect: () => void;
+  clearTopicCategorySelect?: () => void;
 }
 export default function TreeToolbar(props: BotToolbarProps) {
   const { title, add, adderName, refetch, clearTopicCategorySelect } = props;
@@ -77,15 +77,21 @@ export default function TreeToolbar(props: BotToolbarProps) {
         >
           {adderName}
         </MenuItem>
-        <MenuItem
-          onClick={() => {
-            clearTopicCategorySelect();
-            handleMenuClose();
-          }}
-        >
-          清除分类筛选
-        </MenuItem>
+        {clearTopicCategorySelect && (
+          <MenuItem
+            onClick={() => {
+              clearTopicCategorySelect();
+              handleMenuClose();
+            }}
+          >
+            清除分类筛选
+          </MenuItem>
+        )}
       </Menu>
     </Toolbar>
   );
 }
+
+TreeToolbar.defaultProps = {
+  clearTopicCategorySelect: undefined,
+};

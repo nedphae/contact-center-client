@@ -129,7 +129,8 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const refOfTransferDialog = useRef<DraggableDialogRef>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
 
-  const { onLoadding, onCompleted, onError, onCompletedMsg } = useAlert();
+  const { onLoadding, onCompleted, onError, onCompletedMsg, onErrorMsg } =
+    useAlert();
   const [updateCategory, { loading, data }] =
     useMutation<MutationConversationGraphql>(MUTATION_CONVERSATOIN, {
       onCompleted,
@@ -207,6 +208,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     },
     onError(error: Error, _ret: any, _file: RcFile) {
       console.log('onError', error);
+      onErrorMsg('图片上传失败');
     },
   };
 

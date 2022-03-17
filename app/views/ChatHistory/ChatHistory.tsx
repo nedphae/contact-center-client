@@ -130,7 +130,25 @@ const columns: GridColDef[] = [
     type: 'number',
     width: 150,
   },
-  { field: 'transferType', headerName: '转人工类型', width: 150 },
+  {
+    field: 'transferType',
+    headerName: '转人工类型',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '机器人会话';
+      switch (params.value) {
+        case 'INITIATIVE': {
+          result = '主动转人工';
+          break;
+        }
+        default: {
+          result = '';
+          break;
+        }
+      }
+      return result;
+    },
+  },
   { field: 'humanTransferSessionId', headerName: '转接的会话ID', width: 150 },
   {
     field: 'transferFromStaffName',
@@ -151,12 +169,12 @@ const columns: GridColDef[] = [
   { field: 'category', headerName: '会话分类信息', width: 150 },
   { field: 'categoryDetail', headerName: '会话咨询分类明细', width: 150 },
   { field: 'closeReason', headerName: '会话关闭原因', width: 150 },
-  {
-    field: 'stickDuration',
-    headerName: '客服置顶时长',
-    type: 'number',
-    width: 150,
-  },
+  // {
+  //   field: 'stickDuration',
+  //   headerName: '客服置顶时长',
+  //   type: 'number',
+  //   width: 150,
+  // },
   { field: 'remarks', headerName: '会话备注', width: 150 },
   { field: 'status', headerName: '会话解决状态', width: 150 },
   {
@@ -168,7 +186,10 @@ const columns: GridColDef[] = [
   {
     field: 'clientFirstMessageTime',
     headerName: '访客首条消息时间',
-    width: 150,
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
   },
   { field: 'avgRespDuration', headerName: '客服平均响应时长', width: 150 },
   { field: 'isValid', headerName: '是否有效会话', width: 150 },

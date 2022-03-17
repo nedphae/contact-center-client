@@ -2,7 +2,10 @@ class ClientConfig {
   web = {
     // gateway 配置地址
     // 后端接口地址，仅修改此地址即可
-    host: 'http://localhost:8080',
+    host:
+      process.env.NODE_ENV === 'production'
+        ? 'https://im.xbcs.top'
+        : 'http://localhost:8080',
   };
 
   // jwt 配置
@@ -28,7 +31,10 @@ class ClientConfig {
 
   graphql = {
     // webSocket 不在使用
-    webSocketLink: 'ws://localhost:8880/subscriptions',
+    webSocketLink:
+      process.env.NODE_ENV === 'production'
+        ? 'wss://im.xbcs.top/subscriptions'
+        : 'ws://localhost:8880/subscriptions',
     graphql: '/graphql',
   };
 
