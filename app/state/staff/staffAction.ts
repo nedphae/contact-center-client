@@ -5,6 +5,7 @@ import Staff, { configStatus } from 'app/domain/StaffInfo';
 import { AccessToken } from 'app/domain/OauthToken';
 import { register } from 'app/service/socketService';
 import { OnlineStatus } from 'app/domain/constant/Staff';
+import { filter, interval, map, Subscription } from 'rxjs';
 import slice from './staffSlice';
 import { setSnackbarProp } from '../chat/chatAction';
 
@@ -19,6 +20,8 @@ export const getStaff = (state: RootState) => {
 export const getMyself = (state: RootState) => state.staff;
 
 export const getStaffToken = (state: RootState) => state.staff.token;
+
+let statueInterval: Subscription | undefined;
 
 // 异步请求
 export const setUserAsync =
@@ -43,7 +46,7 @@ export const setUserAsync =
     dispatch(setStaff(staff));
   };
 
-export const configStaff = (): AppThunk => {
+export const configBase = (runAfter?: AppThunk): AppThunk => {
   return (dispatch, getState) => {
     // 注册websocket 已经通过握手数据进行 jwt认证，直接注册客服状态
     // const staff = getStaff(getState()); // useSelector(getStaff);
@@ -69,7 +72,33 @@ export const configStaff = (): AppThunk => {
         }
         // 注册成功, 设置状态同步成功
         dispatch(setOnline(staffResponse.body.onlineStatus));
+        if (
+          runAfter &&
+          staffResponse.body.onlineStatus === OnlineStatus.ONLINE
+        ) {
+          dispatch(runAfter);
+        }
       }
     });
   };
+};
+
+export const intervalConfigStaff = (): AppThunk => {
+  return (dispatch, getState) => {
+    if (statueInterval) {
+      statueInterval.unsubscribe();
+    }
+    statueInterval = interval(30000)
+      .pipe(
+        map(() => getState().staff.onlineStatus),
+        filter((onlineStatus) => onlineStatus !== OnlineStatus.OFFLINE)
+      )
+      .subscribe(() => {
+        dispatch(configBase());
+      });
+  };
+};
+
+export const configStaff = (): AppThunk => {
+  return configBase(intervalConfigStaff());
 };

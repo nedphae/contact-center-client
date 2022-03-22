@@ -151,7 +151,6 @@ export default function BotSidecar(props: BotProps) {
     setState(initialMousePoint);
     setTopicOrKnowladge(_.assignIn({ topicOrKnowladgeKey }, topicOrKnowladge));
     refOfKnowladgeDialog.current?.setOpen(true);
-    refetch();
   }
 
   function selectTopic() {
@@ -207,6 +206,7 @@ export default function BotSidecar(props: BotProps) {
 
   function mutationCallback(staff: Staff) {
     setConfigStaff(staff);
+    refetch();
   }
 
   const botConfigList =

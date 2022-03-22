@@ -32,8 +32,8 @@ import {
 import Upload from 'rc-upload';
 
 import {
-  getDownloadOssStaffImgPath,
-  getUploadOssStaffImgPath,
+  getDownloadS3StaffImgPath,
+  getUploadS3StaffImgPath,
 } from 'app/config/clientConfig';
 import Staff from 'app/domain/StaffInfo';
 import { StaffGroupList, QUERY_GROUP } from 'app/domain/graphql/Staff';
@@ -134,7 +134,7 @@ export default function StaffForm(props: FormProps) {
 
   const imgUploadProps = useMemo(() => {
     return {
-      action: getUploadOssStaffImgPath(),
+      action: getUploadS3StaffImgPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {
@@ -192,7 +192,7 @@ export default function StaffForm(props: FormProps) {
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
-            src={avatar && `${getDownloadOssStaffImgPath()}/${avatar}`}
+            src={avatar && `${getDownloadS3StaffImgPath()}/${avatar}`}
           >
             头像
           </Avatar>
@@ -429,19 +429,20 @@ export default function StaffForm(props: FormProps) {
           })}
         />
         <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          type="number"
+          // variant="outlined"
+          // margin="normal"
+          // fullWidth
+          type="hidden"
           id="maxTicketPerDay"
-          label="工单 每日上限"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <InlineIcon icon={noteLine} />
-              </InputAdornment>
-            ),
-          }}
+          // label="工单 每日上限"
+          defaultValue="0"
+          // InputProps={{
+          //   startAdornment: (
+          //     <InputAdornment position="start">
+          //       <InlineIcon icon={noteLine} />
+          //     </InputAdornment>
+          //   ),
+          // }}
           error={errors.maxTicketPerDay && true}
           helperText={errors.maxTicketPerDay?.message}
           {...register('maxTicketPerDay', {
@@ -457,19 +458,20 @@ export default function StaffForm(props: FormProps) {
           })}
         />
         <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          type="number"
+          // variant="outlined"
+          // margin="normal"
+          // fullWidth
+          type="hidden"
           id="maxTicketAllTime"
-          label="工单 总上限"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <InlineIcon icon={noteLine} />
-              </InputAdornment>
-            ),
-          }}
+          defaultValue="0"
+          // label="工单 总上限"
+          // InputProps={{
+          //   startAdornment: (
+          //     <InputAdornment position="start">
+          //       <InlineIcon icon={noteLine} />
+          //     </InputAdornment>
+          //   ),
+          // }}
           error={errors.maxTicketAllTime && true}
           helperText={errors.maxTicketAllTime?.message}
           {...register('maxTicketAllTime', {
@@ -486,6 +488,7 @@ export default function StaffForm(props: FormProps) {
         />
         <Controller
           control={control}
+          defaultValue="0"
           name="gender"
           render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>

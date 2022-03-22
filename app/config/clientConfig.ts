@@ -59,7 +59,7 @@ class ClientConfig {
     path: '/dispatcher',
   };
 
-  oss = {
+  s3 = {
     path: '/s3',
   };
 
@@ -77,23 +77,23 @@ class ClientConfig {
 }
 const clientConfig = new ClientConfig();
 
-export function getUploadOssChatImgPath() {
-  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/img/${window.orgId}`;
+export function getUploadS3ChatImgPath() {
+  return `${clientConfig.web.host}${clientConfig.s3.path}/chat/img/${window.orgId}`;
 }
-export function getUploadOssChatFilePath() {
-  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/file/${window.orgId}`;
+export function getUploadS3ChatFilePath() {
+  return `${clientConfig.web.host}${clientConfig.s3.path}/chat/file/${window.orgId}`;
 }
-export function getUploadOssStaffImgPath() {
-  return `${clientConfig.web.host}${clientConfig.oss.path}/staff/img/${window.orgId}`;
+export function getUploadS3StaffImgPath() {
+  return `${clientConfig.web.host}${clientConfig.s3.path}/staff/img/${window.orgId}`;
 }
-export function getDownloadOssChatImgPath() {
-  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/img`;
+export function getDownloadS3ChatImgPath() {
+  return `${clientConfig.web.host}`;
 }
-export function getDownloadOssChatFilePath() {
-  return `${clientConfig.web.host}${clientConfig.oss.path}/chat/file`;
+export function getDownloadS3ChatFilePath() {
+  return `${clientConfig.web.host}`;
 }
-export function getDownloadOssStaffImgPath() {
-  return `${clientConfig.web.host}${clientConfig.oss.path}/staff/img`;
+export function getDownloadS3StaffImgPath() {
+  return `${clientConfig.web.host}`;
 }
 
 export default clientConfig;

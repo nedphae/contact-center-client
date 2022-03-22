@@ -28,11 +28,15 @@ import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
 import { Badge, Avatar, CssBaseline } from '@material-ui/core';
-import { getMyself, updateOnlineStatus } from 'app/state/staff/staffAction';
+import {
+  getMyself,
+  intervalConfigStaff,
+  updateOnlineStatus,
+} from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
-import { getDownloadOssStaffImgPath } from 'app/config/clientConfig';
+import { getDownloadS3StaffImgPath } from 'app/config/clientConfig';
 import { setSnackbarProp } from 'app/state/chat/chatAction';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
@@ -156,6 +160,8 @@ export default function AdminNavbarLinks() {
                   severity: 'warning',
                 })
               );
+            } else if (staffStatus.onlineStatus === OnlineStatus.ONLINE) {
+              dispatch(intervalConfigStaff());
             }
             dispatch(
               updateOnlineStatus(OnlineStatus[staffStatus.onlineStatusKey])
@@ -359,7 +365,7 @@ export default function AdminNavbarLinks() {
               alt={mySelf.realName}
               src={
                 mySelf.avatar
-                  ? `${getDownloadOssStaffImgPath()}/${mySelf.avatar}`
+                  ? `${getDownloadS3StaffImgPath()}/${mySelf.avatar}`
                   : undefined
               }
             />

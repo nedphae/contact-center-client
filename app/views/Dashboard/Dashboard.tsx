@@ -63,7 +63,7 @@ export default function Dashboard() {
   useEffect(() => {
     (async function runAsync() {
       const kibanaData = kibanaUrlGraphql?.getKibanaUrl;
-      if (kibanaData && kibanaData?.kibanaUrl) {
+      if (!kibanaUrl && kibanaData && kibanaData?.kibanaUrl) {
         const kibanaLoginUrl =
           process.env.NODE_ENV === 'production'
             ? 'https://xbcs.top:5601/internal/security/login'
@@ -89,11 +89,12 @@ export default function Dashboard() {
         });
         if (result.status !== 200) {
           onErrorMsg('登录Kibana失败，请联系管理员');
+        } else {
+          setKibanaUrl(kibanaData?.kibanaUrl);
         }
-        setKibanaUrl(kibanaData?.kibanaUrl);
       }
     })();
-  }, [kibanaUrlGraphql, onErrorMsg]);
+  }, [kibanaUrl, kibanaUrlGraphql, onErrorMsg]);
 
   const { data, refetch } = useQuery<RealTimeStatisticsGraphql>(
     QUERY_REALTIME_STATISTICS,

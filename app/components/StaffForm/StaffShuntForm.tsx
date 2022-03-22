@@ -50,8 +50,8 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import Upload from 'rc-upload';
 
 import config, {
-  getDownloadOssChatImgPath,
-  getUploadOssChatImgPath,
+  getDownloadS3ChatImgPath,
+  getUploadS3ChatImgPath,
 } from 'app/config/clientConfig';
 import Staff, {
   ShuntClass,
@@ -246,7 +246,7 @@ export default function StaffShuntForm(props: FormProps) {
 
   const imgUploadProps = useMemo(() => {
     return {
-      action: getUploadOssChatImgPath(),
+      action: getUploadS3ChatImgPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {
@@ -257,7 +257,7 @@ export default function StaffShuntForm(props: FormProps) {
         const newChatUIConfigObj = _.defaultsDeep(
           {
             navbar: {
-              logo: `${getDownloadOssChatImgPath()}/${logoId}`,
+              logo: `${getDownloadS3ChatImgPath()}/${logoId}`,
             },
           },
           jsoneditor?.get()
@@ -274,7 +274,7 @@ export default function StaffShuntForm(props: FormProps) {
 
   const avatarUploadProps = useMemo(() => {
     return {
-      action: getUploadOssChatImgPath(),
+      action: getUploadS3ChatImgPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {
@@ -285,7 +285,7 @@ export default function StaffShuntForm(props: FormProps) {
         const newChatUIConfigObj = _.defaultsDeep(
           {
             robot: {
-              avatar: `${getDownloadOssChatImgPath()}${logoId}`,
+              avatar: `${getDownloadS3ChatImgPath()}/${logoId}`,
             },
           },
           jsoneditor?.get()
@@ -411,14 +411,6 @@ export default function StaffShuntForm(props: FormProps) {
   }, [defaultValues, savedStaffConfigList, staffConfigList, staffList]);
 
   useEffect(() => {
-    if (defaultValues && defaultValues.id) {
-      getChatUIConfig({
-        variables: { shuntId: defaultValues.id },
-      });
-      getStaffConfigList({
-        variables: { shuntId: defaultValues.id },
-      });
-    }
     if (jsoneditorRef.current && !jsoneditor) {
       const options: JSONEditorOptions = {
         modes: ['tree', 'code'],
@@ -426,7 +418,19 @@ export default function StaffShuntForm(props: FormProps) {
           setChatUIConfigObj(JSON.parse(jsonString));
         },
       };
-      setJsoneditor(new JSONEditor(jsoneditorRef.current, options));
+      const editor = new JSONEditor(jsoneditorRef.current, options);
+      editor.setText(
+        '{"navbar":{"title":"智能助理"},"toolbar":[{"type":"image","icon":"image","title":"图片"}],"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}'
+      );
+      setJsoneditor(editor);
+    }
+    if (defaultValues && defaultValues.id) {
+      getChatUIConfig({
+        variables: { shuntId: defaultValues.id },
+      });
+      getStaffConfigList({
+        variables: { shuntId: defaultValues.id },
+      });
     }
     return () => {
       if (jsoneditor) {
@@ -484,7 +488,7 @@ export default function StaffShuntForm(props: FormProps) {
             )
           );
         saveStaffConfig({
-          variables: { staffConfigList: _.omit(forSave, '__typename') },
+          variables: { staffConfigList: forSave },
         });
       }
     }
@@ -771,7 +775,7 @@ export default function StaffShuntForm(props: FormProps) {
           }}
           {...register('authorizationToken')}
         />
-        <Grid container xs={12}>
+        <Grid container>
           <Grid item xs={7}>
             <Upload {...imgUploadProps}>
               <Typography variant="body1">
@@ -821,7 +825,7 @@ export default function StaffShuntForm(props: FormProps) {
           id="chatTitle"
           name="chatTitle"
           label="欢迎语设置"
-          value={chatUIConfigObj?.messages[0]?.content?.text || ''}
+          value={(chatUIConfigObj?.messages ?? [])[0]?.content?.text || ''}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -831,13 +835,13 @@ export default function StaffShuntForm(props: FormProps) {
           }}
           onChange={handleWelcomeMessageChange}
         />
-        <Grid container xs={12}>
+        <Grid container>
           <Grid item xs={7}>
             <Upload {...avatarUploadProps}>
               <Typography variant="body1">
                 客服头像设置 (最大 108 * 108，点击头像或上传添加/修改)
               </Typography>
-              {chatUIConfigObj && chatUIConfigObj.robot.avatar ? (
+              {chatUIConfigObj && chatUIConfigObj.robot?.avatar ? (
                 <img
                   src={chatUIConfigObj.robot.avatar}
                   alt="logo"

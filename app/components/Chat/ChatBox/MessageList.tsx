@@ -24,9 +24,9 @@ import Staff from 'app/domain/StaffInfo';
 import { Customer } from 'app/domain/Customer';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import {
-  getDownloadOssChatFilePath,
-  getDownloadOssChatImgPath,
-  getDownloadOssStaffImgPath,
+  getDownloadS3ChatFilePath,
+  getDownloadS3ChatImgPath,
+  getDownloadS3StaffImgPath,
 } from 'app/config/clientConfig';
 import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
@@ -131,7 +131,7 @@ export function createContent(
       break;
     }
     case 'IMAGE': {
-      const imageUrl = `${getDownloadOssChatImgPath()}/${
+      const imageUrl = `${getDownloadS3ChatImgPath()}/${
         content.photoContent?.mediaId
       }`;
       const filename = content.photoContent?.filename;
@@ -154,7 +154,7 @@ export function createContent(
     case 'FILE': {
       if (content.attachments !== undefined) {
         const { filename, size, mediaId } = content.attachments;
-        const url = `${getDownloadOssChatFilePath()}/${mediaId}`;
+        const url = `${getDownloadS3ChatFilePath()}/${mediaId}`;
         element = <FileCard filename={filename} fileSize={size} url={url} />;
       }
       break;
@@ -388,7 +388,7 @@ const MessageList = (props: MessageListProps) => {
       (message) => message.content.contentType === 'IMAGE'
     );
     const images = imageMessages.map((message) => {
-      const url = `${getDownloadOssChatImgPath}/${message.content.photoContent?.mediaId}`;
+      const url = `${getDownloadS3ChatImgPath}/${message.content.photoContent?.mediaId}`;
       return {
         url,
       };
@@ -486,7 +486,7 @@ const MessageList = (props: MessageListProps) => {
                         <Avatar
                           src={
                             staff.avatar &&
-                            `${getDownloadOssStaffImgPath()}/${staff.avatar}`
+                            `${getDownloadS3StaffImgPath()}/${staff.avatar}`
                           }
                         />
                       </ListItemAvatar>

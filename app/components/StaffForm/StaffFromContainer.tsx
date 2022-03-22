@@ -24,12 +24,14 @@ export default function StaffFormContainer(props: FormProps) {
     }
   }, [getStaff, staffId]);
 
-  const staff = data?.getStaffById;
-  if (staff) {
-    if (mutationCallback) {
-      mutationCallback(staff);
+  useEffect(() => {
+    if (data?.getStaffById && mutationCallback) {
+      mutationCallback(data?.getStaffById);
     }
-  }
+  }, [data, mutationCallback]);
+
+  const staff = data?.getStaffById;
+
   if (staffId) {
     return (
       <>
@@ -44,7 +46,7 @@ export default function StaffFormContainer(props: FormProps) {
   }
   return (
     <StaffForm
-      defaultValues={{ staffType: 0 } as Staff}
+      defaultValues={{ staffType: 0, simultaneousService: 9999 } as Staff}
       mutationCallback={mutationCallback}
     />
   );

@@ -34,8 +34,8 @@ import { makeTreeNode, Topic, TopicCategory } from 'app/domain/Bot';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 import useAlert from 'app/hook/alert/useAlert';
 import {
-  getDownloadOssChatImgPath,
-  getUploadOssChatImgPath,
+  getDownloadS3ChatImgPath,
+  getUploadS3ChatImgPath,
 } from 'app/config/clientConfig';
 import { RcFile } from 'rc-upload/lib/interface';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
@@ -112,16 +112,17 @@ export default function TopicForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<Topic> = (form) => {
-    const filterObj = _.defaults(
-      { answer: form?.answer?.map((ans) => _.omit(ans, '__typename')) },
-      _.omit(form, '__typename', 'categoryName', 'knowledgeBaseName')
-    );
-    saveTopic({
-      variables: {
-        topicInput: filterObj,
-      },
-    });
+  const onSubmit: SubmitHandler<Topic> = async (form) => {
+    saveTopic({ variables: { topicInput: form } });
+    // const filterObj = _.defaults(
+    //   { answer: form?.answer?.map((ans) => _.omit(ans, '__typename')) },
+    //   _.omit(form, '__typename', 'categoryName', 'knowledgeBaseName')
+    // );
+    // await saveTopic({
+    //   variables: {
+    //     topicInput: filterObj,
+    //   },
+    // });
   };
 
   const questionType = watch('type', 1);
@@ -129,7 +130,7 @@ export default function TopicForm(props: FormProps) {
   const picSrc = fields[1]?.content;
 
   const imgUploadProps = {
-    action: `${getUploadOssChatImgPath()}`,
+    action: `${getUploadS3ChatImgPath()}`,
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onSuccess(response: unknown) {
@@ -181,10 +182,10 @@ export default function TopicForm(props: FormProps) {
         inlineSearchInput
         data={treeData}
         onChange={(_currentNode, selectedNodes) => {
-          // setValue(
-          //   'knowledgeBaseId',
-          //   selectedNodes.map((it) => it.knowledgeBaseId)[0]
-          // );
+          setValue(
+            'knowledgeBaseId',
+            selectedNodes.map((it) => it.knowledgeBaseId)[0]
+          );
           setValue(
             'categoryId',
             parseInt(selectedNodes.map((it) => it.value)[0], 10)
@@ -219,6 +220,8 @@ export default function TopicForm(props: FormProps) {
             defaultValues?.knowledgeBaseId ||
             ''
           }
+          error={errors.knowledgeBaseId && true}
+          helperText={errors.knowledgeBaseId?.message}
           type="hidden"
           {...register('knowledgeBaseId', {
             required: '必须选择知识库',
@@ -305,7 +308,8 @@ export default function TopicForm(props: FormProps) {
             <TextField type="hidden" {...register('answer.1.content')} />
             {picSrc && (
               <img
-                src={`${getDownloadOssChatImgPath()}/${picSrc}`}
+                src={`${getDownloadS3ChatImgPath()}/${picSrc}`}
+                style={{ maxWidth: '400px' }}
                 alt="图片消息"
               />
             )}
