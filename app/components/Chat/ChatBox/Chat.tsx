@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#424242',
       borderLeft: 'solid 1px #ddd',
       borderRight: 'solid 1px #ddd',
+      height: '100%',
     },
     paper: {
       height: 140,

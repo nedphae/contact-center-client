@@ -51,7 +51,7 @@ const useStyles = makeStyles(() =>
       borderColor: '#424242',
     },
     quickReply: {
-      width: '50vw',
+      width: '40vw',
     },
   })
 );

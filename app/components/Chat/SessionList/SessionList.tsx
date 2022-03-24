@@ -265,7 +265,11 @@ function SessionList(props: SessionListProps) {
                   </Badge>
                 </ListItemAvatar>
                 <ListItemText
-                  primary={user.name === undefined ? user.uid : user.name}
+                  primary={
+                    <Typography noWrap display="block">
+                      {user.name === undefined ? user.uid : user.name}
+                    </Typography>
+                  }
                   secondary={
                     <Typography
                       noWrap

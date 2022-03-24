@@ -109,7 +109,7 @@ export default function TransferSnackbar() {
                         alt={staff.getStaffById.realName}
                         src={
                           staff.getStaffById.avatar
-                            ? `${getDownloadS3StaffImgPath()}/${
+                            ? `${getDownloadS3StaffImgPath()}${
                                 staff.getStaffById.avatar
                               }`
                             : undefined

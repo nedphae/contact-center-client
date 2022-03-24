@@ -257,7 +257,7 @@ export default function StaffShuntForm(props: FormProps) {
         const newChatUIConfigObj = _.defaultsDeep(
           {
             navbar: {
-              logo: `${getDownloadS3ChatImgPath()}/${logoId}`,
+              logo: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
           jsoneditor?.get()
@@ -285,7 +285,7 @@ export default function StaffShuntForm(props: FormProps) {
         const newChatUIConfigObj = _.defaultsDeep(
           {
             robot: {
-              avatar: `${getDownloadS3ChatImgPath()}/${logoId}`,
+              avatar: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
           jsoneditor?.get()

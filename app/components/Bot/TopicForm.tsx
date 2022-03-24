@@ -308,7 +308,7 @@ export default function TopicForm(props: FormProps) {
             <TextField type="hidden" {...register('answer.1.content')} />
             {picSrc && (
               <img
-                src={`${getDownloadS3ChatImgPath()}/${picSrc}`}
+                src={`${getDownloadS3ChatImgPath()}${picSrc}`}
                 style={{ maxWidth: '400px' }}
                 alt="图片消息"
               />

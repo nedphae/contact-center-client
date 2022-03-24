@@ -365,7 +365,7 @@ export default function AdminNavbarLinks() {
               alt={mySelf.realName}
               src={
                 mySelf.avatar
-                  ? `${getDownloadS3StaffImgPath()}/${mySelf.avatar}`
+                  ? `${getDownloadS3StaffImgPath()}${mySelf.avatar}`
                   : undefined
               }
             />

@@ -24,10 +24,10 @@ import {
   Snackbar,
   SnackbarCloseReason,
 } from '@material-ui/core';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { Alert } from '@material-ui/lab';
 
 import { oauthLogin, LoginParamsType } from 'app/service/loginService';
 import { setUserAsync } from 'app/state/staff/staffAction';
@@ -35,7 +35,7 @@ import { history } from 'app/store';
 import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { saveOnlineStatus } from 'app/electron/jwtStorage';
-import { Alert } from '@material-ui/lab';
+import logo from 'app/assets/img/logo.png';
 
 function Copyright() {
   return (
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    // backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -160,11 +160,9 @@ export default function Auth() {
       )}
 
       <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
+        <Avatar className={classes.avatar} src={logo} variant="square" />
         <Typography component="h1" variant="h5">
-          小白客服系统登录
+          小白客服系统
         </Typography>
         <form
           className={classes.form}

@@ -37,19 +37,20 @@ export default function ChatApp() {
 
   return (
     <HotKeys handlers={handlers}>
-      <Grid container className={classes.root} spacing={0}>
-        <Grid item xs={12}>
-          <Grid container justifyContent="center" spacing={0}>
-            <Grid item xs={2}>
-              <SessionList />
-            </Grid>
-            <Grid item xs={7}>
-              <Chat />
-            </Grid>
-            <Grid item xs={3}>
-              <DetailCard />
-            </Grid>
-          </Grid>
+      <Grid
+        container
+        justifyContent="center"
+        className={classes.root}
+        spacing={0}
+      >
+        <Grid item xs={12} md={3} xl={2}>
+          <SessionList />
+        </Grid>
+        <Grid item xs={12} md={6} xl={7}>
+          <Chat />
+        </Grid>
+        <Grid item xs={12} md={3} xl={3}>
+          <DetailCard />
         </Grid>
       </Grid>
     </HotKeys>

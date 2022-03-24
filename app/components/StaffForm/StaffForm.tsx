@@ -192,7 +192,7 @@ export default function StaffForm(props: FormProps) {
         <Upload {...imgUploadProps}>
           <Avatar
             alt="上传头像"
-            src={avatar && `${getDownloadS3StaffImgPath()}/${avatar}`}
+            src={avatar && `${getDownloadS3StaffImgPath()}${avatar}`}
           >
             头像
           </Avatar>
