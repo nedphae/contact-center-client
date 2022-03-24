@@ -31,10 +31,7 @@ class ClientConfig {
 
   graphql = {
     // webSocket 不在使用
-    webSocketLink:
-      process.env.NODE_ENV === 'production'
-        ? 'wss://im.xbcs.top/subscriptions'
-        : 'ws://localhost:8880/subscriptions',
+    webSocketLink: `${this.web.host}/subscriptions`,
     graphql: '/graphql',
   };
 

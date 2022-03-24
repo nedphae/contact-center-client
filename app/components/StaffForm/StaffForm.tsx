@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -166,9 +166,11 @@ export default function StaffForm(props: FormProps) {
     setError(undefined);
   };
 
-  if (mutationCallback && data) {
-    mutationCallback(data.saveStaff);
-  }
+  useEffect(() => {
+    if (mutationCallback && data?.saveStaff) {
+      mutationCallback(data.saveStaff);
+    }
+  }, [data, mutationCallback]);
 
   return (
     <div className={classes.paper}>
