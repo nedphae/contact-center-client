@@ -23,6 +23,7 @@ import {
   MenuItem,
   Snackbar,
   SnackbarCloseReason,
+  CircularProgress,
 } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -36,6 +37,7 @@ import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { saveOnlineStatus } from 'app/electron/jwtStorage';
 import logo from 'app/assets/img/logo.png';
+import { green } from '@material-ui/core/colors';
 
 function Copyright() {
   return (
@@ -59,6 +61,18 @@ const useStyles = makeStyles((theme) => ({
   avatar: {
     margin: theme.spacing(1),
     // backgroundColor: theme.palette.secondary.main,
+  },
+  wrapper: {
+    margin: theme.spacing(1),
+    position: 'relative',
+  },
+  buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -8,
+    marginLeft: -12,
   },
   form: {
     width: '100%', // Fix IE 11 issue.
@@ -115,12 +129,14 @@ export default function Auth() {
     formState: { errors },
   } = useForm<FormValues>();
   const [error, setError] = useState<string>();
+  const [signing, setSigning] = useState<boolean>(false);
   useAutoLogin(true);
 
   const onSubmit: SubmitHandler<FormValues> = async (data: FormValues) => {
     // 清楚密码中的空格
     data.org_id = Number((data.org_id as string).replaceAll(' ', ''));
     if (typeof data.org_id === 'number') {
+      setSigning(true);
       try {
         const token = await oauthLogin(data as LoginParamsType, data.remember);
         dispatch(setUserAsync(token, data.onlineStatus));
@@ -128,6 +144,7 @@ export default function Auth() {
         saveOnlineStatus(data.onlineStatus);
         history.push('/');
       } catch (ex) {
+        setSigning(false);
         setError('登录失败，请检查用户名或密码');
       }
     }
@@ -251,15 +268,21 @@ export default function Auth() {
             }
             label="记住我"
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            登录
-          </Button>
+          <div className={classes.wrapper}>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              disabled={signing}
+              className={classes.submit}
+            >
+              登录
+            </Button>
+            {signing && (
+              <CircularProgress size={24} className={classes.buttonProgress} />
+            )}
+          </div>
           {/* <Grid container>
             <Grid item xs>
               <Link href="/#" variant="body2">

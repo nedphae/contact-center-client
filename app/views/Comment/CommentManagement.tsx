@@ -62,9 +62,51 @@ const columns: GridColDef[] = [
   { field: 'name', headerName: '用户姓名', width: 150 },
   { field: 'mobile', headerName: '手机', width: 150 },
   { field: 'email', headerName: '邮箱', width: 150 },
-  { field: 'message', headerName: '留言内容', width: 150 },
-  { field: 'solved', headerName: '解决状态', width: 150 },
-  { field: 'solvedWay', headerName: '解决方式', width: 150 },
+  { field: 'message', headerName: '留言内容', width: 350 },
+  {
+    field: 'solved',
+    headerName: '解决状态',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '其他';
+      switch (params.value) {
+        case 0: {
+          result = '未解决';
+          break;
+        }
+        case 1: {
+          result = '已解决';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
+  {
+    field: 'solvedWay',
+    headerName: '解决方式',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '其他';
+      switch (params.value) {
+        case 0: {
+          result = '手机';
+          break;
+        }
+        case 1: {
+          result = '邮件';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
   { field: 'fromPage', headerName: '来源页', width: 150 },
   { field: 'fromIp', headerName: '来源IP', width: 150 },
   { field: 'responsible', headerName: '责任客服', width: 150 },
@@ -233,11 +275,9 @@ export default function CommentManagement() {
                         id="solved"
                         onChange={(event) => {
                           const tempId = event.target.value as string;
-                          onChange(
-                            tempId === '' || !tempId ? undefined : +tempId
-                          );
+                          onChange(tempId === '' ? undefined : +tempId);
                         }}
-                        value={value}
+                        value={value === undefined ? '' : +value}
                         label="解决状态"
                       >
                         <MenuItem value="">
@@ -262,11 +302,9 @@ export default function CommentManagement() {
                         id="solvedWay"
                         onChange={(event) => {
                           const tempId = event.target.value as string;
-                          onChange(
-                            tempId === '' || !tempId ? undefined : +tempId
-                          );
+                          onChange(tempId === '' ? undefined : +tempId);
                         }}
-                        value={value}
+                        value={value === undefined ? '' : +value}
                         label="解决方式"
                       >
                         <MenuItem value="">

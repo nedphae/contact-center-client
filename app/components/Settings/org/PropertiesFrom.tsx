@@ -7,7 +7,7 @@ import { gql, useMutation } from '@apollo/client';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import { Box } from '@material-ui/core';
+import { Box, Collapse } from '@material-ui/core';
 
 import { Properties, RootProperties } from 'app/domain/Properties';
 import SubmitButton from 'app/components/Form/SubmitButton';
@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface FormProps {
   defaultValues: RootProperties;
   properties4Set: string;
+  allProperties4Set: string[];
 }
 
 interface Graphql {
@@ -48,15 +49,29 @@ type FormResult = {
   props: {
     id: number;
     value: string;
+    p4s: string;
   }[];
 };
 
 export default function PropertiesFrom(props: FormProps) {
-  const { defaultValues, properties4Set } = props;
-  const properties = _.at(defaultValues, properties4Set)[0];
+  const { defaultValues, properties4Set, allProperties4Set } = props;
   const classes = useStyles();
 
-  const { handleSubmit, register } = useForm<FormResult>();
+  const allDefaultProperties = allProperties4Set.map((p4s) => {
+    const properties = _.at(defaultValues, p4s)[0];
+    const defaultProperties = _.keys(properties)
+      .filter((pk) => !['id', 'label', 'available', 'value'].includes(pk))
+      .map((fk) => {
+        const childProp = properties[fk] as Properties;
+        return _.defaults({ p4s }, childProp);
+      });
+    return defaultProperties;
+  });
+  const flatAllDefaultProperties = _.flatMap(allDefaultProperties);
+  const { handleSubmit, register } = useForm<FormResult>({
+    defaultValues: { props: flatAllDefaultProperties },
+    shouldUnregister: true,
+  });
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [updateProperties, { loading }] = useMutation<Graphql>(
@@ -71,37 +86,47 @@ export default function PropertiesFrom(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<FormResult> = (form) => {
-    updateProperties({ variables: { properties: form.props } });
+    const properties = form.props
+      .filter((p) => p.p4s === properties4Set)
+      .map((it) => _.omit(it, ['p4s']));
+    updateProperties({ variables: { properties } });
   };
 
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-        {properties &&
-          _.keys(properties)
-            .filter((pk) => !['id', 'label', 'available', 'value'].includes(pk))
-            .map((fk, index) => {
-              const childProp = properties[fk] as Properties;
-              return (
-                <Box key={`${properties4Set}.${fk}`}>
+        {flatAllDefaultProperties &&
+          flatAllDefaultProperties.map((childProp, index) => {
+            return (
+              <Collapse
+                key={`${properties4Set}.${childProp.id}`}
+                in={properties4Set === childProp.p4s}
+              >
+                <Box>
                   <TextField
                     value={childProp.id}
                     type="hidden"
                     {...register(`props.${index}.id`, { valueAsNumber: true })}
                   />
                   <TextField
+                    value={childProp.p4s}
+                    type="hidden"
+                    {...register(`props.${index}.p4s`)}
+                  />
+                  <TextField
+                    key={childProp.value}
                     variant="outlined"
                     margin="normal"
                     fullWidth
                     multiline
                     label={childProp.label}
-                    defaultValue={childProp.value}
-                    id={`${properties4Set}.${fk}.value`}
+                    id={`${properties4Set}.${childProp.id}.value`}
                     {...register(`props.${index}.value`)}
                   />
                 </Box>
-              );
-            })}
+              </Collapse>
+            );
+          })}
         <SubmitButton />
       </form>
     </div>

@@ -109,7 +109,7 @@ export default function ChatHeader() {
           </Grid>
           {conv && (
             <>
-              <Grid item xs={4} zeroMinWidth>
+              <Grid item xs={3} zeroMinWidth>
                 {session && session.userTypingText && (
                   <Typography
                     noWrap
@@ -121,10 +121,10 @@ export default function ChatHeader() {
                   </Typography>
                 )}
               </Grid>
-              <Grid item xs={4} zeroMinWidth>
+              <Grid item xs={5} zeroMinWidth>
                 <Typography noWrap style={{ paddingLeft: 10 }} variant="body2">
                   {conv.evaluate
-                    ? `评价结果: ${conv.evaluate.evaluation} 分`
+                    ? `评价结果: ${conv.evaluate.evaluation} 分，内容：${conv.evaluate.evaluationRemark}`
                     : `未评价`}
                 </Typography>
               </Grid>

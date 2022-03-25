@@ -6,7 +6,7 @@ import getPageQuery from './Page';
 export type CommentQueryInput = CommentQuery;
 
 const CORE_COMMENT_FIELDS = gql`
-  fragment commentFields on Comment {
+  fragment commentFields on CommentView {
     id
     organizationId
     createdAt

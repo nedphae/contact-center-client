@@ -65,6 +65,7 @@ const QUERY = gql`
 function settingPage(
   pageName: PageName,
   properties4Set: string | undefined,
+  allProperties4Set: string[] | undefined,
   properties?: RootProperties
 ) {
   let result: JSX.Element;
@@ -102,11 +103,12 @@ function settingPage(
       break;
     }
     case 'org.Properties': {
-      if (properties && properties4Set) {
+      if (properties && properties4Set && allProperties4Set) {
         result = (
           <PropertiesFrom
             defaultValues={properties}
             properties4Set={properties4Set}
+            allProperties4Set={allProperties4Set}
           />
         );
       } else {
@@ -138,6 +140,7 @@ export default function Setting() {
   const { data } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
   const [properties4Set, setProperties4Set] = useState<string>();
+  const [allProperties4Set, setAllProperties4Set] = useState<string[]>();
 
   const properties: RootProperties = useMemo(
     () =>
@@ -199,17 +202,20 @@ export default function Setting() {
             onClick={() => setPageName('org.CustomerTag')}
           />
           {properties &&
-            _.keys(properties).map((k) => (
-              <StyledTreeItem
-                key={k}
-                nodeId={uuidv4()}
-                label={properties[k].label}
-              >
-                {_.keys(properties[k])
-                  .filter(
-                    (pk) => !['id', 'label', 'available', 'value'].includes(pk)
-                  )
-                  .map((fk) => {
+            _.keys(properties).map((k) => {
+              const propertiesFilter = _.keys(properties[k]).filter(
+                (pk) => !['id', 'label', 'available', 'value'].includes(pk)
+              );
+              const allProperties4SetTemp = propertiesFilter.map(
+                (fk) => `${k}.${fk}`
+              );
+              return (
+                <StyledTreeItem
+                  key={k}
+                  nodeId={uuidv4()}
+                  label={properties[k].label}
+                >
+                  {propertiesFilter.map((fk) => {
                     const childProp = properties[k][fk] as Properties;
                     return (
                       <StyledTreeItem
@@ -219,12 +225,14 @@ export default function Setting() {
                         onClick={() => {
                           setPageName('org.Properties');
                           setProperties4Set(`${k}.${fk}`);
+                          setAllProperties4Set(allProperties4SetTemp);
                         }}
                       />
                     );
                   })}
-              </StyledTreeItem>
-            ))}
+                </StyledTreeItem>
+              );
+            })}
         </StyledTreeItem>
       </TreeView>
     );
@@ -237,7 +245,8 @@ export default function Setting() {
       </Grid>
       <Grid item xs={12} sm={10}>
         {/* 显示 配置页面 */}
-        {pageName && settingPage(pageName, properties4Set, properties)}
+        {pageName &&
+          settingPage(pageName, properties4Set, allProperties4Set, properties)}
       </Grid>
     </Grid>
   );

@@ -319,6 +319,35 @@ export default function StaffShuntForm(props: FormProps) {
 
   const shuntCode = watch('code');
   const webLink = `${config.web.host}/chat/?sc=${shuntCode}`;
+  const webEmbeddedASync = `const js = document.createElement('script');
+js.async = true;
+js.src = 'https://im.xbcs.top/chat/web-embedded.js';
+document.body.appendChild(js);
+js.onload = () => {
+  const params = {
+  // 接待组代码
+  sc: 'Cxl1TwUHjw',
+  // 可空，uid，企业当前登录用户标识，不传表示匿名用户，由客服系统自动生成
+  // uid: 'my-company-uid',
+  // 可空，指定客服 Id，如果不传，则由系统自动分配客服
+  // staffId: '',
+  // 可空，指定客服组 Id
+  // groupid: '',
+  // 可空，客户名称，如果不传，则由系统自动生成，如果客服系统已经有该客户信
+  // name: '',
+  // 可空，客户邮箱
+  // email: '',
+  // 可空，客户手机号码
+  // mobile: '',
+  // 可空，客户 Vip 等级
+  // vipLevel: '',
+  // 可空，客户当前咨询页标题
+  // title: '',
+  // 可空，客户当前咨询页
+  // referrer: '',
+};
+initXiaobaiChat(params);
+};`;
   const webEmbedded = `<script src="${config.web.host}/chat/web-embedded.js"></script>
 <script>
     const params = {

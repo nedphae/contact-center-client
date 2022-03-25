@@ -389,6 +389,18 @@ export default function CustomerForm(props: CustomerFormProps) {
             },
           })}
         />
+        <Typography variant="subtitle1" gutterBottom>
+          来源页：
+          {defaultValues?.status?.referrer && (
+            <Link href={defaultValues.status.referrer}>
+              {defaultValues.status.referrer}
+            </Link>
+          )}
+        </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+          来源页标题：
+          {defaultValues?.status?.title && defaultValues?.status.title}
+        </Typography>
         {defaultValues?.data &&
           defaultValues?.data
             .filter(({ hidden }) => hidden === false)

@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { useMutation } from '@apollo/client';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -10,7 +10,14 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 
-import { Link, Typography } from '@material-ui/core';
+import {
+  FormControl,
+  InputLabel,
+  Link,
+  MenuItem,
+  Select,
+  Typography,
+} from '@material-ui/core';
 import { CommentPojo } from 'app/domain/Comment';
 import {
   MUTATION_COMMENT,
@@ -51,7 +58,7 @@ export default function CommentForm(props: CommentFormProps) {
   if (loading) {
     onLoadding(loading);
   }
-  const { register, handleSubmit } = useForm<CommentPojo>({
+  const { register, handleSubmit, control } = useForm<CommentPojo>({
     defaultValues,
     shouldUnregister: true,
   });
@@ -179,6 +186,52 @@ export default function CommentForm(props: CommentFormProps) {
         <Typography variant="subtitle1" gutterBottom>
           来源IP：{defaultValues?.fromIp}
         </Typography>
+        <Controller
+          control={control}
+          name="solved"
+          defaultValue={0}
+          render={({ field: { onChange, value } }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="demo-mutiple-chip-label">解决状态</InputLabel>
+              <Select
+                labelId="solved"
+                id="solved"
+                onChange={(event) => {
+                  const tempId = event.target.value as string;
+                  onChange(tempId === '' ? undefined : +tempId);
+                }}
+                value={value === undefined ? '' : +value}
+                label="解决状态"
+              >
+                <MenuItem value={0}>未解决</MenuItem>
+                <MenuItem value={1}>已解决</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
+        <Controller
+          control={control}
+          name="solvedWay"
+          defaultValue={0}
+          render={({ field: { onChange, value } }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="demo-mutiple-chip-label">解决方式</InputLabel>
+              <Select
+                labelId="solvedWay"
+                id="solvedWay"
+                onChange={(event) => {
+                  const tempId = event.target.value as string;
+                  onChange(tempId === '' ? undefined : +tempId);
+                }}
+                value={value === undefined ? '' : +value}
+                label="解决方式"
+              >
+                <MenuItem value={0}>手机</MenuItem>
+                <MenuItem value={1}>邮件</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
         <Button
           type="submit"
           fullWidth

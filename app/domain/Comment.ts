@@ -14,7 +14,6 @@ export enum CommentSolvedWay {
 }
 
 export interface CommentPojo {
-  id?: string;
   organizationId?: number;
   /** 留言时间 */
   createdAt: number;
