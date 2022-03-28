@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -72,7 +73,9 @@ export default function ChangePasswordForm(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<PasswordChanger> = (form) => {
-    changePassword({ variables: { passwordChanger: form } });
+    changePassword({
+      variables: { passwordChanger: _.omit(form, 'password_repeat') },
+    });
   };
 
   return (

@@ -195,14 +195,14 @@ export default class MenuBuilder {
   buildDefaultTemplate() {
     const templateDefault = [
       {
-        label: '&File',
+        label: '&文件',
         submenu: [
+          // {
+          //   label: '&Open',
+          //   accelerator: 'Ctrl+O',
+          // },
           {
-            label: '&Open',
-            accelerator: 'Ctrl+O',
-          },
-          {
-            label: '&Close',
+            label: '&关闭',
             accelerator: 'Ctrl+W',
             click: () => {
               this.mainWindow.close();
@@ -211,7 +211,7 @@ export default class MenuBuilder {
         ],
       },
       {
-        label: '&View',
+        label: '&查看',
         submenu:
           process.env.NODE_ENV === 'development' ||
           process.env.DEBUG_PROD === 'true'
@@ -242,7 +242,7 @@ export default class MenuBuilder {
               ]
             : [
                 {
-                  label: 'Toggle &Full Screen',
+                  label: '全屏',
                   accelerator: 'F11',
                   click: () => {
                     this.mainWindow.setFullScreen(
@@ -253,7 +253,7 @@ export default class MenuBuilder {
               ],
       },
       {
-        label: 'Help',
+        label: '帮助',
         submenu: [
           {
             label: 'Learn More',

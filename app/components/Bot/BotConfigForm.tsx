@@ -29,6 +29,7 @@ const useStyles = makeStyles(() =>
 
 interface FormProps {
   defaultValues: BotConfig;
+  afterMutationCallback: () => void | undefined;
 }
 
 interface Graphql {
@@ -47,7 +48,7 @@ const MUTATION = gql`
 `;
 
 export default function BotConfigForm(props: FormProps) {
-  const { defaultValues } = props;
+  const { defaultValues, afterMutationCallback } = props;
   const classes = useStyles();
   const {
     handleSubmit,
@@ -67,10 +68,11 @@ export default function BotConfigForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<BotConfig> = (form) => {
-    saveBotConfig({
+  const onSubmit: SubmitHandler<BotConfig> = async (form) => {
+    await saveBotConfig({
       variables: { botConfigInput: _.omit(form, '__typename') },
     });
+    afterMutationCallback();
   };
 
   return (

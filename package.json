@@ -32,7 +32,7 @@
   },
   "build": {
     "productName": "小白客服",
-    "appId": "com.qingzhu.ContactCenterClient",
+    "appId": "com.xiaobai.ContactCenterClient",
     "files": [
       "dist/",
       "node_modules/",

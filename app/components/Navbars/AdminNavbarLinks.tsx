@@ -28,11 +28,7 @@ import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
 import { Badge, Avatar, CssBaseline } from '@material-ui/core';
-import {
-  getMyself,
-  intervalConfigStaff,
-  updateOnlineStatus,
-} from 'app/state/staff/staffAction';
+import { getMyself, setOnlineAndInterval } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
@@ -160,11 +156,9 @@ export default function AdminNavbarLinks() {
                   severity: 'warning',
                 })
               );
-            } else if (staffStatus.onlineStatus === OnlineStatus.ONLINE) {
-              dispatch(intervalConfigStaff());
             }
             dispatch(
-              updateOnlineStatus(OnlineStatus[staffStatus.onlineStatusKey])
+              setOnlineAndInterval(OnlineStatus[staffStatus.onlineStatusKey])
             );
           }
           return staffStatus;

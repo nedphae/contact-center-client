@@ -1,4 +1,7 @@
-import { configStaff, updateOnlineStatus } from 'app/state/staff/staffAction';
+import {
+  configStaff,
+  updateOnlineStatusBySocket,
+} from 'app/state/staff/staffAction';
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { UpdateMessage } from 'app/domain/Message';
 import { Conversation } from 'app/domain/Conversation';
@@ -32,7 +35,7 @@ export default class SocketHandler implements EventInterface {
     this.socket.on('assign', this.onAssignment);
     // this.socket.connect();
     this.socket.on('disconnect', () => {
-      this.dispatch(updateOnlineStatus(OnlineStatus.OFFLINE));
+      this.dispatch(updateOnlineStatusBySocket(OnlineStatus.OFFLINE));
     });
   }
 

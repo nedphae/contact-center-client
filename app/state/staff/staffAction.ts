@@ -9,7 +9,8 @@ import { filter, interval, map, Subscription } from 'rxjs';
 import slice from './staffSlice';
 import { setSnackbarProp } from '../chat/chatAction';
 
-export const { setStaff, setOnline, updateOnlineStatus } = slice.actions;
+export const { setStaff, setOnline, updateOnlineStatusBySocket } =
+  slice.actions;
 export const getStaff = (state: RootState) => {
   if (state.chat.monitored) {
     return state.chat.monitored.monitoredStaff;
@@ -87,18 +88,28 @@ export const intervalConfigStaff = (): AppThunk => {
   return (dispatch, getState) => {
     if (statueInterval) {
       statueInterval.unsubscribe();
+      statueInterval = undefined;
     }
-    statueInterval = interval(30000)
-      .pipe(
-        map(() => getState().staff.onlineStatus),
-        filter((onlineStatus) => onlineStatus !== OnlineStatus.OFFLINE)
-      )
-      .subscribe(() => {
-        dispatch(configBase());
-      });
+    if (getState().staff.onlineStatus !== OnlineStatus.OFFLINE) {
+      statueInterval = interval(300000)
+        .pipe(
+          map(() => getState().staff.onlineStatus),
+          filter((onlineStatus) => onlineStatus !== OnlineStatus.OFFLINE)
+        )
+        .subscribe(() => {
+          dispatch(configBase());
+        });
+    }
   };
 };
 
 export const configStaff = (): AppThunk => {
   return configBase(intervalConfigStaff());
+};
+
+export const setOnlineAndInterval = (onlineStatus: OnlineStatus): AppThunk => {
+  return (dispatch) => {
+    dispatch(setOnline(onlineStatus));
+    dispatch(intervalConfigStaff());
+  };
 };

@@ -324,7 +324,12 @@ export default function BotSidecar(props: BotProps) {
           机器人配置
         </Typography>
         {(memoStaffAndBotConfig.botConfig && (
-          <BotConfigForm defaultValues={memoStaffAndBotConfig.botConfig} />
+          <BotConfigForm
+            defaultValues={memoStaffAndBotConfig.botConfig}
+            afterMutationCallback={() => {
+              refetch();
+            }}
+          />
         )) ||
           (configStaff && topicOrKnowladge.Knowladge?.id && (
             <BotConfigForm
@@ -332,6 +337,9 @@ export default function BotSidecar(props: BotProps) {
                 botId: configStaff.id,
                 knowledgeBaseId: topicOrKnowladge.Knowladge.id,
                 noAnswerReply: botConfigNoAnswerReply,
+              }}
+              afterMutationCallback={() => {
+                refetch();
               }}
             />
           ))}
