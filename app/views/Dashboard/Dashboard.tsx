@@ -3,14 +3,20 @@ import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
 import { makeStyles } from '@material-ui/core/styles';
-import Icon from '@material-ui/core/Icon';
 // @material-ui/icons
 import Store from '@material-ui/icons/Store';
+import SyncIcon from '@material-ui/icons/Sync';
+import { Icon } from '@iconify/react';
+import peopleQueue24Filled from '@iconify/icons-fluent/people-queue-24-filled';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import InfoIcon from '@material-ui/icons/Info';
 import Warning from '@material-ui/icons/Warning';
 import DateRange from '@material-ui/icons/DateRange';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Update from '@material-ui/icons/Update';
 import Accessibility from '@material-ui/icons/Accessibility';
+import HeadsetMicIcon from '@material-ui/icons/HeadsetMic';
 // core components
 import { gql, useQuery } from '@apollo/client';
 import {
@@ -122,9 +128,10 @@ export default function Dashboard() {
       <GridContainer>
         <GridItem xs={12} sm={6} md={3}>
           <Card>
-            <CardHeader color="warning" stats icon>
-              <CardIcon color="warning">
-                <Icon>content_copy</Icon>
+            <CardHeader color="success" stats icon>
+              <CardIcon color="success">
+                {/* <Icon>content_copy</Icon> */}
+                <HeadsetMicIcon />
               </CardIcon>
               <p className={classes.cardCategory}>在线客服</p>
               <h3 className={classes.cardTitle}>
@@ -134,10 +141,10 @@ export default function Dashboard() {
             <CardFooter stats>
               <div className={classes.stats}>
                 <Danger>
-                  <Warning />
+                  <SyncIcon />
                 </Danger>
                 <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                  Get more space
+                  实时刷新在线客服数量
                 </a>
               </div>
             </CardFooter>
@@ -145,9 +152,9 @@ export default function Dashboard() {
         </GridItem>
         <GridItem xs={12} sm={6} md={3}>
           <Card>
-            <CardHeader color="success" stats icon>
-              <CardIcon color="success">
-                <Store />
+            <CardHeader color="warning" stats icon>
+              <CardIcon color="warning">
+                <RemoveCircleIcon />
               </CardIcon>
               <p className={classes.cardCategory}>忙碌/离开客服</p>
               <h3 className={classes.cardTitle}>
@@ -156,17 +163,18 @@ export default function Dashboard() {
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
-                <DateRange />
-                Last 24 Hours
+                <LocalOffer />
+                当前在线客服中，设置了离开和忙碌的客服
               </div>
             </CardFooter>
           </Card>
         </GridItem>
         <GridItem xs={12} sm={6} md={3}>
           <Card>
-            <CardHeader color="danger" stats icon>
-              <CardIcon color="danger">
-                <Icon>info_outline</Icon>
+            <CardHeader color="info" stats icon>
+              <CardIcon color="info">
+                {/* <Icon>info_outline</Icon> */}
+                <QuestionAnswerIcon />
               </CardIcon>
               <p className={classes.cardCategory}>当前咨询量</p>
               <h3 className={classes.cardTitle}>
@@ -176,16 +184,16 @@ export default function Dashboard() {
             <CardFooter stats>
               <div className={classes.stats}>
                 <LocalOffer />
-                Tracked from Github
+                当前进行中的会话数量
               </div>
             </CardFooter>
           </Card>
         </GridItem>
         <GridItem xs={12} sm={6} md={3}>
           <Card>
-            <CardHeader color="info" stats icon>
-              <CardIcon color="info">
-                <Accessibility />
+            <CardHeader color="danger" stats icon>
+              <CardIcon color="danger">
+                <Icon icon={peopleQueue24Filled} />
               </CardIcon>
               <p className={classes.cardCategory}>排队数量</p>
               <h3 className={classes.cardTitle}>
@@ -196,8 +204,8 @@ export default function Dashboard() {
             </CardHeader>
             <CardFooter stats>
               <div className={classes.stats}>
-                <Update />
-                Just Updated
+                <InfoIcon />
+                正在排队的客户数量
               </div>
             </CardFooter>
           </Card>
