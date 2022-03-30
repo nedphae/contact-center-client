@@ -31,6 +31,7 @@ import {
 } from '@material-ui/core';
 import Upload from 'rc-upload';
 
+import Authorized from 'app/components/Authorized/Authorized';
 import {
   getDownloadS3StaffImgPath,
   getUploadS3StaffImgPath,
@@ -324,17 +325,32 @@ export default function StaffForm(props: FormProps) {
               <InputLabel id="role-simple-select-outlined-label">
                 角色
               </InputLabel>
-              <Select
-                labelId="role-simple-select-outlined-label"
-                id="role"
-                label="角色"
-                {...field}
+
+              <Authorized
+                authority={['admin']}
+                noMatch={
+                  <Select
+                    labelId="role-simple-select-outlined-label"
+                    id="role"
+                    label="角色"
+                    {...field}
+                  >
+                    <MenuItem value="ROLE_STAFF">客服</MenuItem>
+                  </Select>
+                }
               >
-                <MenuItem value="ROLE_ADMIN">管理员</MenuItem>
-                {/* <MenuItem value="ROLE_LEADER">组长</MenuItem> */}
-                {/* <MenuItem value="ROLE_QA">质检</MenuItem> */}
-                <MenuItem value="ROLE_STAFF">客服</MenuItem>
-              </Select>
+                <Select
+                  labelId="role-simple-select-outlined-label"
+                  id="role"
+                  label="角色"
+                  {...field}
+                >
+                  <MenuItem value="ROLE_ADMIN">管理员</MenuItem>
+                  {/* <MenuItem value="ROLE_LEADER">组长</MenuItem> */}
+                  {/* <MenuItem value="ROLE_QA">质检</MenuItem> */}
+                  <MenuItem value="ROLE_STAFF">客服</MenuItem>
+                </Select>
+              </Authorized>
             </FormControl>
           )}
         />

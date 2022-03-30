@@ -767,7 +767,7 @@ initXiaobaiChat(params);
             fullWidth
             multiline
             id="webJs"
-            label="web-js 弹出接入"
+            label="web-js 弹窗接入"
             value={webEmbedded}
             InputProps={{
               readOnly: true,

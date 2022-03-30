@@ -8,6 +8,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import Grid from '@material-ui/core/Grid';
 
+import Authorized from 'app/components/Authorized/Authorized';
 import StyledTreeItem, {
   CloseSquare,
   MinusSquare,
@@ -170,70 +171,72 @@ export default function Setting() {
                             onClick={() => setPageName('personal.Client')}
             /> */}
         </StyledTreeItem>
-        <StyledTreeItem nodeId="org" label="企业设置">
-          <StyledTreeItem
-            nodeId={uuidv4()}
-            label="账号管理"
-            onClick={() => setPageName('org.Account')}
-          />
-          <StyledTreeItem
-            nodeId={uuidv4()}
-            label="客服组"
-            onClick={() => setPageName('org.Group')}
-          />
-          <StyledTreeItem
-            nodeId={uuidv4()}
-            label="接待组"
-            onClick={() => setPageName('org.Shunt')}
-          />
-          <StyledTreeItem
-            nodeId={uuidv4()}
-            label="咨询类型"
-            onClick={() => setPageName('org.SessionCategory')}
-          />
-          <StyledTreeItem
-            nodeId={uuidv4()}
-            label="黑名单"
-            onClick={() => setPageName('org.Blacklist')}
-          />
-          <StyledTreeItem
-            nodeId={uuidv4()}
-            label="客户标签"
-            onClick={() => setPageName('org.CustomerTag')}
-          />
-          {properties &&
-            _.keys(properties).map((k) => {
-              const propertiesFilter = _.keys(properties[k]).filter(
-                (pk) => !['id', 'label', 'available', 'value'].includes(pk)
-              );
-              const allProperties4SetTemp = propertiesFilter.map(
-                (fk) => `${k}.${fk}`
-              );
-              return (
-                <StyledTreeItem
-                  key={k}
-                  nodeId={uuidv4()}
-                  label={properties[k].label}
-                >
-                  {propertiesFilter.map((fk) => {
-                    const childProp = properties[k][fk] as Properties;
-                    return (
-                      <StyledTreeItem
-                        key={fk}
-                        nodeId={uuidv4()}
-                        label={childProp.label}
-                        onClick={() => {
-                          setPageName('org.Properties');
-                          setProperties4Set(`${k}.${fk}`);
-                          setAllProperties4Set(allProperties4SetTemp);
-                        }}
-                      />
-                    );
-                  })}
-                </StyledTreeItem>
-              );
-            })}
-        </StyledTreeItem>
+        <Authorized authority={['admin']} noMatch={<></>}>
+          <StyledTreeItem nodeId="org" label="企业设置">
+            <StyledTreeItem
+              nodeId={uuidv4()}
+              label="账号管理"
+              onClick={() => setPageName('org.Account')}
+            />
+            <StyledTreeItem
+              nodeId={uuidv4()}
+              label="客服组"
+              onClick={() => setPageName('org.Group')}
+            />
+            <StyledTreeItem
+              nodeId={uuidv4()}
+              label="接待组"
+              onClick={() => setPageName('org.Shunt')}
+            />
+            <StyledTreeItem
+              nodeId={uuidv4()}
+              label="咨询类型"
+              onClick={() => setPageName('org.SessionCategory')}
+            />
+            <StyledTreeItem
+              nodeId={uuidv4()}
+              label="黑名单"
+              onClick={() => setPageName('org.Blacklist')}
+            />
+            <StyledTreeItem
+              nodeId={uuidv4()}
+              label="客户标签"
+              onClick={() => setPageName('org.CustomerTag')}
+            />
+            {properties &&
+              _.keys(properties).map((k) => {
+                const propertiesFilter = _.keys(properties[k]).filter(
+                  (pk) => !['id', 'label', 'available', 'value'].includes(pk)
+                );
+                const allProperties4SetTemp = propertiesFilter.map(
+                  (fk) => `${k}.${fk}`
+                );
+                return (
+                  <StyledTreeItem
+                    key={k}
+                    nodeId={uuidv4()}
+                    label={properties[k].label}
+                  >
+                    {propertiesFilter.map((fk) => {
+                      const childProp = properties[k][fk] as Properties;
+                      return (
+                        <StyledTreeItem
+                          key={fk}
+                          nodeId={uuidv4()}
+                          label={childProp.label}
+                          onClick={() => {
+                            setPageName('org.Properties');
+                            setProperties4Set(`${k}.${fk}`);
+                            setAllProperties4Set(allProperties4SetTemp);
+                          }}
+                        />
+                      );
+                    })}
+                  </StyledTreeItem>
+                );
+              })}
+          </StyledTreeItem>
+        </Authorized>
       </TreeView>
     );
   }, [classes, properties]);

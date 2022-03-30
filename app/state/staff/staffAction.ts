@@ -31,6 +31,7 @@ export const setUserAsync =
     onlineStatus: OnlineStatus = OnlineStatus.ONLINE
   ): AppThunk =>
   async (dispatch, getState) => {
+    // substring 用于清除 ROLE_ 前缀
     setAuthority(
       token.authorities.map((role) => role.substring(5).toLowerCase())
     );
