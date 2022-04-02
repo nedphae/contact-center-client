@@ -1,6 +1,5 @@
 import { WebSocketRequest } from 'app/domain/WebSocket';
 import { CallBack } from 'app/service/websocket/EventInterface';
-import { TimeoutError } from 'rxjs';
 
 const withTimeout = (
   onSuccess: { apply: (thisArg: undefined, arg1: unknown[]) => void },
@@ -39,10 +38,10 @@ export const socketCallback = <T, R>(
   const cbWithTimeout = withTimeout(
     cb,
     () => {
-      throw new TimeoutError();
+      throw new Error('request timeout');
     },
-    // 5秒超时
-    5000
+    // 15秒超时
+    15000
   );
   window.socketRef?.emit(e, r, cbWithTimeout);
 };

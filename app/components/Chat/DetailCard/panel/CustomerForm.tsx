@@ -41,6 +41,7 @@ import {
   ListItemIcon,
   MenuItem,
   Select,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 import SubmitButton from 'app/components/Form/SubmitButton';
@@ -61,8 +62,11 @@ const useStyles = makeStyles((theme: Theme) =>
     chip: {
       margin: 2,
     },
-    submit: {
-      margin: theme.spacing(3, 0, 2),
+    wrapper: {
+      margin: theme.spacing(1),
+      position: 'relative',
+      width: '1vw',
+      userSelect: 'auto',
     },
   })
 );
@@ -389,16 +393,25 @@ export default function CustomerForm(props: CustomerFormProps) {
             },
           })}
         />
-        <Typography variant="subtitle1" gutterBottom>
-          来源页：
+        <Typography variant="body1" gutterBottom>
+          来源页:&nbsp;&nbsp;
           {defaultValues?.status?.referrer && (
-            <Link href={defaultValues.status.referrer}>
-              {defaultValues.status.referrer}
-            </Link>
+            <Tooltip title={defaultValues.status.referrer} aria-label="add">
+              <div className={classes.wrapper}>
+                <Link
+                  variant="inherit"
+                  color="primary"
+                  href={defaultValues.status.referrer}
+                  target="_blank"
+                >
+                  {defaultValues.status.referrer}
+                </Link>
+              </div>
+            </Tooltip>
           )}
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          来源页标题：
+        <Typography variant="body1" gutterBottom>
+          来源页标:&nbsp;&nbsp;
           {defaultValues?.status?.title && defaultValues?.status.title}
         </Typography>
         {defaultValues?.data &&

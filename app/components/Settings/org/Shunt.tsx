@@ -10,7 +10,7 @@ import { TreeView } from '@material-ui/lab';
 import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
-import { AllShunt, QUERY_STAFF, StaffList } from 'app/domain/graphql/Staff';
+import { AllShunt, QUERY_STAFF, AllStaffList } from 'app/domain/graphql/Staff';
 import StyledTreeItem, {
   CloseSquare,
   MinusSquare,
@@ -91,7 +91,7 @@ export default function Shunt() {
   const [staffShuntClass, setStaffShuntClass] = useState<ShuntClass>();
   const refOfClassDialog = useRef<DraggableDialogRef>(null);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_SHUNT);
-  const { data: staffList } = useQuery<StaffList>(QUERY_STAFF);
+  const { data: staffList } = useQuery<AllStaffList>(QUERY_STAFF);
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [deleteByIds, { loading: deleteLoading }] = useMutation<number>(

@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
 
 import {
   DataGrid,
@@ -21,14 +21,24 @@ import {
   QUERY_BLACKLISTT,
 } from 'app/domain/graphql/Blacklist';
 import useAlert from 'app/hook/alert/useAlert';
+import {
+  QUERY_STAFF_LIST_BY_IDS,
+  StaffListByIds,
+} from 'app/domain/graphql/Staff';
+import { Blacklist } from 'app/domain/Blacklist';
 
 export default function BlacklistView() {
   const classes = useSearchFormStyles();
+  const [rows, setRows] = useState<Blacklist[]>([]);
   const { loading, data, refetch } = useQuery<BlacklistGraphql>(
     QUERY_BLACKLISTT,
     {
       variables: { audited: true },
     }
+  );
+
+  const [getStaffByIds, { data: staffList }] = useLazyQuery<StaffListByIds>(
+    QUERY_STAFF_LIST_BY_IDS
   );
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -41,7 +51,27 @@ export default function BlacklistView() {
     onLoadding(deleteLoading);
   }
 
-  const rows = data?.getAllBlacklist ?? [];
+  useEffect(() => {
+    if (data && data.getAllBlacklist.length > 0) {
+      setRows(data.getAllBlacklist);
+      const staffIds = data.getAllBlacklist.map((row) => row.staffId);
+      getStaffByIds({ variables: { staffIds } });
+    }
+  }, [data, getStaffByIds]);
+
+  useEffect(() => {
+    if (staffList && staffList.getStaffByIds.length > 0) {
+      setRows((it) =>
+        it.map((row) => ({
+          ...row,
+          staffName: staffList.getStaffByIds.find(
+            (staff) => staff.id === row.staffId
+          )?.realName,
+        }))
+      );
+    }
+  }, [staffList]);
+
   const pageSize = 20;
   const rowCount = rows.length;
 
@@ -72,23 +102,24 @@ export default function BlacklistView() {
     return [
       { field: 'preventStrategy', headerName: '黑名单类型', width: 150 },
       { field: 'preventSource', headerName: '黑名单对象', width: 150 },
+      { field: 'staffName', headerName: '操作客服', width: 150 },
       {
         field: 'effectiveTime',
         headerName: '有效期开始时间',
         width: 180,
         valueGetter: (params: GridValueGetterParams) => {
           return params.value
-            ? javaInstant2DateStr(params.value as number)
+            ? javaInstant2DateStr(new Date(params.value as number))
             : null;
         },
       },
       {
         field: 'failureTime',
-        headerName: '有效期结束',
+        headerName: '有效期结束时间',
         width: 180,
         valueGetter: (params: GridValueGetterParams) => {
           return params.value
-            ? javaInstant2DateStr(params.value as number)
+            ? javaInstant2DateStr(new Date(params.value as number))
             : null;
         },
       },

@@ -89,7 +89,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
     >
-      <DialogTitle id="form-dialog-title">添加话术</DialogTitle>
+      <DialogTitle id="form-dialog-title">添加快捷回复</DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
@@ -147,13 +147,13 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             fullWidth
             autoFocus
             id="title"
-            label="话术标题"
+            label="快捷回复标题"
             error={errors.title && true}
             helperText={errors.title?.message}
             {...register('title', {
               maxLength: {
                 value: 80,
-                message: '话术标题长度不能大于80个字符',
+                message: '快捷回复标题长度不能大于80个字符',
               },
             })}
           />
@@ -163,13 +163,13 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             fullWidth
             multiline
             id="content"
-            label="话术内容"
+            label="快捷回复内容"
             error={errors.content && true}
             helperText={errors.content?.message}
             {...register('content', {
               maxLength: {
                 value: 500,
-                message: '话术内容长度不能大于500个字符',
+                message: '快捷回复内容长度不能大于500个字符',
               },
             })}
           />
@@ -250,7 +250,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
     >
-      <DialogTitle id="form-dialog-title">添加话术分组</DialogTitle>
+      <DialogTitle id="form-dialog-title">添加快捷回复分组</DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField

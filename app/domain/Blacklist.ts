@@ -15,6 +15,7 @@ export interface Blacklist {
   effectiveTime?: number;
   failureTime?: number;
   audited?: boolean;
+  staffName?: string;
 }
 
 export type BlacklistFormProp = Object.Merge<

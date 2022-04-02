@@ -955,7 +955,7 @@ initXiaobaiChat(params);
               </div>
             </AccordionSummary>
             <AccordionDetails className={classes.details}>
-              <Grid container spacing={1}>
+              <Grid container spacing={4}>
                 <Grid item sm={6} xs={12}>
                   <Typography variant="caption">机器人客服</Typography>
                   {tempStaffConfig &&

@@ -149,7 +149,7 @@ export default function NestedList(prop: NestedListProps) {
             setOpenForm(true);
           }}
         >
-          修改话术
+          修改快捷回复
         </MenuItem>
       );
       menuList.push(
@@ -168,7 +168,7 @@ export default function NestedList(prop: NestedListProps) {
             }
           }}
         >
-          删除话术
+          删除快捷回复
         </MenuItem>
       );
     }

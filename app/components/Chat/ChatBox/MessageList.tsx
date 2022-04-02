@@ -363,13 +363,24 @@ const MessageList = (props: MessageListProps) => {
     }
   }, [handleLoadMore, messages, user]);
 
-  function handleContentSizeChange() {
+  function handleContentSizeChange(
+    _contentWidth: number,
+    contentHeight: number
+  ) {
     // 检查是否是读取历史记录
     if (refOfScrollView.current && user && user.userId) {
       if (!isHistoryMessage) {
-        refOfScrollView.current.scrollToEnd({
-          animated,
-        });
+        // 判断是否消息列表长度是否大于屏幕高度，如果大于，则滚动到底部，否则滚动到顶部
+        if (
+          contentHeight >
+          (refOfScrollView.current as unknown as HTMLDivElement).clientHeight
+        ) {
+          refOfScrollView.current.scrollToEnd({
+            animated,
+          });
+        } else {
+          refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
+        }
         if (!animated) {
           setAnimated(true);
         }

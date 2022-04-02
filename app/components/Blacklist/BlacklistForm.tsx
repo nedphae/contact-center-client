@@ -112,7 +112,7 @@ export default function BlacklistForm(props: BlacklistFormProps) {
             labelId="role-simple-select-outlined-label"
             id="role"
             label="黑名单类型"
-            defaultValue={1}
+            defaultValue={0}
             onChange={(event) => {
               if (event.target.value !== 0) {
                 const now = new Date().getTime();

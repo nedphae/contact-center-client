@@ -28,7 +28,7 @@ import routes from '../routes';
 
 import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
-import bgImage from '../assets/img/sidebar-2.jpg';
+import bgImage from '../assets/img/sidebar-4.jpg';
 import logo from '../assets/img/reactlogo.png';
 import newMsgSound from '../assets/sounds/new-msg.wav';
 

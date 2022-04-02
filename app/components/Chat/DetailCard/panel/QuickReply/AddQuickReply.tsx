@@ -59,7 +59,7 @@ export default function AddQuickReply(prop: AddQuickReplyProps) {
             setOpen(true);
           }}
         >
-          添加话术分组
+          添加快捷回复分组
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -68,7 +68,7 @@ export default function AddQuickReply(prop: AddQuickReplyProps) {
             setOpen(true);
           }}
         >
-          添加话术
+          添加快捷回复
         </MenuItem>
       </Menu>
       {group ? (

@@ -13,7 +13,7 @@ import {
   QUERY_GROUP,
   QUERY_STAFF,
   StaffGroupList,
-  StaffList,
+  AllStaffList,
 } from 'app/domain/graphql/Staff';
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
@@ -24,7 +24,7 @@ import StaffForm from 'app/components/StaffForm/StaffForm';
 import Staff from 'app/domain/StaffInfo';
 import useAlert from 'app/hook/alert/useAlert';
 
-type Graphql = StaffList;
+type Graphql = AllStaffList;
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },

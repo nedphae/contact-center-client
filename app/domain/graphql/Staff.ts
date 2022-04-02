@@ -3,7 +3,7 @@ import { Object } from 'ts-toolbelt';
 
 import Staff, { ShuntClass, StaffGroup, StaffShunt } from '../StaffInfo';
 
-export interface StaffList {
+export interface AllStaffList {
   allStaff: Staff[];
 }
 
@@ -22,7 +22,7 @@ export interface StaffShuntClass {
 export type AllShunt = Object.Merge<StaffShuntList, StaffShuntClass>;
 
 export type AllStaffInfo = Object.MergeAll<
-  StaffList,
+  AllStaffList,
   [StaffGroupList, StaffShuntList]
 >;
 
@@ -37,7 +37,7 @@ export const QUERY_GROUP = gql`
 `;
 
 export const QUERY_STAFF = gql`
-  query Staff {
+  query AllStaff {
     allStaff {
       avatar
       enabled
@@ -62,6 +62,33 @@ export const QUERY_STAFF = gql`
 
 export interface StaffGraphql {
   getStaffById: Staff;
+}
+
+export const QUERY_STAFF_LIST_BY_IDS = gql`
+  query StaffList($staffIds: [Long!]!) {
+    getStaffByIds(staffIds: $staffIds) {
+      avatar
+      enabled
+      gender
+      id
+      maxTicketAllTime
+      maxTicketPerDay
+      mobilePhone
+      nickName
+      organizationId
+      password
+      personalizedSignature
+      realName
+      role
+      simultaneousService
+      groupId
+      staffType
+      username
+    }
+  }
+`;
+export interface StaffListByIds {
+  getStaffByIds: Staff[];
 }
 
 export const QUERY_STAFF_BY_ID = gql`
