@@ -231,7 +231,9 @@ export default function StaffShuntForm(props: FormProps) {
   const [tempStaffConfig, setTempStaffConfig] = useState<StaffConfig[]>();
   const [chatUIConfigObj, setChatUIConfigObj] = useState<any>();
 
-  const { data: allTopic } = useQuery<TopicGraphql>(QUERY_BOT_TOPIC);
+  const { data: allTopic } = useQuery<TopicGraphql>(QUERY_BOT_TOPIC, {
+    fetchPolicy: 'no-cache',
+  });
 
   const [uploading, setUploading] = useState<boolean>();
   const [error, setError] = useState<string>();

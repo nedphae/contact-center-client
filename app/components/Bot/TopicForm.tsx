@@ -56,6 +56,7 @@ interface FormProps {
   defaultValues: Topic | undefined;
   topicList: Topic[];
   categoryList: TopicCategory[];
+  afterSubmit: () => void;
 }
 
 interface Graphql {
@@ -88,7 +89,7 @@ const MUTATION_TOPIC = gql`
 `;
 
 export default function TopicForm(props: FormProps) {
-  const { defaultValues, topicList, categoryList } = props;
+  const { defaultValues, topicList, categoryList, afterSubmit } = props;
   const classes = useStyles();
   const {
     handleSubmit,
@@ -99,11 +100,11 @@ export default function TopicForm(props: FormProps) {
     setValue,
     formState: { errors },
   } = useForm<Topic>({
-    defaultValues,
+    defaultValues: _.omitBy(defaultValues, _.isNull),
     shouldUnregister: true,
   });
 
-  const { onLoadding, onCompleted, onError } = useAlert();
+  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const [saveTopic, { loading, data }] = useMutation<Graphql>(MUTATION_TOPIC, {
     onCompleted,
     onError,
@@ -113,7 +114,8 @@ export default function TopicForm(props: FormProps) {
   }
 
   const onSubmit: SubmitHandler<Topic> = async (form) => {
-    saveTopic({ variables: { topicInput: form } });
+    await saveTopic({ variables: { topicInput: form } });
+    afterSubmit();
     // const filterObj = _.defaults(
     //   { answer: form?.answer?.map((ans) => _.omit(ans, '__typename')) },
     //   _.omit(form, '__typename', 'categoryName', 'knowledgeBaseName')
@@ -125,7 +127,7 @@ export default function TopicForm(props: FormProps) {
     // });
   };
 
-  const questionType = watch('type', 1);
+  const questionType = watch('type', defaultValues?.type ?? 1);
   const { fields, update, remove } = useFieldArray({ name: 'answer', control });
   const picSrc = fields[1]?.content;
 
@@ -137,7 +139,9 @@ export default function TopicForm(props: FormProps) {
       // 设置图片地址
       update(1, { type: 'image', content: (response as string[])[0] });
     },
-    onError(error: Error, _ret: any, _file: RcFile) {},
+    onError(error: Error, _ret: any, _file: RcFile) {
+      onErrorMsg('图片上传失败');
+    },
   };
 
   function handleDeletePic() {

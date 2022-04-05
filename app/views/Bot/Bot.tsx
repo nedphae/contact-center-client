@@ -328,6 +328,9 @@ export default function Bot() {
           defaultValues={topic}
           topicList={rows}
           categoryList={memoData?.allTopicCategory ?? []}
+          afterSubmit={() => {
+            refetchTopic();
+          }}
         />
       </DraggableDialog>
       <Grid container className={classes.root}>
