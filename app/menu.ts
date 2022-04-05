@@ -254,34 +254,47 @@ export default class MenuBuilder {
       },
       {
         label: '帮助',
-        submenu: [
-          {
-            label: 'Learn More',
-            click() {
-              shell.openExternal('https://electronjs.org');
-            },
-          },
-          {
-            label: 'Documentation',
-            click() {
-              shell.openExternal(
-                'https://github.com/electron/electron/tree/master/docs#readme'
-              );
-            },
-          },
-          {
-            label: 'Community Discussions',
-            click() {
-              shell.openExternal('https://www.electronjs.org/community');
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
-            },
-          },
-        ],
+        submenu:
+          process.env.NODE_ENV === 'development' ||
+          process.env.DEBUG_PROD === 'true'
+            ? [
+                {
+                  label: 'Learn More',
+                  click() {
+                    shell.openExternal('https://electronjs.org');
+                  },
+                },
+                {
+                  label: 'Documentation',
+                  click() {
+                    shell.openExternal(
+                      'https://github.com/electron/electron/tree/master/docs#readme'
+                    );
+                  },
+                },
+                {
+                  label: 'Community Discussions',
+                  click() {
+                    shell.openExternal('https://www.electronjs.org/community');
+                  },
+                },
+                {
+                  label: 'Search Issues',
+                  click() {
+                    shell.openExternal(
+                      'https://github.com/electron/electron/issues'
+                    );
+                  },
+                },
+              ]
+            : [
+                {
+                  label: '帮助文档',
+                  click() {
+                    shell.openExternal('https://xbcs.top/help/');
+                  },
+                },
+              ],
       },
     ];
 
