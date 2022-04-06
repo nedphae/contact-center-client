@@ -370,13 +370,15 @@ const MessageList = (props: MessageListProps) => {
     // 检查是否是读取历史记录
     if (refOfScrollView.current && user && user.userId) {
       if (!isHistoryMessage) {
-        // 判断是否消息列表长度是否大于屏幕高度，如果大于，则滚动到底部，否则滚动到顶部
-        if (
-          contentHeight >
-          (refOfScrollView.current as unknown as HTMLDivElement).clientHeight
-        ) {
-          refOfScrollView.current.scrollToEnd({
-            animated,
+        // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
+        const scrollViewHeight = (
+          refOfScrollView.current as unknown as HTMLDivElement
+        ).clientHeight;
+        if (contentHeight > scrollViewHeight) {
+          refOfScrollView.current.scrollTo({
+            x: 0,
+            y: contentHeight - scrollViewHeight,
+            animated: false,
           });
         } else {
           refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
