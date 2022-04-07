@@ -232,6 +232,26 @@ export default function TopicForm(props: FormProps) {
             valueAsNumber: true,
           })}
         />
+        <Controller
+          control={control}
+          name="type"
+          defaultValue={1}
+          render={({ field: { onChange, value } }) => (
+            <FormControl variant="outlined" margin="normal" fullWidth>
+              <InputLabel id="demo-mutiple-chip-label">问题类型</InputLabel>
+              <Select
+                labelId="type"
+                id="type"
+                onChange={onChange}
+                value={value}
+                label="问题类型"
+              >
+                <MenuItem value={1}>标准问题</MenuItem>
+                <MenuItem value={2}>相似问题</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
         <FormControl variant="outlined" margin="normal" fullWidth>
           {dropdownTreeSelect}
         </FormControl>
@@ -258,26 +278,6 @@ export default function TopicForm(props: FormProps) {
               message: '问题长度不能大于500个字符',
             },
           })}
-        />
-        <Controller
-          control={control}
-          name="type"
-          defaultValue={1}
-          render={({ field: { onChange, value } }) => (
-            <FormControl variant="outlined" margin="normal" fullWidth>
-              <InputLabel id="demo-mutiple-chip-label">问题类型</InputLabel>
-              <Select
-                labelId="type"
-                id="type"
-                onChange={onChange}
-                value={value}
-                label="问题类型"
-              >
-                <MenuItem value={1}>标准问题</MenuItem>
-                <MenuItem value={2}>相似问题</MenuItem>
-              </Select>
-            </FormControl>
-          )}
         />
         {questionType === 1 && (
           <>

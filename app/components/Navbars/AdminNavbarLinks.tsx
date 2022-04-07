@@ -128,10 +128,10 @@ export default function AdminNavbarLinks() {
   const handleCloseProfile = () => {
     setOpenProfile(null);
   };
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setOpenProfile(null);
     // 清除全部 token 缓存
-    logout();
+    await logout();
   };
   const handleChangeOnlineStatus = useCallback(
     (onlineStatus: OnlineStatus) => () => {

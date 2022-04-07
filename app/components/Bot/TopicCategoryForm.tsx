@@ -81,7 +81,9 @@ export default function TopicCategoryForm(props: FormProps) {
   const treeData = useMemo(
     () =>
       makeTreeNode(
-        allTopicCategoryList,
+        allTopicCategoryList.filter(
+          (it) => it.knowledgeBaseId === defaultValues?.knowledgeBaseId
+        ),
         data?.saveTopicCategory.pid || defaultValues?.pid
       ),
     [data, defaultValues, allTopicCategoryList]

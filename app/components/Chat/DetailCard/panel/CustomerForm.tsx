@@ -172,7 +172,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           id="uid"
           label="用户标识"
           InputProps={{
-            readOnly: true,
+            readOnly: defaultValues?.uid !== undefined,
             startAdornment: (
               <InputAdornment position="start">
                 <AccountCircle />
@@ -393,9 +393,9 @@ export default function CustomerForm(props: CustomerFormProps) {
             },
           })}
         />
-        <Typography variant="body1" gutterBottom>
-          来源页:&nbsp;&nbsp;
-          {defaultValues?.status?.referrer && (
+        {defaultValues?.status?.referrer && (
+          <Typography variant="body1" gutterBottom>
+            来源页:&nbsp;&nbsp;
             <Tooltip title={defaultValues.status.referrer} aria-label="add">
               <div className={classes.wrapper}>
                 <Link
@@ -408,12 +408,14 @@ export default function CustomerForm(props: CustomerFormProps) {
                 </Link>
               </div>
             </Tooltip>
-          )}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          来源页标:&nbsp;&nbsp;
-          {defaultValues?.status?.title && defaultValues?.status.title}
-        </Typography>
+          </Typography>
+        )}
+        {defaultValues?.status?.title && (
+          <Typography variant="body1" gutterBottom>
+            来源页标:&nbsp;&nbsp;
+            {defaultValues?.status.title}
+          </Typography>
+        )}
         {defaultValues?.data &&
           defaultValues?.data
             .filter(({ hidden }) => hidden === false)

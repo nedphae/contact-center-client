@@ -4,6 +4,7 @@ import clientConfig from 'app/config/clientConfig';
 import { clearToken, saveToken } from 'app/electron/jwtStorage';
 import addParam from 'app/utils/url';
 import { history } from 'app/store';
+import apolloClient from 'app/utils/apolloClient';
 
 /**
  * 配置全局的 header 和过滤器
@@ -39,7 +40,8 @@ export async function oauthLogin(
   return saveToken(result.data, save);
 }
 
-export function logout() {
+export async function logout() {
+  await apolloClient.clearStore();
   clearToken();
   history.push('/login');
 }
