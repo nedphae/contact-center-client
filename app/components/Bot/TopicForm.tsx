@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import _ from 'lodash';
 import {
   useForm,
@@ -89,8 +89,16 @@ const MUTATION_TOPIC = gql`
 `;
 
 export default function TopicForm(props: FormProps) {
-  const { defaultValues, topicList, categoryList, afterSubmit } = props;
+  const {
+    defaultValues: tempDefaultValues,
+    topicList,
+    categoryList,
+    afterSubmit,
+  } = props;
   const classes = useStyles();
+  const [defaultValues, setDefaultValues] = useState(
+    _.omitBy(tempDefaultValues, _.isNull)
+  );
   const {
     handleSubmit,
     register,
@@ -100,7 +108,7 @@ export default function TopicForm(props: FormProps) {
     setValue,
     formState: { errors },
   } = useForm<Topic>({
-    defaultValues: _.omitBy(defaultValues, _.isNull),
+    defaultValues,
     shouldUnregister: true,
   });
 
@@ -186,13 +194,23 @@ export default function TopicForm(props: FormProps) {
         inlineSearchInput
         data={treeData}
         onChange={(_currentNode, selectedNodes) => {
-          setValue(
-            'knowledgeBaseId',
-            selectedNodes.map((it) => it.knowledgeBaseId)[0]
+          const knowledgeBaseId = selectedNodes.map(
+            (it) => it.knowledgeBaseId
+          )[0];
+          const categoryId = parseInt(
+            selectedNodes.map((it) => it.value)[0],
+            10
           );
-          setValue(
-            'categoryId',
-            parseInt(selectedNodes.map((it) => it.value)[0], 10)
+          setValue('knowledgeBaseId', knowledgeBaseId);
+          setValue('categoryId', categoryId);
+          setDefaultValues(
+            _.defaults(
+              {
+                categoryId,
+                knowledgeBaseId,
+              },
+              tempDefaultValues
+            )
           );
         }}
         texts={{ placeholder: '选择所属分类' }}
@@ -200,16 +218,15 @@ export default function TopicForm(props: FormProps) {
         mode="radioSelect"
       />
     );
-  }, [data, categoryList, defaultValues, setValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, categoryList, defaultValues, setValue, setDefaultValues]);
 
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField value={id} type="hidden" {...register('id')} />
         <TextField
-          defaultValue={
-            data?.saveTopic.categoryId || defaultValues?.categoryId || ''
-          }
+          value={data?.saveTopic.categoryId || defaultValues?.categoryId || ''}
           type="hidden"
           error={errors.categoryId && true}
           helperText={errors.categoryId?.message}
@@ -219,12 +236,12 @@ export default function TopicForm(props: FormProps) {
           })}
         />
         <TextField
-          defaultValue={
+          value={
             data?.saveTopic.knowledgeBaseId ||
             defaultValues?.knowledgeBaseId ||
             ''
           }
-          error={errors.knowledgeBaseId && true}
+          // error={errors.knowledgeBaseId && true}
           helperText={errors.knowledgeBaseId?.message}
           type="hidden"
           {...register('knowledgeBaseId', {
@@ -232,6 +249,9 @@ export default function TopicForm(props: FormProps) {
             valueAsNumber: true,
           })}
         />
+        <FormControl variant="outlined" margin="normal" fullWidth>
+          {dropdownTreeSelect}
+        </FormControl>
         <Controller
           control={control}
           name="type"
@@ -252,9 +272,6 @@ export default function TopicForm(props: FormProps) {
             </FormControl>
           )}
         />
-        <FormControl variant="outlined" margin="normal" fullWidth>
-          {dropdownTreeSelect}
-        </FormControl>
         <TextField
           variant="outlined"
           margin="normal"

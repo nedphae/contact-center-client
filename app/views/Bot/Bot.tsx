@@ -215,9 +215,10 @@ export default function Bot() {
     refOfTopicDialog.current?.setOpen(true);
   }
 
-  function deleteButtonClick() {
+  async function deleteButtonClick() {
     if (selectionModel && selectionModel.length > 0) {
-      deleteTopicById({ variables: { ids: selectionModel } });
+      await deleteTopicById({ variables: { ids: selectionModel } });
+      refetchTopic();
     }
   }
 
