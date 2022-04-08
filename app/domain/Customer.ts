@@ -58,7 +58,7 @@ export interface CustomerStatus {
   // 机器人优先开关（访客分配）
   robotShuntSwitch: number | undefined;
 
-  // 访客选择多入口分流模版id
+  // 访客选择多入口接待模版id
   shuntId: number;
 
   // 指定客服id

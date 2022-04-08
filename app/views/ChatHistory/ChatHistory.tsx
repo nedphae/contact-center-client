@@ -235,7 +235,10 @@ const defaultValue = {
       dateFnsUtils.startOfDay(new Date()),
       "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
     ),
-    to: dateFnsUtils.format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSXX"),
+    to: dateFnsUtils.format(
+      dateFnsUtils.endOfDay(new Date()),
+      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+    ),
   },
 };
 
@@ -363,7 +366,7 @@ export default function ChatHistory() {
       defaultValue: [],
     },
     {
-      label: '分流组',
+      label: '接待组',
       name: 'shuntIdList',
       selectList: _.zipObject(
         staffShuntList.map((value) => value.id),
