@@ -18,7 +18,7 @@ import {
   CONV_PAGE_QUERY,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
-import { Conversation } from 'app/domain/Conversation';
+import { Conversation, Evaluate } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import {
@@ -43,6 +43,7 @@ import Draggable from 'react-draggable';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import { Control, Controller } from 'react-hook-form';
 import { LazyCustomerInfo } from 'app/components/Chat/DetailCard/panel/CustomerInfo';
+import DetailTitle from './DetailTitle';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -103,6 +104,48 @@ const columns: GridColDef[] = [
   { field: 'fromTitle', headerName: '来源页标题', width: 150 },
   { field: 'fromType', headerName: '来源类型', width: 150 },
   {
+    field: 'evaluate.evaluation',
+    headerName: '评价分数',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      return evaluate?.evaluation;
+    },
+  },
+  {
+    field: 'evaluate.evaluationRemark',
+    headerName: '评价内容',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      return evaluate?.evaluationRemark;
+    },
+  },
+  {
+    field: 'evaluate.userResolvedStatus',
+    headerName: '解决状态',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      let result = '机器人会话';
+      switch (evaluate?.userResolvedStatus) {
+        case 1: {
+          result = '已解决';
+          break;
+        }
+        case 2: {
+          result = '未解决';
+          break;
+        }
+        default: {
+          result = '未选择';
+          break;
+        }
+      }
+      return result;
+    },
+  },
+  {
     field: 'inQueueTime',
     headerName: '在列队时间',
     type: 'number',
@@ -110,25 +153,24 @@ const columns: GridColDef[] = [
   },
   {
     field: 'interaction',
-    headerName: '来源类型',
-    description: '客户来自哪个接入方式.',
+    headerName: '会话服务类型',
+    description: '人工/机器人会话.',
     sortable: false,
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
       let result = '机器人会话';
       if (params.value === 1) {
-        result = '客服正常会话';
+        result = '客服会话';
       }
       return result;
     },
   },
-  { field: 'convType', headerName: '会话类型', width: 150 },
   { field: 'vipLevel', headerName: 'VIP', type: 'number', width: 150 },
   {
     field: 'visitRange',
     headerName: '与上一次来访的时间差',
     type: 'number',
-    width: 150,
+    width: 250,
   },
   {
     field: 'transferType',
@@ -149,25 +191,99 @@ const columns: GridColDef[] = [
       return result;
     },
   },
-  { field: 'humanTransferSessionId', headerName: '转接的会话ID', width: 150 },
+  { field: 'humanTransferSessionId', headerName: '转接的会话ID', width: 200 },
   {
     field: 'transferFromStaffName',
     headerName: '转接来源客服名称',
-    width: 150,
+    width: 200,
   },
-  { field: 'transferFromGroup', headerName: '转接来源客服组名称', width: 150 },
-  { field: 'transferRemarks', headerName: '转接来源备注', width: 150 },
+  { field: 'transferFromGroup', headerName: '转接来源客服组名称', width: 200 },
+  { field: 'transferRemarks', headerName: '转接来源备注', width: 200 },
   {
     field: 'isStaffInvited',
     headerName: '客服是否邀请会话',
     type: 'boolean',
     width: 150,
   },
-  { field: 'beginner', headerName: '会话发起方', width: 150 },
+  {
+    field: 'convType',
+    headerName: '会话类型',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '正常会话';
+      switch (params.value) {
+        case 'OFFLINE_COMMENT': {
+          result = '离线留言';
+          break;
+        }
+        case 'QUEUE_TIMEOUT': {
+          result = '排队超时';
+          break;
+        }
+        default: {
+          result = '正常会话';
+          break;
+        }
+      }
+      return result;
+    },
+  },
+  {
+    field: 'beginner',
+    headerName: '会话发起方',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '客户';
+      switch (params.value) {
+        case 'STAFF': {
+          result = '客服';
+          break;
+        }
+        case 'SYS': {
+          result = '系统';
+          break;
+        }
+        default: {
+          result = '客户';
+          break;
+        }
+      }
+      return result;
+    },
+  },
   { field: 'relatedId', headerName: '关联会话id', width: 150 },
-  { field: 'relatedType', headerName: '关联会话类型', width: 150 },
-  { field: 'category', headerName: '会话分类信息', width: 150 },
-  { field: 'categoryDetail', headerName: '会话咨询分类明细', width: 150 },
+  {
+    field: 'relatedType',
+    headerName: '关联会话类型',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '无关联';
+      switch (params.value) {
+        case 'FROM_BOT': {
+          result = '机器人会话转接人工';
+          break;
+        }
+        case 'FROM_HISTORY': {
+          result = '历史会话发起';
+          break;
+        }
+        case 'FROM_STAFF': {
+          result = '客服间转接';
+          break;
+        }
+        case 'BE_TAKEN_OVER': {
+          result = '被接管';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
+  { field: 'category', headerName: '会话分类信息', width: 200 },
+  { field: 'categoryDetail', headerName: '会话咨询分类明细', width: 250 },
   { field: 'closeReason', headerName: '会话关闭原因', width: 150 },
   // {
   //   field: 'stickDuration',
@@ -429,18 +545,21 @@ export default function ChatHistory() {
         </DialogTitle>
         <DialogContent>
           {selectConversation && (
-            <Grid container alignItems="flex-start" justifyContent="center">
-              <Grid item xs={8}>
-                <MessageList conversation={selectConversation} />
+            <>
+              <DetailTitle conv={selectConversation} />
+              <Grid container alignItems="flex-start" justifyContent="center">
+                <Grid item xs={8}>
+                  <MessageList conversation={selectConversation} />
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography variant="h6" gutterBottom align="center">
+                    客户信息
+                  </Typography>
+                  <Divider />
+                  <LazyCustomerInfo userId={selectConversation.userId} />
+                </Grid>
               </Grid>
-              <Grid item xs={4}>
-                <Typography variant="h6" gutterBottom align="center">
-                  客户信息
-                </Typography>
-                <Divider />
-                <LazyCustomerInfo userId={selectConversation.userId} />
-              </Grid>
-            </Grid>
+            </>
           )}
         </DialogContent>
         <DialogActions>

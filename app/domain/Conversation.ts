@@ -71,6 +71,7 @@ export interface Conversation {
   terminator: CreatorType | string | undefined;
   beginner: CreatorType;
   chatMessages: Message[] | undefined;
+  region: string | undefined;
 }
 
 export interface SearchHit<T> {
