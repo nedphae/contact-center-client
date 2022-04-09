@@ -158,7 +158,10 @@ export default function TopicForm(props: FormProps) {
 
   const id = data?.saveTopic.id || defaultValues?.id || '';
   // 过滤自身
-  const filterTopicList = topicList.filter((it) => it.id !== id);
+  const filterTopicList = topicList.filter(
+    (it) =>
+      it.id !== id && it.knowledgeBaseId === defaultValues?.knowledgeBaseId
+  );
 
   const selectKeyValueList: SelectKeyValue[] = [
     {
