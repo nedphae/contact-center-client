@@ -233,12 +233,13 @@ export default function StaffForm(props: FormProps) {
           render={({ field }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="staffType-simple-select-outlined-label">
-                是否是机器人
+                是否是人工
               </InputLabel>
               <Select
                 labelId="staffType-simple-select-outlined-label"
                 id="staffType"
                 label="是否是机器人"
+                readOnly
                 {...field}
               >
                 <MenuItem value={0}>机器人</MenuItem>
@@ -320,6 +321,7 @@ export default function StaffForm(props: FormProps) {
         <Controller
           control={control}
           name="role"
+          defaultValue="ROLE_STAFF"
           render={({ field }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="role-simple-select-outlined-label">
@@ -354,44 +356,45 @@ export default function StaffForm(props: FormProps) {
             </FormControl>
           )}
         />
-        <Controller
-          control={control}
-          name="groupId"
-          defaultValue={undefined}
-          rules={{ required: '所属分组必选' }}
-          render={({
-            field: { onChange, value },
-            fieldState: { invalid, error: groupIdError },
-          }) => (
-            <FormControl
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              error={invalid}
-            >
-              <InputLabel id="demo-mutiple-chip-label">所属分组</InputLabel>
-              <Select
-                labelId="groupId"
-                id="groupId"
-                onChange={onChange}
-                value={value || ''}
-                label="所属分组"
+        {groupList && (
+          <Controller
+            control={control}
+            name="groupId"
+            rules={{ required: '所属分组必选' }}
+            render={({
+              field: { onChange, value },
+              fieldState: { invalid, error: groupIdError },
+            }) => (
+              <FormControl
+                variant="outlined"
+                margin="normal"
+                fullWidth
+                error={invalid}
               >
-                {groupList &&
-                  groupList.map((it) => {
+                <InputLabel id="demo-mutiple-chip-label">所属分组</InputLabel>
+                <Select
+                  labelId="groupId"
+                  id="groupId"
+                  onChange={onChange}
+                  defaultValue=""
+                  value={value}
+                  label="所属分组"
+                >
+                  {groupList.map((it) => {
                     return (
                       <MenuItem key={it.id} value={it.id}>
                         {it.groupName}
                       </MenuItem>
                     );
                   })}
-              </Select>
-              {invalid && (
-                <FormHelperText>{groupIdError?.message}</FormHelperText>
-              )}
-            </FormControl>
-          )}
-        />
+                </Select>
+                {invalid && (
+                  <FormHelperText>{groupIdError?.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+        )}
         <TextField
           variant="outlined"
           margin="normal"

@@ -6,14 +6,22 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 
-import { KnowledgeBase, TopicCategory } from 'app/domain/Bot';
+import { BotConfig, KnowledgeBase, TopicCategory } from 'app/domain/Bot';
 import StyledTreeItem, {
   CloseSquare,
   MinusSquare,
   PlusSquare,
 } from 'app/components/TreeView/StyledTreeItem';
 import { TopicOrKnowladgeKey } from 'app/components/Bot/TopicAndKnowladgeContainer';
-import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import {
+  Divider,
+  Grid,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+} from '@material-ui/core';
+import Staff from 'app/domain/StaffInfo';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,6 +35,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface BotTreeViewProps {
   allKnowledgeBase: KnowledgeBase[];
+  botConfigMap: _.Dictionary<BotConfig[]>;
+  staffMap: _.Dictionary<Staff>;
   setOnContextMenu: (
     event: React.MouseEvent<HTMLLIElement>,
     topicOrKnowladgeKey: TopicOrKnowladgeKey,
@@ -61,7 +71,7 @@ function buildTopicCategory(
 }
 
 export default React.memo(function BotTreeView(props: BotTreeViewProps) {
-  const { allKnowledgeBase, setOnContextMenu } = props;
+  const { allKnowledgeBase, botConfigMap, staffMap, setOnContextMenu } = props;
   const classes = useStyles();
 
   const handleContextMenuOpen = (
@@ -88,11 +98,44 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
               key={base.id?.toString()}
               nodeId={uuidv4()}
               label={
-                <ListItem dense component="ul">
+                <ListItem component="ul">
                   <ListItemIcon>
                     <LibraryBooksIcon fontSize="small" />
                   </ListItemIcon>
-                  <ListItemText primary={base.name} />
+                  <ListItemText
+                    primary={
+                      <Typography variant="body1" display="inline">
+                        {base.name}
+                      </Typography>
+                    }
+                    disableTypography
+                    secondary={
+                      <Grid container alignItems="center">
+                        <Typography
+                          variant="body2"
+                          color="primary"
+                          display="inline"
+                        >
+                          {base.id && botConfigMap[base.id]
+                            ? staffMap[botConfigMap[base.id][0]?.botId ?? -2]
+                                ?.realName
+                            : '未关联到机器人账号'}
+                        </Typography>
+                        <Divider
+                          orientation="vertical"
+                          flexItem
+                          style={{ marginLeft: '5px', marginRight: '5px' }}
+                        />
+                        <Typography
+                          variant="body2"
+                          color="textSecondary"
+                          display="inline"
+                        >
+                          描述: {base.description}
+                        </Typography>
+                      </Grid>
+                    }
+                  />
                 </ListItem>
               }
               onContextMenu={(event) =>

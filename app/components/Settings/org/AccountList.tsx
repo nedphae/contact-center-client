@@ -14,6 +14,7 @@ import {
   QUERY_STAFF,
   StaffGroupList,
   AllStaffList,
+  MUTATION_STAFF,
 } from 'app/domain/graphql/Staff';
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
@@ -26,7 +27,7 @@ import useAlert from 'app/hook/alert/useAlert';
 
 type Graphql = AllStaffList;
 
-const columns: GridColDef[] = [
+export const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
   { field: 'username', headerName: '用户名', width: 150 },
   { field: 'nickName', headerName: '昵称', width: 150 },
@@ -92,12 +93,6 @@ const columns: GridColDef[] = [
 
 const defaultStaff = { staffType: 1 } as Staff;
 
-const MUTATION_STAFF = gql`
-  mutation DeleteStaff($ids: [Long!]!) {
-    deleteStaffByIds(ids: $ids)
-  }
-`;
-
 export default function AccountList() {
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_STAFF);
   const { data: groupList } = useQuery<StaffGroupList>(QUERY_GROUP);
@@ -105,7 +100,7 @@ export default function AccountList() {
   const [staff, setStaff] = useState<Staff>(defaultStaff);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
-  const { onLoadding, onCompleted, onError } = useAlert();
+  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const [deleteStaffByIds, { loading: updateLoading }] = useMutation<unknown>(
     MUTATION_STAFF,
     {
@@ -142,7 +137,14 @@ export default function AccountList() {
   };
 
   function deleteButtonClick() {
-    if (selectionModel && selectionModel.length > 0) {
+    const botMap = _.groupBy(
+      rows.filter((it) => it.staffType === 0),
+      (it) => it.id
+    );
+    const checkBot = selectionModel.flatMap((it) => botMap[it]).length > 0;
+    if (checkBot) {
+      onErrorMsg('不能删除机器人，必须先删除知识库！');
+    } else if (selectionModel && selectionModel.length > 0) {
       deleteStaffByIds({ variables: { ids: selectionModel } });
     }
   }

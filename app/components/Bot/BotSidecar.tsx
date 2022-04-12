@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useMemo } from 'react';
 
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
@@ -8,6 +8,7 @@ import {
   gql,
   OperationVariables,
   useMutation,
+  useQuery,
 } from '@apollo/client';
 
 import Grid from '@material-ui/core/Grid';
@@ -23,7 +24,16 @@ import {
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
-import { Divider, Typography } from '@material-ui/core';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Typography,
+} from '@material-ui/core';
 import StaffFormContainer from 'app/components/StaffForm/StaffFromContainer';
 import Staff from 'app/domain/StaffInfo';
 import BotConfigForm from 'app/components/Bot/BotConfigForm';
@@ -34,8 +44,15 @@ import TopicAndKnowladgeContainer, {
 import unimplemented from 'app/utils/Error';
 import { MousePoint, initialMousePoint } from 'app/domain/Client';
 import useAlert from 'app/hook/alert/useAlert';
+import {
+  AllStaffList,
+  MUTATION_STAFF,
+  QUERY_STAFF,
+} from 'app/domain/graphql/Staff';
 import TreeToolbar from '../Header/TreeToolbar';
 import BotTreeView from './BotTreeView';
+
+type Graphql = AllStaffList;
 
 type TopicOrKnowladgeWithKey = Object.Merge<
   TopicOrKnowladge,
@@ -49,6 +66,7 @@ interface BotProps {
   memoData: {
     allKnowledgeBase: KnowledgeBase[];
     botConfigMap: _.Dictionary<BotConfig[]>;
+    botConfigList: BotConfig[];
   };
   allTopicCategory: TopicCategory[] | undefined;
   onTopicCategoryClick: (selectTopicCategory?: TopicCategory) => void;
@@ -79,12 +97,21 @@ export default function BotSidecar(props: BotProps) {
   const [topicOrKnowladge, setTopicOrKnowladge] =
     useState<TopicOrKnowladgeWithKey>({} as TopicOrKnowladgeWithKey);
 
+  const { data, refetch: refetchStaff } = useQuery<Graphql>(QUERY_STAFF);
+  const [open, setOpen] = React.useState(false);
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const staffMap = useMemo(() => {
+    const staffList = [...(data?.allStaff ?? [])].filter(
+      (it) => it.staffType === 0
+    );
+    return _.keyBy(staffList, 'id');
+  }, [data?.allStaff]);
+
   const { onCompleted, onError } = useAlert();
   // 删除 Mutation
-  const [deleteBotConfigById] = useMutation<unknown>(MUTATION_BOT_CONFIG, {
-    onCompleted,
-    onError,
-  });
   const [deleteKnowledgeBaseById] = useMutation<unknown>(
     MUTATION_KNOWLEDGE_BASE,
     {
@@ -99,6 +126,11 @@ export default function BotSidecar(props: BotProps) {
       onError,
     }
   );
+
+  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_STAFF, {
+    onCompleted,
+    onError,
+  });
 
   const handleContextMenuOpen = useCallback(
     (
@@ -169,22 +201,7 @@ export default function BotSidecar(props: BotProps) {
         break;
       }
       case 'Knowladge': {
-        const id = topicOrKnowladge.Knowladge?.id;
-        const botConfigId = topicOrKnowladge.Knowladge?.botConfig?.id;
-        if (botConfigId) {
-          deleteBotConfigById({ variables: { ids: [botConfigId] } })
-            .then(refetch)
-            .catch((error) => {
-              throw error;
-            });
-        }
-        if (id) {
-          deleteKnowledgeBaseById({ variables: { ids: [id] } })
-            .then(refetch)
-            .catch((error) => {
-              throw error;
-            });
-        }
+        setOpen(true);
         break;
       }
       default:
@@ -196,6 +213,22 @@ export default function BotSidecar(props: BotProps) {
       });
     }
   }
+
+  async function handleDialogAgree() {
+    const id = topicOrKnowladge.Knowladge?.id;
+    const botConfig = topicOrKnowladge.Knowladge?.botConfig;
+    if (id) {
+      await deleteKnowledgeBaseById({ variables: { ids: [id] } });
+    }
+    if (botConfig) {
+      await deleteStaffByIds({
+        variables: { ids: [botConfig.botId] },
+      });
+    }
+    await refetch();
+    handleClose();
+  }
+
   /**
    * 关联知识库和机器人
    */
@@ -224,7 +257,10 @@ export default function BotSidecar(props: BotProps) {
       {/* 功能菜单 */}
       <TreeToolbar
         title="知识库"
-        refetch={refetch}
+        refetch={() => {
+          refetch();
+          refetchStaff();
+        }}
         adderName="添加知识库"
         add={() => newTopicOrKnowladge('Knowladge')}
         clearTopicCategorySelect={() => {
@@ -234,6 +270,8 @@ export default function BotSidecar(props: BotProps) {
       {/* 知识库，分类 树状列表 */}
       <BotTreeView
         allKnowledgeBase={memoData.allKnowledgeBase}
+        botConfigMap={memoData.botConfigMap}
+        staffMap={staffMap}
         setOnContextMenu={handleContextMenuOpen}
       />
       {/* 右键菜单 */}
@@ -367,6 +405,29 @@ export default function BotSidecar(props: BotProps) {
           />
         )}
       </DraggableDialog>
+
+      {/* 提醒是否删除知识库 */}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">确定删除知识库？</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            如果删除知识库，将会删除该知识库下的所有知识分类和知识，并且会删除关联的机器人账号！
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            取消
+          </Button>
+          <Button onClick={handleDialogAgree} color="secondary" autoFocus>
+            确定
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   );
 }

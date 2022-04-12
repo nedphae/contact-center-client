@@ -276,6 +276,7 @@ export default function Bot() {
       return {
         allKnowledgeBase: memoAllKnowledgeBase,
         botConfigMap,
+        botConfigList: allBotConfig,
         allTopicCategory: pTopicCategory,
         memoAllTopic,
       };

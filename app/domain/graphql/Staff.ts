@@ -128,3 +128,9 @@ export const MUTATION_SHUNT_CLASS = gql`
 export interface SaveShuntClassGraphql {
   saveShuntClass: ShuntClass;
 }
+
+export const MUTATION_STAFF = gql`
+  mutation DeleteStaff($ids: [Long!]!) {
+    deleteStaffByIds(ids: $ids)
+  }
+`;
