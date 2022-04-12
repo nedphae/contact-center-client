@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import _ from 'lodash';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   DataGrid,
   GridColDef,
