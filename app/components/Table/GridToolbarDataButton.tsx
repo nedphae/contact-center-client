@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from 'react';
-
 import PropTypes from 'prop-types';
+
 import { GridMenu } from '@material-ui/data-grid';
 import { Badge, Button, MenuItem, MenuList } from '@material-ui/core';
 import ViewListIcon from '@material-ui/icons/ViewList';
