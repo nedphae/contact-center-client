@@ -412,7 +412,7 @@ export default function CustomerForm(props: CustomerFormProps) {
         )}
         {defaultValues?.status?.title && (
           <Typography variant="body1" gutterBottom>
-            来源页标:&nbsp;&nbsp;
+            来源页标题:&nbsp;&nbsp;
             {defaultValues?.status.title}
           </Typography>
         )}
