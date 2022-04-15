@@ -410,6 +410,8 @@ export default function ChatHistory() {
 
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { conversationFilterInput },
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
   });
 
   const handleClickOpen = (conversation: Conversation) => {

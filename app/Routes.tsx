@@ -16,16 +16,13 @@
 
 */
 // @material-ui/icons
+import React from 'react';
+
+import SvgIcon, { SvgIconTypeMap } from '@material-ui/core/SvgIcon';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import Dashboard from '@material-ui/icons/Dashboard';
-import Person from '@material-ui/icons/Person';
+import ContactPhoneIcon from '@material-ui/icons/ContactPhone';
 import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
-import LibraryBooks from '@material-ui/icons/LibraryBooks';
-import BubbleChart from '@material-ui/icons/BubbleChart';
-import LocationOn from '@material-ui/icons/LocationOn';
-import Notifications from '@material-ui/icons/Notifications';
-import Unarchive from '@material-ui/icons/Unarchive';
-import Language from '@material-ui/icons/Language';
 import CommentIcon from '@material-ui/icons/Comment';
 import SettingsIcon from '@material-ui/icons/Settings';
 // core components/views for Admin layout
@@ -35,17 +32,17 @@ import Bot from 'app/views/Bot/Bot';
 import Setting from 'app/views/Setting/Settings';
 import Entertain from './views/Entertain/Entertain';
 import DashboardPage from './views/Dashboard/Dashboard';
-import UserProfile from './views/UserProfile/UserProfile';
-import TableList from './views/TableList/TableList';
-import Typography from './views/Typography/Typography';
-import Icons from './views/Icons/Icons';
-import Maps from './views/Maps/Maps';
-import NotificationsPage from './views/Notifications/Notifications';
-import UpgradeToPro from './views/UpgradeToPro/UpgradeToPro';
 // core components/views for RTL layout
-import RTLPage from './views/RTLPage/RTLPage';
 import CommentManagement from './views/Comment/CommentManagement';
 
+function BotIcon(props: SvgIconTypeMap) {
+  return (
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <SvgIcon {...props}>
+      <path d="M17.753 14a2.25 2.25 0 0 1 2.25 2.25v.904A3.75 3.75 0 0 1 18.696 20c-1.565 1.344-3.806 2-6.696 2c-2.89 0-5.128-.656-6.69-2a3.75 3.75 0 0 1-1.306-2.843v-.908A2.25 2.25 0 0 1 6.254 14h11.5ZM11.9 2.006L12 2a.75.75 0 0 1 .743.648l.007.102l-.001.749h3.5a2.25 2.25 0 0 1 2.25 2.25v4.505a2.25 2.25 0 0 1-2.25 2.25h-8.5a2.25 2.25 0 0 1-2.25-2.25V5.75A2.25 2.25 0 0 1 7.75 3.5l3.5-.001V2.75a.75.75 0 0 1 .649-.743L12 2l-.102.007ZM9.749 6.5a1.25 1.25 0 1 0 0 2.498a1.25 1.25 0 0 0 0-2.498Zm4.493 0a1.25 1.25 0 1 0 0 2.498a1.25 1.25 0 0 0 0-2.498Z" />
+    </SvgIcon>
+  );
+}
 const dashboardRoutes = [
   {
     path: '/entertain',
@@ -84,7 +81,7 @@ const dashboardRoutes = [
     path: '/crm',
     name: '客户资源',
     rtlName: 'لوحة القيادة',
-    icon: QueryBuilderIcon,
+    icon: ContactPhoneIcon,
     component: Crm,
     layout: '/admin',
   },
@@ -92,7 +89,7 @@ const dashboardRoutes = [
     path: '/bot',
     name: '机器人',
     rtlName: 'لوحة القيادة',
-    icon: QueryBuilderIcon,
+    icon: BotIcon,
     component: Bot,
     layout: '/admin',
     authority: ['admin'],
