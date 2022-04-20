@@ -16,6 +16,7 @@ import QuickReply from './panel/QuickReply/QuickReply';
 import ConvsationHistory from './panel/ConvsationHistory';
 import TabPanel from '../Base/TabPanel';
 import Erp from './panel/Erp';
+import UserTrack from './panel/UserTrack';
 
 function a11yProps(index: number) {
   return {
@@ -52,9 +53,10 @@ export default function DetailCard() {
         aria-label="scrollable prevent tabs example"
       >
         <Tab style={style} label="客户信息" {...a11yProps(0)} />
-        <Tab style={style} label="历史会话" {...a11yProps(1)} />
-        <Tab style={style} label="快捷回复" {...a11yProps(2)} />
-        <Tab style={style} label="ERP" {...a11yProps(3)} />
+        <Tab style={style} label="客户轨迹" {...a11yProps(1)} />
+        <Tab style={style} label="历史会话" {...a11yProps(2)} />
+        <Tab style={style} label="快捷回复" {...a11yProps(3)} />
+        <Tab style={style} label="ERP" {...a11yProps(4)} />
         {/* TODO: 后面可以做成配置型的 */}
       </Tabs>
       <SwipeableViews
@@ -66,12 +68,15 @@ export default function DetailCard() {
           <CustomerInfo />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <ConvsationHistory />
+          <UserTrack />
         </TabPanel>
         <TabPanel value={value} index={2}>
-          <QuickReply />
+          <ConvsationHistory />
         </TabPanel>
         <TabPanel value={value} index={3}>
+          <QuickReply />
+        </TabPanel>
+        <TabPanel value={value} index={4}>
           <Erp />
         </TabPanel>
       </SwipeableViews>

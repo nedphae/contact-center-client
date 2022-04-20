@@ -5,7 +5,6 @@
  */
 import React from 'react';
 
-import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import Snackbar from '../Snackbar/Snackbar';
 import check, { IAuthorityType } from './CheckPermissions';
 
@@ -36,7 +35,7 @@ const Authorized: React.FunctionComponent<AuthorizedProps> = ({
     />
   ),
 }) => {
-  useAutoLogin();
+  // useAutoLogin();
   const childrenRender: React.ReactNode =
     typeof children === 'undefined' ? null : children;
   const dom = check(authority, childrenRender, noMatch);

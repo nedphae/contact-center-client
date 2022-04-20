@@ -1,9 +1,5 @@
 export function javaInstant2Num(instant: number): Date {
-  const intNum = Math.trunc(instant);
-  const fract = instant - intNum;
-  // 这里乘 1000 把 nanoseconds to milli
-  const milli = intNum * 1000 + fract * 1000;
-  return new Date(milli);
+  return new Date(instant * 1000);
 }
 
 export default function javaInstant2DateStr(

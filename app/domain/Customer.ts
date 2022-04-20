@@ -77,6 +77,16 @@ export interface CustomerStatus {
   vipLevel: number | undefined;
 
   region: string | undefined;
+
+  userTrackList: UserTrack[] | undefined;
+}
+
+export interface UserTrack {
+  url: string;
+  title: string;
+  enterTime: number;
+  updateTime: number;
+  awayTime: number | undefined;
 }
 
 export interface DetailData {

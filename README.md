@@ -11,6 +11,7 @@
 
 ### 安装
 
+需要先安装 Visual Studio + Python 环境
 ```bash
 git clone https://github.com/nedphae/contact-center-client.git
 cd contact-center-client

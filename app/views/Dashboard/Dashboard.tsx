@@ -58,17 +58,23 @@ export const QUERY_KIBANA_URL = gql`
   }
 `;
 
+interface KibanaUrlString {
+  conv: string;
+  staff: string;
+}
+
 export default function Dashboard() {
   const classes = useStyles();
   const { onErrorMsg } = useAlert();
 
   const { data: kibanaUrlGraphql } =
     useQuery<KibanaUrlGraphql>(QUERY_KIBANA_URL);
-  const [kibanaUrl, setKibanaUrl] = useState<string>();
+  const [kibanaUrl, setKibanaUrl] = useState<KibanaUrlString>();
 
   useEffect(() => {
     (async function runAsync() {
       const kibanaData = kibanaUrlGraphql?.getKibanaUrl;
+      // 因为 graphql 的 hook 会导致登录两次
       if (!kibanaUrl && kibanaData && kibanaData?.kibanaUrl) {
         const kibanaLoginUrl =
           process.env.NODE_ENV === 'production'
@@ -76,27 +82,37 @@ export default function Dashboard() {
             : 'http://192.168.50.105:5601/internal/security/login';
         const currentUrl =
           process.env.NODE_ENV === 'production'
-            ? 'https://xbcs.top:5601/login'
-            : 'http://192.168.50.105:5601/login';
-        const kibanaLoginBody = {
-          providerType: 'basic',
-          providerName: 'basic',
-          currentURL: currentUrl,
-          params: {
-            username: kibanaData?.kibanaUsername,
-            password: kibanaData?.kibanaPassword,
-          },
-        };
-        const result = await axios.post<void>(kibanaLoginUrl, kibanaLoginBody, {
-          headers: {
-            'Content-Type': 'application/json',
-            'kbn-version': '7.16.1',
-          },
-        });
-        if (result.status !== 200) {
-          onErrorMsg('登录Kibana失败，请联系管理员');
-        } else {
-          setKibanaUrl(kibanaData?.kibanaUrl);
+            ? 'https://xbcs.top:5601/api/spaces/space/default'
+            : 'http://192.168.50.105:5601/api/spaces/space/default';
+
+        try {
+          await axios.get<void>(currentUrl);
+        } catch (ex) {
+          // 需要登陆
+          const kibanaLoginBody = {
+            providerType: 'basic',
+            providerName: 'basic',
+            currentURL: currentUrl,
+            params: {
+              username: kibanaData?.kibanaUsername,
+              password: kibanaData?.kibanaPassword,
+            },
+          };
+          const result = await axios.post<void>(
+            kibanaLoginUrl,
+            kibanaLoginBody,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'kbn-version': '7.16.1',
+              },
+            }
+          );
+          if (result.status !== 200) {
+            onErrorMsg('登录Kibana失败，请联系管理员');
+          }
+        } finally {
+          setKibanaUrl(JSON.parse(kibanaData?.kibanaUrl));
         }
       }
     })();
@@ -218,7 +234,7 @@ export default function Dashboard() {
               title="监控"
               width="100%"
               height={document.documentElement.clientHeight - 60}
-              src={kibanaUrl}
+              src={kibanaUrl.conv}
             />
           )}
         </GridItem>

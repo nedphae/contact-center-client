@@ -394,8 +394,10 @@ export default function CustomerForm(props: CustomerFormProps) {
           })}
         />
         {defaultValues?.status?.referrer && (
-          <Typography variant="body1" gutterBottom>
-            来源页:&nbsp;&nbsp;
+          <>
+            <Typography variant="body1" gutterBottom>
+              来源页:&nbsp;&nbsp;
+            </Typography>
             <Tooltip title={defaultValues.status.referrer} aria-label="add">
               <div className={classes.wrapper}>
                 <Link
@@ -408,7 +410,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                 </Link>
               </div>
             </Tooltip>
-          </Typography>
+          </>
         )}
         {defaultValues?.status?.title && (
           <Typography variant="body1" gutterBottom>

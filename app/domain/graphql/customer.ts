@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Customer, CustomerTag } from '../Customer';
+import { Customer, CustomerStatus, CustomerTag } from '../Customer';
 import { PageParam, RangeQuery } from './Query';
 
 export const CORE_CUSTOMER_FIELDS = gql`
@@ -15,6 +15,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
     vipLevel
     remarks
     status {
+      userId
       fromType
       groupId
       ip
@@ -26,6 +27,13 @@ export const CORE_CUSTOMER_FIELDS = gql`
       staffId
       title
       region
+      userTrackList {
+        url
+        title
+        enterTime
+        updateTime
+        awayTime
+      }
     }
     data {
       key
@@ -42,19 +50,14 @@ export const CORE_CUSTOMER_FIELDS = gql`
   }
 `;
 
-export const CORE_OFFLINE_CUSTOMER_FIELDS = gql`
-  fragment customerOfflineFields on Customer {
-    organizationId
-    userId: id
-    id
-    uid
-    name
-    email
-    mobile
-    address
-    vipLevel
-    remarks
-    status {
+export interface CustomerStatusGraphql {
+  getCustomerStatus: CustomerStatus;
+}
+
+export const QUERY_CUSTOMER_STATUS = gql`
+  query customerStatus($userId: Long!) {
+    getCustomerStatus(userId: $userId) {
+      userId
       fromType
       groupId
       ip
@@ -66,27 +69,22 @@ export const CORE_OFFLINE_CUSTOMER_FIELDS = gql`
       staffId
       title
       region
-    }
-    data {
-      key
-      label
-      value
-      index
-      hidden
-      href
-    }
-    tags {
-      name
-      color
+      userTrackList {
+        url
+        title
+        enterTime
+        updateTime
+        awayTime
+      }
     }
   }
 `;
 
 export const QUERY_OFFLINE_CUSTOMER = gql`
-  ${CORE_OFFLINE_CUSTOMER_FIELDS}
+  ${CORE_CUSTOMER_FIELDS}
   query OfflineCustomer($userId: Long!) {
     getCustomer(userId: $userId) {
-      ...customerOfflineFields
+      ...customerFields
     }
   }
 `;
