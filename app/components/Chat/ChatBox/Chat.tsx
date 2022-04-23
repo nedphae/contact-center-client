@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
-      backgroundColor: '#424242',
+      // backgroundColor: '#424242',
       borderLeft: 'solid 1px #ddd',
       borderRight: 'solid 1px #ddd',
       height: '100%',

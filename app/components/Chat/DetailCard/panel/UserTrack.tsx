@@ -111,7 +111,9 @@ export default function UserTrack() {
           <Stepper nonLinear activeStep={activeStep} orientation="vertical">
             {status.userTrackList.map((userTrack) => {
               const time = userTrack.awayTime
-                ? `时长: ${userTrack.awayTime - userTrack.enterTime} 秒`
+                ? `时长: ${Math.trunc(
+                    userTrack.awayTime - userTrack.enterTime
+                  )} 秒`
                 : '正在访问';
               return (
                 <Step key={userTrack.url}>

@@ -61,7 +61,7 @@ const useStyles = makeStyles(() =>
   createStyles({
     toolBar: {
       minHeight: 30,
-      background: '#424242',
+      // background: '#424242',
       borderTopStyle: 'solid',
       borderWidth: 1,
       // 是否将按钮调中间

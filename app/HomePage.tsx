@@ -16,7 +16,7 @@
 
 */
 
-import React from 'react';
+import React, { createContext, useMemo, useState } from 'react';
 
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
@@ -35,6 +35,8 @@ import Auth from './layouts/Auth';
 import Authorized from './components/Authorized/Authorized';
 // import useApolloClient from './hook/init/useApolloClient';
 import apolloClient from './utils/apolloClient';
+
+export const ColorModeContext = createContext({ toggleColorMode: () => {} });
 
 const keyMap = {
   // 关闭当前会话(隐藏)
@@ -63,35 +65,59 @@ type Props = {
   history: History;
 };
 
-const darkTheme = createTheme({
-  palette: {
-    type: 'dark',
-    primary: blue,
-  },
-});
-
 const Root = ({ store, history }: Props) => {
+  const themeType =
+    localStorage.getItem('themeType') === 'dark' ? 'dark' : 'light';
+  const [mode, setMode] = useState<'light' | 'dark'>(themeType);
+
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => {
+          const currentMode = prevMode === 'light' ? 'dark' : 'light';
+          localStorage.setItem('themeType', currentMode);
+          return currentMode;
+        });
+      },
+    }),
+    []
+  );
+
+  const theme = useMemo(
+    () =>
+      mode === 'dark'
+        ? createTheme({
+            palette: {
+              type: 'dark',
+              primary: blue,
+            },
+          })
+        : createTheme(),
+    [mode]
+  );
   // check login
   return (
     <Provider store={store}>
       <ConnectedRouter history={history}>
-        <ThemeProvider theme={darkTheme}>
-          <Switch>
-            {/* 原来的路由 */}
-            <Route path="/login" component={Auth} />
-            {/* 添加权限的路由 */}
-            <Authorized
-              authority={['admin']}
-              noMatch={
-                <Route path="/" render={() => <Redirect to="/login" />} />
-              }
-            >
-              <Route path="/admin" component={AdminContainer} />
-              <Route path="/rtl" component={RTL} />
-              <Redirect from="/" to="/admin/entertain" />
-            </Authorized>
-          </Switch>
-        </ThemeProvider>
+        <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+            <Switch>
+              {/* 原来的路由 */}
+              <Route path="/login" component={Auth} />
+              {/* 添加权限的路由 */}
+              <Authorized
+                authority={['admin']}
+                noMatch={
+                  <Route path="/" render={() => <Redirect to="/login" />} />
+                }
+              >
+                <Route path="/admin" component={AdminContainer} />
+                <Route path="/rtl" component={RTL} />
+                <Redirect from="/" to="/admin/entertain" />
+              </Authorized>
+            </Switch>
+          </ThemeProvider>
+        </ColorModeContext.Provider>
       </ConnectedRouter>
     </Provider>
   );

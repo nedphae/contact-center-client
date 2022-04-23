@@ -8,7 +8,12 @@ import PerfectScrollbar from 'perfect-scrollbar';
 import _ from 'lodash';
 import { gql, useLazyQuery } from '@apollo/client';
 
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import {
+  createStyles,
+  Theme,
+  makeStyles,
+  useTheme,
+} from '@material-ui/core/styles';
 import { ClassNameMap } from '@material-ui/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -59,7 +64,7 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
     toMessagePaper: {
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopRightRadius: 0,
-      backgroundColor: '#508828',
+      backgroundColor: theme.palette.type === 'light' ? '#8ae549' : '#508828',
     },
     fromMessagePaper: {
       // 如果是收到的消息就是 borderTopLeftRadius
@@ -230,16 +235,18 @@ interface MessagePage {
   loadHistoryMessage: PageResult<Message>;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    maxHeight: '100%',
-    width: '100%',
-    backgroundColor: '#424242',
-  },
-});
-
 const MessageList = (props: MessageListProps) => {
   const { session, messages, staff, user, loadMore } = props;
+  const theme = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      maxHeight: '100%',
+      width: '100%',
+      backgroundColor: theme.palette.background.paper,
+    },
+  });
+
   const classes = useMessageListStyles();
   const dispatch = useDispatch();
   // 查询是否是监控

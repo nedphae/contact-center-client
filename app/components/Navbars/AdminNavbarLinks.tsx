@@ -1,11 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
 import classNames from 'classnames';
 // @material-ui/core components
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import Grow from '@material-ui/core/Grow';
@@ -22,18 +22,23 @@ import LensIcon from '@material-ui/icons/Lens';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 // 离开
 import NotInterestedIcon from '@material-ui/icons/NotInterested';
+
+import Brightness7Icon from '@material-ui/icons/Brightness7';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+
 import Notifications from '@material-ui/icons/Notifications';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
-import { Badge, Avatar, CssBaseline } from '@material-ui/core';
+import { Badge, Avatar, CssBaseline, IconButton } from '@material-ui/core';
 import { getMyself, setOnlineAndInterval } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
 import { getDownloadS3StaffImgPath } from 'app/config/clientConfig';
 import { setSnackbarProp } from 'app/state/chat/chatAction';
+import { ColorModeContext } from 'app/HomePage';
 import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
@@ -95,6 +100,8 @@ const assignment = gql`
 
 export default function AdminNavbarLinks() {
   const classes = useStyles();
+  const theme = useTheme();
+  const colorMode = useContext(ColorModeContext);
   const dispatch = useDispatch();
   const [openNotification, setOpenNotification] = React.useState<any>(null);
   const [openProfile, setOpenProfile] = React.useState<any>(null);
@@ -219,6 +226,7 @@ export default function AdminNavbarLinks() {
     map.delete(onlineStatus);
     return Array.from(map.values());
   }
+
   return (
     <div>
       <CssBaseline />
@@ -240,23 +248,26 @@ export default function AdminNavbarLinks() {
         </Button>
       </div>
        */}
-      <NavLink
+      <IconButton
+        aria-label="Toggle light/dark theme"
         className={classes.buttonLink}
-        activeClassName="active"
-        to="/admin/entertain"
+        onClick={colorMode.toggleColorMode}
+        size="small"
       >
-        <Button
-          color={window.innerWidth > 959 ? 'transparent' : 'white'}
-          justIcon={window.innerWidth > 959}
-          simple={!(window.innerWidth > 959)}
+        {theme.palette.type === 'dark' ? (
+          <Brightness7Icon fontSize="inherit" />
+        ) : (
+          <Brightness4Icon fontSize="inherit" />
+        )}
+      </IconButton>
+      <NavLink activeClassName="active" to="/admin/entertain">
+        <IconButton
           aria-label="Dashboard"
+          size="small"
           className={classes.buttonLink}
         >
-          <QuestionAnswerIcon className={classes.icons} />
-          <Hidden mdUp implementation="css">
-            <p className={classes.linkText}>Dashboard</p>
-          </Hidden>
-        </Button>
+          <QuestionAnswerIcon fontSize="inherit" />
+        </IconButton>
       </NavLink>
       {/*
       <div className={classes.manager}>

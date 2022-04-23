@@ -1,3 +1,4 @@
+import { Theme } from '@material-ui/core';
 import {
   container,
   defaultFont,
@@ -11,7 +12,7 @@ import {
   grayColor,
 } from '../../material-dashboard-react';
 
-const headerStyle: any = () => ({
+const headerStyle: any = (theme: Theme) => ({
   appBar: {
     backgroundColor: 'transparent',
     boxShadow: 'none',
@@ -43,7 +44,7 @@ const headerStyle: any = () => ({
     fontSize: '18px',
     borderRadius: '3px',
     textTransform: 'none',
-    color: '#dbdbdb',
+    color: theme.palette.text.primary,
     margin: '0',
     '&:hover,&:focus': {
       background: 'transparent',

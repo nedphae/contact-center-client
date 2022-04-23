@@ -1,3 +1,4 @@
+import { Theme } from '@material-ui/core/styles';
 import {
   defaultFont,
   dangerColor,
@@ -6,9 +7,7 @@ import {
 
 import dropdownStyle from '../dropdownStyle';
 
-const headerLinksStyle: any = (theme: {
-  breakpoints: { down: (arg0: string) => any; up: (arg0: string) => any };
-}) => ({
+const headerLinksStyle: any = (theme: Theme) => ({
   ...dropdownStyle(theme),
   search: {
     '& > div': {

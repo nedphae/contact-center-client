@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { debounceTime, Subject } from 'rxjs';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import {
   Popper,
@@ -38,7 +38,7 @@ const style = {
   border: 'solid 0px #ddd',
 } as const;
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     textarea: {
       width: '100vw !important',
@@ -46,9 +46,9 @@ const useStyles = makeStyles(() =>
       marginBlockEnd: 'auto',
       border: 0,
       resize: 'none',
-      backgroundColor: '#424242',
-      color: 'white',
-      borderColor: '#424242',
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
+      borderColor: theme.palette.background.paper,
     },
     quickReply: {
       width: '40vw',

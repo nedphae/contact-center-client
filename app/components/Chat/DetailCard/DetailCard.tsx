@@ -4,6 +4,7 @@
  */
 import React, { useState } from 'react';
 
+import classNames from 'classnames';
 import SwipeableViews from 'react-swipeable-views';
 import { useTheme } from '@material-ui/core';
 import Tabs from '@material-ui/core/Tabs';
@@ -43,8 +44,12 @@ export default function DetailCard() {
     setValue(index);
   };
 
+  const backgroundColor = {
+    backgroundColor: theme.palette.background.paper,
+  };
+
   return (
-    <div className={Style.container}>
+    <div className={classNames(Style.container)} style={backgroundColor}>
       <Tabs
         value={value}
         onChange={handleChange}

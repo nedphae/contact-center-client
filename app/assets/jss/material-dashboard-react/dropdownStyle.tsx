@@ -1,3 +1,4 @@
+import { Theme } from '@material-ui/core/styles';
 import {
   primaryColor,
   whiteColor,
@@ -8,7 +9,7 @@ import {
   hexToRgb,
 } from '../material-dashboard-react';
 
-const dropdownStyle = (theme: { breakpoints: any }) => ({
+const dropdownStyle = (theme: Theme) => ({
   buttonLink: {
     [theme.breakpoints.down('md')]: {
       display: 'flex',
@@ -109,7 +110,7 @@ const dropdownStyle = (theme: { breakpoints: any }) => ({
     clear: 'both',
     fontWeight: '400',
     lineHeight: '1.42857143',
-    color: whiteColor,
+    color: theme.palette.type === 'dark' ? whiteColor : grayColor[8],
     whiteSpace: 'nowrap',
     height: 'unset',
     minHeight: 'unset',
