@@ -1,17 +1,18 @@
+import { Theme } from '@material-ui/core/styles';
 import {
   blackColor,
   whiteColor,
   hexToRgb,
 } from '../../material-dashboard-react';
 
-const cardStyle: any = {
+const cardStyle: any = (theme: Theme) => ({
   card: {
     border: '0',
     marginBottom: '30px',
     marginTop: '30px',
     borderRadius: '6px',
-    color: `rgba(${hexToRgb(whiteColor)}, 0.87)`,
-    background: '#424242',
+    // color: `rgba(${hexToRgb(whiteColor)}, 0.87)`,
+    background: theme.palette.background.paper,
     width: '100%',
     boxShadow: `0 1px 4px 0 rgba(${hexToRgb(blackColor)}, 0.14)`,
     position: 'relative',
@@ -35,6 +36,6 @@ const cardStyle: any = {
       paddingTop: '0px',
     },
   },
-};
+});
 
 export default cardStyle;

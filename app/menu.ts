@@ -291,7 +291,7 @@ export default class MenuBuilder {
                 {
                   label: '帮助文档',
                   click() {
-                    shell.openExternal('https://xbcs.top/help/');
+                    shell.openExternal('https://xbcs.top/docs/');
                   },
                 },
               ],

@@ -1,3 +1,4 @@
+import { Theme } from '@material-ui/core/styles';
 import {
   successColor,
   whiteColor,
@@ -5,7 +6,7 @@ import {
   hexToRgb,
 } from '../../material-dashboard-react';
 
-const dashboardStyle: any = {
+const dashboardStyle: any = (theme: Theme) => ({
   successText: {
     color: successColor[0],
   },
@@ -50,6 +51,7 @@ const dashboardStyle: any = {
     marginBottom: '0',
   },
   cardTitle: {
+    color: theme.palette.text.secondary,
     marginTop: '0px',
     minHeight: 'auto',
     fontWeight: '300',
@@ -57,7 +59,7 @@ const dashboardStyle: any = {
     marginBottom: '3px',
     textDecoration: 'none',
     '& small': {
-      color: grayColor[0],
+      color: theme.palette.text.disabled,
       fontWeight: '400',
       lineHeight: '1',
     },
@@ -76,6 +78,6 @@ const dashboardStyle: any = {
       lineHeight: '1',
     },
   },
-};
+});
 
 export default dashboardStyle;
