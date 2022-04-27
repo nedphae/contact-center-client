@@ -325,7 +325,11 @@ export default function Bot() {
   return (
     <>
       {/* 显示 DataGrid Topic */}
-      <DraggableDialog title="配置知识库问题" ref={refOfTopicDialog}>
+      <DraggableDialog
+        maxWidth="lg"
+        title="配置知识库问题"
+        ref={refOfTopicDialog}
+      >
         <TopicForm
           defaultValues={topic}
           topicList={rows}

@@ -84,8 +84,27 @@ export default merge(baseConfig, {
           },
         ],
       },
+      // 对于 node_modules 里面的 css 文件，不需要 css-loader 生成id名
+      // 使用 global 后缀文件可以使导入不需要全局的 node_modules css 文件时，可以通过 css-loader 生成id名
+      // {
+      //   test: /\.css$/,
+      //   include: /node_modules/,
+      //   use: [
+      //     {
+      //       loader: 'style-loader',
+      //     },
+      //     {
+      //       loader: 'css-loader',
+      //       options: {
+      //         sourceMap: true,
+      //       },
+      //     },
+      //   ],
+      // },
       {
         test: /^((?!\.global).)*\.css$/,
+        // 上面 include: /node_modules/ 时, 这里需要 exclude
+        // exclude: /node_modules/,
         use: [
           {
             loader: 'style-loader',

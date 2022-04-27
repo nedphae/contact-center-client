@@ -1,0 +1,2 @@
+/* 使用 global 后缀文件注释来全局导入css */
+@import '~@wangeditor/editor/dist/css/style.css';

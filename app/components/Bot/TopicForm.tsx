@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo, useState } from 'react';
+import React, { ChangeEvent, Dispatch, useMemo, useState } from 'react';
 import _ from 'lodash';
 import {
   useForm,
@@ -10,12 +10,19 @@ import {
 } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  useTheme,
+} from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 import {
+  AppBar,
+  Box,
   Button,
   Checkbox,
   Divider,
@@ -27,6 +34,8 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Tab,
+  Tabs,
 } from '@material-ui/core';
 import Upload from 'rc-upload';
 
@@ -38,11 +47,49 @@ import {
   getUploadS3ChatImgPath,
 } from 'app/config/clientConfig';
 import { RcFile } from 'rc-upload/lib/interface';
+import SwipeableViews from 'react-swipeable-views';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
+import RichText from './RichText';
 
-const useStyles = makeStyles(() =>
+interface TabPanelProps {
+  children: React.ReactNode;
+  dir: string | undefined;
+  index: any;
+  value: any;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {/* 全部渲染，防止造成表单未注册 */}
+      {/* {value === index && <Box p={1}>{children}</Box>} */}
+      <Box p={1}>{children}</Box>
+    </div>
+  );
+}
+
+function a11yProps(index: any) {
+  return {
+    id: `full-width-tab-${index}`,
+    'aria-controls': `full-width-tabpanel-${index}`,
+  };
+}
+
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      backgroundColor: theme.palette.background.paper,
+      width: '800px',
+    },
     paper: {
       // marginTop: theme.spacing(8),
       display: 'flex',
@@ -90,14 +137,16 @@ const MUTATION_TOPIC = gql`
 
 export default function TopicForm(props: FormProps) {
   const {
-    defaultValues: tempDefaultValues,
+    defaultValues: defaultTopic,
     topicList,
     categoryList,
     afterSubmit,
   } = props;
+  const theme = useTheme();
   const classes = useStyles();
+
   const [defaultValues, setDefaultValues] = useState(
-    _.omitBy(tempDefaultValues, _.isNull)
+    _.omitBy(defaultTopic, _.isNull)
   );
   const {
     handleSubmit,
@@ -121,7 +170,23 @@ export default function TopicForm(props: FormProps) {
     onLoadding(loading);
   }
 
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const handleChange = (_event: ChangeEvent<unknown>, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  const handleChangeIndex = (index: number) => {
+    setTabIndex(index);
+  };
+
   const onSubmit: SubmitHandler<Topic> = async (form) => {
+    form.answer = form.answer?.map((answer) => {
+      return {
+        type: answer.type,
+        content: answer.content || '',
+      };
+    });
     await saveTopic({ variables: { topicInput: form } });
     afterSubmit();
     // const filterObj = _.defaults(
@@ -138,6 +203,11 @@ export default function TopicForm(props: FormProps) {
   const questionType = watch('type', defaultValues?.type ?? 1);
   const { fields, update, remove } = useFieldArray({ name: 'answer', control });
   const picSrc = fields[1]?.content;
+  const html = fields[2]?.content;
+
+  const setHtml: Dispatch<string> = (currentHtml: string) => {
+    update(2, { type: 'html', content: currentHtml });
+  };
 
   const imgUploadProps = {
     action: `${getUploadS3ChatImgPath()}`,
@@ -212,7 +282,7 @@ export default function TopicForm(props: FormProps) {
                 categoryId,
                 knowledgeBaseId,
               },
-              tempDefaultValues
+              defaultTopic
             )
           );
         }}
@@ -301,59 +371,91 @@ export default function TopicForm(props: FormProps) {
         />
         {questionType === 1 && (
           <>
-            <TextField
-              type="hidden"
-              defaultValue="text"
-              {...register('answer.0.type')}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              fullWidth
-              multiline
-              id="answer.0.content"
-              label="问题的对外答案"
-              error={errors.answer && true}
-              helperText={errors.answer && errors.answer[0]?.content?.message}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <QuestionAnswerIcon />
-                  </InputAdornment>
-                ),
-              }}
-              {...register('answer.0.content')}
-            />
-            <TextField
-              type="hidden"
-              defaultValue="image"
-              {...register('answer.1.type')}
-            />
-            <TextField type="hidden" {...register('answer.1.content')} />
-            {picSrc && (
-              <img
-                src={`${getDownloadS3ChatImgPath()}${picSrc}`}
-                style={{ maxWidth: '400px' }}
-                alt="图片消息"
+            <div className={classes.root}>
+              <TextField
+                type="hidden"
+                defaultValue="text"
+                {...register('answer.0.type')}
               />
-            )}
-
-            <Grid container alignItems="center">
-              <Upload {...imgUploadProps}>
-                <Button variant="contained" color="primary">
-                  添加图片
-                </Button>
-              </Upload>
-              <Divider orientation="vertical" />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleDeletePic}
+              <TextField
+                type="hidden"
+                defaultValue="image"
+                {...register('answer.1.type')}
+              />
+              <AppBar position="static" color="default">
+                <Tabs
+                  value={tabIndex}
+                  onChange={handleChange}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                  aria-label="full width tabs example"
+                >
+                  <Tab label="图文答案" {...a11yProps(0)} />
+                  <Tab label="富文本答案" {...a11yProps(1)} />
+                </Tabs>
+              </AppBar>
+              <SwipeableViews
+                axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                index={tabIndex}
+                onChangeIndex={handleChangeIndex}
               >
-                删除图片
-              </Button>
-            </Grid>
+                <TabPanel value={tabIndex} index={0} dir={theme.direction}>
+                  {/* 图文答案 */}
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    multiline
+                    label="问题的对外答案"
+                    error={errors.answer && true}
+                    helperText={
+                      errors.answer && errors.answer[0]?.content?.message
+                    }
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <QuestionAnswerIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                    {...register('answer.0.content')}
+                  />
+                  <TextField type="hidden" {...register('answer.1.content')} />
+                  {picSrc && (
+                    <img
+                      src={`${getDownloadS3ChatImgPath()}${picSrc}`}
+                      style={{ maxWidth: '400px' }}
+                      alt="图片消息"
+                    />
+                  )}
 
+                  <Grid container alignItems="center">
+                    <Upload {...imgUploadProps}>
+                      <Button variant="contained" color="primary">
+                        添加图片
+                      </Button>
+                    </Upload>
+                    <Divider orientation="vertical" />
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleDeletePic}
+                    >
+                      删除图片
+                    </Button>
+                  </Grid>
+                </TabPanel>
+                <TabPanel value={tabIndex} index={1} dir={theme.direction}>
+                  <TextField
+                    type="hidden"
+                    defaultValue="html"
+                    {...register('answer.2.type')}
+                  />
+                  <RichText html={html} setHtml={setHtml} />
+                </TabPanel>
+              </SwipeableViews>
+            </div>
             <TextField
               variant="outlined"
               margin="normal"

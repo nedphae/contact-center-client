@@ -194,10 +194,10 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onStart(file: RcFile) {
-      console.log('onStart', file, file.name);
+      // console.log('onStart', file, file.name);
     },
     onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
-      console.log('onSuccess', response);
+      // console.log('onSuccess', response);
       // 发送图片消息
       handleSendImageMessage({
         mediaId: (response as string[])[0],
@@ -207,7 +207,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       });
     },
     onError(error: Error, _ret: any, _file: RcFile) {
-      console.log('onError', error);
+      // console.log('onError', error);
       onErrorMsg('图片上传失败');
     },
   };
