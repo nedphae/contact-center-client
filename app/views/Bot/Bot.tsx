@@ -339,6 +339,15 @@ export default function Bot() {
           }}
         />
       </DraggableDialog>
+      {/* 后面使用页面跳转到修改表单，参数通过 useLocation().state 或者 useLocation().search/useSearchParams */}
+      {/* <Link
+        to={{
+          pathname: '/courses',
+          search: '?sort=name',
+          hash: '#the-hash',
+          state: { fromDashboard: true },
+        }}
+      /> */}
       <Grid container className={classes.root}>
         {memoData && (
           <BotSidecar
