@@ -11,6 +11,8 @@ export enum MessageType {
   FILE = '文件',
   /** 链接消息 */
   LINK = '链接',
+  // 富文本消息
+  RICH_TEXT = '富文本',
   /** 自定义消息 */
   CUSTOMER = '自定义消息',
 }

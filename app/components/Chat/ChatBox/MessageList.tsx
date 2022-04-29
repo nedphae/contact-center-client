@@ -5,6 +5,7 @@ import Viewer from 'react-viewer';
 import clsx from 'clsx';
 import PerfectScrollbar from 'perfect-scrollbar';
 
+import classNames from 'classnames';
 import _ from 'lodash';
 import { gql, useLazyQuery } from '@apollo/client';
 
@@ -44,7 +45,9 @@ import {
   setMonitoredMessage,
 } from 'app/state/chat/chatAction';
 import { CreatorType } from 'app/domain/constant/Message';
+import { Box } from '@material-ui/core';
 import FileCard from './FileCard';
+import RichTextStyle from './RichText.less';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -120,19 +123,40 @@ export function createContent(
     }
     case 'TEXT': {
       const text = content.textContent?.text;
-      element = (
-        <ListItemText
-          primary={
-            <Typography
-              variant="body1"
-              gutterBottom
-              className={classes.message}
-            >
-              {text}
-            </Typography>
+      if (content.sysCode) {
+        switch (content.sysCode) {
+          default: {
+            element = (
+              <ListItemText
+                primary={
+                  <Typography
+                    variant="body1"
+                    gutterBottom
+                    className={classes.message}
+                  >
+                    {text}
+                  </Typography>
+                }
+              />
+            );
+            break;
           }
-        />
-      );
+        }
+      } else {
+        element = (
+          <ListItemText
+            primary={
+              <Typography
+                variant="body1"
+                gutterBottom
+                className={classes.message}
+              >
+                {text}
+              </Typography>
+            }
+          />
+        );
+      }
       break;
     }
     case 'IMAGE': {
@@ -165,6 +189,26 @@ export function createContent(
       break;
     }
     case 'LINK': {
+      break;
+    }
+    case 'RICH_TEXT': {
+      const text = content.textContent?.text;
+      if (text) {
+        const html = {
+          __html: text,
+        };
+        element = (
+          <Box
+            style={{
+              maxWidth: '600px',
+              wordWrap: 'break-word',
+              overflowWrap: 'break-word',
+            }}
+            className={classNames(RichTextStyle['Knowledge-content'])}
+            dangerouslySetInnerHTML={html}
+          />
+        );
+      }
       break;
     }
     default: {

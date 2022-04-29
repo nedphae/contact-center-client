@@ -3,7 +3,7 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import _ from 'lodash';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import InsertEmoticonOutlinedIcon from '@material-ui/icons/InsertEmoticonOutlined';
@@ -107,6 +107,7 @@ function createSessionCategory(
 
 function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
+  const theme = useTheme();
   const { textMessage, setMessage, selectedSession } = props;
   const dispatch = useDispatch();
 
@@ -306,7 +307,11 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           // 不使用延迟
           // <Fade {...TransitionProps} timeout={350}>
           <ClickAwayListener onClickAway={onClose}>
-            <Picker onSelect={addEmoji} title="emoji" theme="dark" />
+            <Picker
+              onSelect={addEmoji}
+              title="emoji"
+              theme={theme.palette.type}
+            />
           </ClickAwayListener>
           // </Fade>
         )}
