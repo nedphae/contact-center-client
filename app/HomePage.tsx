@@ -106,7 +106,7 @@ const Root = ({ store, history }: Props) => {
               <Route path="/login" component={Auth} />
               {/* 添加权限的路由 */}
               <Authorized
-                authority={['admin']}
+                authority={['admin', 'staff', 'leader', 'qa']}
                 noMatch={
                   <Route path="/" render={() => <Redirect to="/login" />} />
                 }
