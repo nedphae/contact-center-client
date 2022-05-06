@@ -8,7 +8,7 @@ import { getSnackbarProp, setSnackbarProp } from 'app/state/chat/chatAction';
 import { CircularProgress } from '@material-ui/core';
 import { SnackbarProp } from 'app/domain/Chat';
 
-function Alert(props: JSX.IntrinsicAttributes & AlertProps) {
+export function Alert(props: JSX.IntrinsicAttributes & AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 

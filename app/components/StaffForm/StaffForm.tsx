@@ -395,6 +395,13 @@ export default function StaffForm(props: FormProps) {
             )}
           />
         )}
+        {!defaultValues.id && (
+          <Alert severity="warning">
+            监控统计 和 考勤统计 以客服实名为准，如果有同名的客服，请标记
+            <br />
+            如: 李白02
+          </Alert>
+        )}
         <TextField
           variant="outlined"
           margin="normal"

@@ -25,6 +25,7 @@ import ContactPhoneIcon from '@material-ui/icons/ContactPhone';
 import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
 import CommentIcon from '@material-ui/icons/Comment';
 import SettingsIcon from '@material-ui/icons/Settings';
+import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 // core components/views for Admin layout
 import ChatHistory from 'app/views/ChatHistory/ChatHistory';
 import Crm from 'app/views/Crm/Crm';
@@ -32,6 +33,7 @@ import Bot from 'app/views/Bot/Bot';
 import Setting from 'app/views/Setting/Settings';
 import Entertain from './views/Entertain/Entertain';
 import DashboardPage from './views/Dashboard/Dashboard';
+import StaffAttendance from './views/Dashboard/StaffAttendance';
 // core components/views for RTL layout
 import CommentManagement from './views/Comment/CommentManagement';
 
@@ -58,6 +60,15 @@ const dashboardRoutes = [
     rtlName: 'لوحة القيادة',
     icon: Dashboard,
     component: DashboardPage,
+    layout: '/admin',
+    authority: ['admin'],
+  },
+  {
+    path: '/staff-attendance',
+    name: '考勤统计',
+    rtlName: 'لوحة القيادة',
+    icon: EventAvailableIcon,
+    component: StaffAttendance,
     layout: '/admin',
     authority: ['admin'],
   },
