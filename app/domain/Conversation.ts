@@ -38,6 +38,7 @@ export interface Conversation {
   nickName: string;
   startTime: number;
   userId: number;
+  uid: string;
   userName: string | undefined;
   vipLevel: number;
   /** 来访时间差，单位毫秒 */

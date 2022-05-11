@@ -36,26 +36,33 @@ export const QUERY_GROUP = gql`
   }
 `;
 
+export const STAFF_FIELD = gql`
+  fragment staffFields on Staff {
+    avatar
+    enabled
+    gender
+    id
+    # maxTicketAllTime
+    # maxTicketPerDay
+    mobilePhone
+    nickName
+    organizationId
+    password
+    personalizedSignature
+    realName
+    role
+    simultaneousService
+    groupId
+    staffType
+    username
+  }
+`;
+
 export const QUERY_STAFF = gql`
+  ${STAFF_FIELD}
   query AllStaff {
     allStaff {
-      avatar
-      enabled
-      gender
-      id
-      maxTicketAllTime
-      maxTicketPerDay
-      mobilePhone
-      nickName
-      organizationId
-      password
-      personalizedSignature
-      realName
-      role
-      simultaneousService
-      groupId
-      staffType
-      username
+      ...staffFields
     }
   }
 `;
@@ -65,25 +72,10 @@ export interface StaffGraphql {
 }
 
 export const QUERY_STAFF_LIST_BY_IDS = gql`
+  ${STAFF_FIELD}
   query StaffList($staffIds: [Long!]!) {
     getStaffByIds(staffIds: $staffIds) {
-      avatar
-      enabled
-      gender
-      id
-      maxTicketAllTime
-      maxTicketPerDay
-      mobilePhone
-      nickName
-      organizationId
-      password
-      personalizedSignature
-      realName
-      role
-      simultaneousService
-      groupId
-      staffType
-      username
+      ...staffFields
     }
   }
 `;
@@ -92,24 +84,10 @@ export interface StaffListByIds {
 }
 
 export const QUERY_STAFF_BY_ID = gql`
+  ${STAFF_FIELD}
   query Staff($staffId: Long!) {
     getStaffById(staffId: $staffId) {
-      id
-      organizationId
-      username
-      role
-      groupId
-      realName
-      nickName
-      avatar
-      simultaneousService
-      maxTicketPerDay
-      maxTicketAllTime
-      staffType
-      gender
-      mobilePhone
-      personalizedSignature
-      enabled
+      ...staffFields
     }
   }
 `;

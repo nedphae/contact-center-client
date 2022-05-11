@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import DateFnsUtils from '@date-io/date-fns';
 
 import {
   DataGrid,
   GridColDef,
   GridValueGetterParams,
-  GridToolbar,
 } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'app/variables/gridLocaleText';
 import {
   ConversationFilterInput,
   CONV_PAGE_QUERY,
+  MutationExportGraphql,
+  MUTATION_CONV_EXPORT,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
 import { Conversation, Evaluate } from 'app/domain/Conversation';
@@ -36,13 +37,16 @@ import {
   Slider,
   Typography,
 } from '@material-ui/core';
-import { AllStaffInfo } from 'app/domain/graphql/Staff';
+import { AllStaffInfo, STAFF_FIELD } from 'app/domain/graphql/Staff';
 import { SelectKeyValue } from 'app/components/Form/ChipSelect';
 import { PageParam } from 'app/domain/graphql/Query';
 import Draggable from 'react-draggable';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import { Control, Controller } from 'react-hook-form';
 import { LazyCustomerInfo } from 'app/components/Chat/DetailCard/panel/CustomerInfo';
+import { CustomerExportGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
+import useAlert from 'app/hook/alert/useAlert';
+import { getDownloadS3ChatFilePath } from 'app/config/clientConfig';
 import DetailTitle from './DetailTitle';
 
 function PaperComponent(props: PaperProps) {
@@ -63,6 +67,7 @@ const columns: GridColDef[] = [
   { field: 'realName', headerName: '客服实名', width: 150 },
   { field: 'nickName', headerName: '客服昵称', width: 150 },
   { field: 'userId', headerName: '客户ID', width: 150 },
+  { field: 'uid', headerName: '客户UID', width: 150 },
   { field: 'userName', headerName: '客户名称', width: 150 },
   {
     field: 'startTime',
@@ -362,28 +367,13 @@ type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
 
 const QUERY = gql`
   ${CONV_PAGE_QUERY}
+  ${STAFF_FIELD}
   query Conversation($conversationFilterInput: ConversationFilterInput!) {
     searchConv(conversationFilter: $conversationFilterInput) {
       ...pageOnSearchHitPage
     }
     allStaff {
-      avatar
-      enabled
-      gender
-      id
-      maxTicketAllTime
-      maxTicketPerDay
-      mobilePhone
-      nickName
-      organizationId
-      password
-      personalizedSignature
-      realName
-      role
-      simultaneousService
-      groupId
-      staffType
-      username
+      ...staffFields
     }
     allStaffGroup {
       id
@@ -408,11 +398,21 @@ export default function ChatHistory() {
     useState<ConversationFilterInput>(defaultValue);
   const [selectConversation, setSelectConversation] = useState<Conversation>();
 
+  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { conversationFilterInput },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'cache-first',
   });
+
+  const [exportConversation, { loading: exporting }] =
+    useMutation<MutationExportGraphql>(MUTATION_CONV_EXPORT, {
+      onCompleted,
+      onError,
+    });
+  if (exporting) {
+    onLoadding(loading);
+  }
 
   const handleClickOpen = (conversation: Conversation) => {
     setSelectConversation(conversation);
@@ -519,11 +519,11 @@ export default function ChatHistory() {
 
     {
       value: 50,
-      label: '不满意',
+      label: '一般',
     },
     {
       value: 75,
-      label: '满意',
+      label: '比较满意',
     },
     {
       value: 100,
@@ -630,7 +630,23 @@ export default function ChatHistory() {
         rows={rows}
         columns={columns}
         components={{
-          Toolbar: GridToolbar,
+          Toolbar: CustomerExportGridToolbarCreater({
+            refetch: () => {
+              refetch();
+            },
+            exportToExcel: async () => {
+              const exportResult = await exportConversation({
+                variables: { filter: _.omit(conversationFilterInput, 'page') },
+              });
+              const filekey = exportResult.data?.exportConversation;
+              if (filekey) {
+                const url = `${getDownloadS3ChatFilePath()}${filekey}`;
+                window.open(url, '_blank');
+              } else {
+                onErrorMsg('导出失败');
+              }
+            },
+          }),
         }}
         pagination
         pageSize={pageSize}

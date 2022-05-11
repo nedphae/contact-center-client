@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import _ from 'lodash';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 
@@ -18,7 +19,7 @@ import getPageQuery from 'app/domain/graphql/Page';
 import CustomerForm, {
   CustomerFormValues,
 } from 'app/components/Chat/DetailCard/panel/CustomerForm';
-import { CustomerGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
+import { CustomerExportGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import { SearchHit } from 'app/domain/Conversation';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import { PageParam } from 'app/domain/graphql/Query';
@@ -30,6 +31,7 @@ import DraggableDialog, {
   DraggableDialogRef,
 } from 'app/components/DraggableDialog/DraggableDialog';
 import useAlert from 'app/hook/alert/useAlert';
+import { getDownloadS3ChatFilePath } from 'app/config/clientConfig';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -103,6 +105,16 @@ const MUTATION_CUSTOMER = gql`
     deleteCustomerByIds(ids: $ids)
   }
 `;
+
+const MUTATION_CUSTOMER_EXPORT = gql`
+  mutation ExportCustomer($customerExportFilter: CustomerExportFilterInput!) {
+    exportCustomer(customerExportFilter: $customerExportFilter)
+  }
+`;
+interface MutationExportGraphql {
+  exportCustomer: string;
+}
+
 const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
@@ -127,7 +139,7 @@ export default function Crm() {
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { customerQuery: customerQueryInput },
   });
-  const { onLoadding, onCompleted, onError } = useAlert();
+  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const [deleteCustomerByIds, { loading: deleteLoading }] =
     useMutation<unknown>(MUTATION_CUSTOMER, {
       onCompleted,
@@ -135,6 +147,15 @@ export default function Crm() {
     });
   if (deleteLoading) {
     onLoadding(deleteLoading);
+  }
+
+  const [exportCustomer, { loading: exporting }] =
+    useMutation<MutationExportGraphql>(MUTATION_CUSTOMER_EXPORT, {
+      onCompleted,
+      onError,
+    });
+  if (exporting) {
+    onLoadding(loading);
   }
 
   const handleClickOpen = (user: Customer) => {
@@ -203,11 +224,25 @@ export default function Crm() {
         rows={rows}
         columns={columns}
         components={{
-          Toolbar: CustomerGridToolbarCreater({
+          Toolbar: CustomerExportGridToolbarCreater({
             newButtonClick,
             deleteButtonClick,
             refetch: () => {
               refetch();
+            },
+            exportToExcel: async () => {
+              const exportResult = await exportCustomer({
+                variables: {
+                  customerExportFilter: _.omit(customerQueryInput, 'page'),
+                },
+              });
+              const filekey = exportResult.data?.exportCustomer;
+              if (filekey) {
+                const url = `${getDownloadS3ChatFilePath()}${filekey}`;
+                window.open(url, '_blank');
+              } else {
+                onErrorMsg('导出失败');
+              }
             },
           }),
         }}

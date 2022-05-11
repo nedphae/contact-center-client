@@ -25,7 +25,7 @@ export default function FileCard(props: FileProps) {
   const { filename, fileSize, url } = props;
 
   function downloadFile() {
-    window.open(url);
+    window.open(url, '_blank');
   }
 
   return (

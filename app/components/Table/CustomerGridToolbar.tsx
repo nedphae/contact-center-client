@@ -57,7 +57,7 @@ export function CustomerExportGridToolbarCreater(
   props: CustomerExportGridToolbarProps
 ) {
   const MyCustomerGridToolbar: React.FunctionComponent = () => {
-    return <CustomerGridToolbar {...props} />;
+    return <CustomerExportGridToolbar {...props} />;
   };
   return MyCustomerGridToolbar;
 }

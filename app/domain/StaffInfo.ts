@@ -31,8 +31,8 @@ export default interface Staff {
   // just for websocket
   token: string | undefined;
   simultaneousService: number;
-  maxTicketPerDay: number;
-  maxTicketAllTime: number;
+  maxTicketPerDay: number | undefined;
+  maxTicketAllTime: number | undefined;
   mobilePhone: string;
   enabled: boolean;
   customerList?: CustomerStatus[];

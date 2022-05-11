@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 
 import Staff, { StaffGroup, StaffShunt } from 'app/domain/StaffInfo';
 import { CustomerStatus } from '../Customer';
+import { STAFF_FIELD } from './Staff';
 
 export interface MonitorGraphql {
   staffOnlineList: {
@@ -14,6 +15,7 @@ export interface MonitorGraphql {
 }
 
 export const QUERY_MONITOR = gql`
+  ${STAFF_FIELD}
   query Monitor {
     staffOnlineList {
       staffStatusList {
@@ -32,23 +34,7 @@ export const QUERY_MONITOR = gql`
         userIdList
       }
       staffList {
-        avatar
-        enabled
-        gender
-        id
-        maxTicketAllTime
-        maxTicketPerDay
-        mobilePhone
-        nickName
-        organizationId
-        password
-        personalizedSignature
-        realName
-        role
-        simultaneousService
-        groupId
-        staffType
-        username
+        ...staffFields
       }
       staffGroupList {
         groupName

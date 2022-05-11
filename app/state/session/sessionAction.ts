@@ -267,7 +267,7 @@ export function transferTo(transferQuery: TransferQuery): AppThunk {
   return async (dispatch, getState) => {
     const { data } = await apolloClient.mutate<MutationTransferToGraphql>({
       mutation: MUTATION_CONV_TRANSFER,
-      variables: { transferQuery: _.omit(transferQuery, 'remarks') },
+      variables: { transferQuery },
     });
     const conversationView = data?.transferTo;
     if (conversationView && conversationView.staffId) {

@@ -37,7 +37,11 @@ import {
   getUploadS3StaffImgPath,
 } from 'app/config/clientConfig';
 import Staff from 'app/domain/StaffInfo';
-import { StaffGroupList, QUERY_GROUP } from 'app/domain/graphql/Staff';
+import {
+  StaffGroupList,
+  QUERY_GROUP,
+  STAFF_FIELD,
+} from 'app/domain/graphql/Staff';
 import useAlert from 'app/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 import DraggableDialog, {
@@ -70,24 +74,10 @@ interface Graphql {
 }
 
 const MUTATION_STAFF = gql`
+  ${STAFF_FIELD}
   mutation Staff($staff: StaffInput!) {
     saveStaff(staff: $staff) {
-      id
-      organizationId
-      username
-      role
-      groupId
-      realName
-      nickName
-      avatar
-      simultaneousService
-      maxTicketPerDay
-      maxTicketAllTime
-      staffType
-      gender
-      mobilePhone
-      personalizedSignature
-      enabled
+      ...staffFields
     }
   }
 `;

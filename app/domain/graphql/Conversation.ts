@@ -183,6 +183,7 @@ const CONTENT_QUERY = gql`
       transferType
       treatedTime
       userId
+      uid
       userMessageCount
       userName
       vipLevel
@@ -279,4 +280,14 @@ export const QUERY_CONV_BY_STAFFID = gql`
 
 export interface ConversationStaffIdGraphql {
   onlineConversationByStaffId: Conversation[];
+}
+
+export const MUTATION_CONV_EXPORT = gql`
+  mutation ConversationExport($filter: ConversationExportFilterInput!) {
+    exportConversation(conversationExportFilter: $filter)
+  }
+`;
+
+export interface MutationExportGraphql {
+  exportConversation: string;
 }
