@@ -85,7 +85,7 @@ export const CONVERSATION_FIELD = gql`
     stickDuration
     terminator
     totalMessageCount
-    transferFromGroup
+    transferFromShunt
     transferFromStaffName
     transferRemarks
     transferType
@@ -177,7 +177,7 @@ const CONTENT_QUERY = gql`
       stickDuration
       terminator
       totalMessageCount
-      transferFromGroup
+      transferFromShunt
       transferFromStaffName
       transferRemarks
       transferType

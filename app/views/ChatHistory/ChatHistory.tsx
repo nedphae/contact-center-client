@@ -202,7 +202,7 @@ const columns: GridColDef[] = [
     headerName: '转接来源客服名称',
     width: 200,
   },
-  { field: 'transferFromGroup', headerName: '转接来源客服组名称', width: 200 },
+  { field: 'transferFromShunt', headerName: '转接来源接待组名称', width: 200 },
   { field: 'transferRemarks', headerName: '转接来源备注', width: 200 },
   {
     field: 'isStaffInvited',

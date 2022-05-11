@@ -46,7 +46,7 @@ export interface Conversation {
   transferType: TransferType;
   humanTransferSessionId: number;
   transferFromStaffName: string | undefined;
-  transferFromGroup: string | undefined;
+  transferFromShunt: string | undefined;
   transferRemarks: string | undefined;
   isStaffInvited: boolean;
   relatedId: number;
