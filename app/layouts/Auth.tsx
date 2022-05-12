@@ -43,8 +43,8 @@ function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link target="_blank" color="inherit" href="https://material-ui.com/">
-        Your Website
+      <Link target="_blank" color="inherit" href="https://xbcs.top/">
+        小白客服
       </Link>{' '}
       {new Date().getFullYear()}.
     </Typography>
