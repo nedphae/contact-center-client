@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { useLazyQuery } from '@apollo/client';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -11,6 +11,7 @@ import StepContent from '@material-ui/core/StepContent';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { getSelectedConstomer } from 'app/state/chat/chatAction';
+import { updateCustomerStatus } from 'app/state/session/sessionAction';
 import {
   CustomerStatusGraphql,
   QUERY_CUSTOMER_STATUS,
@@ -83,8 +84,8 @@ const fakeUserTrack = {
 export default function UserTrack() {
   const classes = useStyles();
   // const status = fakeUserTrack;
-  const tempStatus = useSelector(getSelectedConstomer)?.status;
-  const [status, setStatus] = useState(tempStatus);
+  const dispatch = useDispatch();
+  const status = useSelector(getSelectedConstomer)?.status;
   const [getStatus, { data, refetch }] = useLazyQuery<CustomerStatusGraphql>(
     QUERY_CUSTOMER_STATUS,
     {
@@ -95,11 +96,11 @@ export default function UserTrack() {
 
   useEffect(() => {
     if (data?.getCustomerStatus) {
-      setStatus(data?.getCustomerStatus);
+      dispatch(updateCustomerStatus(data?.getCustomerStatus));
     } else {
       getStatus({ variables: { userId: status?.userId } });
     }
-  }, [data, getStatus, status]);
+  }, [data, dispatch, getStatus, status]);
 
   const activeStep =
     status?.userTrackList?.filter((it) => it.awayTime).length ?? 0;

@@ -125,10 +125,15 @@ export default function CustomerForm(props: CustomerFormProps) {
     control,
     getValues,
     setValue,
+    reset,
   } = useForm<CustomerFormValues>({
     defaultValues,
     shouldUnregister: true,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   useEffect(() => {
     if (data && shouldDispatch) {

@@ -124,7 +124,10 @@ const defaultValue = {
       dateFnsUtils.startOfMonth(new Date()),
       "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
     ),
-    to: dateFnsUtils.format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSXX"),
+    to: dateFnsUtils.format(
+      dateFnsUtils.endOfDay(new Date()),
+      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+    ),
   },
 };
 
