@@ -1,6 +1,7 @@
 /** 会话管理 */
 import {
   CloseReason,
+  CloseReasonTypeKey,
   ConversationType,
   FromType,
   RelatedType,
@@ -53,7 +54,7 @@ export interface Conversation {
   relatedType: RelatedType;
   category: string | undefined;
   categoryDetail: string | undefined;
-  closeReason: CloseReason | undefined;
+  closeReason: CloseReasonTypeKey | undefined;
   endTime: number | undefined;
   evaluate: Evaluate | undefined;
   staffFirstReplyTime: Date | undefined;
@@ -64,7 +65,7 @@ export interface Conversation {
   roundNumber: number;
   clientFirstMessageTime: Date | undefined;
   avgRespDuration: number;
-  isValid: number;
+  valid: number;
   staffMessageCount: number;
   userMessageCount: number;
   treatedTime: number;
@@ -160,4 +161,35 @@ export interface TransferMessageResponse {
   toStaffId: number;
   accept: boolean;
   reason?: string;
+}
+
+export function getEvaluation(evaluation: number) {
+  let result = '未评价';
+  switch (evaluation) {
+    case 100: {
+      result = '非常满意';
+      break;
+    }
+    case 75: {
+      result = '满意';
+      break;
+    }
+    case 50: {
+      result = '一般';
+      break;
+    }
+    case 25: {
+      result = '不满意';
+      break;
+    }
+    case 1: {
+      result = '非常不满意';
+      break;
+    }
+    default: {
+      result = '未评价';
+      break;
+    }
+  }
+  return result;
 }

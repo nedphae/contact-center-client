@@ -20,6 +20,7 @@ import {
   clearPlayNewMessageSound,
   getPlayNewMessageSound,
 } from 'app/state/chat/chatAction';
+import useAutoLoadConv from 'app/hook/init/useAutoLoadConv';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -73,6 +74,7 @@ export default function Admin({ ...rest }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [webSocket] = useWebSocket();
   useInitData();
+  useAutoLoadConv();
   const [play] = useSound(newMsgSound);
 
   const momeSubject = useMemo(() => {

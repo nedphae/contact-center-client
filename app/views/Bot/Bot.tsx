@@ -12,6 +12,7 @@ import {
   KnowledgeBase,
   TopicCategory,
   Answer,
+  RefQuestion,
 } from 'app/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -108,7 +109,19 @@ const columns: GridColDef[] = [
     width: 250,
     valueGetter: (params: GridValueGetterParams) => {
       const answer = params.value as Answer[] | undefined;
-      return answer && answer[0]?.content;
+      let viewText = '';
+      if (answer) {
+        if (answer[2]?.content) {
+          viewText = '[富文本]';
+        }
+        if (answer[1]?.content) {
+          viewText = '[图片]';
+        }
+        if (answer[0]?.content) {
+          viewText = answer[0]?.content;
+        }
+      }
+      return viewText;
     },
   },
   { field: 'innerAnswer', headerName: '问题的对内答案', width: 250 },
@@ -156,7 +169,15 @@ const columns: GridColDef[] = [
       return result;
     },
   },
-  { field: 'refQuestion', headerName: '指向的相似问题', width: 250 },
+  {
+    field: 'refList',
+    headerName: '相似问题',
+    width: 250,
+    valueGetter: (params: GridValueGetterParams) => {
+      const refList = params.value as RefQuestion[] | undefined;
+      return refList?.map((refQ) => refQ.question);
+    },
+  },
   {
     field: 'enabled',
     headerName: '是否有效标记位',
@@ -174,7 +195,9 @@ const MUTATION_TOPIC = gql`
   }
 `;
 
-const defaultValue: TopicFilterInput = {};
+const defaultValue: TopicFilterInput = {
+  keyword: '',
+};
 
 export default function Bot() {
   const classes = useStyles();
@@ -192,6 +215,7 @@ export default function Bot() {
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
   const [selectTopicCategory, setSelectTopicCategory] = useState<number[]>();
+  const [selectTC, setSelectTC] = useState<TopicCategory>();
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [deleteTopicById, { loading: deleteLoading }] = useMutation<unknown>(
@@ -229,12 +253,12 @@ export default function Bot() {
       const allTopicCategory = _.cloneDeep(data?.allTopicCategory ?? []);
       const allBotConfig = _.cloneDeep(data?.allBotConfig ?? []);
       const allKnowledgeBase = _.cloneDeep(data?.allKnowledgeBase ?? []);
-      const memoAllTopic = _.cloneDeep(topicData?.searchTopic ?? []);
+      const allTopic = _.cloneDeep(topicData?.searchTopic ?? []);
       const botConfigMap = _.groupBy(allBotConfig, 'knowledgeBaseId');
 
       const allKnowledgeBaseMap = _.groupBy(allKnowledgeBase, 'id');
       const allTopicCategoryMap = _.groupBy(allTopicCategory, 'id');
-      const memoAllTopicMap = _.groupBy(memoAllTopic, 'id');
+      const memoAllRefTopicMap = _.groupBy(allTopic, 'refId');
 
       const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
       const topicCategoryGroup = _.groupBy(
@@ -261,17 +285,20 @@ export default function Bot() {
         return it;
       });
 
-      memoAllTopic.forEach((it) => {
-        if (it.categoryId && it.knowledgeBaseId) {
-          it.categoryName =
-            allTopicCategoryMap[it.categoryId.toString()][0].name;
-          it.knowledgeBaseName =
-            allKnowledgeBaseMap[it.knowledgeBaseId.toString()][0].name;
-        }
-        if (it.type === 2 && it.refId) {
-          it.refQuestion = memoAllTopicMap[it.refId][0].question;
-        }
-      });
+      const memoAllTopic = allTopic
+        .filter((it) => it.type === 1)
+        .map((it) => {
+          if (it.categoryId && it.knowledgeBaseId) {
+            it.categoryName =
+              allTopicCategoryMap[it.categoryId.toString()][0].name;
+            it.knowledgeBaseName =
+              allKnowledgeBaseMap[it.knowledgeBaseId.toString()][0].name;
+          }
+          if (it.id) {
+            it.refList = memoAllRefTopicMap[it.id];
+          }
+          return it;
+        });
 
       return {
         allKnowledgeBase: memoAllKnowledgeBase,
@@ -279,6 +306,7 @@ export default function Bot() {
         botConfigList: allBotConfig,
         allTopicCategory: pTopicCategory,
         memoAllTopic,
+        memoAllRefTopicMap,
       };
     }
     return undefined;
@@ -309,6 +337,7 @@ export default function Bot() {
 
       const ids = getAllTopicCategoryIds(clickTopicCategory);
       setSelectTopicCategory(ids);
+      setSelectTC(clickTopicCategory);
       // TOOD: 更新数据，实现远程过滤
       // setTopicFilterInput({ ...topicFilterInput, categoryIds: ids });
     },
@@ -355,6 +384,7 @@ export default function Bot() {
             allTopicCategory={memoData?.allTopicCategory}
             refetch={refetch}
             onTopicCategoryClick={onTopicCategoryClick}
+            selectTC={selectTC}
           />
         )}
         <Grid item xs={12} sm={10}>

@@ -22,8 +22,8 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
-interface Props extends Object.Omit<DialogProps, 'open'> {
-  title: string;
+interface Props extends Object.Omit<DialogProps, 'open' | 'title'> {
+  title: React.ReactNode;
   children: React.ReactNode;
 }
 

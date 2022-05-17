@@ -70,6 +70,7 @@ interface BotProps {
   };
   allTopicCategory: TopicCategory[] | undefined;
   onTopicCategoryClick: (selectTopicCategory?: TopicCategory) => void;
+  selectTC: TopicCategory | undefined;
 }
 
 const MUTATION_BOT_CONFIG = gql`
@@ -89,7 +90,13 @@ const MUTATION_TOPIC_CATEGORY = gql`
 `;
 
 export default function BotSidecar(props: BotProps) {
-  const { memoData, allTopicCategory, refetch, onTopicCategoryClick } = props;
+  const {
+    memoData,
+    allTopicCategory,
+    refetch,
+    onTopicCategoryClick,
+    selectTC,
+  } = props;
   const [state, setState] = useState<MousePoint>(initialMousePoint);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
@@ -99,6 +106,8 @@ export default function BotSidecar(props: BotProps) {
 
   const { data, refetch: refetchStaff } = useQuery<Graphql>(QUERY_STAFF);
   const [open, setOpen] = React.useState(false);
+  const [tempTopicOrKnowladgeKey, setTempTopicOrKnowladgeKey] =
+    useState<TopicOrKnowladgeKey>();
   const handleClose = () => {
     setOpen(false);
   };
@@ -110,7 +119,7 @@ export default function BotSidecar(props: BotProps) {
     return _.keyBy(staffList, 'id');
   }, [data?.allStaff]);
 
-  const { onCompleted, onError } = useAlert();
+  const { onCompleted, onError, onErrorMsg } = useAlert();
   // 删除 Mutation
   const [deleteKnowledgeBaseById] = useMutation<unknown>(
     MUTATION_KNOWLEDGE_BASE,
@@ -192,41 +201,54 @@ export default function BotSidecar(props: BotProps) {
 
   function deleteTopicOrKnowladge(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
     setState(initialMousePoint);
-    let action: Promise<FetchResult<unknown>> | undefined;
-    switch (topicOrKnowladgeKey) {
-      case 'Topic': {
-        const id = topicOrKnowladge.Topic?.id;
-        if (id) action = deleteTopicCategoryById({ variables: { ids: [id] } });
+    setTempTopicOrKnowladgeKey(topicOrKnowladgeKey);
+    setOpen(true);
+  }
 
+  async function handleDialogAgree() {
+    let action: Promise<FetchResult<unknown>> | undefined;
+    switch (tempTopicOrKnowladgeKey) {
+      case 'Topic': {
+        if (
+          topicOrKnowladge?.Topic?.children &&
+          topicOrKnowladge?.Topic?.children.length > 0
+        ) {
+          onErrorMsg('当前分类不为空，请先删除子分类');
+        } else if (
+          topicOrKnowladge.Topic?.topicList &&
+          topicOrKnowladge.Topic?.topicList?.length > 0
+        ) {
+          onErrorMsg('当前分类下存在问题条目，请先删除问题条目');
+        } else {
+          const id = topicOrKnowladge.Topic?.id;
+          if (id)
+            action = deleteTopicCategoryById({ variables: { ids: [id] } });
+        }
         break;
       }
       case 'Knowladge': {
-        setOpen(true);
+        const id = topicOrKnowladge.Knowladge?.id;
+        const botConfig = topicOrKnowladge.Knowladge?.botConfig;
+        if (id) {
+          await deleteKnowledgeBaseById({ variables: { ids: [id] } });
+        }
+        if (botConfig) {
+          await deleteStaffByIds({
+            variables: { ids: [botConfig.botId] },
+          });
+        }
+        await refetch();
         break;
       }
       default:
         unimplemented();
     }
+    handleClose();
     if (action) {
       action.then(refetch).catch((error) => {
         throw error;
       });
     }
-  }
-
-  async function handleDialogAgree() {
-    const id = topicOrKnowladge.Knowladge?.id;
-    const botConfig = topicOrKnowladge.Knowladge?.botConfig;
-    if (id) {
-      await deleteKnowledgeBaseById({ variables: { ids: [id] } });
-    }
-    if (botConfig) {
-      await deleteStaffByIds({
-        variables: { ids: [botConfig.botId] },
-      });
-    }
-    await refetch();
-    handleClose();
   }
 
   /**
@@ -273,6 +295,7 @@ export default function BotSidecar(props: BotProps) {
         botConfigMap={memoData.botConfigMap}
         staffMap={staffMap}
         setOnContextMenu={handleContextMenuOpen}
+        selectTC={selectTC}
       />
       {/* 右键菜单 */}
       <div
@@ -408,15 +431,22 @@ export default function BotSidecar(props: BotProps) {
 
       {/* 提醒是否删除知识库 */}
       <Dialog
-        open={open}
+        open={open && Boolean(tempTopicOrKnowladgeKey)}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">确定删除知识库？</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          {tempTopicOrKnowladgeKey === 'Topic'
+            ? '确定删除知识库分类？'
+            : '确定删除知识库？'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            如果删除知识库，将会删除该知识库下的所有知识分类和知识，并且会删除关联的机器人账号！
+            {tempTopicOrKnowladgeKey === 'Topic'
+              ? ''
+              : '如果删除知识库，将会删除该知识库下的所有知识分类和知识，并且会删除关联的机器人账号！'}
+            此操作不可逆，请谨慎操作！
           </DialogContentText>
         </DialogContent>
         <DialogActions>

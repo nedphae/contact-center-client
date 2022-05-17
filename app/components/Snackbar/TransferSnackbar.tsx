@@ -1,11 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Snackbar from '@material-ui/core/Snackbar';
-import {
-  createTheme,
-  makeStyles,
-  ThemeProvider,
-} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   getFirstTransferMessageRecive,
   removeTransferMessageRecive,
@@ -13,10 +9,12 @@ import {
 import {
   Avatar,
   Button,
+  CardContent,
+  DialogActions,
   ListItem,
   ListItemAvatar,
   ListItemText,
-  SnackbarContent,
+  Paper,
   TextField,
   Typography,
 } from '@material-ui/core';
@@ -39,16 +37,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const darkTheme = createTheme({
-  palette: {
-    type: 'light',
-  },
-});
-
 export default function TransferSnackbar() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const refReason = useRef<HTMLInputElement>(null);
+  const [reason, setReason] = useState<string>();
   const lastRequest = useSelector(getFirstTransferMessageRecive);
   const [getStaff, { data: staff }] =
     useLazyQuery<StaffGraphql>(QUERY_STAFF_BY_ID);
@@ -79,7 +71,6 @@ export default function TransferSnackbar() {
   const refuseTransfer = () => {
     if (lastRequest) {
       const { userId, fromStaffId, toStaffId } = lastRequest;
-      const reason = refReason.current?.value;
       const response: TransferMessageResponse = {
         userId,
         fromStaffId,
@@ -89,6 +80,7 @@ export default function TransferSnackbar() {
       };
       dispatch(sendTransferResponseMsg(response));
       dispatch(removeTransferMessageRecive(userId));
+      setReason('');
     }
   };
 
@@ -100,9 +92,9 @@ export default function TransferSnackbar() {
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             open
           >
-            <SnackbarContent
-              message={
-                <>
+            <>
+              <Paper>
+                <CardContent>
                   <ListItem alignItems="flex-start">
                     <ListItemAvatar>
                       <Avatar
@@ -131,20 +123,17 @@ export default function TransferSnackbar() {
                     />
                   </ListItem>
                   <ListItem alignItems="flex-start">
-                    <ThemeProvider theme={darkTheme}>
-                      <TextField
-                        id="outlined-basic"
-                        label="拒绝理由"
-                        variant="outlined"
-                        fullWidth
-                        ref={refReason}
-                      />
-                    </ThemeProvider>
+                    <TextField
+                      id="outlined-basic"
+                      label="拒绝理由"
+                      variant="outlined"
+                      fullWidth
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                    />
                   </ListItem>
-                </>
-              }
-              action={
-                <>
+                </CardContent>
+                <DialogActions>
                   <Button
                     variant="contained"
                     color="secondary"
@@ -159,9 +148,9 @@ export default function TransferSnackbar() {
                   >
                     同意
                   </Button>
-                </>
-              }
-            />
+                </DialogActions>
+              </Paper>
+            </>
           </Snackbar>
         </div>
       )}

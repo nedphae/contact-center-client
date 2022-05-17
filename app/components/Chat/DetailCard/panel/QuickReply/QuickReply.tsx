@@ -64,7 +64,7 @@ export default function QuickReply() {
   const [serarchText, setSerarchText] = useState('');
   const quickReplyList = useSelector(getQuickReply);
   const filterQuickReplyList = useSelector(getFilterQuickReply);
-  const { refetchQuickReply: refetch } = useInitData();
+  const { refetchQuickReply: refetch } = useInitData(false);
 
   const optionFun = [
     {

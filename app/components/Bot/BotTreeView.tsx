@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import FilterListIcon from '@material-ui/icons/FilterList';
 
 import { BotConfig, KnowledgeBase, TopicCategory } from 'app/domain/Bot';
 import StyledTreeItem, {
@@ -43,6 +44,7 @@ interface BotTreeViewProps {
     knowledgeBase?: KnowledgeBase,
     topicCategory?: TopicCategory
   ) => void;
+  selectTC: TopicCategory | undefined;
 }
 
 function buildTopicCategory(
@@ -52,26 +54,42 @@ function buildTopicCategory(
     type: TopicOrKnowladgeKey,
     knowledgeBase?: KnowledgeBase | undefined,
     topicCategory?: TopicCategory | undefined
-  ) => void
+  ) => void,
+  selectTC: TopicCategory | undefined
 ) {
   return topicCategoryList.map((cl) => (
     <StyledTreeItem
       key={cl.id?.toString()}
-      nodeId={uuidv4()}
-      label={cl.name}
+      nodeId={`topicCategory-${cl.id}`}
+      label={
+        <>
+          <ListItem>
+            {cl.name}
+            {selectTC && selectTC.id === cl.id && (
+              <FilterListIcon fontSize="small" />
+            )}
+          </ListItem>
+        </>
+      }
       onContextMenu={(event) => {
         if (onContextMenu) {
           onContextMenu(event, 'Topic', undefined, cl);
         }
       }}
     >
-      {cl.children && buildTopicCategory(cl.children, onContextMenu)}
+      {cl.children && buildTopicCategory(cl.children, onContextMenu, selectTC)}
     </StyledTreeItem>
   ));
 }
 
 export default React.memo(function BotTreeView(props: BotTreeViewProps) {
-  const { allKnowledgeBase, botConfigMap, staffMap, setOnContextMenu } = props;
+  const {
+    allKnowledgeBase,
+    botConfigMap,
+    staffMap,
+    setOnContextMenu,
+    selectTC,
+  } = props;
   const classes = useStyles();
 
   const handleContextMenuOpen = (
@@ -96,7 +114,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
           allKnowledgeBase.map((base: KnowledgeBase) => (
             <StyledTreeItem
               key={base.id?.toString()}
-              nodeId={uuidv4()}
+              nodeId={`knowledgeBase-${base.id}`}
               label={
                 <ListItem component="ul">
                   <ListItemIcon>
@@ -143,7 +161,11 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
               }
             >
               {base.categoryList &&
-                buildTopicCategory(base.categoryList, handleContextMenuOpen)}
+                buildTopicCategory(
+                  base.categoryList,
+                  handleContextMenuOpen,
+                  selectTC
+                )}
             </StyledTreeItem>
           ))}
       </TreeView>

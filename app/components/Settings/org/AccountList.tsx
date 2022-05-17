@@ -32,7 +32,18 @@ export const columns: GridColDef[] = [
   { field: 'username', headerName: '用户名', width: 150 },
   { field: 'nickName', headerName: '昵称', width: 150 },
   { field: 'realName', headerName: '实名', width: 150 },
-  { field: 'role', headerName: '角色', width: 150 },
+  {
+    field: 'role',
+    headerName: '角色',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '客服';
+      if (params.value === 'ROLE_ADMIN') {
+        result = '管理员';
+      }
+      return result;
+    },
+  },
   {
     field: 'staffType',
     headerName: '客服类型',

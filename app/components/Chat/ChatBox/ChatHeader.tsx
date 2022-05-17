@@ -21,6 +21,8 @@ import {
   getSelectedConv,
   getSelectedSession,
 } from 'app/state/chat/chatAction';
+import { CloseReason } from 'app/domain/constant/Conversation';
+import { getEvaluation } from 'app/domain/Conversation';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -102,7 +104,8 @@ export default function ChatHeader() {
           <Grid item xs={3} zeroMinWidth>
             {sessionDuration && (
               <Typography noWrap align="center" variant="body2">
-                咨询时长：{getDuration(sessionDuration)}
+                咨询时长：{getDuration(sessionDuration)}{' '}
+                {conv?.closeReason === 'TRANSFER' ? '会话已转接' : ''}
                 {/** 获取会话时长 */}
               </Typography>
             )}
@@ -124,7 +127,9 @@ export default function ChatHeader() {
               <Grid item xs={5} zeroMinWidth>
                 <Typography noWrap style={{ paddingLeft: 10 }} variant="body2">
                   {conv.evaluate
-                    ? `评价结果: ${conv.evaluate.evaluation} 分，内容：${conv.evaluate.evaluationRemark}`
+                    ? `评价结果: ${getEvaluation(
+                        conv.evaluate.evaluation
+                      )}，内容：${conv.evaluate.evaluationRemark}`
                     : `未评价`}
                 </Typography>
               </Grid>

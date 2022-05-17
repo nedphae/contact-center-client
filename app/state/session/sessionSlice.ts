@@ -10,11 +10,15 @@ import {
   TagParamer,
   LogoUser,
   UserTyping,
+  UpdateConver,
+  UpdateSync,
 } from 'app/domain/Session';
 import { MessagesMap } from 'app/domain/Message';
 import { Customer, CustomerStatus } from 'app/domain/Customer';
 import { fromUserMessagesToMap, UserMessages } from 'app/domain/Chat';
 import { CreatorType } from 'app/domain/constant/Message';
+import { InteractionLogo } from 'app/domain/constant/Conversation';
+import { Conversation } from 'app/domain/Conversation';
 
 const initConver = {} as SessionMap;
 
@@ -27,6 +31,31 @@ const converSlice = createSlice({
     newConver: (converMap, action: PayloadAction<Session>) => {
       if (action.payload.user.userId) {
         converMap[action.payload.conversation.userId] = action.payload;
+      }
+    },
+    // 更新会话和用户信息
+    updateConverAndCustomer: (
+      converMap,
+      action: PayloadAction<UpdateConver>
+    ) => {
+      const { userId } = action.payload.conversation;
+      if (userId) {
+        converMap[userId].conversation = action.payload.conversation;
+        converMap[userId].user = action.payload.user;
+      }
+    },
+    // 更新会话信息
+    updateConver: (converMap, action: PayloadAction<Conversation>) => {
+      const { userId } = action.payload;
+      if (userId) {
+        converMap[userId].conversation = action.payload;
+      }
+    },
+    updateSync: (converMap, action: PayloadAction<UpdateSync>) => {
+      const { userId } = action.payload;
+      if (userId && converMap[userId]) {
+        // 更新完会话，需要同步一下用户消息，防止未获取到转接回来的用户新消息
+        converMap[userId].shouldSync = action.payload.shouldSync;
       }
     },
     unhideSession: (converMap, action: PayloadAction<number | undefined>) => {

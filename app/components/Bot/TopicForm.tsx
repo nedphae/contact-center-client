@@ -19,6 +19,10 @@ import {
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddIcon from '@material-ui/icons/Add';
+
+import Alert from '@material-ui/lab/Alert';
 
 import {
   AppBar,
@@ -31,6 +35,7 @@ import {
   FormControlProps,
   FormHelperText,
   Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -86,7 +91,7 @@ function a11yProps(index: any) {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
+    answer: {
       backgroundColor: theme.palette.background.paper,
       width: '800px',
     },
@@ -95,6 +100,9 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
+    },
+    alert: {
+      marginTop: theme.spacing(2),
     },
   })
 );
@@ -187,7 +195,11 @@ export default function TopicForm(props: FormProps) {
         content: answer.content || '',
       };
     });
-    await saveTopic({ variables: { topicInput: form } });
+    form.refQuestionList =
+      form.refList
+        ?.filter((it) => it.question !== '')
+        ?.map((refQ) => refQ.question) ?? [];
+    await saveTopic({ variables: { topicInput: _.omit(form, 'refList') } });
     afterSubmit();
     // const filterObj = _.defaults(
     //   { answer: form?.answer?.map((ans) => _.omit(ans, '__typename')) },
@@ -201,6 +213,23 @@ export default function TopicForm(props: FormProps) {
   };
 
   const questionType = watch('type', defaultValues?.type ?? 1);
+  const {
+    fields: refList,
+    append: appendRef,
+    remove: removeRef,
+  } = useFieldArray({
+    name: 'refList',
+    control,
+  });
+
+  function removeRefQuestion(index: number) {
+    removeRef(index);
+  }
+
+  function appendRefQuestion() {
+    appendRef({ question: '' });
+  }
+
   const { fields, update, remove } = useFieldArray({ name: 'answer', control });
   const picSrc = fields[1]?.content;
   const html = fields[2]?.content;
@@ -325,7 +354,12 @@ export default function TopicForm(props: FormProps) {
         <FormControl variant="outlined" margin="normal" fullWidth>
           {dropdownTreeSelect}
         </FormControl>
-        <Controller
+        <TextField
+          defaultValue={1}
+          type="hidden"
+          {...register('type', { valueAsNumber: true })}
+        />
+        {/* <Controller
           control={control}
           name="type"
           defaultValue={1}
@@ -344,7 +378,7 @@ export default function TopicForm(props: FormProps) {
               </Select>
             </FormControl>
           )}
-        />
+        /> */}
         <TextField
           variant="outlined"
           margin="normal"
@@ -369,9 +403,63 @@ export default function TopicForm(props: FormProps) {
             },
           })}
         />
+        {refList &&
+          refList.map((refTopic, index) => (
+            <Grid
+              key={refTopic.id}
+              container
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Grid item xs={11}>
+                <TextField
+                  variant="outlined"
+                  margin="normal"
+                  fullWidth
+                  multiline
+                  label="相似问题"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <QuestionAnswerIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={errors.refList && true}
+                  helperText={
+                    errors.refList && errors.refList[0]?.question?.message
+                  }
+                  {...register(`refList.${index}.question`, {
+                    required: '相似问题必填',
+                    maxLength: {
+                      value: 500,
+                      message: '问题长度不能大于500个字符',
+                    },
+                  })}
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <IconButton
+                  aria-label="delete"
+                  style={{ height: '100%' }}
+                  onClick={() => {
+                    removeRefQuestion(index);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
+            </Grid>
+          ))}
+        <Button onClick={appendRefQuestion} startIcon={<AddIcon />}>
+          添加相似问题
+        </Button>
+        <Alert severity="info" className={classes.alert}>
+          图文和富文本答案可以同时存在，顺序是先文字，然后图片，最后富文本。如果相应答案为空，则不显示。
+        </Alert>
         {questionType === 1 && (
           <>
-            <div className={classes.root}>
+            <div className={classes.answer}>
               <TextField
                 type="hidden"
                 defaultValue="text"

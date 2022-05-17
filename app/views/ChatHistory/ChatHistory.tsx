@@ -19,7 +19,7 @@ import {
   MUTATION_CONV_EXPORT,
   SearchConv,
 } from 'app/domain/graphql/Conversation';
-import { Conversation, Evaluate } from 'app/domain/Conversation';
+import { Conversation, Evaluate, getEvaluation } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import {
@@ -107,23 +107,89 @@ const columns: GridColDef[] = [
   { field: 'fromIp', headerName: '访客来源ip', width: 150 },
   { field: 'fromPage', headerName: '来源页', width: 150 },
   { field: 'fromTitle', headerName: '来源页标题', width: 150 },
-  { field: 'fromType', headerName: '来源类型', width: 150 },
+  {
+    field: 'fromType',
+    headerName: '来源类型',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '未知';
+      switch (params.value) {
+        case 'WEB': {
+          result = '网页';
+          break;
+        }
+        case 'IOS': {
+          result = 'ios';
+          break;
+        }
+        case 'ANDROID': {
+          result = 'android';
+          break;
+        }
+        case 'WX': {
+          result = '微信';
+          break;
+        }
+        case 'WX_MA': {
+          result = '微信小程序';
+          break;
+        }
+        case 'WB': {
+          result = '微博';
+          break;
+        }
+        case 'OPEN': {
+          result = '开放接口';
+          break;
+        }
+        default: {
+          result = '客户';
+          break;
+        }
+      }
+      return result;
+    },
+  },
   {
     field: 'evaluate.evaluation',
-    headerName: '评价分数',
+    headerName: '用户评价分数',
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
       const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
-      return evaluate?.evaluation;
+      return getEvaluation(evaluate?.evaluation);
     },
   },
   {
     field: 'evaluate.evaluationRemark',
-    headerName: '评价内容',
+    headerName: '用户评价内容',
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
       const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
       return evaluate?.evaluationRemark;
+    },
+  },
+  {
+    field: 'evaluate.userResolvedStatus',
+    headerName: '用户标记的解决状态',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      let result = '未知';
+      switch (evaluate?.userResolvedStatus) {
+        case 1: {
+          result = '已解决';
+          break;
+        }
+        case 2: {
+          result = '未解决';
+          break;
+        }
+        default: {
+          result = '未知';
+          break;
+        }
+      }
+      return result;
     },
   },
   {
@@ -289,7 +355,80 @@ const columns: GridColDef[] = [
   },
   { field: 'category', headerName: '会话分类信息', width: 200 },
   { field: 'categoryDetail', headerName: '会话咨询分类明细', width: 250 },
-  { field: 'closeReason', headerName: '会话关闭原因', width: 150 },
+  {
+    field: 'closeReason',
+    headerName: '会话关闭原因',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '机器人转人工';
+      switch (params.value) {
+        case 'STAFF_CLOSE': {
+          result = '客服关闭';
+          break;
+        }
+        case 'USER_LEFT': {
+          result = '访客离开页面失效关闭';
+          break;
+        }
+        case 'USER_TIME_OUT': {
+          result = '访客离开超时关闭';
+          break;
+        }
+        case 'USER_OTHER_STAFF': {
+          result = '访客申请其他客服关闭';
+          break;
+        }
+        case 'USER_NET_ERROR': {
+          result = '网络差客服掉线关闭';
+          break;
+        }
+        case 'TRANSFER': {
+          result = '客服转接关闭';
+          break;
+        }
+        case 'ADMIN_TAKE_OVER': {
+          result = '管理员接管';
+          break;
+        }
+        case 'USER_CLOSE': {
+          result = '访客主动关闭';
+          break;
+        }
+        case 'SYS_CLOSE': {
+          result = '系统关闭，静默超时关闭';
+          break;
+        }
+        case 'SYS_TRAN': {
+          result = '系统关闭，静默超时关闭';
+          break;
+        }
+        case 'USER_SILENT': {
+          result = '访客未说话';
+          break;
+        }
+        case 'USER_QUEUE_TIMEOUT': {
+          result = '访客排队超时清队列';
+          break;
+        }
+        case 'USER_QUEUE_LEFT': {
+          result = '访客放弃排队';
+          break;
+        }
+        case 'STAFF_OFFLINE': {
+          result = '客服离线清队列';
+          break;
+        }
+        case 'BOT_TO_STAFF': {
+          result = '机器人转人工';
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      return result;
+    },
+  },
   // {
   //   field: 'stickDuration',
   //   headerName: '客服置顶时长',
@@ -297,7 +436,7 @@ const columns: GridColDef[] = [
   //   width: 150,
   // },
   { field: 'remarks', headerName: '会话备注', width: 150 },
-  { field: 'status', headerName: '会话解决状态', width: 150 },
+  // { field: 'status', headerName: '会话解决状态', width: 200 },
   {
     field: 'roundNumber',
     headerName: '对话回合数',
@@ -312,8 +451,15 @@ const columns: GridColDef[] = [
       return params.value ? javaInstant2DateStr(params.value as number) : null;
     },
   },
-  { field: 'avgRespDuration', headerName: '客服平均响应时长', width: 150 },
-  { field: 'isValid', headerName: '是否有效会话', width: 150 },
+  { field: 'avgRespDuration', headerName: '客服平均响应时长', width: 200 },
+  {
+    field: 'valid',
+    headerName: '是否有效会话',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value === 0 ? '无效会话' : '有效会话';
+    },
+  },
   {
     field: 'staffMessageCount',
     headerName: '客服消息数',
@@ -336,20 +482,43 @@ const columns: GridColDef[] = [
     field: 'treatedTime',
     headerName: '留言处理时间',
     type: 'number',
-    width: 150,
+    width: 200,
   },
   {
     field: 'isEvaluationInvited',
     headerName: '客服是否邀评',
     type: 'boolean',
-    width: 150,
+    width: 200,
   },
-  { field: 'terminator', headerName: '会话中止方', width: 150 },
+  {
+    field: 'terminator',
+    headerName: '会话中止方',
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) => {
+      let result = '客户';
+      switch (params.value) {
+        case 'STAFF': {
+          result = '客服';
+          break;
+        }
+        case 'SYS': {
+          result = '系统';
+          break;
+        }
+        default: {
+          result = '客户';
+          break;
+        }
+      }
+      return result;
+    },
+  },
 ];
 
 const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
+  keyword: '',
   page: new PageParam(),
   timeRange: {
     from: dateFnsUtils.format(

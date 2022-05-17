@@ -154,7 +154,7 @@ export default function Shunt() {
     return shuntClassList.map((it) => (
       <StyledTreeItem
         key={it.id?.toString()}
-        nodeId={it.catalogue === -1 ? 'root' : uuidv4()}
+        nodeId={it.catalogue === -1 ? 'root' : `shuntClass-${it.id}`}
         label={it.className}
         onContextMenu={(event) => handleContextMenuOpen(event, it)}
       >

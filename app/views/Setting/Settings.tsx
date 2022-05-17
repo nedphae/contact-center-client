@@ -154,19 +154,19 @@ export default function Setting() {
       <TreeView
         className={classes.list}
         defaultExpanded={['personal', 'org']}
-        defaultSelected={['default-select']}
+        defaultSelected={['personal.Account']}
         defaultCollapseIcon={<MinusSquare />}
         defaultExpandIcon={<PlusSquare />}
         defaultEndIcon={<CloseSquare />}
       >
         <StyledTreeItem nodeId="personal" label="个人设置">
           <StyledTreeItem
-            nodeId="default-select"
+            nodeId="personal.Account"
             label="账号设置"
             onClick={() => setPageName('personal.Account')}
           />
           {/* <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId=""
               label="客户端设置"
                             onClick={() => setPageName('personal.Client')}
             /> */}
@@ -174,32 +174,32 @@ export default function Setting() {
         <Authorized authority={['admin']} noMatch={<></>}>
           <StyledTreeItem nodeId="org" label="企业设置">
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="org.Account"
               label="账号管理"
               onClick={() => setPageName('org.Account')}
             />
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="org.Group"
               label="客服组"
               onClick={() => setPageName('org.Group')}
             />
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="org.Shunt"
               label="接待组"
               onClick={() => setPageName('org.Shunt')}
             />
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="org.SessionCategory"
               label="咨询类型"
               onClick={() => setPageName('org.SessionCategory')}
             />
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="org.Blacklist"
               label="黑名单"
               onClick={() => setPageName('org.Blacklist')}
             />
             <StyledTreeItem
-              nodeId={uuidv4()}
+              nodeId="org.CustomerTag"
               label="客户标签"
               onClick={() => setPageName('org.CustomerTag')}
             />
@@ -214,7 +214,7 @@ export default function Setting() {
                 return (
                   <StyledTreeItem
                     key={k}
-                    nodeId={uuidv4()}
+                    nodeId={`properties.${k}`}
                     label={properties[k].label}
                   >
                     {propertiesFilter.map((fk) => {
@@ -222,7 +222,7 @@ export default function Setting() {
                       return (
                         <StyledTreeItem
                           key={fk}
-                          nodeId={uuidv4()}
+                          nodeId=""
                           label={childProp.label}
                           onClick={() => {
                             setPageName('org.Properties');

@@ -34,7 +34,11 @@ import {
   getDownloadS3ChatImgPath,
   getDownloadS3StaffImgPath,
 } from 'app/config/clientConfig';
-import { addHistoryMessage, setHasMore } from 'app/state/session/sessionAction';
+import {
+  addHistoryMessage,
+  setHasMore,
+  updateSync,
+} from 'app/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
 import { Session } from 'app/domain/Session';
 import getPageQuery from 'app/domain/graphql/Page';
@@ -46,6 +50,10 @@ import {
 } from 'app/state/chat/chatAction';
 import { CreatorType } from 'app/domain/constant/Message';
 import { Box } from '@material-ui/core';
+import {
+  SyncMessageByUserGraphql,
+  QUERY_SYNC_USER_MESSAGE,
+} from 'app/domain/graphql/Monitor';
 import FileCard from './FileCard';
 import RichTextStyle from './RichText.less';
 
@@ -302,6 +310,11 @@ const MessageList = (props: MessageListProps) => {
       fetchPolicy: 'no-cache',
     }
   );
+  const [syncMessageByUser, { data: syncMsg, variables: syncVariables }] =
+    useLazyQuery<SyncMessageByUserGraphql>(QUERY_SYNC_USER_MESSAGE, {
+      fetchPolicy: 'no-cache',
+    });
+
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
   const [animated, setAnimated] = useState<boolean>(false);
   const [isHistoryMessage, setIsHistoryMessage] = useState<boolean>(false);
@@ -409,10 +422,50 @@ const MessageList = (props: MessageListProps) => {
   }, [lastSeqId, loadHistoryMessage, user]);
 
   useEffect(() => {
+    if (
+      syncMsg &&
+      syncMsg.syncMessageByUser.size > 0 &&
+      user &&
+      user.userId &&
+      syncVariables
+    ) {
+      const lastQueryUserId = syncVariables.userId;
+      if (lastQueryUserId === user.userId) {
+        const lastMessage = syncMsg.syncMessageByUser.content[0];
+        if (
+          lastMessage &&
+          (user.userId === lastMessage.to || user.userId === lastMessage.from)
+        ) {
+          const historyMessage = syncMsg.syncMessageByUser.content;
+          const userMessages = { [user.userId]: historyMessage };
+          dispatch(addHistoryMessage(userMessages));
+        }
+      }
+    }
+  }, [dispatch, syncMsg, user, syncVariables]);
+
+  useEffect(() => {
     if (user && user?.userId && messages.length === 0) {
       handleLoadMore();
     }
-  }, [handleLoadMore, messages, user]);
+    if (user && user?.userId && session?.shouldSync && messages.length > 0) {
+      syncMessageByUser({
+        variables: {
+          userId: user?.userId,
+          cursor: messages[messages.length - 1].seqId,
+        },
+      });
+      dispatch(updateSync({ userId: user?.userId, shouldSync: false }));
+    }
+  }, [
+    dispatch,
+    handleLoadMore,
+    lastSeqId,
+    messages,
+    session,
+    syncMessageByUser,
+    user,
+  ]);
 
   function handleContentSizeChange(
     _contentWidth: number,

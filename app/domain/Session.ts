@@ -28,6 +28,8 @@ export interface Session {
   hasMore: boolean;
   userTypingText?: string;
   userTypingTime?: number;
+  // 如果更新会话后，需要重新同步用户消息
+  shouldSync: boolean;
 }
 
 export interface TagParamer {
@@ -59,6 +61,7 @@ export function createSession(
     sticky: false,
     tag: undefined,
     hasMore: true,
+    shouldSync: false,
   };
 }
 
@@ -71,4 +74,14 @@ export type SessionMap = NumericDictionary<Session>;
 export interface UserTyping {
   userId: number;
   userTypingText?: string;
+}
+
+export interface UpdateConver {
+  conversation: Conversation;
+  user: Customer;
+}
+
+export interface UpdateSync {
+  userId: number;
+  shouldSync: boolean;
 }

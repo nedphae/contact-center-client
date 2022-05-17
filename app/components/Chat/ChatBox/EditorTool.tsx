@@ -53,7 +53,7 @@ import {
   sendEvaluationInvitedMsg,
   sendFileMessage,
   sendImageMessage,
-  updateConver,
+  updateOrCreateConv,
 } from 'app/state/session/sessionAction';
 import TransferForm from './transfer/TransferForm';
 
@@ -121,6 +121,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const transferQuery: TransferQuery = {
     type: 'STAFF',
     userId: selectedSession.conversation.userId,
+    fromStaffId: selectedSession.conversation.staffId,
   };
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
@@ -144,11 +145,11 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   useEffect(() => {
     if (data && data.updateConversationCategory) {
       // 修改会话类型后更新本地的会话
-      dispatch(updateConver(data.updateConversationCategory));
+      dispatch(updateOrCreateConv(data.updateConversationCategory));
     }
   }, [data, dispatch]);
 
-  const { sessionCategoryTreeList } = useInitData();
+  const { sessionCategoryTreeList } = useInitData(false);
 
   function handleClickBlacklist() {
     refOfDialog.current?.setOpen(true);
@@ -271,12 +272,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       <DraggableDialog title="添加黑名单" ref={refOfDialog}>
         <BlacklistForm defaultValues={blacklistInfo} />
       </DraggableDialog>
-      <DraggableDialog title="转接" ref={refOfTransferDialog}>
-        <TransferForm
-          defaultValues={transferQuery}
-          onClose={() => refOfTransferDialog.current?.setOpen(false)}
-        />
-      </DraggableDialog>
+      <TransferForm defaultValues={transferQuery} ref={refOfTransferDialog} />
       <Menu
         keepMounted
         open={Boolean(menuAnchorEl)}

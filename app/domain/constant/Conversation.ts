@@ -10,7 +10,7 @@ export enum CloseReason {
   /** 网络差客服掉线关闭 */
   USER_NET_ERROR,
   /** 客服转接关闭 */
-  TRANSLATE,
+  TRANSFER,
   /** 管理员接管 */
   ADMIN_TAKE_OVER,
   /** 访客主动关闭 */
@@ -30,6 +30,8 @@ export enum CloseReason {
   /** 机器人转人工 */
   BOT_TO_STAFF,
 }
+
+export type CloseReasonTypeKey = keyof typeof CloseReason;
 
 export enum FromType {
   /** web */
@@ -107,4 +109,8 @@ export enum InteractionLogo {
   READ_UNREPLIE,
   // 已读已回
   REPLIED,
+  // 已经转接
+  TRANSFERED,
+  // 客户重新接入
+  RECONNECTED,
 }

@@ -1,66 +1,23 @@
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { gql, useLazyQuery } from '@apollo/client';
-import { Message } from 'app/domain/Message';
+import { useLazyQuery } from '@apollo/client';
 import { getMonitor, setMonitoredMessage } from 'app/state/chat/chatAction';
-import { PageResult } from 'app/domain/Page';
-import { CONVERSATION_FIELD } from 'app/domain/graphql/Conversation';
 import { interval, Subscription } from 'rxjs';
-import { MSG_PAGE_QUERY } from 'app/domain/graphql/Message';
-
-const QUERY_MONITOR_MESSAGE = gql`
-  ${MSG_PAGE_QUERY}
-  query SyncMessageByUser($userId: Long!, $cursor: Long) {
-    syncMessageByUser(userId: $userId, cursor: $cursor, end: null) {
-      ...pageOnMessagePage
-    }
-  }
-`;
-
-interface Graphql {
-  syncMessageByUser: PageResult<Message>;
-}
-
-export const QUERY = gql`
-  ${CONVERSATION_FIELD}
-  query Customer($userId: Long!) {
-    getCustomer(userId: $userId) {
-      organizationId
-      userId: id
-      uid
-      name
-      email
-      mobile
-      address
-      vipLevel
-      remarks
-      data {
-        key
-        label
-        value
-        index
-        hidden
-        href
-      }
-    }
-    getLastConversation(userId: $userId) {
-      ...conversationFields
-    }
-  }
-`;
+import {
+  SyncMessageByUserGraphql,
+  QUERY_SYNC_USER_MESSAGE,
+} from 'app/domain/graphql/Monitor';
 
 const useMonitorUserAndMsg = (refreshInterval: number) => {
   const dispatch = useDispatch();
   const monitorSession = useSelector(getMonitor);
   const lastSeqIdRef = useRef<number>();
   const subscription = useRef<Subscription>();
-  const [syncMessageByUser, { data, refetch }] = useLazyQuery<Graphql>(
-    QUERY_MONITOR_MESSAGE,
-    {
+  const [syncMessageByUser, { data, refetch }] =
+    useLazyQuery<SyncMessageByUserGraphql>(QUERY_SYNC_USER_MESSAGE, {
       fetchPolicy: 'no-cache',
-    }
-  );
+    });
 
   const userId = monitorSession?.monitoredUserStatus?.userId;
 

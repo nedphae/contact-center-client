@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import _ from 'lodash';
 import {
@@ -15,11 +15,6 @@ import {
   QUERY_SESSION_CATEGORY,
 } from 'app/domain/graphql/SessionCategory';
 import { SessionCategory } from 'app/domain/SessionCategory';
-import {
-  ConversationStaffIdGraphql,
-  QUERY_CONV_BY_STAFFID,
-} from 'app/domain/graphql/Conversation';
-import { updateConver } from 'app/state/session/sessionAction';
 
 interface Result {
   refetchQuickReply(
@@ -30,9 +25,6 @@ interface Result {
   refetchSessionCategory(
     variables?: Partial<OperationVariables> | undefined
   ): Promise<ApolloQueryResult<SessionCategoryGraphql>>;
-  refetchOnlineConv(
-    variables?: Partial<OperationVariables> | undefined
-  ): Promise<ApolloQueryResult<ConversationStaffIdGraphql>>;
 }
 /**
  * 用于初始化数据，载入：
@@ -42,8 +34,9 @@ interface Result {
  *
  * 默认使用 apollo cache，多次载入不会读取远程数据
  */
-const useInitData = (): Result => {
+const useInitData = (redispatch = true): Result => {
   const dispatch = useDispatch();
+  const [redispatchState, setRedispatchState] = useState(redispatch);
   const { data, refetch } =
     useQuery<QuickReplyAllDtoGraphql>(QUERY_QUICK_REPLY);
 
@@ -54,21 +47,19 @@ const useInitData = (): Result => {
     variables: { enabled: true },
   });
 
-  const { data: onlineConverList, refetch: refetchOnlineConv } =
-    useQuery<ConversationStaffIdGraphql>(QUERY_CONV_BY_STAFFID);
-
   // 获取客服当前联系的会话，防止刷新了客户端后会话丢失
   useEffect(() => {
-    if (data) {
+    if (data && redispatchState) {
       dispatch(setQuickReply(data.getQuickReply));
     }
-    if (onlineConverList && onlineConverList.onlineConversationByStaffId) {
-      onlineConverList.onlineConversationByStaffId.forEach((it) => {
-        // TODO: 优化为 batch
-        dispatch(updateConver(it));
-      });
-    }
-  }, [data, dispatch, onlineConverList]);
+  }, [data, dispatch, redispatchState]);
+
+  function refetchQuickReply(
+    variables?: Partial<OperationVariables> | undefined
+  ): Promise<ApolloQueryResult<QuickReplyAllDtoGraphql>> {
+    setRedispatchState(true);
+    return refetch(variables);
+  }
 
   const sessionCategoryTreeList = useMemo(() => {
     // 初始化 咨询类型 treeList
@@ -100,11 +91,10 @@ const useInitData = (): Result => {
   }, [sessionCategoryGraphqlResult]);
 
   return {
-    refetchQuickReply: refetch,
+    refetchQuickReply,
     sessionCategoryList: sessionCategoryGraphqlResult?.getAllSessionCategory,
     sessionCategoryTreeList,
     refetchSessionCategory,
-    refetchOnlineConv,
   };
 };
 

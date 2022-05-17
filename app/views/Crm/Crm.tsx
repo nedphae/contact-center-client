@@ -118,6 +118,7 @@ interface MutationExportGraphql {
 const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
+  keyword: '',
   page: new PageParam(),
   timeRange: {
     from: dateFnsUtils.format(

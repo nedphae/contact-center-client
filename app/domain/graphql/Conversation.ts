@@ -69,7 +69,7 @@ export const CONVERSATION_FIELD = gql`
     interaction
     isEvaluationInvited
     isStaffInvited
-    isValid
+    valid
     nickName
     organizationId
     realName
@@ -161,8 +161,8 @@ const CONTENT_QUERY = gql`
       interaction
       isEvaluationInvited
       isStaffInvited
-      isValid
       nickName
+      valid
       organizationId
       realName
       relatedId

@@ -61,6 +61,8 @@ const {
   hideSelectedSession,
 } = slice.actions;
 export const {
+  updateConverAndCustomer,
+  updateConver,
   updateCustomerStatus,
   stickyCustomer,
   tagCustomer,
@@ -70,6 +72,7 @@ export const {
   setHasMore,
   setInteractionLogo,
   setTyping,
+  updateSync,
 } = slice.actions;
 
 export const getSessionByUserId = (userId: number) => (state: RootState) =>
@@ -165,7 +168,7 @@ export const getSession = (hide = false) =>
     (session) => getSessionByHide(session, hide)
   );
 
-export const updateConver =
+export const updateOrCreateConv =
   (conver: Conversation): AppThunk =>
   async (dispatch, getState) => {
     const { userId } = conver;
@@ -174,12 +177,23 @@ export const updateConver =
       // 根据分配的 conversation 获取 user
       const customer = await getCustomerByUserId(userId);
       if (session) {
-        const newSession = _.defaults(
-          { conversation: conver, user: customer },
-          session
-        );
         // 更新 newSession
-        dispatch(newConver(newSession));
+        dispatch(
+          updateConverAndCustomer({ conversation: conver, user: customer })
+        );
+        // 非新会话，要同步
+        dispatch(updateSync({ userId: conver.userId, shouldSync: true }));
+        if (session.hide) {
+          dispatch(unhideSession(conver.userId));
+        }
+        if (!conver.closeReason && session.conversation.closeReason) {
+          dispatch(
+            setInteractionLogo({
+              userId,
+              interactionLogo: InteractionLogo.RECONNECTED,
+            })
+          );
+        }
       } else {
         dispatch(newConver(createSession(conver, customer)));
       }
@@ -197,7 +211,7 @@ export const assignmentConver =
   async (dispatch) => {
     const conversation = request.body;
     if (conversation !== undefined) {
-      dispatch(updateConver(conversation));
+      dispatch(updateOrCreateConv(conversation));
       cb(generateResponse(request.header, '"OK"'));
     } else {
       cb(generateResponse(request.header, 'request empty', 400));
@@ -282,20 +296,29 @@ export function transferTo(transferQuery: TransferQuery): AppThunk {
           severity: 'success',
         })
       );
-      // 转接成功 更新会话
-      const { data: conv } = await apolloClient.query<ConversationIdGraphql>({
-        query: QUERY_CONV_BY_ID,
-        variables: {
-          id: conversation.id,
-        },
-      });
-      if (conv?.getConversationById) {
-        dispatch(updateConver(conv?.getConversationById));
-      }
-      if (getSelectedSession(getState())?.conversation.userId === userId) {
-        // 是当前客户就转到其他客户
-        dispatch(setToLastAndFilter(userId));
-      }
+      // 延迟3秒更新，防止读取到服务器未更新的会话信息
+      setTimeout(async () => {
+        // 转接成功 更新会话
+        const { data: conv } = await apolloClient.query<ConversationIdGraphql>({
+          query: QUERY_CONV_BY_ID,
+          variables: {
+            id: conversation.id,
+          },
+        });
+        if (conv?.getConversationById) {
+          dispatch(updateOrCreateConv(conv?.getConversationById));
+          dispatch(
+            setInteractionLogo({
+              userId,
+              interactionLogo: InteractionLogo.TRANSFERED,
+            })
+          );
+        }
+        if (getSelectedSession(getState())?.conversation.userId === userId) {
+          // 是当前客户就转到其他客户
+          dispatch(setToLastAndFilter(userId));
+        }
+      }, 2000);
     } else {
       // 转接失败
       dispatch(
@@ -351,12 +374,12 @@ export function sendTransferResponseMsg(
  */
 export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
   return (dispatch, getState) => {
-    const { userId, toStaffId, remarks } = transferQuery;
+    const { userId, toStaffId, fromStaffId, remarks } = transferQuery;
     if (toStaffId && remarks) {
       const myStaffId = getMyself(getState()).id;
       const transferMessage: TransferMessageRequest = {
         userId,
-        fromStaffId: myStaffId,
+        fromStaffId: fromStaffId ?? myStaffId,
         toStaffId,
         remarks,
       };
@@ -367,7 +390,7 @@ export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
       };
       // 发送转接消息
       const message: Message = {
-        uuid: uuidv4().substr(0, 8),
+        uuid: uuidv4().substring(0, 8),
         to: toStaffId,
         type: CreatorType.STAFF,
         creatorType: CreatorType.SYS,
@@ -419,14 +442,14 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
     case 'CONV_END': {
       if (serviceMessage) {
         const sysMsg = JSON.parse(serviceMessage) as Conversation;
-        dispatch(updateConver(sysMsg));
+        dispatch(updateOrCreateConv(sysMsg));
       }
       break;
     }
     case 'CONV_UPDATE': {
       if (serviceMessage) {
         const sysMsg = JSON.parse(serviceMessage) as Conversation;
-        dispatch(updateConver(sysMsg));
+        dispatch(updateOrCreateConv(sysMsg));
       }
       break;
     }
@@ -542,7 +565,7 @@ export const setNewMessage =
                       },
                     });
                   if (conv.getLastConversation) {
-                    dispatch(updateConver(conv.getLastConversation));
+                    dispatch(updateOrCreateConv(conv.getLastConversation));
                   }
                 }
               }

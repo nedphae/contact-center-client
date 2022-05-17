@@ -446,21 +446,21 @@ export default function StaffForm(props: FormProps) {
             valueAsNumber: true,
           })}
         />
-        <TextField
-          // variant="outlined"
-          // margin="normal"
-          // fullWidth
-          type="hidden"
+        {/* <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          type="number"
           id="maxTicketPerDay"
-          // label="工单 每日上限"
+          label="工单 每日上限"
           defaultValue="0"
-          // InputProps={{
-          //   startAdornment: (
-          //     <InputAdornment position="start">
-          //       <InlineIcon icon={noteLine} />
-          //     </InputAdornment>
-          //   ),
-          // }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <InlineIcon icon={noteLine} />
+              </InputAdornment>
+            ),
+          }}
           error={errors.maxTicketPerDay && true}
           helperText={errors.maxTicketPerDay?.message}
           {...register('maxTicketPerDay', {
@@ -476,20 +476,20 @@ export default function StaffForm(props: FormProps) {
           })}
         />
         <TextField
-          // variant="outlined"
-          // margin="normal"
-          // fullWidth
-          type="hidden"
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          type="number"
           id="maxTicketAllTime"
           defaultValue="0"
-          // label="工单 总上限"
-          // InputProps={{
-          //   startAdornment: (
-          //     <InputAdornment position="start">
-          //       <InlineIcon icon={noteLine} />
-          //     </InputAdornment>
-          //   ),
-          // }}
+          label="工单 总上限"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <InlineIcon icon={noteLine} />
+              </InputAdornment>
+            ),
+          }}
           error={errors.maxTicketAllTime && true}
           helperText={errors.maxTicketAllTime?.message}
           {...register('maxTicketAllTime', {
@@ -503,7 +503,7 @@ export default function StaffForm(props: FormProps) {
             },
             valueAsNumber: true,
           })}
-        />
+        /> */}
         <Controller
           control={control}
           defaultValue="0"

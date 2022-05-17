@@ -34,7 +34,7 @@ import { Message } from 'app/domain/Message';
 import { MessageType } from 'app/domain/constant/Message';
 import UserHeader from 'app/components/Header/UserHeader';
 import { InteractionLogo } from 'app/domain/constant/Conversation';
-import { Chip } from '@material-ui/core';
+import { Chip, ListItemSecondaryAction } from '@material-ui/core';
 import { getDuration, javaInstant2Num } from 'app/utils/timeUtils';
 import useInterval from 'app/hook/useInterval';
 
@@ -87,7 +87,12 @@ function SessionList(props: SessionListProps) {
       const durationList = sessions
         .filter((it) => Boolean(it.firstNeedReplyTime))
         .map((it) => {
-          if (it.firstNeedReplyTime) {
+          if (
+            it.firstNeedReplyTime &&
+            !['TRANSFER', 'STAFF_CLOSE', 'ADMIN_TAKE_OVER'].includes(
+              it.conversation.closeReason ?? ''
+            )
+          ) {
             const createdAtTime = javaInstant2Num(it.firstNeedReplyTime);
             const timeDuration = Math.trunc(
               (new Date().getTime() - createdAtTime.getTime()) / 1000
@@ -221,6 +226,14 @@ function SessionList(props: SessionListProps) {
         logo = <Chip label="已读已回" size="small" color="primary" />;
         break;
       }
+      case InteractionLogo.TRANSFERED: {
+        logo = <Chip label="已转接" size="small" color="primary" />;
+        break;
+      }
+      case InteractionLogo.RECONNECTED: {
+        logo = <Chip label="重新接入" size="small" />;
+        break;
+      }
       default: {
         break;
       }
@@ -286,32 +299,34 @@ function SessionList(props: SessionListProps) {
                     </Typography>
                   }
                 />
-                <small>
-                  <Grid
-                    container
-                    spacing={2}
-                    justifyContent="flex-start"
-                    alignItems="center"
-                  >
-                    <Grid item xs={8}>
-                      {createLogo(interactionLogo)}
+                <ListItemSecondaryAction>
+                  <small>
+                    <Grid
+                      container
+                      spacing={1}
+                      justifyContent="flex-start"
+                      alignItems="center"
+                    >
+                      <Grid item md={8}>
+                        {createLogo(interactionLogo)}
+                      </Grid>
+                      <Grid item md={4}>
+                        {tag === 'important' && <StarIcon />}
+                        {user.status &&
+                        OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                          <SyncAltIcon />
+                        ) : (
+                          <SignalWifiOffIcon />
+                        )}
+                        <br />
+                        {(sessionDuration &&
+                          sessionDuration[conversation.id] &&
+                          getDuration(sessionDuration[conversation.id])) ||
+                          ''}
+                      </Grid>
                     </Grid>
-                    <Grid item xs={4}>
-                      {tag === 'important' && <StarIcon />}
-                      {user.status &&
-                      OnlineStatus.ONLINE === user.status.onlineStatus ? (
-                        <SyncAltIcon />
-                      ) : (
-                        <SignalWifiOffIcon />
-                      )}
-                      <br />
-                      {(sessionDuration &&
-                        sessionDuration[conversation.id] &&
-                        getDuration(sessionDuration[conversation.id])) ||
-                        ''}
-                    </Grid>
-                  </Grid>
-                </small>
+                  </small>
+                </ListItemSecondaryAction>
               </ListItem>
             </React.Fragment>
           );

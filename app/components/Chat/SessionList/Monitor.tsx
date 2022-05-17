@@ -20,11 +20,15 @@ import { CustomerStatus } from 'app/domain/Customer';
 import Staff, { StaffGroup } from 'app/domain/StaffInfo';
 import { from, interval, of, Subscription, zip } from 'rxjs';
 import { groupBy, map, mergeMap, toArray } from 'rxjs/operators';
-import useMonitorUserAndMsg, {
-  QUERY,
-} from 'app/hook/init/useMonitorUserAndMsg';
+import useMonitorUserAndMsg from 'app/hook/init/useMonitorUserAndMsg';
 import { setMonitorSelectedSession } from 'app/state/chat/chatAction';
-import { MonitorGraphql, QUERY_MONITOR } from 'app/domain/graphql/Monitor';
+import {
+  MonitorGraphql,
+  QUERY_CUUSTOMER_AND_LAST_CONV,
+  QUERY_MONITOR,
+  QUERY_STORED_MONITOR,
+  StoredMonitorGraphql,
+} from 'app/domain/graphql/Monitor';
 import { ConversationUserIdGraphql } from 'app/domain/graphql/Conversation';
 import { CustomerGraphql } from 'app/domain/graphql/Customer';
 import { Monitored } from 'app/domain/Chat';
@@ -69,10 +73,16 @@ function Monitor(props: MonitorProps) {
   const [staffOpen, setStaffOpen] = useState(-1);
   const [monitored, setMonitored] = useState<Monitored>();
 
+  const { data: storeMonitorData } = useQuery<StoredMonitorGraphql>(
+    QUERY_STORED_MONITOR,
+    {
+      fetchPolicy: 'no-cache',
+    }
+  );
   const { data, refetch } = useQuery<MonitorGraphql>(QUERY_MONITOR);
   // 懒加载 用户信息，降低服务器一次性获取的数据量
   const [getCustomerInfo, { data: monitoredUserData }] =
-    useLazyQuery<CustomerAndConversationGraphql>(QUERY);
+    useLazyQuery<CustomerAndConversationGraphql>(QUERY_CUUSTOMER_AND_LAST_CONV);
 
   useEffect(() => {
     if (
@@ -130,10 +140,10 @@ function Monitor(props: MonitorProps) {
 
   const grouOfStaff = new Map<number, Staff[]>();
   let resultList: StaffGroup[] | undefined;
-  if (data) {
-    const { staffStatusList, staffList, staffGroupList, customerList } =
-      data.staffOnlineList;
-    const mapOfStaffStatus = _.groupBy(staffList, 'id');
+  if (data && storeMonitorData) {
+    const { staffStatusList, customerList } = data;
+    const { allStaff, allStaffGroup } = storeMonitorData;
+    const mapOfStaffStatus = _.groupBy(allStaff, 'id');
     const mapOfCustomer = _.groupBy(customerList, 'userId');
 
     from(staffStatusList)
@@ -154,9 +164,11 @@ function Monitor(props: MonitorProps) {
         groupBy((s) => s.groupId),
         mergeMap((group) => zip(of(group.key), group.pipe(toArray())))
       )
-      .subscribe((z) => grouOfStaff.set(z[0], z[1]));
+      .subscribe((z) => {
+        grouOfStaff.set(z[0], z[1]);
+      });
 
-    resultList = staffGroupList.map((element) =>
+    resultList = allStaffGroup.map((element) =>
       _.defaults({ staffList: grouOfStaff.get(element.id) }, element)
     );
   }

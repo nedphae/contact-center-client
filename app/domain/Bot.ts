@@ -13,6 +13,11 @@ export interface Answer {
   content: string;
 }
 
+export interface RefQuestion {
+  id: string | undefined;
+  question: string;
+}
+
 export interface Topic {
   id: string | undefined;
   /** 所属知识库ID * */
@@ -32,7 +37,8 @@ export interface Topic {
   type: number;
   /** 相似问题(type=10)对应的标准问题id */
   refId: string | undefined;
-  refQuestion?: string;
+  refList: RefQuestion[] | undefined;
+  refQuestionList: string[] | undefined;
   /** 关联的问题id列表 */
   connectIds: string[] | undefined;
   /** 是否有效标记位 */
