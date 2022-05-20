@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useContext, useMemo } from 'react';
+import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
@@ -81,14 +82,25 @@ interface AssignmentGraphql {
 const MUTATION = gql`
   mutation UpdateStaffStatus($updateStaffStatus: UpdateStaffStatusInput!) {
     updateStaffStatus(updateStaffStatus: $updateStaffStatus) {
-      id: staffId
+      autoBusy
+      currentServiceCount
+      groupId
+      loginTime
+      maxServiceCount
       organizationId
+      priorityOfShunt
+      role
+      shunt
+      staffId
+      staffType
+      userIdList
       onlineStatusKey: onlineStatus
+      onlineStatus
     }
   }
 `;
 
-const assignment = gql`
+const MUTATION_ASSIGNMENT = gql`
   mutation AssignmentFromQueue($staffStatus: StaffStatusInput!) {
     assignmentFromQueue(staffStatus: $staffStatus) {
       id: staffId
@@ -107,7 +119,8 @@ export default function AdminNavbarLinks() {
   const [openProfile, setOpenProfile] = React.useState<any>(null);
   const mySelf = useSelector(getMyself);
   const [updateStaffStatus] = useMutation<Graphql>(MUTATION);
-  // const [assignmentFromQueue] = useMutation<AssignmentGraphql>(MUTATION);
+  const [assignmentFromQueue] =
+    useMutation<AssignmentGraphql>(MUTATION_ASSIGNMENT);
 
   const handleClickNotification = (event: {
     target: any;
@@ -150,9 +163,11 @@ export default function AdminNavbarLinks() {
         .then((data) => {
           const staffStatus = data.data?.updateStaffStatus;
           if (staffStatus) {
+            const returnOnlineStatus =
+              OnlineStatus[staffStatus.onlineStatusKey];
             if (
-              staffStatus.onlineStatus !== onlineStatus &&
-              staffStatus.onlineStatus === OnlineStatus.OFFLINE
+              returnOnlineStatus !== onlineStatus &&
+              returnOnlineStatus === OnlineStatus.OFFLINE
             ) {
               // 在线状态设置失败，返回的状态不是设置的状态，则更新为离线状态
               // 并提示用户设置失败
@@ -163,17 +178,25 @@ export default function AdminNavbarLinks() {
                   severity: 'warning',
                 })
               );
+            } else if (returnOnlineStatus === OnlineStatus.ONLINE) {
+              assignmentFromQueue({
+                variables: {
+                  staffStatus: _.omit(
+                    staffStatus,
+                    'onlineStatusKey',
+                    '__typename'
+                  ),
+                },
+              });
             }
-            dispatch(
-              setOnlineAndInterval(OnlineStatus[staffStatus.onlineStatusKey])
-            );
+            dispatch(setOnlineAndInterval(returnOnlineStatus));
           }
           return staffStatus;
         })
         .catch((error) => console.error(error));
       setOpenProfile(null);
     },
-    [dispatch, updateStaffStatus]
+    [assignmentFromQueue, dispatch, updateStaffStatus]
   );
 
   const memoMap = useMemo(() => {

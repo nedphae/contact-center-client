@@ -33,7 +33,7 @@ export async function oauthLogin(
   bodyFormData.append('password', param.password);
   const result = await axios.post<OauthToken>(url, bodyFormData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      'Content-Type': 'application/x-www-form-urlencoded',
       Authorization: clientConfig.headers.Authorization,
     },
   });

@@ -113,7 +113,7 @@ export default function Editor(selected: SelectedProps) {
         setMessage('');
       }
     } else {
-      onErrorMsg('当前用户不在线，无法发送消息');
+      onErrorMsg('当前客服不在线，无法发送消息');
     }
   }
 
@@ -249,9 +249,8 @@ export default function Editor(selected: SelectedProps) {
               disabled={
                 // 如果会话是因为转接结束的，就不能再发消息
                 Boolean(selectedSession.conversation.endTime) &&
-                [CloseReason.TRANSLATE, CloseReason.ADMIN_TAKE_OVER].includes(
-                  selectedSession.conversation.closeReason ??
-                    CloseReason.USER_LEFT
+                ['TRANSFER', 'ADMIN_TAKE_OVER'].includes(
+                  selectedSession.conversation.closeReason ?? 'USER_LEFT'
                 )
               }
             />
