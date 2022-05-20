@@ -195,7 +195,7 @@ export default function CommentManagement() {
               <div className={classes.root}>
                 <Controller
                   control={control}
-                  defaultValue={false}
+                  defaultValue
                   name="time"
                   render={({ field: { onChange, value } }) => (
                     <FormControlLabel

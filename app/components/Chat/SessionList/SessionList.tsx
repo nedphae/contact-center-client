@@ -34,7 +34,7 @@ import { Message } from 'app/domain/Message';
 import { MessageType } from 'app/domain/constant/Message';
 import UserHeader from 'app/components/Header/UserHeader';
 import { InteractionLogo } from 'app/domain/constant/Conversation';
-import { Chip, ListItemSecondaryAction } from '@material-ui/core';
+import { Box, Chip, ListItemSecondaryAction } from '@material-ui/core';
 import { getDuration, javaInstant2Num } from 'app/utils/timeUtils';
 import useInterval from 'app/hook/useInterval';
 
@@ -256,78 +256,82 @@ function SessionList(props: SessionListProps) {
           } = session;
           return (
             <React.Fragment key={conversation.id}>
-              <ListItem
-                button
-                selected={
-                  selectedSession?.conversation.userId === conversation.userId
-                }
-                onClick={(event) => handleListItemClick(event, session)}
-                // 右键菜单
-                onContextMenu={(event) =>
-                  handleContextMenu(event, {
-                    userId: conversation.userId,
-                    sticky,
-                    tag,
-                  })
-                }
-              >
-                <ListItemAvatar>
-                  {/* badgeContent 未读消息 */}
-                  <Badge badgeContent={unread} max={99} color="secondary">
-                    {user && user.status && <UserHeader status={user.status} />}
-                  </Badge>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    <Typography noWrap display="block">
-                      {user.name === undefined ? user.uid : user.name}
-                    </Typography>
+              <Box borderLeft={sticky ? 2 : 0}>
+                <ListItem
+                  button
+                  selected={
+                    selectedSession?.conversation.userId === conversation.userId
                   }
-                  secondary={
-                    <Typography
-                      noWrap
-                      variant="caption"
-                      color="textSecondary"
-                      display="block"
-                    >
-                      {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
-                      {lastMessage === undefined ? (
-                        <>&nbsp;</>
-                      ) : (
-                        getMessagePreview(lastMessage)
+                  onClick={(event) => handleListItemClick(event, session)}
+                  // 右键菜单
+                  onContextMenu={(event) =>
+                    handleContextMenu(event, {
+                      userId: conversation.userId,
+                      sticky,
+                      tag,
+                    })
+                  }
+                >
+                  <ListItemAvatar>
+                    {/* badgeContent 未读消息 */}
+                    <Badge badgeContent={unread} max={99} color="secondary">
+                      {user && user.status && (
+                        <UserHeader status={user.status} />
                       )}
-                    </Typography>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <small>
-                    <Grid
-                      container
-                      spacing={1}
-                      justifyContent="flex-start"
-                      alignItems="center"
-                    >
-                      <Grid item md={8}>
-                        {createLogo(interactionLogo)}
-                      </Grid>
-                      <Grid item md={4}>
-                        {tag === 'important' && <StarIcon />}
-                        {user.status &&
-                        OnlineStatus.ONLINE === user.status.onlineStatus ? (
-                          <SyncAltIcon />
+                    </Badge>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Typography noWrap display="block">
+                        {user.name === undefined ? user.uid : user.name}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography
+                        noWrap
+                        variant="caption"
+                        color="textSecondary"
+                        display="block"
+                      >
+                        {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
+                        {lastMessage === undefined ? (
+                          <>&nbsp;</>
                         ) : (
-                          <SignalWifiOffIcon />
+                          getMessagePreview(lastMessage)
                         )}
-                        <br />
-                        {(sessionDuration &&
-                          sessionDuration[conversation.id] &&
-                          getDuration(sessionDuration[conversation.id])) ||
-                          ''}
+                      </Typography>
+                    }
+                  />
+                  <ListItemSecondaryAction>
+                    <small>
+                      <Grid
+                        container
+                        spacing={1}
+                        justifyContent="flex-start"
+                        alignItems="center"
+                      >
+                        <Grid item md={8}>
+                          {createLogo(interactionLogo)}
+                        </Grid>
+                        <Grid item md={4}>
+                          {tag === 'important' && <StarIcon />}
+                          {user.status &&
+                          OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                            <SyncAltIcon />
+                          ) : (
+                            <SignalWifiOffIcon />
+                          )}
+                          <br />
+                          {(sessionDuration &&
+                            sessionDuration[conversation.id] &&
+                            getDuration(sessionDuration[conversation.id])) ||
+                            ''}
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </small>
-                </ListItemSecondaryAction>
-              </ListItem>
+                    </small>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              </Box>
             </React.Fragment>
           );
         })}
