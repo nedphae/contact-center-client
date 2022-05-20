@@ -69,10 +69,20 @@ const columns: GridColDef[] = [
   { field: 'userId', headerName: '客户ID', width: 150 },
   { field: 'uid', headerName: '客户UID', width: 150 },
   { field: 'userName', headerName: '客户名称', width: 150 },
+  { field: 'country', headerName: '国家', width: 150 },
+  { field: 'city', headerName: '地区', width: 150 },
   {
     field: 'startTime',
     headerName: '开始时间',
     type: 'dateTime',
+    width: 200,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
+  {
+    field: 'clientFirstMessageTime',
+    headerName: '访客首条消息时间',
     width: 200,
     valueGetter: (params: GridValueGetterParams) => {
       return params.value ? javaInstant2DateStr(params.value as number) : null;
@@ -153,18 +163,18 @@ const columns: GridColDef[] = [
   {
     field: 'evaluate.evaluation',
     headerName: '用户评价分数',
-    width: 150,
+    width: 200,
     valueGetter: (params: GridValueGetterParams) => {
-      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      const evaluate = params.row.evaluate as Evaluate;
       return getEvaluation(evaluate?.evaluation);
     },
   },
   {
     field: 'evaluate.evaluationRemark',
     headerName: '用户评价内容',
-    width: 150,
+    width: 250,
     valueGetter: (params: GridValueGetterParams) => {
-      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      const evaluate = params.row.evaluate as Evaluate;
       return evaluate?.evaluationRemark;
     },
   },
@@ -173,7 +183,7 @@ const columns: GridColDef[] = [
     headerName: '用户标记的解决状态',
     width: 200,
     valueGetter: (params: GridValueGetterParams) => {
-      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
+      const evaluate = params.row.evaluate as Evaluate;
       let result = '未知';
       switch (evaluate?.userResolvedStatus) {
         case 1: {
@@ -197,8 +207,8 @@ const columns: GridColDef[] = [
     headerName: '解决状态',
     width: 150,
     valueGetter: (params: GridValueGetterParams) => {
-      const evaluate = params.getValue(params.id, 'evaluate') as Evaluate;
-      let result = '机器人会话';
+      const evaluate = params.row.evaluate as Evaluate;
+      let result = '未选择';
       switch (evaluate?.userResolvedStatus) {
         case 1: {
           result = '已解决';
@@ -270,12 +280,12 @@ const columns: GridColDef[] = [
   },
   { field: 'transferFromShunt', headerName: '转接来源接待组名称', width: 200 },
   { field: 'transferRemarks', headerName: '转接来源备注', width: 200 },
-  {
-    field: 'isStaffInvited',
-    headerName: '客服是否邀请会话',
-    type: 'boolean',
-    width: 150,
-  },
+  // {
+  //   field: 'isStaffInvited',
+  //   headerName: '客服是否邀请会话',
+  //   type: 'boolean',
+  //   width: 150,
+  // },
   {
     field: 'convType',
     headerName: '会话类型',
@@ -443,14 +453,6 @@ const columns: GridColDef[] = [
     type: 'number',
     width: 150,
   },
-  {
-    field: 'clientFirstMessageTime',
-    headerName: '访客首条消息时间',
-    width: 200,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
   { field: 'avgRespDuration', headerName: '客服平均响应时长', width: 200 },
   {
     field: 'valid',
@@ -478,12 +480,12 @@ const columns: GridColDef[] = [
     type: 'number',
     width: 150,
   },
-  {
-    field: 'treatedTime',
-    headerName: '留言处理时间',
-    type: 'number',
-    width: 200,
-  },
+  // {
+  //   field: 'treatedTime',
+  //   headerName: '留言处理时间',
+  //   type: 'number',
+  //   width: 200,
+  // },
   {
     field: 'isEvaluationInvited',
     headerName: '客服是否邀评',

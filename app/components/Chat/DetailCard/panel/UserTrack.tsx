@@ -86,7 +86,7 @@ export default function UserTrack() {
   // const status = fakeUserTrack;
   const dispatch = useDispatch();
   const status = useSelector(getSelectedConstomer)?.status;
-  const [getStatus, { data, refetch }] = useLazyQuery<CustomerStatusGraphql>(
+  const [getStatus, { data }] = useLazyQuery<CustomerStatusGraphql>(
     QUERY_CUSTOMER_STATUS,
     {
       variables: { userId: status?.userId },
@@ -97,10 +97,8 @@ export default function UserTrack() {
   useEffect(() => {
     if (data?.getCustomerStatus) {
       dispatch(updateCustomerStatus(data?.getCustomerStatus));
-    } else {
-      getStatus({ variables: { userId: status?.userId } });
     }
-  }, [data, dispatch, getStatus, status]);
+  }, [data, dispatch]);
 
   const activeStep =
     status?.userTrackList?.filter((it) => it.awayTime).length ?? 0;
@@ -117,7 +115,7 @@ export default function UserTrack() {
                   )} 秒`
                 : '正在访问';
               return (
-                <Step key={userTrack.url}>
+                <Step key={`${userTrack.enterTime}-${userTrack.url}`}>
                   <StepLabel>{`${time}, 页面: ${userTrack.url}`}</StepLabel>
                   <StepContent>
                     <Typography>{userTrack.title}</Typography>
@@ -131,14 +129,14 @@ export default function UserTrack() {
               <Typography>用户已经离开网页</Typography>
             </Paper>
           )}
-          {refetch && (
+          {getStatus && (
             <div className={classes.actionsContainer}>
               <div>
                 <Button
                   variant="contained"
                   color="primary"
                   onClick={() => {
-                    refetch();
+                    getStatus();
                   }}
                   className={classes.button}
                 >

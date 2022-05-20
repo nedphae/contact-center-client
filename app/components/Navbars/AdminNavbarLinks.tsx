@@ -248,6 +248,15 @@ export default function AdminNavbarLinks() {
         </Button>
       </div>
        */}
+      <NavLink activeClassName="active" to="/admin/entertain">
+        <IconButton
+          aria-label="Dashboard"
+          size="small"
+          className={classes.buttonLink}
+        >
+          <QuestionAnswerIcon fontSize="inherit" />
+        </IconButton>
+      </NavLink>
       <IconButton
         aria-label="Toggle light/dark theme"
         className={classes.buttonLink}
@@ -260,15 +269,6 @@ export default function AdminNavbarLinks() {
           <Brightness4Icon fontSize="inherit" />
         )}
       </IconButton>
-      <NavLink activeClassName="active" to="/admin/entertain">
-        <IconButton
-          aria-label="Dashboard"
-          size="small"
-          className={classes.buttonLink}
-        >
-          <QuestionAnswerIcon fontSize="inherit" />
-        </IconButton>
-      </NavLink>
       {/*
       <div className={classes.manager}>
         <Button

@@ -177,6 +177,7 @@ export const updateOrCreateConv =
       // 根据分配的 conversation 获取 user
       const customer = await getCustomerByUserId(userId);
       if (session) {
+        // console.info('更新客户对象: %o', customer.status);
         // 更新 newSession
         dispatch(
           updateConverAndCustomer({ conversation: conver, user: customer })

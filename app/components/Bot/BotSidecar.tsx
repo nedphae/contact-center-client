@@ -36,7 +36,9 @@ import {
 } from '@material-ui/core';
 import StaffFormContainer from 'app/components/StaffForm/StaffFromContainer';
 import Staff from 'app/domain/StaffInfo';
-import BotConfigForm from 'app/components/Bot/BotConfigForm';
+import BotConfigForm, {
+  MUTATION_BOT_CONFIG,
+} from 'app/components/Bot/BotConfigForm';
 import TopicAndKnowladgeContainer, {
   TopicOrKnowladgeKey,
   TopicOrKnowladge,
@@ -73,7 +75,7 @@ interface BotProps {
   selectTC: TopicCategory | undefined;
 }
 
-const MUTATION_BOT_CONFIG = gql`
+const MUTATION_DEL_BOT_CONFIG = gql`
   mutation DeleteBotConfig($ids: [Long!]!) {
     deleteBotConfigByIds(ids: $ids)
   }
@@ -99,6 +101,7 @@ export default function BotSidecar(props: BotProps) {
   } = props;
   const [state, setState] = useState<MousePoint>(initialMousePoint);
   const refOfDialog = useRef<DraggableDialogRef>(null);
+  const refOfBotConfigDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
   const [configStaff, setConfigStaff] = useState<Staff>();
   const [topicOrKnowladge, setTopicOrKnowladge] =
@@ -140,6 +143,8 @@ export default function BotSidecar(props: BotProps) {
     onCompleted,
     onError,
   });
+
+  const [saveBotConfig] = useMutation<Graphql>(MUTATION_BOT_CONFIG);
 
   const handleContextMenuOpen = useCallback(
     (
@@ -252,17 +257,20 @@ export default function BotSidecar(props: BotProps) {
   }
 
   /**
-   * 关联知识库和机器人
+   * 关联机器人账号
    */
   const interrelateBot = () => {
     setState(initialMousePoint);
     refOfDialog.current?.setOpen(true);
   };
 
-  function mutationCallback(staff: Staff) {
-    setConfigStaff(staff);
-    refetch();
-  }
+  /**
+   * 修改机器人配置
+   */
+  const openBotConfig = () => {
+    setState(initialMousePoint);
+    refOfBotConfigDialog.current?.setOpen(true);
+  };
 
   const botConfigList =
     memoData.botConfigMap[topicOrKnowladge.Knowladge?.id ?? -1] ?? [];
@@ -273,6 +281,26 @@ export default function BotSidecar(props: BotProps) {
     botConfig,
     staffId,
   };
+
+  async function mutationCallback(staff: Staff) {
+    setConfigStaff(staff);
+    if (memoStaffAndBotConfig.botConfig) {
+      refetch();
+    } else {
+      // 是新账号，就新建一个机器人配置
+      // 防止用户不点击机器人配置按钮，导致没有机器人配置
+      await saveBotConfig({
+        variables: {
+          botConfigInput: {
+            botId: staff.id,
+            knowledgeBaseId: topicOrKnowladge?.Knowladge?.id,
+            noAnswerReply: botConfigNoAnswerReply,
+          },
+        },
+      });
+      refetch();
+    }
+  }
 
   return (
     <Grid item xs={12} sm={2}>
@@ -315,7 +343,10 @@ export default function BotSidecar(props: BotProps) {
         >
           {topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' && [
             <MenuItem key="interrelateBot" onClick={interrelateBot}>
-              关联到客服账号
+              关联机器人账号
+            </MenuItem>,
+            <MenuItem key="openBotConfig" onClick={openBotConfig}>
+              机器人配置
             </MenuItem>,
             <MenuItem
               key="editTopicOrKnowladge"
@@ -372,18 +403,15 @@ export default function BotSidecar(props: BotProps) {
         </Menu>
       </div>
       {/* 显示 弹窗配置知识库对应的机器人 */}
-      <DraggableDialog title="配置机器人账户" ref={refOfDialog}>
-        <Typography variant="h5" gutterBottom>
-          客服账号配置
-        </Typography>
+      <DraggableDialog title="关联机器人账号" ref={refOfDialog}>
         <StaffFormContainer
           staffId={memoStaffAndBotConfig.staffId}
-          mutationCallback={mutationCallback}
+          mutationCallback={(staff) => {
+            mutationCallback(staff);
+          }}
         />
-        <Divider />
-        <Typography variant="h5" gutterBottom>
-          机器人配置
-        </Typography>
+      </DraggableDialog>
+      <DraggableDialog title="机器人配置" ref={refOfBotConfigDialog}>
         {(memoStaffAndBotConfig.botConfig && (
           <BotConfigForm
             defaultValues={memoStaffAndBotConfig.botConfig}
@@ -403,7 +431,7 @@ export default function BotSidecar(props: BotProps) {
                 refetch();
               }}
             />
-          ))}
+          )) || <Typography>请先关联一个机器人账号</Typography>}
       </DraggableDialog>
       <DraggableDialog
         title={

@@ -189,6 +189,8 @@ const CONTENT_QUERY = gql`
       vipLevel
       visitRange
       region
+      country
+      city
     }
     highlightFields
     id

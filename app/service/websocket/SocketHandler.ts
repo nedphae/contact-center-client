@@ -11,6 +11,7 @@ import {
 } from 'app/state/session/sessionAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { AppDispatch } from 'app/store';
+import { setSnackbarProp } from 'app/state/chat/chatAction';
 import EventInterface, { CallBack } from './EventInterface';
 
 export default class SocketHandler implements EventInterface {
@@ -36,6 +37,13 @@ export default class SocketHandler implements EventInterface {
     // this.socket.connect();
     this.socket.on('disconnect', () => {
       this.dispatch(updateOnlineStatusBySocket(OnlineStatus.OFFLINE));
+      this.dispatch(
+        setSnackbarProp({
+          open: true,
+          message: '网络异常，正在重新连接网络...',
+          severity: 'warning',
+        })
+      );
     });
   }
 

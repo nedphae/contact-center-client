@@ -36,7 +36,7 @@ interface Graphql {
   saveBotConfig: BotConfig;
 }
 
-const MUTATION = gql`
+export const MUTATION_BOT_CONFIG = gql`
   mutation BotConfig($botConfigInput: BotConfigInput!) {
     saveBotConfig(botConfig: $botConfigInput) {
       id
@@ -60,10 +60,13 @@ export default function BotConfigForm(props: FormProps) {
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
-  const [saveBotConfig, { loading, data }] = useMutation<Graphql>(MUTATION, {
-    onCompleted,
-    onError,
-  });
+  const [saveBotConfig, { loading, data }] = useMutation<Graphql>(
+    MUTATION_BOT_CONFIG,
+    {
+      onCompleted,
+      onError,
+    }
+  );
   if (loading) {
     onLoadding(loading);
   }

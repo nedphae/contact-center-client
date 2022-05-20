@@ -74,6 +74,8 @@ export interface Conversation {
   beginner: CreatorType;
   chatMessages: Message[] | undefined;
   region: string | undefined;
+  country: string | undefined;
+  city: string | undefined;
 }
 
 export interface SearchHit<T> {
