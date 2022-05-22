@@ -36,7 +36,7 @@ import { history } from 'app/store';
 import useAutoLogin from 'app/hook/autoLogin/useAutoLogin';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { saveOnlineStatus } from 'app/electron/jwtStorage';
-import logo from 'app/assets/img/logo.png';
+import logo from 'app/assets/img/logo.ico';
 import { green } from '@material-ui/core/colors';
 
 function Copyright() {

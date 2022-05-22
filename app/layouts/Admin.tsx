@@ -1,4 +1,6 @@
 import React, { createContext, useEffect, useMemo } from 'react';
+
+import { ipcRenderer } from 'electron';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { debounceTime, Subject } from 'rxjs';
@@ -30,7 +32,7 @@ import routes from '../routes';
 import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
 import bgImage from '../assets/img/sidebar-4.jpg';
-import logo from '../assets/img/reactlogo.png';
+import logo from '../assets/img/logo.ico';
 import newMsgSound from '../assets/sounds/new-msg.wav';
 
 let ps: PerfectScrollbar;
@@ -81,6 +83,19 @@ export default function Admin({ ...rest }) {
     return subjectSearchText.pipe(debounceTime(1500)).subscribe({
       next: () => {
         play();
+        if (document.hidden) {
+          const notification = new Notification('您有新消息', {
+            body: '点击查看',
+            silent: true,
+            icon: logo,
+          });
+          notification.onclick = () => {
+            ipcRenderer.send('show-main-window');
+          };
+          setTimeout(() => {
+            notification.close();
+          }, 5000);
+        }
         dispatch(clearPlayNewMessageSound());
       },
     });

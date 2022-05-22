@@ -188,6 +188,9 @@ export default function BotConfigForm(props: FormProps) {
           })}
         />
         <Divider className={classes.divider} />
+        <Typography variant="subtitle1" gutterBottom>
+          当有问题匹配，但是精准度低于配置时，是否显示相似问题
+        </Typography>
         <Controller
           control={control}
           name="similarQuestionEnable"
@@ -206,7 +209,7 @@ export default function BotConfigForm(props: FormProps) {
                     color="primary"
                   />
                 }
-                label="无问题匹配时，是否展示相似问题"
+                label="展示相似问题"
               />
               {invalid && <FormHelperText>{error?.message}</FormHelperText>}
             </>
