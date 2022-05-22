@@ -16,6 +16,7 @@ export default interface Staff {
   onlineStatusKey: OnlineStatusKey;
   maxServiceCount: number;
   currentServiceCount: number;
+  priorityOfShunt: string;
   userIdList: number[];
   loginTime: Date;
   /** 是否是机器人 0 机器人， 1人工 */

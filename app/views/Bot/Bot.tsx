@@ -83,6 +83,10 @@ const QUERY_BOTS = gql`
       botId
       knowledgeBaseId
       noAnswerReply
+      questionPrecision
+      similarQuestionEnable
+      similarQuestionNotice
+      similarQuestionCount
     }
     allKnowledgeBase {
       id

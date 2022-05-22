@@ -20,6 +20,7 @@ import {
   KnowledgeBase,
   TopicCategory,
   botConfigNoAnswerReply,
+  botConfigSimilarQuestionNotice,
 } from 'app/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -287,17 +288,23 @@ export default function BotSidecar(props: BotProps) {
     if (memoStaffAndBotConfig.botConfig) {
       refetch();
     } else {
-      // 是新账号，就新建一个机器人配置
-      // 防止用户不点击机器人配置按钮，导致没有机器人配置
-      await saveBotConfig({
-        variables: {
-          botConfigInput: {
-            botId: staff.id,
-            knowledgeBaseId: topicOrKnowladge?.Knowladge?.id,
-            noAnswerReply: botConfigNoAnswerReply,
+      if (topicOrKnowladge?.Knowladge?.id) {
+        // 是新账号，就新建一个机器人配置
+        // 防止用户不点击机器人配置按钮，导致没有机器人配置
+        await saveBotConfig({
+          variables: {
+            botConfigInput: {
+              botId: staff.id,
+              knowledgeBaseId: topicOrKnowladge?.Knowladge?.id,
+              noAnswerReply: botConfigNoAnswerReply,
+              questionPrecision: 0.9,
+              similarQuestionEnable: true,
+              similarQuestionNotice: botConfigSimilarQuestionNotice,
+              similarQuestionCount: 5,
+            },
           },
-        },
-      });
+        });
+      }
       refetch();
     }
   }
@@ -426,6 +433,10 @@ export default function BotSidecar(props: BotProps) {
                 botId: configStaff.id,
                 knowledgeBaseId: topicOrKnowladge.Knowladge.id,
                 noAnswerReply: botConfigNoAnswerReply,
+                questionPrecision: 0.9,
+                similarQuestionEnable: true,
+                similarQuestionNotice: botConfigSimilarQuestionNotice,
+                similarQuestionCount: 5,
               }}
               afterMutationCallback={() => {
                 refetch();

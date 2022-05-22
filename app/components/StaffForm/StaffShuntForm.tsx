@@ -776,7 +776,7 @@ initXiaobaiChat(params);
             }}
           />
         )}
-        <TextField
+        {/* <TextField
           variant="outlined"
           margin="normal"
           fullWidth
@@ -805,7 +805,7 @@ initXiaobaiChat(params);
             ),
           }}
           {...register('authorizationToken')}
-        />
+        /> */}
         <Grid container>
           <Grid item xs={7}>
             <Upload {...imgUploadProps}>
@@ -866,31 +866,6 @@ initXiaobaiChat(params);
           }}
           onChange={handleWelcomeMessageChange}
         />
-        <Grid container>
-          <Grid item xs={7}>
-            <Upload {...avatarUploadProps}>
-              <Typography variant="body1">
-                客服头像设置 (最大 108 * 108，点击头像或上传添加/修改)
-              </Typography>
-              {chatUIConfigObj && chatUIConfigObj.robot?.avatar ? (
-                <img
-                  src={chatUIConfigObj.robot.avatar}
-                  alt="logo"
-                  style={{ maxHeight: '40px' }}
-                />
-              ) : (
-                <Button variant="contained" color="primary">
-                  上传图片
-                </Button>
-              )}
-            </Upload>
-          </Grid>
-          <Grid item xs={5}>
-            <Button color="secondary" onClick={onDeleteAvatarClick}>
-              删除图片
-            </Button>
-          </Grid>
-        </Grid>
         <FormControl variant="outlined" margin="normal" fullWidth>
           <InputLabel id="demo-mutiple-chip-label">热门问题</InputLabel>
           <Select
@@ -940,6 +915,31 @@ initXiaobaiChat(params);
               ))}
           </Select>
         </FormControl>
+        <Grid container>
+          <Grid item xs={7}>
+            <Upload {...avatarUploadProps}>
+              <Typography variant="body1">
+                客服头像设置 (最大 108 * 108，点击头像或上传添加/修改)
+              </Typography>
+              {chatUIConfigObj && chatUIConfigObj.robot?.avatar ? (
+                <img
+                  src={chatUIConfigObj.robot.avatar}
+                  alt="logo"
+                  style={{ maxHeight: '40px' }}
+                />
+              ) : (
+                <Button variant="contained" color="primary">
+                  上传图片
+                </Button>
+              )}
+            </Upload>
+          </Grid>
+          <Grid item xs={5}>
+            <Button color="secondary" onClick={onDeleteAvatarClick}>
+              删除图片
+            </Button>
+          </Grid>
+        </Grid>
         <div className={classes.root}>
           <Accordion>
             <AccordionSummary
@@ -976,19 +976,21 @@ initXiaobaiChat(params);
             </AccordionDetails>
           </Accordion>
         </div>
-        <Typography variant="h6" gutterBottom>
-          配置ChatUI界面
-          <Link
-            target="_blank"
-            href="https://chatui.io/sdk/config-ui"
-            variant="body2"
-            color="textPrimary"
-            style={{ marginLeft: 10 }}
-          >
-            查看ChatUI配置文档（推荐开发进行配置）
-          </Link>
-        </Typography>
-        <div ref={jsoneditorRef} style={{ height: '500px' }} />
+        <div style={{ display: 'none' }}>
+          <Typography variant="h6" gutterBottom>
+            配置ChatUI界面
+            <Link
+              target="_blank"
+              href="https://chatui.io/sdk/config-ui"
+              variant="body2"
+              color="textPrimary"
+              style={{ marginLeft: 10 }}
+            >
+              查看ChatUI配置文档（推荐开发进行配置）
+            </Link>
+          </Typography>
+          <div ref={jsoneditorRef} style={{ height: '500px' }} />
+        </div>
         <SubmitButton />
       </form>
     </div>

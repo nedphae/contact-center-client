@@ -425,9 +425,11 @@ export default function TopicForm(props: FormProps) {
                       </InputAdornment>
                     ),
                   }}
-                  error={errors.refList && true}
+                  error={errors.refList && errors.refList[index] && true}
                   helperText={
-                    errors.refList && errors.refList[0]?.question?.message
+                    errors.refList &&
+                    errors.refList[index] &&
+                    errors.refList[index]?.question?.message
                   }
                   {...register(`refList.${index}.question`, {
                     required: '相似问题必填',
@@ -456,6 +458,8 @@ export default function TopicForm(props: FormProps) {
         </Button>
         <Alert severity="info" className={classes.alert}>
           图文和富文本答案可以同时存在，顺序是先文字，然后图片，最后富文本。如果相应答案为空，则不显示。
+          <br />
+          如果需要配置问题转人工，只需要把全部外部答案留空即可。
         </Alert>
         {questionType === 1 && (
           <>

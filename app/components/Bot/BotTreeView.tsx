@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-
-import { v4 as uuidv4 } from 'uuid';
+import React from 'react';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
@@ -63,7 +61,7 @@ function buildTopicCategory(
       nodeId={`topicCategory-${cl.id}`}
       label={
         <>
-          <ListItem>
+          <ListItem component="ul">
             {cl.name}
             {selectTC && selectTC.id === cl.id && (
               <FilterListIcon fontSize="small" />

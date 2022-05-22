@@ -178,7 +178,10 @@ export default function AdminNavbarLinks() {
                   severity: 'warning',
                 })
               );
-            } else if (returnOnlineStatus === OnlineStatus.ONLINE) {
+            } else if (
+              returnOnlineStatus === OnlineStatus.ONLINE &&
+              !_.isEmpty(JSON.parse(staffStatus.priorityOfShunt))
+            ) {
               assignmentFromQueue({
                 variables: {
                   staffStatus: _.omit(

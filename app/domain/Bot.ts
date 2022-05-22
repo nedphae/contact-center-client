@@ -68,9 +68,15 @@ export interface BotConfig {
   botId: number;
   knowledgeBaseId: number;
   noAnswerReply: string;
+  questionPrecision: number;
+  similarQuestionEnable: boolean;
+  similarQuestionNotice: string;
+  similarQuestionCount: number;
 }
 
 export const botConfigNoAnswerReply = '抱歉，没有找到您想要的答案';
+export const botConfigSimilarQuestionNotice =
+  '抱歉，没有找到您想要的答案。您可能想问';
 
 export function makeTreeNode(
   topicCategory: TopicCategory[],
