@@ -209,10 +209,15 @@ export const updateOrCreateConv =
  */
 export const assignmentConver =
   (request: WebSocketRequest<Conversation>, cb: CallBack<string>): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
     const conversation = request.body;
     if (conversation !== undefined) {
       dispatch(updateOrCreateConv(conversation));
+      // 设置提示音
+      const currentPath = getState().router.location.pathname;
+      if (!currentPath.includes('/entertain') || document.hidden) {
+        dispatch(setPlayNewMessageSound());
+      }
       cb(generateResponse(request.header, '"OK"'));
     } else {
       cb(generateResponse(request.header, 'request empty', 400));
@@ -590,7 +595,8 @@ export const setNewMessage =
                     })
                   );
                 }
-              } // 设置提示音
+              }
+              // 设置提示音
               const currentPath = getState().router.location.pathname;
 
               if (!currentPath.includes('/entertain') || document.hidden) {

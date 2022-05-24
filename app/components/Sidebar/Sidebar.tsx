@@ -2,6 +2,7 @@
 import React from "react";
 import { useSelector } from 'react-redux';
 import classNames from "classnames";
+import clsx from 'clsx';
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 // @material-ui/core components
@@ -79,7 +80,8 @@ export default function Sidebar(props: { rtlActive?: any; open?: any; handleDraw
               <ListItemText
                 primary={props.rtlActive ? prop.rtlName : prop.name}
                 className={classNames(classes.itemText, whiteFontClasses, {
-                  [classes.itemTextRTL]: props.rtlActive
+                  [classes.itemTextRTL]: props.rtlActive,
+                  // [classes.itemTextHidden]: true,
                 })}
                 disableTypography={true}
               />
@@ -140,9 +142,15 @@ export default function Sidebar(props: { rtlActive?: any; open?: any; handleDraw
           anchor={props.rtlActive ? "right" : "left"}
           variant="permanent"
           open
+          className={clsx(classes.drawer, {
+            // [classes.drawerOpen]: false,
+            // [classes.drawerClose]: true,
+          })}
           classes={{
             paper: classNames(classes.drawerPaper, {
-              [classes.drawerPaperRTL]: props.rtlActive
+              [classes.drawerPaperRTL]: props.rtlActive,
+              // [classes.drawerOpen]: false,
+              // [classes.drawerClose]: true,
             })
           }}
         >

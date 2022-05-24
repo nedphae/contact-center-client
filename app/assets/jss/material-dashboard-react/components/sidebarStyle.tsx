@@ -1,3 +1,4 @@
+import { Theme } from '@material-ui/core';
 import {
   drawerWidth,
   transition,
@@ -15,9 +16,30 @@ import {
   hexToRgb,
 } from '../../material-dashboard-react';
 
-const sidebarStyle: any = (theme: {
-  breakpoints: { up: (arg0: string) => any; down: (arg0: string) => any };
-}) => ({
+const sidebarStyle: any = (theme: Theme) => ({
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+  },
+  drawerOpen: {
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerClose: {
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: 'hidden',
+    width: theme.spacing(7) + 1,
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing(9) + 1,
+    },
+  },
   drawerPaper: {
     border: 'none',
     position: 'fixed',
@@ -26,14 +48,14 @@ const sidebarStyle: any = (theme: {
     left: '0',
     zIndex: '1',
     ...boxShadow,
-    width: drawerWidth,
+    // width: drawerWidth,
     [theme.breakpoints.up('md')]: {
-      width: drawerWidth,
+      // width: drawerWidth,
       position: 'fixed',
       height: '100%',
     },
     [theme.breakpoints.down('sm')]: {
-      width: drawerWidth,
+      // width: drawerWidth,
       ...boxShadow,
       position: 'fixed',
       display: 'block',
@@ -140,6 +162,7 @@ const sidebarStyle: any = (theme: {
     position: 'unset',
   },
   item: {
+    width: 'auto',
     position: 'relative',
     display: 'block',
     textDecoration: 'none',
@@ -183,6 +206,10 @@ const sidebarStyle: any = (theme: {
   },
   itemTextRTL: {
     textAlign: 'right',
+  },
+  itemTextHidden: {
+    opacity: '0',
+    transform: 'translate3d(-25px, 0, 0)',
   },
   whiteFont: {
     color: whiteColor,

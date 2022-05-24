@@ -29,7 +29,6 @@ import TopicForm from 'app/components/Bot/TopicForm';
 import BotSidecar from 'app/components/Bot/BotSidecar';
 import 'app/assets/css/DropdownTreeSelect.global.css';
 import useAlert from 'app/hook/alert/useAlert';
-import { PageParam } from 'app/domain/graphql/Query';
 import { TopicFilterInput } from 'app/domain/graphql/Bot';
 import TopicSearchFrom from 'app/components/Bot/TopicSearchForm';
 
@@ -49,6 +48,10 @@ interface BotGraphql {
 
 interface TopicGraphql {
   searchTopic: Topic[];
+}
+
+interface TopicFilterInputGraphql {
+  topicFilterInput: TopicFilterInput;
 }
 
 const QUERY_TOPIC = gql`
@@ -209,13 +212,15 @@ export default function Bot() {
   const [topic, setTopic] = useState<Topic>();
   const [topicFilterInput, setTopicFilterInput] =
     useState<TopicFilterInput>(defaultValue);
+  const [allTopicCache, setAllTopicCache] = useState<Topic[]>([]);
   const { data, loading, refetch } = useQuery<BotGraphql>(QUERY_BOTS);
-  const { data: topicData, refetch: refetchTopic } = useQuery<TopicGraphql>(
-    QUERY_TOPIC,
-    {
-      variables: { topicFilterInput },
-    }
-  );
+  const {
+    data: topicData,
+    refetch: refetchTopic,
+    variables,
+  } = useQuery<TopicGraphql, TopicFilterInputGraphql>(QUERY_TOPIC, {
+    variables: { topicFilterInput },
+  });
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
   const [selectTopicCategory, setSelectTopicCategory] = useState<number[]>();
@@ -253,6 +258,11 @@ export default function Bot() {
   const memoData = useMemo(() => {
     if (data) {
       // useMemo 优化一下
+      if (_.isEqual(variables?.topicFilterInput, defaultValue)) {
+        // 缓存全部 topic 数据
+        setAllTopicCache(topicData?.searchTopic ?? []);
+      }
+
       // 生成各种需要的Map, 根据 ID 填充名称
       const allTopicCategory = _.cloneDeep(data?.allTopicCategory ?? []);
       const allBotConfig = _.cloneDeep(data?.allBotConfig ?? []);
@@ -314,7 +324,7 @@ export default function Bot() {
       };
     }
     return undefined;
-  }, [data, topicData]);
+  }, [data, topicData?.searchTopic, variables?.topicFilterInput]);
 
   const onTopicCategoryClick = useCallback(
     (clickTopicCategory?: TopicCategory) => {
@@ -355,6 +365,13 @@ export default function Bot() {
         selectTopicCategory.includes(it.categoryId ?? -1)
     ) ?? [];
 
+  const allTopicData =
+    allTopicCache?.filter(
+      (it) =>
+        selectTopicCategory === undefined ||
+        selectTopicCategory.includes(it.categoryId ?? -1)
+    ) ?? [];
+
   return (
     <>
       {/* 显示 DataGrid Topic */}
@@ -365,7 +382,7 @@ export default function Bot() {
       >
         <TopicForm
           defaultValues={topic}
-          topicList={rows}
+          topicList={allTopicData}
           categoryList={memoData?.allTopicCategory ?? []}
           afterSubmit={() => {
             refetchTopic();
