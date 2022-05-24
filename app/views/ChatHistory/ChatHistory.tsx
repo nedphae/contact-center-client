@@ -70,7 +70,7 @@ const columns: GridColDef[] = [
   { field: 'uid', headerName: '客户UID', width: 150 },
   { field: 'userName', headerName: '客户名称', width: 150 },
   { field: 'country', headerName: '国家', width: 150 },
-  { field: 'city', headerName: '地区', width: 150 },
+  { field: 'city', headerName: '城市', width: 150 },
   {
     field: 'startTime',
     headerName: '开始时间',

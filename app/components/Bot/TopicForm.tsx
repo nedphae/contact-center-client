@@ -53,6 +53,7 @@ import {
 } from 'app/config/clientConfig';
 import { RcFile } from 'rc-upload/lib/interface';
 import SwipeableViews from 'react-swipeable-views';
+import { Autocomplete } from '@material-ui/lab';
 import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
 import RichText from './RichText';
@@ -95,7 +96,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.background.paper,
       width: '800px',
     },
-    paper: {
+    root: {
       // marginTop: theme.spacing(8),
       display: 'flex',
       flexDirection: 'column',
@@ -324,7 +325,7 @@ export default function TopicForm(props: FormProps) {
   }, [data, categoryList, defaultValues, setValue, setDefaultValues]);
 
   return (
-    <div className={classes.paper}>
+    <div className={classes.root}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField value={id} type="hidden" {...register('id')} />
         <TextField
@@ -566,7 +567,7 @@ export default function TopicForm(props: FormProps) {
               }}
               {...register('innerAnswer')}
             />
-            <ChipSelect
+            {/* <ChipSelect
               selectKeyValueList={selectKeyValueList}
               control={
                 control as unknown as Control<Record<string, unknown>, unknown>
@@ -581,6 +582,35 @@ export default function TopicForm(props: FormProps) {
                   fullWidth
                   // eslint-disable-next-line react/jsx-props-no-spreading
                   {...formControlProps}
+                />
+              )}
+            /> */}
+            {/* 废弃上面的ChipSelect，改为使用 Autocomplete */}
+            <Controller
+              control={control}
+              name="connectIds"
+              defaultValue={undefined}
+              render={({ field: { onChange, value } }) => (
+                <Autocomplete
+                  multiple
+                  id="tags-outlined"
+                  options={topicList}
+                  getOptionLabel={(option) => option.question}
+                  value={topicList.filter((it) => value?.includes(it.id ?? ''))}
+                  onChange={(_event, newValue) => {
+                    onChange(newValue.map((it) => it.id));
+                  }}
+                  className={classes.alert}
+                  noOptionsText="没有匹配的问题"
+                  filterSelectedOptions
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="关联问题"
+                      placeholder="请选择关联问题"
+                    />
+                  )}
                 />
               )}
             />
