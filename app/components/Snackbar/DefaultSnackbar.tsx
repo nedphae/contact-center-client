@@ -57,7 +57,7 @@ export default function DefaultSnackbar() {
           <Snackbar
             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             open={snackbarProp.open}
-            autoHideDuration={snackbarProp.loadding ? undefined : 6000}
+            autoHideDuration={snackbarProp.autoHideDuration}
             onClose={handleClose}
           >
             {getBySnackbarProp(snackbarProp, handleClose)}

@@ -56,6 +56,7 @@ export interface SnackbarProp {
   loadding?: boolean;
   severity?: Color;
   message?: string;
+  autoHideDuration?: number;
 }
 
 export interface BaseChat {

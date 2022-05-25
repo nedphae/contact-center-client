@@ -41,7 +41,18 @@ export default class SocketHandler implements EventInterface {
         setSnackbarProp({
           open: true,
           message: '网络异常，正在重新连接网络...',
-          severity: 'warning',
+          severity: 'error',
+          autoHideDuration: undefined,
+        })
+      );
+    });
+    this.socket.on('reconnect', () => {
+      this.dispatch(
+        setSnackbarProp({
+          open: true,
+          message: '网络重新连接成功',
+          severity: 'success',
+          autoHideDuration: 6000,
         })
       );
     });

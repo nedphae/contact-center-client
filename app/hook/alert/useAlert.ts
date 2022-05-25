@@ -39,6 +39,7 @@ const useAlert = (): Result => {
     subjectSearchText.next({
       open: Boolean(loadding),
       loadding,
+      autoHideDuration: undefined,
     });
   };
   const onCompletedMsg = (message?: string) => {
@@ -46,6 +47,7 @@ const useAlert = (): Result => {
       open: true,
       message: message ?? '操作成功',
       severity: 'success',
+      autoHideDuration: 6000,
     });
   };
   const onCompleted = () => onCompletedMsg();
@@ -54,6 +56,7 @@ const useAlert = (): Result => {
       open: true,
       message: message ?? '操作失败',
       severity: 'error',
+      autoHideDuration: 6000,
     });
   };
 
