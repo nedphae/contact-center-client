@@ -87,16 +87,30 @@ export default function StaffAttendance() {
       }
     })();
   }, [kibanaUrl, kibanaUrlGraphql, onErrorMsg]);
-
+  // {document.documentElement.clientHeight - 60}
   return (
     <div>
       <GridContainer>
-        <GridItem xs={12} sm={12}>
+        <GridItem
+          xs={12}
+          sm={12}
+          style={{
+            display: 'flex',
+            width: '100%',
+            height: 'calc(100vh - 60px)',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
           {kibanaUrl && (
             <iframe
-              title="监控"
-              width="100%"
-              height={document.documentElement.clientHeight - 60}
+              title="考勤"
+              style={{
+                flexGrow: 1,
+                border: 'none',
+                margin: 0,
+                padding: 0,
+              }}
               src={kibanaUrl.staff}
             />
           )}
