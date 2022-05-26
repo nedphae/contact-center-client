@@ -6,6 +6,7 @@ import { AccessToken } from 'app/domain/OauthToken';
 import { register } from 'app/service/socketService';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import { filter, interval, map, Subscription } from 'rxjs';
+import { AxiosError } from 'axios';
 import slice from './staffSlice';
 import { setSnackbarProp } from '../chat/chatAction';
 
@@ -35,17 +36,40 @@ export const setUserAsync =
     setAuthority(
       token.authorities.map((role) => role.substring(5).toLowerCase())
     );
-    // dispatch() dispatch 等待动画
-    const staff = await getCurrentStaff();
-    // 获取当前聊天会话列表，刷新页面后
-    staff.token = token.source;
-    staff.onlineStatus = onlineStatus;
-    window.orgId = staff.organizationId;
-    if (getMyself(getState()).id !== staff.id) {
-      // 不是同一个用户登录就清空所有缓存
-      dispatch({ type: 'CLEAR_ALL' });
+    try {
+      // dispatch() dispatch 等待动画
+      const staff = await getCurrentStaff();
+      // 获取当前聊天会话列表，刷新页面后
+      staff.token = token.source;
+      staff.onlineStatus = onlineStatus;
+      window.orgId = staff.organizationId;
+      if (getMyself(getState()).id !== staff.id) {
+        // 不是同一个用户登录就清空所有缓存
+        dispatch({ type: 'CLEAR_ALL' });
+      }
+      dispatch(setStaff(staff));
+    } catch (error: unknown) {
+      if ((error as AxiosError<Staff>)?.response?.status === 402) {
+        // console.info('response: %o', error.response);
+        dispatch(
+          setSnackbarProp({
+            open: true,
+            message: '您的账户已到期，请续费后使用',
+            severity: 'error',
+            autoHideDuration: undefined,
+          })
+        );
+      } else {
+        dispatch(
+          setSnackbarProp({
+            open: true,
+            message: '获取用户信息失败',
+            severity: 'error',
+            autoHideDuration: undefined,
+          })
+        );
+      }
     }
-    dispatch(setStaff(staff));
   };
 
 export const configBase = (runAfter?: AppThunk): AppThunk => {
