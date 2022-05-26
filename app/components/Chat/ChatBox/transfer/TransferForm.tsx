@@ -78,17 +78,10 @@ function TransferForm(
 
   const dispatch = useDispatch();
   const [tab, setTab] = useState(0);
-  const { data: storeMonitorData } = useQuery<StoredMonitorGraphql>(
-    QUERY_STORED_MONITOR,
-    {
-      fetchPolicy: 'no-cache',
-    }
-  );
+  const { data: storeMonitorData, refetch: refetchStaff } =
+    useQuery<StoredMonitorGraphql>(QUERY_STORED_MONITOR);
   const { data, refetch } = useQuery<MonitorGraphql>(
-    QUERY_MONITOR_WITHOUT_CUSTOMER,
-    {
-      fetchPolicy: 'no-cache',
-    }
+    QUERY_MONITOR_WITHOUT_CUSTOMER
   );
   const {
     handleSubmit,
@@ -160,6 +153,7 @@ function TransferForm(
             className={classes.titleButton}
             onClick={() => {
               refetch();
+              refetchStaff();
             }}
           >
             刷新

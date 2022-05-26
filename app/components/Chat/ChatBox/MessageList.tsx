@@ -445,7 +445,7 @@ const MessageList = (props: MessageListProps) => {
   }, [dispatch, syncMsg, user, syncVariables]);
 
   useEffect(() => {
-    if (user && user?.userId && messages.length === 0) {
+    if (user && user?.userId && messages.length === 0 && session?.hasMore) {
       handleLoadMore();
     }
     if (user && user?.userId && session?.shouldSync && messages.length > 0) {
