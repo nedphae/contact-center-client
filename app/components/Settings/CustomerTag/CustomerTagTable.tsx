@@ -89,9 +89,10 @@ export default function CustomerTagTable() {
     refOfDialog.current?.setOpen(true);
   };
 
-  function deleteButtonClick() {
+  async function deleteButtonClick() {
     if (selectionModel && selectionModel.length > 0) {
-      deleteTagsByIds({ variables: { ids: selectionModel } });
+      await deleteTagsByIds({ variables: { ids: selectionModel } });
+      refetch();
     }
   }
 
@@ -102,7 +103,7 @@ export default function CustomerTagTable() {
           defaultValues={customerTag}
           refetch={() => {
             refetch();
-            refOfDialog.current?.setOpen(false);
+            // refOfDialog.current?.setOpen(false);
           }}
         />
       </DraggableDialog>

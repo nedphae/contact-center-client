@@ -48,6 +48,7 @@ export default function CustomerTagForm(props: FormProps) {
       onCompleted,
       onError,
     });
+
   if (loading) {
     onLoadding(loading);
   }

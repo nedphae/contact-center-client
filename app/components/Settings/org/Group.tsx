@@ -59,16 +59,17 @@ export default function Group() {
 
   const rows = data?.allStaffGroup ?? [];
 
-  function deleteButtonClick() {
+  async function deleteButtonClick() {
     if (selectionModel && selectionModel.length > 0) {
-      deleteByIds({ variables: { ids: selectionModel } });
+      await deleteByIds({ variables: { ids: selectionModel } });
+      refetch();
     }
   }
 
   return (
     <>
       <DraggableDialog title="添加/修改客服组" ref={refOfDialog}>
-        <StaffGroupForm defaultValues={staffGroup} />
+        <StaffGroupForm defaultValues={staffGroup} refetch={refetch} />
       </DraggableDialog>
       <DataGrid
         localeText={GRID_DEFAULT_LOCALE_TEXT}

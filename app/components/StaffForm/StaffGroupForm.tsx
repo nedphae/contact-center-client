@@ -30,6 +30,7 @@ type FormType = Object.Omit<StaffGroup, 'staffList'>;
 
 interface FormProps {
   defaultValues: FormType | undefined;
+  refetch: () => void;
 }
 
 interface Graphql {
@@ -47,7 +48,7 @@ const MUTATION_STAFF_GROUP = gql`
 `;
 
 export default function StaffGroupForm(props: FormProps) {
-  const { defaultValues } = props;
+  const { defaultValues, refetch } = props;
   const classes = useStyles();
   const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
@@ -66,10 +67,11 @@ export default function StaffGroupForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<FormType> = (form) => {
-    saveStaffGroup({
+  const onSubmit: SubmitHandler<FormType> = async (form) => {
+    await saveStaffGroup({
       variables: { staffGroupInput: _.omit(form, '__typename') },
     });
+    refetch();
   };
 
   return (
