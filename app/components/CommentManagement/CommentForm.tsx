@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 
+import _ from 'lodash';
 import { useMutation } from '@apollo/client';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
@@ -18,10 +19,12 @@ import {
   Select,
   Typography,
 } from '@material-ui/core';
-import { CommentPojo } from 'app/domain/Comment';
+import { CommentPojo, CommentSolved } from 'app/domain/Comment';
 import {
   MUTATION_COMMENT,
+  MUTATION_COMMENT_WITH_IM_SMS,
   SaveCommentGraphql,
+  SaveCommentWithIMAndSMSGraphql,
 } from 'app/domain/graphql/Comment';
 import javaInstant2DateStr from 'app/utils/timeUtils';
 import useAlert from 'app/hook/alert/useAlert';
@@ -58,15 +61,35 @@ export default function CommentForm(props: CommentFormProps) {
   if (loading) {
     onLoadding(loading);
   }
-  const { register, handleSubmit, control } = useForm<CommentPojo>({
+
+  const [saveCommentWithIMAndSMS, { loading: smsLoading }] =
+    useMutation<SaveCommentWithIMAndSMSGraphql>(MUTATION_COMMENT_WITH_IM_SMS, {
+      onCompleted,
+      onError,
+    });
+  if (smsLoading) {
+    onLoadding(loading);
+  }
+
+  const { register, handleSubmit, control, watch } = useForm<CommentPojo>({
     defaultValues,
     shouldUnregister: true,
   });
+  const selectedSolvedWay = watch('selectedSolvedWay');
 
   const onSubmit: SubmitHandler<CommentPojo> = async (form) => {
-    // 用户信息表单
-    saveComment({ variables: { commentList: [form] } });
+    if (form.selectedSolvedWay === 1) {
+      saveCommentWithIMAndSMS({
+        variables: { commentList: [_.omit(form, 'selectedSolvedWay')] },
+      });
+    } else {
+      // 用户留言表单
+      saveComment({
+        variables: { commentList: [_.omit(form, 'selectedSolvedWay')] },
+      });
+    }
   };
+
   return (
     <div className={classes.paper}>
       <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -186,52 +209,110 @@ export default function CommentForm(props: CommentFormProps) {
         <Typography variant="subtitle1" gutterBottom>
           来源IP：{defaultValues?.fromIp}
         </Typography>
-        <Controller
-          control={control}
-          name="solved"
-          defaultValue={0}
-          render={({ field: { onChange, value } }) => (
-            <FormControl variant="outlined" margin="normal" fullWidth>
-              <InputLabel id="demo-mutiple-chip-label">解决状态</InputLabel>
-              <Select
-                labelId="solved"
-                id="solved"
-                onChange={(event) => {
-                  const tempId = event.target.value as string;
-                  onChange(tempId === '' ? undefined : +tempId);
-                }}
-                value={value === undefined ? '' : +value}
-                label="解决状态"
-              >
-                <MenuItem value={0}>未解决</MenuItem>
-                <MenuItem value={1}>已解决</MenuItem>
-              </Select>
-            </FormControl>
-          )}
+        {CommentSolved.UNSOLVED === defaultValues?.solved && (
+          <Controller
+            control={control}
+            name="selectedSolvedWay"
+            defaultValue={0}
+            render={({ field: { onChange, value } }) => (
+              <FormControl variant="outlined" margin="normal" fullWidth>
+                <InputLabel id="demo-mutiple-chip-label">
+                  选择解决方式
+                </InputLabel>
+                <Select
+                  labelId="solved"
+                  id="solved"
+                  onChange={(event) => {
+                    const tempId = event.target.value as string;
+                    onChange(tempId === '' ? undefined : +tempId);
+                  }}
+                  value={value === undefined ? '' : +value}
+                  label="解决状态"
+                >
+                  <MenuItem value={0}>手动标记</MenuItem>
+                  <MenuItem value={1}>短信通知</MenuItem>
+                </Select>
+              </FormControl>
+            )}
+          />
+        )}
+        {selectedSolvedWay === 1 && (
+          <>
+            {/* 通过短信处理留言 */}
+            <Typography variant="subtitle1" gutterBottom>
+              通过短信处理留言
+              <br />
+              (因政策限制，系统将把留言内容通过聊天消息发送给用户，并发送短信通知用户点击链接查看)
+            </Typography>
+          </>
+        )}
+        {selectedSolvedWay !== 1 && (
+          <>
+            <Controller
+              control={control}
+              name="solved"
+              defaultValue={0}
+              render={({ field: { onChange, value } }) => (
+                <FormControl variant="outlined" margin="normal" fullWidth>
+                  <InputLabel id="demo-mutiple-chip-label">解决状态</InputLabel>
+                  <Select
+                    labelId="solved"
+                    id="solved"
+                    onChange={(event) => {
+                      const tempId = event.target.value as string;
+                      onChange(tempId === '' ? undefined : +tempId);
+                    }}
+                    value={value === undefined ? '' : +value}
+                    label="解决状态"
+                  >
+                    <MenuItem value={0}>未解决</MenuItem>
+                    <MenuItem value={1}>已解决</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+            />
+            <Controller
+              control={control}
+              name="solvedWay"
+              defaultValue={0}
+              render={({ field: { onChange, value } }) => (
+                <FormControl variant="outlined" margin="normal" fullWidth>
+                  <InputLabel id="demo-mutiple-chip-label">解决方式</InputLabel>
+                  <Select
+                    labelId="solvedWay"
+                    id="solvedWay"
+                    onChange={(event) => {
+                      const tempId = event.target.value as string;
+                      onChange(tempId === '' ? undefined : +tempId);
+                    }}
+                    value={value === undefined ? '' : +value}
+                    label="解决方式"
+                  >
+                    <MenuItem value={0}>手机</MenuItem>
+                    <MenuItem value={1}>邮件</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+            />
+          </>
+        )}
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="solvedMsg"
+          label="处理内容"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <AccountCircle />
+              </InputAdornment>
+            ),
+          }}
+          {...register('solvedMsg')}
         />
-        <Controller
-          control={control}
-          name="solvedWay"
-          defaultValue={0}
-          render={({ field: { onChange, value } }) => (
-            <FormControl variant="outlined" margin="normal" fullWidth>
-              <InputLabel id="demo-mutiple-chip-label">解决方式</InputLabel>
-              <Select
-                labelId="solvedWay"
-                id="solvedWay"
-                onChange={(event) => {
-                  const tempId = event.target.value as string;
-                  onChange(tempId === '' ? undefined : +tempId);
-                }}
-                value={value === undefined ? '' : +value}
-                label="解决方式"
-              >
-                <MenuItem value={0}>手机</MenuItem>
-                <MenuItem value={1}>邮件</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
+
         <Button
           type="submit"
           fullWidth

@@ -23,6 +23,7 @@ const CORE_COMMENT_FIELDS = gql`
     fromIp
     geo
     responsible
+    solvedMsg
   }
 `;
 const PAGE_QUERY = getPageQuery(
@@ -48,9 +49,21 @@ export const MUTATION_COMMENT = gql`
   }
 `;
 
+export const MUTATION_COMMENT_WITH_IM_SMS = gql`
+  ${CORE_COMMENT_FIELDS}
+  mutation CommentSMS($commentList: [CommentInput!]!) {
+    saveCommentWithIMAndSMS(commentList: $commentList) {
+      ...commentFields
+    }
+  }
+`;
+
 export interface CommentGraphql {
   findComment: PageResult<CommentPojo>;
 }
 export interface SaveCommentGraphql {
   saveComment: CommentPojo[];
+}
+export interface SaveCommentWithIMAndSMSGraphql {
+  saveCommentWithIMAndSMS: CommentPojo[];
 }

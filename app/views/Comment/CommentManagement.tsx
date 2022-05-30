@@ -109,7 +109,7 @@ const columns: GridColDef[] = [
   },
   { field: 'fromPage', headerName: '来源页', width: 150 },
   { field: 'fromIp', headerName: '来源IP', width: 150 },
-  { field: 'responsible', headerName: '责任客服', width: 150 },
+  { field: 'solvedMsg', headerName: '处理内容', width: 150 },
 ];
 
 type Graphql = CommentGraphql;
@@ -118,6 +118,7 @@ const QUERY = QUERY_COMMENT;
 const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
+  solved: 0,
   page: new PageParam(),
   timeRange: {
     from: dateFnsUtils.format(
@@ -278,16 +279,16 @@ export default function CommentManagement() {
                         id="solved"
                         onChange={(event) => {
                           const tempId = event.target.value as string;
-                          onChange(tempId === '' ? undefined : +tempId);
+                          onChange(tempId === '' ? null : +tempId);
                         }}
-                        value={value === undefined ? '' : +value}
+                        value={_.isNil(value) ? '' : value}
                         label="解决状态"
                       >
                         <MenuItem value="">
                           <em>全部</em>
                         </MenuItem>
-                        <MenuItem value={0}>未解决</MenuItem>
-                        <MenuItem value={1}>已解决</MenuItem>
+                        <MenuItem value="0">未解决</MenuItem>
+                        <MenuItem value="1">已解决</MenuItem>
                       </Select>
                     </FormControl>
                   )}
@@ -305,9 +306,9 @@ export default function CommentManagement() {
                         id="solvedWay"
                         onChange={(event) => {
                           const tempId = event.target.value as string;
-                          onChange(tempId === '' ? undefined : +tempId);
+                          onChange(tempId === '' ? null : +tempId);
                         }}
-                        value={value === undefined ? '' : +value}
+                        value={_.isNil(value) ? '' : value}
                         label="解决方式"
                       >
                         <MenuItem value="">

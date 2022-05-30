@@ -33,6 +33,10 @@ export interface CommentPojo {
   geo?: string;
   // 负责客服
   responsible?: number;
+  // 客户端选择的解决方式
+  selectedSolvedWay?: number;
+  // 解决消息
+  solvedMsg?: string;
 }
 
 export interface CommentQuery {
