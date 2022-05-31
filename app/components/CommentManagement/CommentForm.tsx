@@ -227,7 +227,7 @@ export default function CommentForm(props: CommentFormProps) {
                     onChange(tempId === '' ? undefined : +tempId);
                   }}
                   value={value === undefined ? '' : +value}
-                  label="解决状态"
+                  label="选择解决方式"
                 >
                   <MenuItem value={0}>手动标记</MenuItem>
                   <MenuItem value={1}>短信通知</MenuItem>
