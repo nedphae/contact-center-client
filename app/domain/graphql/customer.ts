@@ -22,7 +22,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
       loginTime
       onlineStatus
       referrer
-      robotShuntSwitch
+      # robotShuntSwitch
       shuntId
       staffId
       title
@@ -64,7 +64,7 @@ export const QUERY_CUSTOMER_STATUS = gql`
       loginTime
       onlineStatus
       referrer
-      robotShuntSwitch
+      # robotShuntSwitch
       shuntId
       staffId
       title

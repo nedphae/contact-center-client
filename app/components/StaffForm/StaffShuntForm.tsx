@@ -347,6 +347,8 @@ js.onload = () => {
   // title: '',
   // 可空，客户当前咨询页
   // referrer: '',
+  // 可空，是否展示转人工按钮，0 不展示，1 展示 不传默认展示
+  // staffSwitch: 0,
 };
 initXiaobaiChat(params);
 };`;
@@ -373,6 +375,8 @@ initXiaobaiChat(params);
         // title: '',
         // 可空，客户当前咨询页
         // referrer: '',
+        // 可空，是否展示转人工按钮，0 不展示，1 展示 不传默认展示
+        // staffSwitch: 0,
     }
     initXiaobaiChat(params);
 </script>`;

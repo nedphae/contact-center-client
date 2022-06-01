@@ -92,7 +92,7 @@ export const QUERY_MONITOR = gql`
       # 自定义访客咨询来源页的url，不配置sdk会自动抓取，和title一起使用
       referrer
       # 机器人优先开关（访客分配）
-      robotShuntSwitch
+      # robotShuntSwitch
       # 访客选择多入口接待模版id
       shuntId
       # 指定客服id
