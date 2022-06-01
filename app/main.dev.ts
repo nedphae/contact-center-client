@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -148,8 +148,15 @@ app.on('activate', () => {
 // app.commandLine.appendSwitch('ignore-certificate-errors');
 app.setAppUserModelId('小白客服');
 
+/**
+ * TODO 迁移这些 ipcMain 到单独的文件
+ */
 ipcMain.on('show-main-window', () => {
   if (mainWindow) {
     mainWindow.show();
   }
+});
+
+ipcMain.on('clear-all-cookies', async () => {
+  await session.defaultSession.clearStorageData({ storages: ['cookies'] });
 });

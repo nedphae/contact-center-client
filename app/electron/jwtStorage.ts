@@ -1,4 +1,5 @@
 import os from 'os';
+import { ipcRenderer } from 'electron';
 import _ from 'lodash';
 import storage from 'electron-json-storage';
 import axios from 'axios';
@@ -9,6 +10,10 @@ import addParam from 'app/utils/url';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 
 storage.setDataPath(os.tmpdir());
+
+export default function deleteAllCookies() {
+  ipcRenderer.send('clear-all-cookies');
+}
 
 /**
  * 保存 token 并做基本的验证
@@ -135,6 +140,7 @@ export function clearToken() {
   sessionStorage.removeItem(clientConfig.oauth.tokenName);
   localStorage.removeItem(clientConfig.oauth.tokenName);
   storage.remove(clientConfig.oauth.tokenName, () => {});
+  deleteAllCookies();
 }
 
 export async function refreshToken(): Promise<AccessToken | undefined> {
