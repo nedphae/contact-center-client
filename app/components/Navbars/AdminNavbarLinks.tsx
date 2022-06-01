@@ -33,7 +33,11 @@ import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'app/service/loginService';
 import { Badge, Avatar, CssBaseline, IconButton } from '@material-ui/core';
-import { getMyself, setOnlineAndInterval } from 'app/state/staff/staffAction';
+import {
+  clearToken,
+  getMyself,
+  setOnlineAndInterval,
+} from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import Staff from 'app/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
@@ -151,6 +155,7 @@ export default function AdminNavbarLinks() {
   const handleLogout = async () => {
     setOpenProfile(null);
     // 清除全部 token 缓存
+    dispatch(clearToken());
     await logout();
   };
   const handleChangeOnlineStatus = useCallback(

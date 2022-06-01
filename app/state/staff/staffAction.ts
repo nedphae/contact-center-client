@@ -10,7 +10,7 @@ import { AxiosError } from 'axios';
 import slice from './staffSlice';
 import { setSnackbarProp } from '../chat/chatAction';
 
-export const { setStaff, setOnline, updateOnlineStatusBySocket } =
+export const { setStaff, setOnline, updateOnlineStatusBySocket, clearToken } =
   slice.actions;
 export const getStaff = (state: RootState) => {
   if (state.chat.monitored) {

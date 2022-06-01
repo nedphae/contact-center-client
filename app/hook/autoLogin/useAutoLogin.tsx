@@ -7,7 +7,7 @@ import {
   getOnlineStatus,
   refreshToken,
 } from 'app/electron/jwtStorage';
-import { setUserAsync } from 'app/state/staff/staffAction';
+import { clearToken, setUserAsync } from 'app/state/staff/staffAction';
 
 const useAutoLogin = (authPage = false) => {
   const dispatch = useDispatch();
@@ -21,6 +21,9 @@ const useAutoLogin = (authPage = false) => {
       token = await getAccessToken();
       if (token) {
         dispatch(setUserAsync(token, onlineStatus));
+      } else {
+        // 如果没有 token 就清除缓存的 token
+        dispatch(clearToken());
       }
     } catch (error) {
       // 刷新token
