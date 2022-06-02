@@ -98,7 +98,7 @@ interface CustomerFormProps {
   shouldDispatch: boolean;
 }
 export default function CustomerForm(props: CustomerFormProps) {
-  const { defaultValues, shouldDispatch } = props;
+  const { defaultValues: tempDefaultValues, shouldDispatch } = props;
   const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -118,6 +118,12 @@ export default function CustomerForm(props: CustomerFormProps) {
     onLoadding(loading);
   }
 
+  const defaultValues = _.cloneDeep(tempDefaultValues);
+  if (defaultValues) {
+    defaultValues.tags = _.map(defaultValues?.tags ?? [], (tag) =>
+      _.omit(tag, '__typename')
+    );
+  }
   const {
     register,
     handleSubmit,
@@ -132,8 +138,10 @@ export default function CustomerForm(props: CustomerFormProps) {
   });
 
   useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
+    if (!_.isEqual(getValues().uid, defaultValues?.uid)) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset, getValues]);
 
   useEffect(() => {
     if (data && shouldDispatch) {
@@ -142,6 +150,9 @@ export default function CustomerForm(props: CustomerFormProps) {
   }, [data, dispatch, shouldDispatch]);
 
   const onSubmit: SubmitHandler<CustomerFormValues> = async (form) => {
+    if (form.tags) {
+      form.tags = _.map(form.tags, (tag) => _.omit(tag, '__typename'));
+    }
     // 用户信息表单
     editCustomer({
       variables: {
@@ -207,7 +218,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                   onChange(currentValue.map((it) => JSON.parse(it)));
                 }}
                 value={((value as CustomerTagView[]) ?? []).map((it) =>
-                  JSON.stringify(it)
+                  JSON.stringify(it, ['name', 'color'].sort())
                 )}
                 label="客户标签"
                 renderValue={(selected) => (
@@ -243,7 +254,10 @@ export default function CustomerForm(props: CustomerFormProps) {
                     return (
                       <MenuItem
                         key={tag.id}
-                        value={JSON.stringify(_.pick(tag, 'name', 'color'))}
+                        value={JSON.stringify(
+                          _.pick(tag, 'name', 'color'),
+                          ['name', 'color'].sort()
+                        )}
                         style={getStyles(selected, theme, tag.color)}
                       >
                         {selected && (

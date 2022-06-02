@@ -39,7 +39,7 @@ const converSlice = createSlice({
       action: PayloadAction<UpdateConver>
     ) => {
       const { userId } = action.payload.conversation;
-      if (userId) {
+      if (userId && converMap[userId]) {
         converMap[userId].conversation = action.payload.conversation;
         converMap[userId].user = action.payload.user;
       }
@@ -47,7 +47,7 @@ const converSlice = createSlice({
     // 更新会话信息
     updateConver: (converMap, action: PayloadAction<Conversation>) => {
       const { userId } = action.payload;
-      if (userId) {
+      if (userId && converMap[userId]) {
         converMap[userId].conversation = action.payload;
       }
     },
@@ -93,7 +93,7 @@ const converSlice = createSlice({
       conver.hide = true;
     },
     updateCustomer: (converMap, action: PayloadAction<Customer>) => {
-      if (action.payload.userId) {
+      if (action.payload.userId && converMap[action.payload.userId]) {
         converMap[action.payload.userId].user = action.payload;
       }
     },
