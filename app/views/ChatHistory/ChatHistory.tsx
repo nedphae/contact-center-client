@@ -23,12 +23,9 @@ import { Conversation, Evaluate, getEvaluation } from 'app/domain/Conversation';
 import MessageList from 'app/components/MessageList/MessageList';
 import SearchForm from 'app/components/SearchForm/SearchForm';
 import {
-  Button,
   Checkbox,
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogTitle,
   Divider,
   FormControlLabel,
   Grid,
@@ -47,6 +44,7 @@ import { LazyCustomerInfo } from 'app/components/Chat/DetailCard/panel/CustomerI
 import { CustomerExportGridToolbarCreater } from 'app/components/Table/CustomerGridToolbar';
 import useAlert from 'app/hook/alert/useAlert';
 import { getDownloadS3ChatFilePath } from 'app/config/clientConfig';
+import { DialogTitle } from 'app/components/DraggableDialog/DraggableDialog';
 import DetailTitle from './DetailTitle';
 
 function PaperComponent(props: PaperProps) {
@@ -713,7 +711,11 @@ export default function ChatHistory() {
         PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+        <DialogTitle
+          style={{ cursor: 'move' }}
+          id="draggable-dialog-title"
+          onClose={handleClose}
+        >
           详细聊天消息
         </DialogTitle>
         <DialogContent>
@@ -735,11 +737,6 @@ export default function ChatHistory() {
             </>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose}>
-            取消
-          </Button>
-        </DialogActions>
       </Dialog>
       <SearchForm
         defaultValues={defaultValue}
