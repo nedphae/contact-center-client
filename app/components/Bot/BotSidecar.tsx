@@ -32,7 +32,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Divider,
   Typography,
 } from '@material-ui/core';
 import StaffFormContainer from 'app/components/StaffForm/StaffFromContainer';

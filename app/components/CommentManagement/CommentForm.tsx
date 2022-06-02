@@ -241,8 +241,9 @@ export default function CommentForm(props: CommentFormProps) {
             {/* 通过短信处理留言 */}
             <Typography variant="subtitle1" gutterBottom>
               通过短信处理留言
-              <br />
-              (因政策限制，系统将把留言内容通过聊天消息发送给用户，并发送短信通知用户点击链接查看)
+            </Typography>
+            <Typography variant="caption" display="block" gutterBottom>
+              (因政策限制，系统将把留言处理内容通过聊天消息发送给用户，并发送短信通知用户点击链接查看)
             </Typography>
           </>
         )}

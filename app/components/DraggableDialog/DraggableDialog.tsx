@@ -2,13 +2,35 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { Object } from 'ts-toolbelt';
 
+import {
+  createStyles,
+  Theme,
+  WithStyles,
+  withStyles,
+} from '@material-ui/core/styles';
+import MuiDialogTitle, {
+  DialogTitleProps as DefaultDialogTitleProps,
+} from '@material-ui/core/DialogTitle';
 import Dialog, { DialogProps } from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Button from '@material-ui/core/Button';
 import Draggable from 'react-draggable';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
+import { Typography, IconButton } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+
+const styles = (theme: Theme) =>
+  createStyles({
+    root: {
+      margin: 0,
+      padding: theme.spacing(2),
+    },
+    closeButton: {
+      position: 'absolute',
+      right: theme.spacing(1),
+      top: theme.spacing(1),
+      color: theme.palette.grey[500],
+    },
+  });
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -21,6 +43,32 @@ function PaperComponent(props: PaperProps) {
     </Draggable>
   );
 }
+
+export interface DialogTitleProps
+  extends WithStyles<typeof styles>,
+    Object.Omit<DefaultDialogTitleProps, 'classes'> {
+  id: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
+export const DialogTitle = withStyles(styles)((props: DialogTitleProps) => {
+  const { children, classes, onClose, ...other } = props;
+  return (
+    <MuiDialogTitle disableTypography className={classes.root} {...other}>
+      <Typography variant="h6">{children}</Typography>
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          className={classes.closeButton}
+          onClick={onClose}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </MuiDialogTitle>
+  );
+});
 
 interface Props extends Object.Omit<DialogProps, 'open' | 'title'> {
   title: React.ReactNode;
@@ -63,15 +111,14 @@ function DraggableDialog(props: Props, ref: React.Ref<DraggableDialogRef>) {
       aria-labelledby="draggable-dialog-title"
       open={open}
     >
-      <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+      <DialogTitle
+        id="draggable-dialog-title"
+        style={{ cursor: 'move' }}
+        onClose={handleClose}
+      >
         {title}
       </DialogTitle>
       <DialogContent>{children}</DialogContent>
-      <DialogActions>
-        <Button autoFocus onClick={handleClose}>
-          取消
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }

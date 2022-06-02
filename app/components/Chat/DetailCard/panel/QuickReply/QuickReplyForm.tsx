@@ -6,11 +6,9 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
   FormControlLabel,
   Checkbox,
-  DialogActions,
   TextField,
   FormControl,
   FormHelperText,
@@ -18,7 +16,6 @@ import {
   MenuItem,
   Select,
 } from '@material-ui/core';
-import Button from 'app/components/CustomButtons/Button';
 import { useMutation } from '@apollo/client';
 import {
   MUTATION_QUICK_REPLY,
@@ -27,6 +24,7 @@ import {
 import { QuickReply, QuickReplyGroup } from 'app/domain/Chat';
 import SubmitButton from 'app/components/Form/SubmitButton';
 import useAlert from 'app/hook/alert/useAlert';
+import { DialogTitle } from 'app/components/DraggableDialog/DraggableDialog';
 
 interface QuickReplyGraphql {
   addQuickReply: { id: number };
@@ -89,7 +87,9 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
     >
-      <DialogTitle id="form-dialog-title">添加快捷回复</DialogTitle>
+      <DialogTitle id="form-dialog-title" onClose={handleClose}>
+        添加快捷回复
+      </DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
@@ -193,11 +193,6 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
           <SubmitButton />
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          取消
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }
@@ -250,7 +245,9 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
       onClose={handleClose}
       aria-labelledby="form-dialog-title"
     >
-      <DialogTitle id="form-dialog-title">添加快捷回复分组</DialogTitle>
+      <DialogTitle id="form-dialog-title" onClose={handleClose}>
+        添加快捷回复分组
+      </DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <TextField
@@ -294,11 +291,6 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
           <SubmitButton />
         </form>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          取消
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 }
