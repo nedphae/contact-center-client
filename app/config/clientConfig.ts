@@ -8,6 +8,13 @@ class ClientConfig {
         : 'http://localhost:8080',
   };
 
+  kibanaBae = {
+    baseUrl:
+      process.env.NODE_ENV === 'production'
+        ? 'https://xbcs.top:5601'
+        : 'http://192.168.50.105:5601',
+  };
+
   // jwt 配置
   oauth = {
     jwks: '/.well-known/jwks.json',
@@ -71,6 +78,16 @@ class ClientConfig {
   staff = {
     path: '/staff',
   };
+
+  kibana = {
+    loginUrl: `${this.kibanaBae.baseUrl}/internal/security/login`,
+    defaultSpaceUrl: `${this.kibanaBae.baseUrl}/api/spaces/space/default`,
+    dashboardUrl:
+      `${this.kibanaBae.baseUrl}/app/dashboards#/view/$dashboardId?embed=true&` +
+      `_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2C` +
+      `time%3A(from%3Anow%2Fd%2Cto%3Anow%2Fd))` +
+      `&show-query-input=true&show-time-filter=true`,
+  };
 }
 const clientConfig = new ClientConfig();
 
@@ -91,6 +108,10 @@ export function getDownloadS3ChatFilePath() {
 }
 export function getDownloadS3StaffImgPath() {
   return `${clientConfig.web.host}`;
+}
+
+export function getDashboardUrlById(dashboardId: string) {
+  return clientConfig.kibana.dashboardUrl.replace('$dashboardId', dashboardId);
 }
 
 export default clientConfig;

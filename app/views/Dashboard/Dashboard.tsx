@@ -26,6 +26,7 @@ import {
 import { defaultRealTimeStatistics } from 'app/domain/RealTimeStatistics';
 import { interval, Subscription } from 'rxjs';
 import useAlert from 'app/hook/alert/useAlert';
+import clientConfig, { getDashboardUrlById } from 'app/config/clientConfig';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 import Danger from '../../components/Typography/Danger';
@@ -76,14 +77,8 @@ export default function Dashboard() {
       const kibanaData = kibanaUrlGraphql?.getKibanaUrl;
       // 因为 graphql 的 hook 会导致登录两次
       if (!kibanaUrl && kibanaData && kibanaData?.kibanaUrl) {
-        const kibanaLoginUrl =
-          process.env.NODE_ENV === 'production'
-            ? 'https://xbcs.top:5601/internal/security/login'
-            : 'http://192.168.50.105:5601/internal/security/login';
-        const currentUrl =
-          process.env.NODE_ENV === 'production'
-            ? 'https://xbcs.top:5601/api/spaces/space/default'
-            : 'http://192.168.50.105:5601/api/spaces/space/default';
+        const kibanaLoginUrl = clientConfig.kibana.loginUrl;
+        const currentUrl = clientConfig.kibana.defaultSpaceUrl;
 
         try {
           await axios.get<void>(currentUrl);
@@ -248,7 +243,7 @@ export default function Dashboard() {
                 margin: 0,
                 padding: 0,
               }}
-              src={kibanaUrl.conv}
+              src={getDashboardUrlById(kibanaUrl.conv)}
             />
           )}
         </GridItem>
