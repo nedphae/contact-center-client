@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Fuse from 'fuse.js';
 import { from, of, zip } from 'rxjs';
@@ -93,50 +93,47 @@ export default function QuickReply() {
     return new Fuse(filterQuickReplyList, noGroupOptions, index);
   }, [filterQuickReplyList]);
 
-  const searchCallback = useCallback(
-    (result: QuickReplyDto, sr: string) => {
-      const searchResult = fuse
-        .search(sr)
-        .map((r) => r.item)
-        .filter((f) => {
-          if (selectedIndex === 0) {
-            return true;
+  const searchQuickReply = (result: QuickReplyDto, sr: string) => {
+    const searchResult = fuse
+      .search(sr)
+      .map((r) => r.item)
+      .filter((f) => {
+        if (selectedIndex === 0) {
+          return true;
+        }
+        return (
+          (selectedIndex === 1 && f.personal) ||
+          (selectedIndex === 2 && !f.personal)
+        );
+      });
+    from(searchResult)
+      .pipe(
+        groupBy(
+          (re) => re.group,
+          (re) => re
+        ),
+        mergeMap((group) => zip(of(group.key), group.pipe(toArray()))),
+        map((gr) => {
+          if (gr[0]) {
+            gr[0].quickReply = [];
+            gr[0].quickReply?.push(...gr[1]);
           }
-          return (
-            (selectedIndex === 1 && f.personal) ||
-            (selectedIndex === 2 && !f.personal)
-          );
-        });
-      from(searchResult)
-        .pipe(
-          groupBy(
-            (re) => re.group,
-            (re) => re
-          ),
-          mergeMap((group) => zip(of(group.key), group.pipe(toArray()))),
-          map((gr) => {
-            if (gr[0]) {
-              gr[0].quickReply = [];
-              gr[0].quickReply?.push(...gr[1]);
-            }
-            return gr[0];
-          })
-        )
-        .subscribe((re) => {
-          if (re) {
-            result.withGroup?.push(re);
-          }
-        });
-      searchResult
-        .filter((re) => re.group === undefined)
-        .forEach((re) => {
-          result.noGroup?.push(re);
-        });
-    },
-    [fuse, selectedIndex]
-  );
+          return gr[0];
+        })
+      )
+      .subscribe((re) => {
+        if (re) {
+          result.withGroup?.push(re);
+        }
+      });
+    searchResult
+      .filter((re) => re.group === undefined)
+      .forEach((re) => {
+        result.noGroup?.push(re);
+      });
+  };
 
-  const getBySelectedIndex = useCallback((): QuickReplyDto => {
+  const getBySelectedIndex = (): QuickReplyDto => {
     const result: QuickReplyDto = {
       withGroup: [],
       noGroup: [],
@@ -162,7 +159,7 @@ export default function QuickReply() {
       };
 
       if (serarchText && serarchText !== '') {
-        searchCallback(result, serarchText);
+        searchQuickReply(result, serarchText);
       } else {
         switch (selectedIndex) {
           case 1: {
@@ -182,7 +179,7 @@ export default function QuickReply() {
       }
     }
     return result;
-  }, [quickReplyList, serarchText, searchCallback, selectedIndex]);
+  };
 
   const quickReplyDtoList = getBySelectedIndex();
 
