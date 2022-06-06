@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -54,6 +54,15 @@ interface SelectedProps {
   selectedSession: Session | undefined;
 }
 
+const searchQuickReply = (searchText: string) => {
+  const result: QuickReply[] = [];
+  if (searchText && searchText !== '') {
+    const noGroupResult = window.noGroupFuse.search(searchText);
+    noGroupResult.forEach((r) => result.push(r.item));
+  }
+  return result;
+};
+
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
@@ -68,15 +77,6 @@ export default function Editor(selected: SelectedProps) {
 
   const mySelf = useSelector(getMyself);
   const { onErrorMsg } = useAlert();
-
-  const searchQuickReply = useCallback((searchText: string) => {
-    const result: QuickReply[] = [];
-    if (searchText && searchText !== '') {
-      const noGroupResult = window.noGroupFuse.search(searchText);
-      noGroupResult.forEach((r) => result.push(r.item));
-    }
-    return result;
-  }, []);
 
   const quickReplyList = searchQuickReply(tempTextMessage);
 
