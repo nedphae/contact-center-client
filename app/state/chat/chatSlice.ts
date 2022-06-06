@@ -16,13 +16,8 @@ import { TransferMessageRequest, TransferQuery } from 'app/domain/Conversation';
 
 const initChat = {} as Chat;
 
-// move to window
-// 使用全局变量
-let noGroupFuse: Fuse<QuickReply>;
-let noGroupIndex: Fuse.FuseIndex<QuickReply>;
-
 function setNoGroupIndex(datas: QuickReply[]) {
-  noGroupIndex = Fuse.createIndex(noGroupOptions.keys, datas);
+  window.noGroupIndex = Fuse.createIndex(noGroupOptions.keys, datas);
 }
 
 const chatSlice = createSlice({
@@ -122,15 +117,6 @@ const chatSlice = createSlice({
         chat.selectedSession = undefined;
       }
     },
-    setQuickReplySearchText: (chat, action: PayloadAction<string>) => {
-      chat.quickReplySearchText = action.payload;
-      const result: QuickReply[] = [];
-      if (chat.quickReplySearchText && chat.quickReplySearchText !== '') {
-        const noGroupResult = noGroupFuse.search(action.payload);
-        noGroupResult.forEach((r) => result.push(r.item));
-      }
-      chat.searchQuickReply = result;
-    },
     setQuickReply: (chat, action: PayloadAction<QuickReplyAllDto>) => {
       chat.quickReply = action.payload;
 
@@ -155,10 +141,10 @@ const chatSlice = createSlice({
       chat.filterQuickReply = result;
 
       setNoGroupIndex(result);
-      noGroupFuse = new Fuse(
+      window.noGroupFuse = new Fuse(
         chat.filterQuickReply,
         noGroupOptions,
-        noGroupIndex
+        window.noGroupIndex
       );
     },
     setMonitoredMessage: (chat, action: PayloadAction<UserMessages>) => {

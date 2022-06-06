@@ -4,7 +4,6 @@ import slice from './chatSlice';
 
 export const {
   setQuickReply,
-  setQuickReplySearchText,
   setMonitoredMessage,
   setMonitoredHasMore,
   setMonitorSelectedSession,
@@ -39,11 +38,6 @@ export const getMonitor = (state: RootState) => state.chat.monitored;
 export const getQuickReply = (state: RootState) => state.chat.quickReply;
 export const getFilterQuickReply = (state: RootState) =>
   state.chat.filterQuickReply;
-
-export const getSearchText = (state: RootState) =>
-  state.chat.quickReplySearchText;
-export const getSearchQuickReply = (state: RootState) =>
-  state.chat.searchQuickReply;
 
 export const getSelectedConv = (state: RootState) =>
   getSelectedSession(state)?.conversation;

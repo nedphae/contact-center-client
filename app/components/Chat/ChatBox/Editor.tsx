@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { debounceTime, Subject } from 'rxjs';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -20,12 +19,7 @@ import {
   hideSelectedSessionAndSetToLast,
   sendTextMessage,
 } from 'app/state/session/sessionAction';
-import {
-  getSearchQuickReply,
-  setQuickReplySearchText,
-} from 'app/state/chat/chatAction';
 import { Session } from 'app/domain/Session';
-import { CloseReason } from 'app/domain/constant/Conversation';
 import { getMyself } from 'app/state/staff/staffAction';
 import { OnlineStatus } from 'app/domain/constant/Staff';
 import useAlert from 'app/hook/alert/useAlert';
@@ -60,8 +54,6 @@ interface SelectedProps {
   selectedSession: Session | undefined;
 }
 
-const subjectSearchText = new Subject<string>();
-
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
@@ -73,22 +65,24 @@ export default function Editor(selected: SelectedProps) {
   const textFieldRef = useRef<HTMLTextAreaElement>(null);
   const menuListRef = useRef<HTMLUListElement>(null);
   const classes = useStyles();
-  const quickReplyList = useSelector(getSearchQuickReply);
 
   const mySelf = useSelector(getMyself);
   const { onErrorMsg } = useAlert();
 
-  const momeSubject = useMemo(() => {
-    return subjectSearchText.pipe(debounceTime(200)).subscribe({
-      next: (it) => {
-        dispatch(setQuickReplySearchText(it));
-      },
-    });
-  }, [dispatch]);
+  const searchQuickReply = useCallback((searchText: string) => {
+    const result: QuickReply[] = [];
+    if (searchText && searchText !== '') {
+      const noGroupResult = window.noGroupFuse.search(searchText);
+      noGroupResult.forEach((r) => result.push(r.item));
+    }
+    return result;
+  }, []);
+
+  const quickReplyList = searchQuickReply(tempTextMessage);
 
   function setMessage(message: string) {
     setTempTextMessage(message);
-    subjectSearchText.next(message);
+    // subjectSearchText.next(message);
   }
 
   const filterQuickReplyList = quickReplyList?.filter(
@@ -163,12 +157,6 @@ export default function Editor(selected: SelectedProps) {
       textFieldRef.current?.focus();
     }
   }
-
-  useEffect(() => {
-    return () => {
-      momeSubject.unsubscribe();
-    };
-  }, [momeSubject]);
 
   useEffect(() => {
     if (selectedSession) {

@@ -72,8 +72,6 @@ export type SetMonitored = Object.Merge<MonitoredLazyData, Monitored>;
 export default interface Chat extends BaseChat {
   quickReply: QuickReplyAllDto;
   filterQuickReply: QuickReply[];
-  searchQuickReply: QuickReply[];
-  quickReplySearchText: string;
   monitored: Monitored | undefined;
   transferMessageToSend?: TransferQuery[];
   transferMessageRecive?: TransferMessageRequest[];
