@@ -1,10 +1,9 @@
 /*eslint-disable*/
 import React from "react";
-import { useSelector } from 'react-redux';
 import classNames from "classnames";
 import clsx from 'clsx';
 import PropTypes from "prop-types";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import Drawer from "@material-ui/core/Drawer";
@@ -18,7 +17,6 @@ import AdminNavbarLinks from "../Navbars/AdminNavbarLinks";
 import RTLNavbarLinks from "../Navbars/RTLNavbarLinks";
 
 import styles from "../../assets/jss/material-dashboard-react/components/sidebarStyle";
-import { RootState } from "app/store";
 import { RouteType } from "app/routes";
 import { checkPermissions } from "../Authorized/CheckPermissions";
 import { CURRENT } from "../Authorized/renderAuthorize";
@@ -27,11 +25,11 @@ const useStyles = makeStyles(styles);
 
 export default function Sidebar(props: { rtlActive?: any; open?: any; handleDrawerToggle?: any; color?: any; logo?: any; image?: any; logoText?: any; routes?: RouteType; }) {
   const classes = useStyles();
-  const currentPath = useSelector((state: RootState) => state.router.location.pathname);
+  let location = useLocation();
   // verifies if routeName is the one active (in browser input)
   function activeRoute(routeName: string) {
     // 修复 生产版本无法刷新此组件的 bug
-    return currentPath.indexOf(routeName) > -1 ? true : false;
+    return location.pathname.indexOf(routeName) > -1 ? true : false;
     // return window.location.href.indexOf(routeName) > -1 ? true : false;
   }
   const { color, logo, image, logoText, routes } = props;
