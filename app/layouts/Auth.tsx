@@ -3,7 +3,7 @@
  * 权限页面
  * 配置登录，验证权限
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import Avatar from '@material-ui/core/Avatar';
@@ -104,7 +104,7 @@ function NumberFormatCustom(props: NumberFormatCustomProps) {
           },
         });
       }}
-      format="#### ####"
+      format="####"
       isNumericString
       // prefix="$"
     />
@@ -122,15 +122,30 @@ type FormValues = {
 export default function Auth() {
   const dispatch = useDispatch();
   const classes = useStyles();
+
+  const { savedToken } = useAutoLogin(true);
   const {
     register,
     handleSubmit,
+    reset,
     control,
     formState: { errors },
   } = useForm<FormValues>();
-  const [error, setError] = useState<string>();
   const [signing, setSigning] = useState<boolean>(false);
-  useAutoLogin(true);
+
+  useEffect(() => {
+    if (savedToken && !signing) {
+      reset({
+        org_id: savedToken.oid,
+        username: savedToken.user_name,
+        password: '**********',
+        remember: true,
+      });
+      setSigning(true);
+    }
+  }, [reset, savedToken, signing]);
+
+  const [error, setError] = useState<string>();
 
   const onSubmit: SubmitHandler<FormValues> = async (data: FormValues) => {
     // 清楚密码中的空格
@@ -258,15 +273,22 @@ export default function Auth() {
               </FormControl>
             )}
           />
-          <FormControlLabel
+          <Controller
+            control={control}
             name="remember"
-            control={
-              <Checkbox
-                color="primary"
-                {...register('remember', { required: false })}
+            defaultValue={false}
+            render={({ field: { onChange, value } }) => (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={value}
+                    onChange={(e) => onChange(e.target.checked)}
+                    inputProps={{ 'aria-label': 'primary checkbox' }}
+                  />
+                }
+                label="记住我"
               />
-            }
-            label="记住我"
+            )}
           />
           <div className={classes.wrapper}>
             <Button
