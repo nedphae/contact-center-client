@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
 import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import { gql, useQuery } from '@apollo/client';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -67,6 +66,7 @@ function settingPage(
   pageName: PageName,
   properties4Set: string | undefined,
   allProperties4Set: string[] | undefined,
+  refetch: () => void,
   properties?: RootProperties
 ) {
   let result: JSX.Element;
@@ -110,6 +110,7 @@ function settingPage(
             defaultValues={properties}
             properties4Set={properties4Set}
             allProperties4Set={allProperties4Set}
+            refetch={refetch}
           />
         );
       } else {
@@ -138,7 +139,7 @@ type PageName =
 
 export default function Setting() {
   const classes = useStyles();
-  const { data } = useQuery<Graphql>(QUERY);
+  const { data, refetch } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
   const [properties4Set, setProperties4Set] = useState<string>();
   const [allProperties4Set, setAllProperties4Set] = useState<string[]>();
@@ -249,7 +250,15 @@ export default function Setting() {
       <Grid item xs={12} sm={10}>
         {/* 显示 配置页面 */}
         {pageName &&
-          settingPage(pageName, properties4Set, allProperties4Set, properties)}
+          settingPage(
+            pageName,
+            properties4Set,
+            allProperties4Set,
+            () => {
+              refetch();
+            },
+            properties
+          )}
       </Grid>
     </Grid>
   );

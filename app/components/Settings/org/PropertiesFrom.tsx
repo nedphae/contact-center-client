@@ -25,6 +25,7 @@ interface FormProps {
   defaultValues: RootProperties;
   properties4Set: string;
   allProperties4Set: string[];
+  refetch: () => void;
 }
 
 interface Graphql {
@@ -54,7 +55,7 @@ type FormResult = {
 };
 
 export default function PropertiesFrom(props: FormProps) {
-  const { defaultValues, properties4Set, allProperties4Set } = props;
+  const { defaultValues, properties4Set, allProperties4Set, refetch } = props;
   const classes = useStyles();
 
   const allDefaultProperties = allProperties4Set.map((p4s) => {
@@ -85,11 +86,12 @@ export default function PropertiesFrom(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<FormResult> = (form) => {
+  const onSubmit: SubmitHandler<FormResult> = async (form) => {
     const properties = form.props
       .filter((p) => p.p4s === properties4Set)
       .map((it) => _.omit(it, ['p4s']));
-    updateProperties({ variables: { properties } });
+    await updateProperties({ variables: { properties } });
+    refetch();
   };
 
   return (
