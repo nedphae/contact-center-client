@@ -19,11 +19,11 @@
     "type": "git",
     "url": "git+https://github.com/nedphae/contact-center-client.git"
   },
-  "license": "MIT",
+  "license": "GPL-3.0",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "广州翌航科技有限公司",
+    "email": "nedgao@foxmail.com",
+    "url": "https://xbcs.top"
   },
   "contributors": [
     {
@@ -319,7 +319,7 @@
   },
   "build": {
     "productName": "小白客服",
-    "appId": "com.xiaobai.ContactCenterClient",
+    "appId": "top.xbcs.contact-center-client",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -376,9 +376,8 @@
       "./assets/**"
     ],
     "publish": {
-      "provider": "github",
-      "owner": "contact-center-client",
-      "repo": "contact-center-client"
+      "provider": "generic",
+      "url": "https://xbcs.top/wp-content/uploads/"
     }
   },
   "collective": {
