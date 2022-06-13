@@ -42,6 +42,7 @@ const sidebarStyle: any = (theme: Theme) => ({
   },
   drawerPaper: {
     border: 'none',
+    // 使用 absolute 定位，因为使用了自定义 titlebar
     position: 'absolute', // fixed
     top: '0',
     bottom: '0',
@@ -52,15 +53,15 @@ const sidebarStyle: any = (theme: Theme) => ({
     [theme.breakpoints.up('md')]: {
       // width: drawerWidth,
       position: 'absolute',
-      height: '100%',
+      height: 'calc(100% - 30px)',
     },
     [theme.breakpoints.down('sm')]: {
       // width: drawerWidth,
       ...boxShadow,
       position: 'absolute',
-      display: 'block',
-      top: '0',
-      height: '100vh',
+      // display: 'block',
+      top: '30px',
+      height: 'calc(100vh - 30px)',
       right: '0',
       left: 'auto',
       zIndex: '1032',
