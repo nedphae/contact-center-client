@@ -12,7 +12,10 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { setupTitlebar, attachTitlebarToWindow } from 'custom-electron-titlebar/main';
+import {
+  setupTitlebar,
+  attachTitlebarToWindow,
+} from 'custom-electron-titlebar/main';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 

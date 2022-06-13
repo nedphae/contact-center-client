@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import _ from 'lodash';
 import { gql, useQuery } from '@apollo/client';
@@ -223,7 +223,7 @@ export default function Setting() {
                       return (
                         <StyledTreeItem
                           key={fk}
-                          nodeId=""
+                          nodeId={`properties.${k}.${fk}`}
                           label={childProp.label}
                           onClick={() => {
                             setPageName('org.Properties');
