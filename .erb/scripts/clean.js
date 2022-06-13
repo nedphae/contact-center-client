@@ -1,16 +1,12 @@
-const rimraf = require('rimraf');
-const process = require('process');
-const path = require('path');
-
-const dllPath = path.join(__dirname, '../dll');
-const distPath = path.join('app/dist');
-const releasePath = path.join('release');
+import rimraf from 'rimraf';
+import process from 'process';
+import webpackPaths from '../configs/webpack.paths';
 
 const args = process.argv.slice(2);
 const commandMap = {
-  dist: distPath,
-  dll: dllPath,
-  release: releasePath,
+  dist: webpackPaths.distPath,
+  release: webpackPaths.releasePath,
+  dll: webpackPaths.dllPath,
 };
 
 args.forEach((x) => {
