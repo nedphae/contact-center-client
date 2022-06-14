@@ -289,7 +289,7 @@ const sidebarStyle: any = (theme: Theme) => ({
   },
   sidebarWrapper: {
     position: 'relative',
-    height: 'calc(100vh - 75px)',
+    height: 'calc(100vh - 105px)',
     overflow: 'auto',
     width: '200px',
     zIndex: '4',
