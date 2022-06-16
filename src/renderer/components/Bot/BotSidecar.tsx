@@ -65,11 +65,14 @@ interface BotProps {
   refetch: (
     variables?: Partial<OperationVariables> | undefined
   ) => Promise<ApolloQueryResult<unknown>>;
-  memoData: {
-    allKnowledgeBase: KnowledgeBase[];
-    botConfigMap: _.Dictionary<BotConfig[]>;
-    botConfigList: BotConfig[];
-  };
+  loading: boolean;
+  memoData:
+    | {
+        allKnowledgeBase: KnowledgeBase[];
+        botConfigMap: _.Dictionary<BotConfig[]>;
+        botConfigList: BotConfig[];
+      }
+    | undefined;
   allTopicCategory: TopicCategory[] | undefined;
   onTopicCategoryClick: (selectTopicCategory?: TopicCategory) => void;
   selectTC: TopicCategory | undefined;
@@ -93,6 +96,7 @@ const MUTATION_TOPIC_CATEGORY = gql`
 
 export default function BotSidecar(props: BotProps) {
   const {
+    loading,
     memoData,
     allTopicCategory,
     refetch,
@@ -273,7 +277,7 @@ export default function BotSidecar(props: BotProps) {
   };
 
   const botConfigList =
-    memoData.botConfigMap[topicOrKnowladge.Knowladge?.id ?? -1] ?? [];
+    memoData?.botConfigMap[topicOrKnowladge.Knowladge?.id ?? -1] ?? [];
   const botConfig = botConfigList[0];
 
   const staffId = botConfig ? botConfig?.botId : undefined;
@@ -325,8 +329,9 @@ export default function BotSidecar(props: BotProps) {
       />
       {/* 知识库，分类 树状列表 */}
       <BotTreeView
-        allKnowledgeBase={memoData.allKnowledgeBase}
-        botConfigMap={memoData.botConfigMap}
+        loading={loading}
+        allKnowledgeBase={memoData?.allKnowledgeBase}
+        botConfigMap={memoData?.botConfigMap}
         staffMap={staffMap}
         setOnContextMenu={handleContextMenuOpen}
         selectTC={selectTC}
@@ -491,7 +496,13 @@ export default function BotSidecar(props: BotProps) {
           <Button onClick={handleClose} color="primary">
             取消
           </Button>
-          <Button onClick={handleDialogAgree} color="secondary" autoFocus>
+          <Button
+            onClick={() => {
+              handleDialogAgree();
+            }}
+            color="secondary"
+            autoFocus
+          >
             确定
           </Button>
         </DialogActions>

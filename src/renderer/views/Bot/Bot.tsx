@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import _ from 'lodash';
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -399,15 +399,14 @@ export default function Bot() {
         }}
       /> */}
       <Grid container className={classes.root}>
-        {memoData && (
-          <BotSidecar
-            memoData={memoData}
-            allTopicCategory={memoData?.allTopicCategory}
-            refetch={refetch}
-            onTopicCategoryClick={onTopicCategoryClick}
-            selectTC={selectTC}
-          />
-        )}
+        <BotSidecar
+          loading={loading}
+          memoData={memoData}
+          allTopicCategory={memoData?.allTopicCategory}
+          refetch={refetch}
+          onTopicCategoryClick={onTopicCategoryClick}
+          selectTC={selectTC}
+        />
         <Grid item xs={12} sm={10}>
           <TopicSearchFrom
             defaultValues={defaultValue}
