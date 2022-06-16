@@ -10,7 +10,8 @@ const appStyle: any = (theme: {
   wrapper: {
     position: 'relative',
     top: '0',
-    height: '100vh',
+    // height: '100vh',
+    height: 'calc(100vh - 30px)',
   },
   mainPanel: {
     [theme.breakpoints.up('md')]: {

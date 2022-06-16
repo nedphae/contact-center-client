@@ -53,7 +53,7 @@ const sidebarStyle: any = (theme: Theme) => ({
     [theme.breakpoints.up('md')]: {
       // width: drawerWidth,
       position: 'absolute',
-      height: 'calc(100% - 30px)',
+      height: '100%',
     },
     [theme.breakpoints.down('sm')]: {
       // width: drawerWidth,
@@ -61,7 +61,7 @@ const sidebarStyle: any = (theme: Theme) => ({
       position: 'absolute',
       // display: 'block',
       top: '30px',
-      height: 'calc(100vh - 30px)',
+      height: '100vh',
       right: '0',
       left: 'auto',
       zIndex: '1032',

@@ -118,7 +118,7 @@ export default function Admin({ ...rest }) {
     setMobileOpen(!mobileOpen);
   };
   const getRoute = () => {
-    return window.location.pathname !== '/admin/entertain';
+    return !currentPath.includes('/admin/entertain');
   };
   const resizeFunction = () => {
     if (window.innerWidth >= 960) {
