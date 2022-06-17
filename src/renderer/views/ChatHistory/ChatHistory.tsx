@@ -19,7 +19,11 @@ import {
   MUTATION_CONV_EXPORT,
   SearchConv,
 } from 'renderer/domain/graphql/Conversation';
-import { Conversation, Evaluate, getEvaluation } from 'renderer/domain/Conversation';
+import {
+  Conversation,
+  Evaluate,
+  getEvaluation,
+} from 'renderer/domain/Conversation';
 import MessageList from 'renderer/components/MessageList/MessageList';
 import SearchForm from 'renderer/components/SearchForm/SearchForm';
 import {
@@ -748,7 +752,7 @@ export default function ChatHistory() {
             <Grid item xs={1}>
               <Controller
                 control={control}
-                defaultValue
+                defaultValue={false}
                 name="evaluation"
                 render={({ field: { onChange, value } }) => (
                   <FormControlLabel
