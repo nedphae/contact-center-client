@@ -20,11 +20,12 @@ import { createContext, useMemo, useState } from 'react';
 
 import { Provider } from 'react-redux';
 import {
-  HashRouter as Router,
+  unstable_HistoryRouter as HistoryRouter,
   Routes,
   Route,
   Navigate,
 } from 'react-router-dom';
+import { History } from 'history';
 import { ApolloProvider } from '@apollo/client';
 import { HotKeys } from 'react-hotkeys';
 
@@ -86,9 +87,10 @@ function AdminContainer() {
 
 type Props = {
   store: Store;
+  history: History;
 };
 
-const Root = ({ store }: Props) => {
+const Root = ({ store, history }: Props) => {
   const themeType =
     localStorage.getItem('themeType') === 'dark' ? 'dark' : 'light';
   const [mode, setMode] = useState<'light' | 'dark'>(themeType);
@@ -123,7 +125,7 @@ const Root = ({ store }: Props) => {
     <Provider store={store}>
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
-          <Router>
+          <HistoryRouter history={history}>
             <Routes>
               {/* 原来的路由 */}
               <Route path="/login" element={<Auth />} />
@@ -136,7 +138,7 @@ const Root = ({ store }: Props) => {
                 element={<Navigate to="/admin/entertain" replace />}
               />
             </Routes>
-          </Router>
+          </HistoryRouter>
         </ThemeProvider>
       </ColorModeContext.Provider>
     </Provider>

@@ -1,8 +1,10 @@
 import { configureStore, Action, Middleware } from '@reduxjs/toolkit';
+import { createHashHistory } from 'history';
 import { createLogger } from 'redux-logger';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import createRootReducer from './rootReducer';
 
+export const history = createHashHistory();
 const rootReducer = createRootReducer();
 export type RootState = ReturnType<typeof rootReducer>;
 

@@ -12,7 +12,10 @@ import Chat, {
 } from 'renderer/domain/Chat';
 import { noGroupOptions } from 'renderer/utils/fuseUtils';
 import { createSession } from 'renderer/domain/Session';
-import { TransferMessageRequest, TransferQuery } from '/renderer/domain/Conversation';
+import {
+  TransferMessageRequest,
+  TransferQuery,
+} from 'renderer/domain/Conversation';
 
 const initChat = {} as Chat;
 

@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 // import App from './App';
 import HomePage from './HomePage';
 
-import { configuredStore } from './store';
+import { history, configuredStore } from './store';
 
 import './app.global.css';
 import './assets/css/material-dashboard-react.global.css';
@@ -16,7 +16,7 @@ if (container) {
   // eslint-disable-next-line global-require
   // const HomePage = require('./HomePage').default;
   const root = createRoot(container);
-  root.render(<HomePage store={store} />);
+  root.render(<HomePage store={store} history={history} />);
   // root.render(<App />);
 }
 
