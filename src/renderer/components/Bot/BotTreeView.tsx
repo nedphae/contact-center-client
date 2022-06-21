@@ -14,6 +14,7 @@ import StyledTreeItem, {
 } from 'renderer/components/TreeView/StyledTreeItem';
 import { TopicOrKnowladgeKey } from 'renderer/components/Bot/TopicAndKnowladgeContainer';
 import {
+  Box,
   Divider,
   Grid,
   ListItem,
@@ -31,9 +32,9 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.background.paper,
     },
     media: {
-      height: 92,
+      marginTop: 10,
     },
-  }),
+  })
 );
 
 interface BotTreeViewProps {
@@ -58,13 +59,13 @@ function buildTopicCategory(
     knowledgeBase?: KnowledgeBase | undefined,
     topicCategory?: TopicCategory | undefined
   ) => void,
-  selectTC: TopicCategory | undefined,
+  selectTC: TopicCategory | undefined
 ) {
   return topicCategoryList.map((cl) => (
     <StyledTreeItem
       key={cl.id?.toString()}
       nodeId={`topicCategory-${cl.id}`}
-      label={(
+      label={
         <>
           <ListItem component="ul">
             {cl.name}
@@ -73,7 +74,7 @@ function buildTopicCategory(
             )}
           </ListItem>
         </>
-      )}
+      }
       onContextMenu={(event) => {
         if (onContextMenu) {
           onContextMenu(event, 'Topic', undefined, cl);
@@ -100,7 +101,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
     event: React.MouseEvent<HTMLLIElement>,
     topicOrKnowladgeKey: TopicOrKnowladgeKey,
     Knowladge?: KnowledgeBase,
-    Topic?: TopicCategory,
+    Topic?: TopicCategory
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -115,7 +116,21 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
         defaultEndIcon={<CloseSquare />}
       >
         {(loading || !allKnowledgeBase) && (
-          <Skeleton animation="wave" variant="rect" className={classes.media} />
+          <div className={classes.media}>
+            <Box display="flex" alignItems="center">
+              <Box margin={1}>
+                <Skeleton variant="circle" width={40} height={40} />
+              </Box>
+              <Box width="100%">
+                <Skeleton
+                  animation="wave"
+                  height={10}
+                  style={{ marginBottom: 6 }}
+                />
+                <Skeleton animation="wave" height={10} width="80%" />
+              </Box>
+            </Box>
+          </div>
         )}
         {!loading &&
           allKnowledgeBase &&
@@ -123,7 +138,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
             <StyledTreeItem
               key={base.id?.toString()}
               nodeId={`knowledgeBase-${base.id}`}
-              label={(
+              label={
                 <ListItem component="ul">
                   <ListItemIcon>
                     <LibraryBooksIcon fontSize="small" />
@@ -147,7 +162,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
                           staffMap &&
                           botConfigMap[base.id]
                             ? staffMap[botConfigMap[base.id][0]?.botId ?? -2]
-                              ?.realName
+                                ?.realName
                             : '未关联到机器人账号'}
                         </Typography>
                         <Divider
@@ -167,15 +182,16 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
                     )}
                   />
                 </ListItem>
-              )}
+              }
               onContextMenu={(event) =>
-                handleContextMenuOpen(event, 'Knowladge', base)}
+                handleContextMenuOpen(event, 'Knowladge', base)
+              }
             >
               {base.categoryList &&
                 buildTopicCategory(
                   base.categoryList,
                   handleContextMenuOpen,
-                  selectTC,
+                  selectTC
                 )}
             </StyledTreeItem>
           ))}

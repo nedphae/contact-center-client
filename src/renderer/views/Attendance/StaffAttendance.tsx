@@ -48,68 +48,64 @@ import DraggableDialog, {
 } from 'renderer/components/DraggableDialog/DraggableDialog';
 
 const columns: GridColDef[] = [
+  { field: 'staffId', headerName: '客服ID', width: 150 },
+  { field: 'staffName', headerName: '客服名字', width: 150 },
+  { field: 'groupId', headerName: '分组ID', width: 150 },
+  { field: 'groupName', headerName: '分组名称', width: 150 },
   {
-    field: 'createdAt',
-    headerName: '创建时间',
+    field: 'date',
+    headerName: '统计时间',
     width: 180,
     valueGetter: (params: GridValueGetterParams) => {
       return params.value ? javaInstant2DateStr(params.value as number) : null;
     },
   },
-  { field: 'shuntId', headerName: '接待组', width: 150 },
-  { field: 'userId', headerName: '用户ID', width: 150 },
-  { field: 'uid', headerName: '用户标识', width: 150 },
-  { field: 'name', headerName: '用户姓名', width: 150 },
-  { field: 'mobile', headerName: '手机', width: 150 },
-  { field: 'email', headerName: '邮箱', width: 150 },
-  { field: 'message', headerName: '留言内容', width: 350 },
   {
-    field: 'solved',
-    headerName: '解决状态',
-    width: 150,
+    field: 'firstLoginTs',
+    headerName: '首次登录时间',
+    width: 180,
     valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 0: {
-          result = '未解决';
-          break;
-        }
-        case 1: {
-          result = '已解决';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
     },
   },
   {
-    field: 'solvedWay',
-    headerName: '解决方式',
-    width: 150,
+    field: 'firstOnlineTs',
+    headerName: '首次在线时间',
+    width: 180,
     valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 0: {
-          result = '手机';
-          break;
-        }
-        case 1: {
-          result = '邮件';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
     },
   },
-  { field: 'fromPage', headerName: '来源页', width: 150 },
-  { field: 'fromIp', headerName: '来源IP', width: 150 },
-  { field: 'solvedMsg', headerName: '处理内容', width: 150 },
+  {
+    field: 'lastLogoutTs',
+    headerName: '最后登出时间',
+    width: 180,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
+  {
+    field: 'lastBusyTs',
+    headerName: '最后忙碌时间',
+    width: 180,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
+  {
+    field: 'lastAwayTs',
+    headerName: '最后离开时间',
+    width: 180,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
+  { field: 'loginDuration', headerName: '登录时长', width: 150 },
+  { field: 'onlineDuration', headerName: '在线时长', width: 150 },
+  { field: 'busyDuration', headerName: '忙碌时长', width: 150 },
+  { field: 'busyTimes', headerName: '忙碌次数', width: 150 },
+  { field: 'awayDuration', headerName: '离开时长', width: 150 },
+  { field: 'awayTimes', headerName: '离开次数', width: 150 },
 ];
 
 type Graphql = CommentGraphql;
@@ -118,7 +114,6 @@ const QUERY = QUERY_COMMENT;
 const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
-  solved: 0,
   page: new PageParam(),
   timeRange: {
     from: dateFnsUtils.format(
@@ -132,7 +127,7 @@ const defaultValue = {
   },
 };
 
-export default function CommentManagement() {
+export default function StaffAttendance() {
   const classes = useSearchFormStyles();
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [expanded, setExpanded] = useState(false);
