@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import _ from 'lodash';
-import { Object } from 'ts-toolbelt';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 import DateFnsUtils from '@date-io/date-fns';
@@ -536,15 +535,11 @@ const defaultValue = {
   },
 };
 
-type Graphql = Object.Merge<AllStaffInfo, SearchConv>;
+type Graphql = SearchConv;
 
-const QUERY = gql`
-  ${CONV_PAGE_QUERY}
+const QUERY_STAFF_INFO = gql`
   ${STAFF_FIELD}
-  query Conversation($conversationFilterInput: ConversationFilterInput!) {
-    searchConv(conversationFilter: $conversationFilterInput) {
-      ...pageOnSearchHitPage
-    }
+  query StaffInfo {
     allStaff {
       ...staffFields
     }
@@ -565,6 +560,15 @@ const QUERY = gql`
   }
 `;
 
+const QUERY = gql`
+  ${CONV_PAGE_QUERY}
+  query Conversation($conversationFilterInput: ConversationFilterInput!) {
+    searchConv(conversationFilter: $conversationFilterInput) {
+      ...pageOnSearchHitPage
+    }
+  }
+`;
+
 export default function ChatHistory() {
   const [open, setOpen] = useState(false);
   const [conversationFilterInput, setConversationFilterInput] =
@@ -577,6 +581,7 @@ export default function ChatHistory() {
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'cache-first',
   });
+  const { data: staffInfo } = useQuery<AllStaffInfo>(QUERY_STAFF_INFO);
 
   const [exportConversation, { loading: exporting }] =
     useMutation<MutationExportGraphql>(MUTATION_CONV_EXPORT, {
@@ -633,9 +638,9 @@ export default function ChatHistory() {
   const pageSize = result ? result.size : 20;
   const rowCount = result ? result.totalElements : 0;
 
-  const staffList = data ? data?.allStaff : [];
-  const staffGroupList = data ? data?.allStaffGroup : [];
-  const staffShuntList = data ? data?.allStaffShunt : [];
+  const staffList = staffInfo ? staffInfo?.allStaff : [];
+  const staffGroupList = staffInfo ? staffInfo?.allStaffGroup : [];
+  const staffShuntList = staffInfo ? staffInfo?.allStaffShunt : [];
 
   const selectKeyValueList: SelectKeyValue[] = [
     {

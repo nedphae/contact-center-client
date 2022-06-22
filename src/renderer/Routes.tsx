@@ -16,8 +16,6 @@
 
 */
 // @material-ui/icons
-import React from 'react';
-
 import SvgIcon, { SvgIconTypeMap } from '@material-ui/core/SvgIcon';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import Dashboard from '@material-ui/icons/Dashboard';
@@ -36,6 +34,7 @@ import DashboardPage from './views/Dashboard/Dashboard';
 import StaffAttendance from './views/Dashboard/StaffAttendance';
 // core components/views for RTL layout
 import CommentManagement from './views/Comment/CommentManagement';
+import StaffAttendanceDataGrid from './views/Attendance/StaffAttendanceDataGrid';
 
 function BotIcon(props: SvgIconTypeMap) {
   return (
@@ -79,6 +78,15 @@ const dashboardRoutes = [
     icon: QueryBuilderIcon,
     component: ChatHistory,
     layout: '/admin',
+  },
+  {
+    path: '/staff-attendance-data-grid',
+    name: '详细考勤',
+    rtlName: 'لوحة القيادة',
+    icon: EventAvailableIcon,
+    component: StaffAttendanceDataGrid,
+    layout: '/admin',
+    authority: ['admin'],
   },
   {
     path: '/comment',

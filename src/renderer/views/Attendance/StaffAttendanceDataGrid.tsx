@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 
+import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 import clsx from 'clsx';
-import { useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import DateFnsUtils from '@date-io/date-fns';
 import zhCN from 'date-fns/locale/zh-CN';
@@ -26,17 +27,14 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
+  FormControlProps,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
 } from '@material-ui/core';
-import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
+import { CustomerExportGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import { useSearchFormStyles } from 'renderer/components/SearchForm/SearchForm';
-import { PageParam } from 'renderer/domain/graphql/Query';
-import { CommentGraphql, QUERY_COMMENT } from 'renderer/domain/graphql/Comment';
+import { PageParam, RangeQuery } from 'renderer/domain/graphql/Query';
 import { CommentPojo, CommentQuery } from 'renderer/domain/Comment';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Control, Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
@@ -46,6 +44,15 @@ import CommentForm from 'renderer/components/CommentManagement/CommentForm';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
+import { AllStaffInfo, STAFF_FIELD } from 'renderer/domain/graphql/Staff';
+import { SearchHit } from 'renderer/domain/Conversation';
+import { PageResult } from 'renderer/domain/Page';
+import ChipSelect, {
+  SelectKeyValue,
+} from 'renderer/components/Form/ChipSelect';
+import getPageQuery from 'renderer/domain/graphql/Page';
+import useAlert from 'renderer/hook/alert/useAlert';
+import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
 
 const columns: GridColDef[] = [
   { field: 'staffId', headerName: '客服ID', width: 150 },
@@ -108,8 +115,114 @@ const columns: GridColDef[] = [
   { field: 'awayTimes', headerName: '离开次数', width: 150 },
 ];
 
-type Graphql = CommentGraphql;
-const QUERY = QUERY_COMMENT;
+type StaffInfoGraphql = Object.Omit<AllStaffInfo, 'allStaffShunt'>;
+const QUERY_STAFF_INFO = gql`
+  ${STAFF_FIELD}
+  query StaffWithGroup {
+    allStaff {
+      ...staffFields
+    }
+    allStaffGroup {
+      id
+      organizationId
+      groupName
+    }
+  }
+`;
+
+interface StaffAttendance {
+  staffId: number;
+  staffName: number;
+  groupId: number;
+  groupName: number;
+  date: number;
+  firstLoginTs: number;
+  firstOnlineTs: number;
+  lastLogoutTs: number;
+  loginDuration: number;
+  onlineDuration: number;
+  lastBusyTs: number;
+  busyDuration: number;
+  busyTimes: number;
+  lastAwayTs: number;
+  awayDuration: number;
+  awayTimes: number;
+}
+
+interface StaffAttendanceGraphql {
+  searchStaffAttendance: PageResult<SearchHit<StaffAttendance>>;
+}
+
+const CONTENT_QUERY = gql`
+  fragment staffAttendanceSearchHitContent on StaffAttendanceSearchHit {
+    content {
+      staffId
+      staffName
+      groupId
+      groupName
+      date
+      firstLoginTs
+      firstOnlineTs
+      lastLogoutTs
+      loginDuration
+      onlineDuration
+      lastBusyTs
+      busyDuration
+      busyTimes
+      lastAwayTs
+      awayDuration
+      awayTimes
+    }
+    highlightFields
+    id
+    index
+    innerHits
+    nestedMetaData
+    # score
+    sortValues
+  }
+`;
+
+export const STAFF_ATTENDANCE_PAGE_QUERY = getPageQuery(
+  'StaffAttendanceSearchHitPage',
+  CONTENT_QUERY,
+  'staffAttendanceSearchHitContent'
+);
+
+const QUERY = gql`
+  ${STAFF_ATTENDANCE_PAGE_QUERY}
+  query StaffAttendance($staffAttendanceFilter: StaffAttendanceFilterInput!) {
+    searchStaffAttendance(staffAttendanceFilter: $staffAttendanceFilter) {
+      ...pageOnStaffAttendanceSearchHitPage
+    }
+  }
+`;
+
+export interface StaffAttendanceFilterInput {
+  time?: boolean;
+
+  // 分页参数
+  page: PageParam;
+
+  // 客服组
+  groupId?: number[];
+
+  // 责任客服
+  staffIdList?: number[];
+
+  // 时间区间
+  timeRange?: RangeQuery<number | string>;
+}
+
+export interface MutationExportGraphql {
+  exportStaffAttendance: string;
+}
+
+export const MUTATION_STAFF_ATTENDANCE_EXPORT = gql`
+  mutation StaffAttendanceExport($filter: StaffAttendanceExportFilterInput!) {
+    exportStaffAttendance(staffAttendanceExportFilter: $filter)
+  }
+`;
 
 const dateFnsUtils = new DateFnsUtils();
 
@@ -117,56 +230,105 @@ const defaultValue = {
   page: new PageParam(),
   timeRange: {
     from: dateFnsUtils.format(
-      dateFnsUtils.startOfMonth(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      dateFnsUtils.startOfDay(new Date()),
+      "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
     ),
     to: dateFnsUtils.format(
       dateFnsUtils.endOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
     ),
   },
 };
 
-export default function StaffAttendance() {
+export default function StaffAttendanceDataGrid() {
   const classes = useSearchFormStyles();
-  const refOfDialog = useRef<DraggableDialogRef>(null);
   const [expanded, setExpanded] = useState(false);
-  const [selectCommentPojo, setSelectCommentPojo] = useState<CommentPojo>();
-  const [commentQuery, setCommentQuery] = useState<CommentQuery>(defaultValue);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
-  const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
-    variables: { commentQuery },
-  });
-  const { handleSubmit, reset, control } = useForm<CommentQuery>({
-    defaultValues: commentQuery,
-    shouldUnregister: true,
+  const { loading, data, refetch, variables } = useQuery<
+    StaffAttendanceGraphql,
+  { staffAttendanceFilter: StaffAttendanceFilterInput }
+  >(QUERY, {
+    variables: { staffAttendanceFilter: defaultValue },
   });
 
-  function setAndRefetch(searchParams: CommentQuery) {
-    setCommentQuery(searchParams);
-    refetch({ commentQuery: searchParams });
+  const { data: staffInfo } = useQuery<StaffInfoGraphql>(QUERY_STAFF_INFO);
+
+  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
+  const [exportStaffAttendance, { loading: exporting }] =
+    useMutation<MutationExportGraphql>(MUTATION_STAFF_ATTENDANCE_EXPORT, {
+      onCompleted,
+      onError,
+    });
+
+  if (exporting) {
+    onLoadding(loading);
   }
 
-  const handleClickOpen = (commentPojo: CommentPojo) => {
-    setSelectCommentPojo(commentPojo);
-    refOfDialog.current?.setOpen(true);
+  const staffList = staffInfo ? staffInfo?.allStaff : [];
+  const staffGroupList = staffInfo ? staffInfo?.allStaffGroup : [];
+
+  const selectKeyValueList: SelectKeyValue[] = [
+    {
+      label: '客服',
+      name: 'staffIdList',
+      selectList: _.zipObject(
+        staffList.map((value) => value.id),
+        staffList.map((value) => value.nickName)
+      ),
+      defaultValue: [],
+    },
+    {
+      label: '客服组',
+      name: 'groupIdList',
+      selectList: _.zipObject(
+        staffGroupList.map((value) => value.id),
+        staffGroupList.map((value) => value.groupName)
+      ),
+      defaultValue: [],
+    },
+  ];
+
+  const { handleSubmit, reset, control, getValues, setValue } =
+    useForm<StaffAttendanceFilterInput>({
+      defaultValues: defaultValue,
+      shouldUnregister: true,
+    });
+
+  const handleDelete = (
+    name: keyof StaffAttendanceFilterInput,
+    value: string
+  ) => {
+    const values = getValues(name) as string[];
+    setValue(name, _.remove(values, (v) => v !== value) as any);
   };
 
+  function setAndRefetch(searchParams: StaffAttendanceFilterInput) {
+    refetch({ staffAttendanceFilter: searchParams });
+  }
+
+  const staffAttendanceQuery = variables?.staffAttendanceFilter ?? defaultValue;
+
   const handlePageChange = (params: number) => {
-    commentQuery.page = new PageParam(params, commentQuery.page.size);
-    setAndRefetch(commentQuery);
+    staffAttendanceQuery.page = new PageParam(
+      params,
+      staffAttendanceQuery.page.size
+    );
+    setAndRefetch(staffAttendanceQuery);
   };
   const handlePageSizeChange = (params: number) => {
-    commentQuery.page = new PageParam(commentQuery.page.page, params);
-    setAndRefetch(commentQuery);
+    staffAttendanceQuery.page = new PageParam(
+      staffAttendanceQuery.page.page,
+      params
+    );
+    setAndRefetch(staffAttendanceQuery);
   };
-  const result = data?.findComment;
+  const result = data?.searchStaffAttendance;
   const rows = result && result.content ? result.content : [];
   const pageSize = result ? result.size : 20;
   const rowCount = result ? result.totalElements : 0;
 
-  const setSearchParams = (searchParams: CommentQuery) => {
-    searchParams.page = commentQuery.page;
+  const setSearchParams = (searchParams: StaffAttendanceFilterInput) => {
+    searchParams.page = staffAttendanceQuery.page;
     setAndRefetch(searchParams);
   };
 
@@ -180,9 +342,6 @@ export default function StaffAttendance() {
 
   return (
     <div style={{ height: '80vh', width: '100%' }}>
-      <DraggableDialog title="详细留言信息" ref={refOfDialog}>
-        <CommentForm defaultValues={selectCommentPojo} />
-      </DraggableDialog>
       <MuiPickersUtilsProvider utils={DateFnsUtils} locale={zhCN}>
         <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           {/* 老式的折叠写法，新的参考 StaffShuntForm */}
@@ -195,13 +354,13 @@ export default function StaffAttendance() {
                   name="time"
                   render={({ field: { onChange, value } }) => (
                     <FormControlLabel
-                      control={
+                      control={(
                         <Checkbox
                           checked={value}
                           onChange={(e) => onChange(e.target.checked)}
                           inputProps={{ 'aria-label': 'primary checkbox' }}
                         />
-                      }
+                      )}
                       label="时间"
                     />
                   )}
@@ -223,8 +382,8 @@ export default function StaffAttendance() {
                           onChange(
                             dateFnsUtils.format(
                               d,
-                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-                            )
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+                            ),
                           );
                         }
                       }}
@@ -250,8 +409,8 @@ export default function StaffAttendance() {
                           onChange(
                             dateFnsUtils.format(
                               d,
-                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-                            )
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+                            ),
                           );
                         }
                       }}
@@ -259,60 +418,6 @@ export default function StaffAttendance() {
                         'aria-label': 'change date',
                       }}
                     />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="solved"
-                  render={({ field: { onChange, value } }) => (
-                    <FormControl variant="outlined" margin="normal">
-                      <InputLabel id="demo-mutiple-chip-label">
-                        解决状态
-                      </InputLabel>
-                      <Select
-                        labelId="solved"
-                        id="solved"
-                        onChange={(event) => {
-                          const tempId = event.target.value as string;
-                          onChange(tempId === '' ? null : +tempId);
-                        }}
-                        value={_.isNil(value) ? '' : value}
-                        label="解决状态"
-                      >
-                        <MenuItem value="">
-                          <em>全部</em>
-                        </MenuItem>
-                        <MenuItem value="0">未解决</MenuItem>
-                        <MenuItem value="1">已解决</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="solvedWay"
-                  render={({ field: { onChange, value } }) => (
-                    <FormControl variant="outlined" margin="normal">
-                      <InputLabel id="demo-mutiple-chip-label">
-                        解决方式
-                      </InputLabel>
-                      <Select
-                        labelId="solvedWay"
-                        id="solvedWay"
-                        onChange={(event) => {
-                          const tempId = event.target.value as string;
-                          onChange(tempId === '' ? null : +tempId);
-                        }}
-                        value={_.isNil(value) ? '' : value}
-                        label="解决方式"
-                      >
-                        <MenuItem value="">
-                          <em>全部</em>
-                        </MenuItem>
-                        <MenuItem value={0}>手机</MenuItem>
-                        <MenuItem value={1}>邮件</MenuItem>
-                      </Select>
-                    </FormControl>
                   )}
                 />
               </div>
@@ -352,7 +457,27 @@ export default function StaffAttendance() {
               </IconButton>
             </CardActions>
             <Collapse in={expanded} timeout="auto" unmountOnExit>
-              <CardActions />
+              <CardActions>
+                <ChipSelect
+                  selectKeyValueList={selectKeyValueList}
+                  control={
+                    control as unknown as Control<
+                      Record<string, unknown>,
+                      unknown
+                    >
+                  }
+                  handleDelete={
+                    handleDelete as (name: string, value: string) => void
+                  }
+                  CustomerFormControl={(formControlProps: FormControlProps) => (
+                    <FormControl
+                      className={classes.formControl}
+                      // eslint-disable-next-line react/jsx-props-no-spreading
+                      {...formControlProps}
+                    />
+                  )}
+                />
+              </CardActions>
             </Collapse>
           </Card>
         </form>
@@ -363,9 +488,21 @@ export default function StaffAttendance() {
         rows={rows}
         columns={columns}
         components={{
-          Toolbar: CustomerGridToolbarCreater({
+          Toolbar: CustomerExportGridToolbarCreater({
             refetch: () => {
               refetch();
+            },
+            exportToExcel: async () => {
+              const exportResult = await exportStaffAttendance({
+                variables: { filter: _.omit(staffAttendanceQuery, 'page') },
+              });
+              const filekey = exportResult.data?.exportStaffAttendance;
+              if (filekey) {
+                const url = `${getDownloadS3ChatFilePath()}${filekey}`;
+                window.open(url, '_blank');
+              } else {
+                onErrorMsg('导出失败');
+              }
             },
           }),
         }}
@@ -378,9 +515,6 @@ export default function StaffAttendance() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         loading={loading}
-        onRowClick={(param) => {
-          handleClickOpen(param.row as CommentPojo);
-        }}
         disableSelectionOnClick
         checkboxSelection
         onSelectionModelChange={(selectionId: GridRowId[]) => {
