@@ -80,7 +80,7 @@ const dashboardRoutes = [
     layout: '/admin',
   },
   {
-    path: '/staff-attendance-data-grid',
+    path: '/sa-data-grid',
     name: '详细考勤',
     rtlName: 'لوحة القيادة',
     icon: EventAvailableIcon,

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
@@ -33,17 +33,13 @@ import {
 import { CustomerExportGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import { useSearchFormStyles } from 'renderer/components/SearchForm/SearchForm';
 import { PageParam, RangeQuery } from 'renderer/domain/graphql/Query';
-import { CommentPojo, CommentQuery } from 'renderer/domain/Comment';
+import { CommentQuery } from 'renderer/domain/Comment';
 import { Control, Controller, SubmitHandler, useForm } from 'react-hook-form';
 import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
 } from '@material-ui/pickers';
 import javaInstant2DateStr from 'renderer/utils/timeUtils';
-import CommentForm from 'renderer/components/CommentManagement/CommentForm';
-import DraggableDialog, {
-  DraggableDialogRef,
-} from 'renderer/components/DraggableDialog/DraggableDialog';
 import { AllStaffInfo, STAFF_FIELD } from 'renderer/domain/graphql/Staff';
 import { SearchHit } from 'renderer/domain/Conversation';
 import { PageResult } from 'renderer/domain/Page';
@@ -107,12 +103,12 @@ const columns: GridColDef[] = [
       return params.value ? javaInstant2DateStr(params.value as number) : null;
     },
   },
-  { field: 'loginDuration', headerName: '登录时长', width: 150 },
-  { field: 'onlineDuration', headerName: '在线时长', width: 150 },
-  { field: 'busyDuration', headerName: '忙碌时长', width: 150 },
-  { field: 'busyTimes', headerName: '忙碌次数', width: 150 },
-  { field: 'awayDuration', headerName: '离开时长', width: 150 },
-  { field: 'awayTimes', headerName: '离开次数', width: 150 },
+  { field: 'loginDuration', headerName: '登录时长(秒)', width: 200 },
+  { field: 'onlineDuration', headerName: '在线时长(秒)', width: 200 },
+  { field: 'busyDuration', headerName: '忙碌时长(秒)', width: 200 },
+  { field: 'busyTimes', headerName: '忙碌次数(秒)', width: 200 },
+  { field: 'awayDuration', headerName: '离开时长(秒)', width: 200 },
+  { field: 'awayTimes', headerName: '离开次数(秒)', width: 200 },
 ];
 
 type StaffInfoGraphql = Object.Omit<AllStaffInfo, 'allStaffShunt'>;
@@ -156,6 +152,7 @@ interface StaffAttendanceGraphql {
 const CONTENT_QUERY = gql`
   fragment staffAttendanceSearchHitContent on StaffAttendanceSearchHit {
     content {
+      id
       staffId
       staffName
       groupId
@@ -244,16 +241,17 @@ export default function StaffAttendanceDataGrid() {
   const classes = useSearchFormStyles();
   const [expanded, setExpanded] = useState(false);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
+
+  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
+
   const { loading, data, refetch, variables } = useQuery<
     StaffAttendanceGraphql,
   { staffAttendanceFilter: StaffAttendanceFilterInput }
   >(QUERY, {
     variables: { staffAttendanceFilter: defaultValue },
+    onError,
   });
-
   const { data: staffInfo } = useQuery<StaffInfoGraphql>(QUERY_STAFF_INFO);
-
-  const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const [exportStaffAttendance, { loading: exporting }] =
     useMutation<MutationExportGraphql>(MUTATION_STAFF_ATTENDANCE_EXPORT, {
       onCompleted,
@@ -323,7 +321,8 @@ export default function StaffAttendanceDataGrid() {
     setAndRefetch(staffAttendanceQuery);
   };
   const result = data?.searchStaffAttendance;
-  const rows = result && result.content ? result.content : [];
+  const rows =
+    result && result.content ? result.content.map((it) => it.content) : [];
   const pageSize = result ? result.size : 20;
   const rowCount = result ? result.totalElements : 0;
 
