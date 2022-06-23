@@ -6,13 +6,14 @@ import { Button, MenuItem, MenuList } from '@material-ui/core';
 
 export interface GridToolbarDataProps {
   exportToExcel: () => void;
+  exportText: string;
 }
 
 export const GridToolbarExportButton = forwardRef<
   HTMLButtonElement,
   GridToolbarDataProps
 >(function GridToolbarDataButton(props, ref) {
-  const { exportToExcel } = props;
+  const { exportToExcel, exportText } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -58,7 +59,7 @@ export const GridToolbarExportButton = forwardRef<
           onKeyDown={handleListKeyDown}
           autoFocusItem={Boolean(anchorEl)}
         >
-          <MenuItem onClick={handleExport}>导出至Excel</MenuItem>
+          <MenuItem onClick={handleExport}>{exportText}</MenuItem>
         </MenuList>
       </GridMenu>
     </>

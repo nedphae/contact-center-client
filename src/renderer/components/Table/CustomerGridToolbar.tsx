@@ -36,19 +36,23 @@ export function CustomerGridToolbarCreater(props: CustomerGridToolbarProps) {
 
 export interface CustomerExportGridToolbarProps extends GridToolbarDataProps {
   exportToExcel: () => void;
+  exportText?: string;
 }
 
 export function CustomerExportGridToolbar(
   props: CustomerExportGridToolbarProps
 ) {
-  const { exportToExcel, ...dataProps } = props;
+  const { exportToExcel, exportText, ...dataProps } = props;
   return (
     <GridToolbarContainer>
       <GridToolbarDataButton {...dataProps} />
       <GridToolbarColumnsButton />
       <GridToolbarFilterButton />
       <GridToolbarDensitySelector />
-      <GridToolbarExportButton exportToExcel={exportToExcel} />
+      <GridToolbarExportButton
+        exportToExcel={exportToExcel}
+        exportText={exportText ?? '导出至Excel(链接一天内有效)'}
+      />
     </GridToolbarContainer>
   );
 }
@@ -61,3 +65,11 @@ export function CustomerExportGridToolbarCreater(
   };
   return MyCustomerGridToolbar;
 }
+
+CustomerExportGridToolbarCreater.defaultProps = {
+  exportText: '导出至Excel(链接一天内有效)',
+};
+
+CustomerExportGridToolbar.defaultProps = {
+  exportText: '导出至Excel(链接一天内有效)',
+};
