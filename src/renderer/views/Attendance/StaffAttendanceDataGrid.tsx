@@ -106,9 +106,9 @@ const columns: GridColDef[] = [
   { field: 'loginDuration', headerName: '登录时长(秒)', width: 200 },
   { field: 'onlineDuration', headerName: '在线时长(秒)', width: 200 },
   { field: 'busyDuration', headerName: '忙碌时长(秒)', width: 200 },
-  { field: 'busyTimes', headerName: '忙碌次数(秒)', width: 200 },
+  { field: 'busyTimes', headerName: '忙碌次数', width: 200 },
   { field: 'awayDuration', headerName: '离开时长(秒)', width: 200 },
-  { field: 'awayTimes', headerName: '离开次数(秒)', width: 200 },
+  { field: 'awayTimes', headerName: '离开次数', width: 200 },
 ];
 
 type StaffInfoGraphql = Object.Omit<AllStaffInfo, 'allStaffShunt'>;
