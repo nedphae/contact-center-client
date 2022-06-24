@@ -46,6 +46,7 @@ import {
 } from '@material-ui/core';
 import SubmitButton from 'renderer/components/Form/SubmitButton';
 import useAlert from 'renderer/hook/alert/useAlert';
+import javaInstant2DateStr from 'renderer/utils/timeUtils';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -68,7 +69,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '1vw',
       userSelect: 'auto',
     },
-  })
+  }),
 );
 
 export type CustomerFormValues = Object.Readonly<Customer, 'uid'>;
@@ -112,7 +113,7 @@ export default function CustomerForm(props: CustomerFormProps) {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (loading) {
     onLoadding(loading);
@@ -121,7 +122,7 @@ export default function CustomerForm(props: CustomerFormProps) {
   const defaultValues = _.cloneDeep(tempDefaultValues);
   if (defaultValues) {
     defaultValues.tags = _.map(defaultValues?.tags ?? [], (tag) =>
-      _.omit(tag, '__typename')
+      _.omit(tag, '__typename'),
     );
   }
   const {
@@ -165,7 +166,7 @@ export default function CustomerForm(props: CustomerFormProps) {
     const tags = getValues('tags') as CustomerTagView[];
     setValue(
       'tags',
-      _.remove(tags, (v) => v.name !== name)
+      _.remove(tags, (v) => v.name !== name),
     );
   };
   return (
@@ -180,6 +181,11 @@ export default function CustomerForm(props: CustomerFormProps) {
           value={defaultValues?.organizationId || ''}
           type="hidden"
           {...register('organizationId', { valueAsNumber: true })}
+        />
+        <TextField
+          value={defaultValues?.createdDate || ''}
+          type="hidden"
+          {...register('createdDate', { valueAsNumber: true })}
         />
         <TextField
           variant="outlined"
@@ -218,7 +224,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                   onChange(currentValue.map((it) => JSON.parse(it)));
                 }}
                 value={((value as CustomerTagView[]) ?? []).map((it) =>
-                  JSON.stringify(it, ['name', 'color'].sort())
+                  JSON.stringify(it, ['name', 'color'].sort()),
                 )}
                 label="客户标签"
                 renderValue={(selected) => (
@@ -256,7 +262,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                         key={tag.id}
                         value={JSON.stringify(
                           _.pick(tag, 'name', 'color'),
-                          ['name', 'color'].sort()
+                          ['name', 'color'].sort(),
                         )}
                         style={getStyles(selected, theme, tag.color)}
                       >
@@ -499,6 +505,12 @@ export default function CustomerForm(props: CustomerFormProps) {
                 )}
               </React.Fragment>
             ))}
+        {defaultValues?.createdDate && (
+          <Typography variant="body1" gutterBottom>
+            创建日期:&nbsp;&nbsp;
+            {javaInstant2DateStr(defaultValues?.createdDate as number)}
+          </Typography>
+        )}
         <SubmitButton />
       </form>
     </div>

@@ -47,6 +47,7 @@ export const CORE_CUSTOMER_FIELDS = gql`
       name
       color
     }
+    createdDate
   }
 `;
 

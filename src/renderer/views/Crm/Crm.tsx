@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import _ from 'lodash';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -9,6 +9,7 @@ import {
   GridCellParams,
   GridColDef,
   GridRowId,
+  GridValueGetterParams,
 } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
@@ -32,6 +33,7 @@ import DraggableDialog, {
 } from 'renderer/components/DraggableDialog/DraggableDialog';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
+import javaInstant2DateStr from 'renderer/utils/timeUtils';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 90 },
@@ -64,6 +66,14 @@ const columns: GridColDef[] = [
   { field: 'mobile', headerName: '用户手机号', width: 150 },
   { field: 'vipLevel', headerName: 'vip等级', width: 150 },
   { field: 'remarks', headerName: '备注', width: 150 },
+  {
+    field: 'createdDate',
+    headerName: '创建时间',
+    width: 180,
+    valueGetter: (params: GridValueGetterParams) => {
+      return params.value ? javaInstant2DateStr(params.value as number) : null;
+    },
+  },
 ];
 
 interface Graphql {

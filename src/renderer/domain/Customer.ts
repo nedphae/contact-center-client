@@ -29,6 +29,8 @@ export interface Customer {
   data: DetailData[] | undefined;
   // 用户标签
   tags: CustomerTagView[] | undefined;
+  // 创建日期
+  createdDate?: number | string | Date;
 }
 
 export type FromTypeString = keyof typeof FromType;
