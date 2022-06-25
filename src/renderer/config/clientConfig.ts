@@ -81,9 +81,9 @@ class ClientConfig {
 
   kibana = {
     loginUrl: `${this.kibanaBae.baseUrl}/internal/security/login`,
-    defaultSpaceUrl: `${this.kibanaBae.baseUrl}/api/spaces/space/default`,
+    spaceUrl: `${this.kibanaBae.baseUrl}/api/spaces/space/$spaceId`,
     dashboardUrl:
-      `${this.kibanaBae.baseUrl}/app/dashboards#/view/$dashboardId?embed=true&` +
+      `${this.kibanaBae.baseUrl}/s/$spaceId/app/dashboards#/view/$dashboardId?embed=true&` +
       '_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2C' +
       'time%3A(from%3Anow%2Fd%2Cto%3Anow%2Fd))' +
       '&show-query-input=true&show-time-filter=true',
@@ -110,8 +110,14 @@ export function getDownloadS3StaffImgPath() {
   return `${clientConfig.web.host}`;
 }
 
-export function getDashboardUrlById(dashboardId: string) {
-  return clientConfig.kibana.dashboardUrl.replace('$dashboardId', dashboardId);
+export function getDashboardUrlById(spaceId: string, dashboardId: string) {
+  return clientConfig.kibana.dashboardUrl
+    .replace('$dashboardId', dashboardId)
+    .replace('$spaceId', spaceId);
+}
+
+export function getKibanaSpaceUrl(spaceId: string) {
+  return clientConfig.kibana.spaceUrl.replace('$spaceId', spaceId);
 }
 
 export default clientConfig;

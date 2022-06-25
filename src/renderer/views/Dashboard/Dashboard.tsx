@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
 import { makeStyles } from '@material-ui/core/styles';
 // @material-ui/icons
-import Store from '@material-ui/icons/Store';
 import SyncIcon from '@material-ui/icons/Sync';
 import { Icon } from '@iconify/react';
 import peopleQueue24Filled from '@iconify/icons-fluent/people-queue-24-filled';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import InfoIcon from '@material-ui/icons/Info';
-import Warning from '@material-ui/icons/Warning';
-import DateRange from '@material-ui/icons/DateRange';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import LocalOffer from '@material-ui/icons/LocalOffer';
-import Update from '@material-ui/icons/Update';
-import Accessibility from '@material-ui/icons/Accessibility';
 import HeadsetMicIcon from '@material-ui/icons/HeadsetMic';
 // core components
 import { gql, useQuery } from '@apollo/client';
@@ -26,7 +21,10 @@ import {
 import { defaultRealTimeStatistics } from 'renderer/domain/RealTimeStatistics';
 import { interval, Subscription } from 'rxjs';
 import useAlert from 'renderer/hook/alert/useAlert';
-import clientConfig, { getDashboardUrlById } from 'renderer/config/clientConfig';
+import clientConfig, {
+  getDashboardUrlById,
+  getKibanaSpaceUrl,
+} from 'renderer/config/clientConfig';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 import Danger from '../../components/Typography/Danger';
@@ -60,6 +58,7 @@ export const QUERY_KIBANA_URL = gql`
 `;
 
 interface KibanaUrlString {
+  spaceId: string;
   conv: string;
   staff: string;
 }
@@ -77,8 +76,12 @@ export default function Dashboard() {
       const kibanaData = kibanaUrlGraphql?.getKibanaUrl;
       // 因为 graphql 的 hook 会导致登录两次
       if (!kibanaUrl && kibanaData && kibanaData?.kibanaUrl) {
+        const tempKibanaUrl = JSON.parse(
+          kibanaData.kibanaUrl
+        ) as KibanaUrlString;
+
         const kibanaLoginUrl = clientConfig.kibana.loginUrl;
-        const currentUrl = clientConfig.kibana.defaultSpaceUrl;
+        const currentUrl = getKibanaSpaceUrl(tempKibanaUrl.spaceId);
 
         try {
           await axios.get<void>(currentUrl);
@@ -107,7 +110,7 @@ export default function Dashboard() {
             onErrorMsg('登录Kibana失败，请联系管理员');
           }
         } finally {
-          setKibanaUrl(JSON.parse(kibanaData?.kibanaUrl));
+          setKibanaUrl(tempKibanaUrl);
         }
       }
     })();
@@ -243,7 +246,7 @@ export default function Dashboard() {
                 margin: 0,
                 padding: 0,
               }}
-              src={getDashboardUrlById(kibanaUrl.conv)}
+              src={getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.conv)}
             />
           )}
         </GridItem>

@@ -6,7 +6,10 @@ import axios from 'axios';
 // core components
 import { gql, useQuery } from '@apollo/client';
 import useAlert from 'renderer/hook/alert/useAlert';
-import clientConfig, { getDashboardUrlById } from 'renderer/config/clientConfig';
+import clientConfig, {
+  getDashboardUrlById,
+  getKibanaSpaceUrl,
+} from 'renderer/config/clientConfig';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 
@@ -31,6 +34,7 @@ export const QUERY_KIBANA_URL = gql`
 `;
 
 interface KibanaUrlString {
+  spaceId: string;
   conv: string;
   staff: string;
 }
@@ -47,8 +51,12 @@ export default function StaffAttendance() {
       const kibanaData = kibanaUrlGraphql?.getKibanaUrl;
       // 因为 graphql 的 hook 会导致登录两次
       if (!kibanaUrl && kibanaData && kibanaData?.kibanaUrl) {
+        const tempKibanaUrl = JSON.parse(
+          kibanaData.kibanaUrl
+        ) as KibanaUrlString;
+
         const kibanaLoginUrl = clientConfig.kibana.loginUrl;
-        const currentUrl = clientConfig.kibana.defaultSpaceUrl;
+        const currentUrl = getKibanaSpaceUrl(tempKibanaUrl.spaceId);
 
         try {
           await axios.get<void>(currentUrl);
@@ -77,7 +85,7 @@ export default function StaffAttendance() {
             onErrorMsg('登录Kibana失败，请联系管理员');
           }
         } finally {
-          setKibanaUrl(JSON.parse(kibanaData?.kibanaUrl));
+          setKibanaUrl(tempKibanaUrl);
         }
       }
     })();
@@ -106,7 +114,7 @@ export default function StaffAttendance() {
                 margin: 0,
                 padding: 0,
               }}
-              src={getDashboardUrlById(kibanaUrl.staff)}
+              src={getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.staff)}
             />
           )}
         </GridItem>
