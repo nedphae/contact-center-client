@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
@@ -10,8 +10,6 @@ import clientConfig, {
   getDashboardUrlById,
   getKibanaSpaceUrl,
 } from 'renderer/config/clientConfig';
-import GridItem from '../../components/Grid/GridItem';
-import GridContainer from '../../components/Grid/GridContainer';
 
 interface KibanaUrl {
   kibanaUsername?: string;
@@ -52,7 +50,7 @@ export default function StaffAttendance() {
       // 因为 graphql 的 hook 会导致登录两次
       if (!kibanaUrl && kibanaData && kibanaData?.kibanaUrl) {
         const tempKibanaUrl = JSON.parse(
-          kibanaData.kibanaUrl
+          kibanaData.kibanaUrl,
         ) as KibanaUrlString;
 
         const kibanaLoginUrl = clientConfig.kibana.loginUrl;
@@ -92,33 +90,27 @@ export default function StaffAttendance() {
   }, [kibanaUrl, kibanaUrlGraphql, onErrorMsg]);
   // {document.documentElement.clientHeight - 60}
   return (
-    <div>
-      <GridContainer>
-        <GridItem
-          xs={12}
-          sm={12}
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: 'calc(100vh - 60px)',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {kibanaUrl && (
+        <iframe
+          title="考勤"
           style={{
-            display: 'flex',
-            width: '100%',
-            height: 'calc(100vh - 60px)',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            flexGrow: 1,
+            border: 'none',
+            margin: 0,
+            padding: 0,
           }}
-        >
-          {kibanaUrl && (
-            <iframe
-              title="考勤"
-              style={{
-                flexGrow: 1,
-                border: 'none',
-                margin: 0,
-                padding: 0,
-              }}
-              src={getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.staff)}
-            />
-          )}
-        </GridItem>
-      </GridContainer>
+          src={getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.staff)}
+        />
+      )}
     </div>
   );
 }
