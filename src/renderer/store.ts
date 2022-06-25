@@ -1,5 +1,6 @@
 import { configureStore, Action, Middleware } from '@reduxjs/toolkit';
 import { createHashHistory } from 'history';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { createLogger } from 'redux-logger';
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import createRootReducer from './rootReducer';
@@ -44,3 +45,10 @@ export const configuredStore = (initialState?: RootState) => {
 export type Store = ReturnType<typeof configuredStore>;
 export type AppThunk = ThunkAction<void, RootState, unknown, Action<string>>;
 export type AppDispatch = ThunkDispatch<RootState, unknown, Action<string>>;
+
+// same as AppDispatch
+// const store = configuredStore();
+// export type AppDispatch = typeof store.dispatch;
+
+export const useAppDispatch: () => AppDispatch = useDispatch;
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

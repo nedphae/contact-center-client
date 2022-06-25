@@ -6,7 +6,9 @@ import axios from 'axios';
 // core components
 import { gql, useQuery } from '@apollo/client';
 import useAlert from 'renderer/hook/alert/useAlert';
-import clientConfig, { getDashboardUrlById } from 'renderer/config/clientConfig';
+import clientConfig, {
+  getDashboardUrlById,
+} from 'renderer/config/clientConfig';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 
@@ -71,7 +73,7 @@ export default function StaffAttendance() {
                 'Content-Type': 'application/json',
                 'kbn-version': '7.16.1',
               },
-            }
+            },
           );
           if (result.status !== 200) {
             onErrorMsg('登录Kibana失败，请联系管理员');
@@ -84,33 +86,27 @@ export default function StaffAttendance() {
   }, [kibanaUrl, kibanaUrlGraphql, onErrorMsg]);
   // {document.documentElement.clientHeight - 60}
   return (
-    <div>
-      <GridContainer>
-        <GridItem
-          xs={12}
-          sm={12}
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: 'calc(100vh - 60px)',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {kibanaUrl && (
+        <iframe
+          title="考勤"
           style={{
-            display: 'flex',
-            width: '100%',
-            height: 'calc(100vh - 60px)',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            flexGrow: 1,
+            border: 'none',
+            margin: 0,
+            padding: 0,
           }}
-        >
-          {kibanaUrl && (
-            <iframe
-              title="考勤"
-              style={{
-                flexGrow: 1,
-                border: 'none',
-                margin: 0,
-                padding: 0,
-              }}
-              src={getDashboardUrlById(kibanaUrl.staff)}
-            />
-          )}
-        </GridItem>
-      </GridContainer>
+          src={getDashboardUrlById(kibanaUrl.staff)}
+        />
+      )}
     </div>
   );
 }

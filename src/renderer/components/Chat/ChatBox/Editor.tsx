@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -23,6 +22,7 @@ import { Session } from 'renderer/domain/Session';
 import { getMyself } from 'renderer/state/staff/staffAction';
 import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import useAlert from 'renderer/hook/alert/useAlert';
+import { useAppDispatch, useAppSelector } from 'renderer/store';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -67,7 +67,7 @@ export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
   const [tempTextMessage, setTempTextMessage] = useState<string>('');
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   // 展示 快捷回复
   const [open, setOpen] = useState(true);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -75,7 +75,7 @@ export default function Editor(selected: SelectedProps) {
   const menuListRef = useRef<HTMLUListElement>(null);
   const classes = useStyles();
 
-  const mySelf = useSelector(getMyself);
+  const mySelf = useAppSelector(getMyself);
   const { onErrorMsg } = useAlert();
 
   const quickReplyList = searchQuickReply(tempTextMessage);
