@@ -6,8 +6,17 @@ import clientConfig from 'renderer/config/clientConfig';
 import addParam from 'renderer/utils/url';
 import { OnlineStatus } from 'renderer/domain/constant/Staff';
 
-export default function deleteAllCookies() {
-  window.electron.ipcRenderer.sendMessage('clear-all-cookies');
+/**
+ * 删除所有cookie
+ * 当前只有 kibana cookie
+ */
+export default async function deleteAllCookies() {
+  if (window.electron && window.electron.ipcRenderer) {
+    window.electron.ipcRenderer.sendMessage('clear-all-cookies');
+  } else {
+    // 调用登出接口
+    await axios.get<void>(clientConfig.kibana.logoutUrl);
+  }
 }
 
 /**

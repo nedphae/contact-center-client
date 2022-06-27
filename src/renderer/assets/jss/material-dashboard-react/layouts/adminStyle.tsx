@@ -10,8 +10,8 @@ const appStyle: any = (theme: {
   wrapper: {
     position: 'relative',
     top: '0',
-    // height: '100vh',
-    height: 'calc(100vh - 30px)',
+    // 自定义标题栏时为 height: 'calc(100vh - 30px)',
+    height: '100vh',
   },
   mainPanel: {
     [theme.breakpoints.up('md')]: {

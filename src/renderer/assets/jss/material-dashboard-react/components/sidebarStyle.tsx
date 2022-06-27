@@ -43,7 +43,7 @@ const sidebarStyle: any = (theme: Theme) => ({
   drawerPaper: {
     border: 'none',
     // 使用 absolute 定位，因为使用了自定义 titlebar
-    position: 'absolute', // fixed
+    position: 'fixed',
     top: '0',
     bottom: '0',
     left: '0',
@@ -52,15 +52,18 @@ const sidebarStyle: any = (theme: Theme) => ({
     // width: drawerWidth,
     [theme.breakpoints.up('md')]: {
       // width: drawerWidth,
-      position: 'absolute',
+      position: 'fixed',
       height: '100%',
     },
     [theme.breakpoints.down('sm')]: {
       // width: drawerWidth,
       ...boxShadow,
-      position: 'absolute',
-      // display: 'block',
-      top: '30px',
+      // 使用 absolute 定位，因为使用了自定义 titlebar
+      position: 'fixed',
+      // 同时删除 display: 'block',
+      display: 'block',
+      // 同时设置 top 为 top: '30px',
+      top: '0',
       height: '100vh',
       right: '0',
       left: 'auto',
@@ -289,7 +292,8 @@ const sidebarStyle: any = (theme: Theme) => ({
   },
   sidebarWrapper: {
     position: 'relative',
-    height: 'calc(100vh - 105px)',
+    // 自定义标题栏时设置为 height: 'calc(100vh - 105px)',
+    height: 'calc(100vh - 75px)',
     overflow: 'auto',
     width: '200px',
     zIndex: '4',
