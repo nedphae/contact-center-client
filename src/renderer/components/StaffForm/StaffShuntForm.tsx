@@ -65,26 +65,6 @@ import useAlert from 'renderer/hook/alert/useAlert';
 import { TopicGraphql, QUERY_BOT_TOPIC } from 'renderer/domain/graphql/Bot';
 import SubmitButton from '../Form/SubmitButton';
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
-
-function getStyles(name: string, keys: string[], theme: Theme) {
-  return {
-    fontWeight:
-      keys.indexOf(name) === -1
-        ? theme.typography.fontWeightLight
-        : theme.typography.fontWeightBold,
-  };
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
@@ -223,17 +203,12 @@ function Alert(props: AlertProps) {
 
 export default function StaffShuntForm(props: FormProps) {
   const { defaultValues, shuntClassList, staffList } = props;
-  const theme = useTheme();
   const classes = useStyles();
 
   const jsoneditorRef = useRef<HTMLDivElement>(null);
   const [jsoneditor, setJsoneditor] = useState<JSONEditor>();
   const [tempStaffConfig, setTempStaffConfig] = useState<StaffConfig[]>();
   const [chatUIConfigObj, setChatUIConfigObj] = useState<any>();
-
-  const { data: allTopic } = useQuery<TopicGraphql>(QUERY_BOT_TOPIC, {
-    fetchPolicy: 'no-cache',
-  });
 
   const [uploading, setUploading] = useState<boolean>();
   const [error, setError] = useState<string>();
@@ -589,33 +564,6 @@ initXiaobaiChat(params);
     updateChatUIConfig(newChatUIConfigObj);
   }
 
-  function handleConnectIdChange(
-    event: React.ChangeEvent<{
-      name?: string | undefined;
-      value: unknown;
-    }>
-  ) {
-    let newChatUIConfigObj = jsoneditor?.get();
-    if (event.target.value) {
-      newChatUIConfigObj = _.assign(newChatUIConfigObj, {
-        connectIds: event.target.value as string[],
-      });
-    } else {
-      newChatUIConfigObj = _.omit(newChatUIConfigObj, 'connectIds');
-    }
-    updateChatUIConfig(newChatUIConfigObj);
-  }
-
-  function handleConnectIdDelete(connectId: string) {
-    let newChatUIConfigObj = jsoneditor?.get();
-    newChatUIConfigObj = _.assign(newChatUIConfigObj, {
-      connectIds: newChatUIConfigObj.connectIds.filter(
-        (it: string) => it !== connectId
-      ),
-    });
-    updateChatUIConfig(newChatUIConfigObj);
-  }
-
   function createStaffConfigList(sc: StaffConfig) {
     return (
       <Grid key={sc.staffId} container spacing={2} alignItems="center">
@@ -870,55 +818,6 @@ initXiaobaiChat(params);
           }}
           onChange={handleWelcomeMessageChange}
         />
-        <FormControl variant="outlined" margin="normal" fullWidth>
-          <InputLabel id="demo-mutiple-chip-label">热门问题</InputLabel>
-          <Select
-            labelId="demo-mutiple-chip-label"
-            id="demo-mutiple-chip"
-            multiple
-            input={<Input id="select-multiple-chip" />}
-            onChange={handleConnectIdChange}
-            value={chatUIConfigObj?.connectIds ?? []}
-            label="热门问题"
-            renderValue={(selected) => (
-              <div className={classes.chips}>
-                {(selected as string[]).map((id) => (
-                  <Chip
-                    key={id}
-                    label={
-                      allTopic?.allTopic
-                        ?.filter((topic) => topic.id === id)
-                        ?.map((topic) => topic.question)[0] ?? ''
-                    }
-                    className={classes.chip}
-                    onDelete={() => {
-                      handleConnectIdDelete(id);
-                    }}
-                    onMouseDown={(event) => {
-                      event.stopPropagation();
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-            MenuProps={MenuProps}
-          >
-            {allTopic?.allTopic &&
-              allTopic.allTopic.map((topic) => (
-                <MenuItem
-                  key={topic.id}
-                  value={topic.id}
-                  style={getStyles(
-                    topic.id ?? '',
-                    chatUIConfigObj?.connectIds ?? [],
-                    theme
-                  )}
-                >
-                  {topic.question}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
         <Grid container>
           <Grid item xs={7}>
             <Upload {...avatarUploadProps}>

@@ -4,22 +4,44 @@ import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  useTheme,
+} from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
-import { BotConfig } from 'renderer/domain/Bot';
+import { BotConfig, Topic } from 'renderer/domain/Bot';
 import useAlert from 'renderer/hook/alert/useAlert';
 import {
+  Chip,
   Divider,
+  FormControl,
   FormControlLabel,
   FormHelperText,
+  Input,
+  InputLabel,
+  MenuItem,
+  Select,
   Slider,
   Switch,
   Typography,
 } from '@material-ui/core';
 import SubmitButton from '../Form/SubmitButton';
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -36,12 +58,29 @@ const useStyles = makeStyles(() =>
       marginTop: '0.5rem',
       marginBottom: '0.5rem',
     },
-  })
+    chips: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+    chip: {
+      margin: 2,
+    },
+  }),
 );
+
+function getStyles(name: string, keys: string[], theme: Theme) {
+  return {
+    fontWeight:
+      keys.indexOf(name) === -1
+        ? theme.typography.fontWeightLight
+        : theme.typography.fontWeightBold,
+  };
+}
 
 interface FormProps {
   defaultValues: BotConfig;
   afterMutationCallback: () => void | undefined;
+  allTopic: Topic[] | undefined;
 }
 
 interface Graphql {
@@ -59,22 +98,30 @@ export const MUTATION_BOT_CONFIG = gql`
       similarQuestionEnable
       similarQuestionNotice
       similarQuestionCount
+      hotQuestion
     }
   }
 `;
 
 export default function BotConfigForm(props: FormProps) {
-  const { defaultValues, afterMutationCallback } = props;
+  const { defaultValues, afterMutationCallback, allTopic } = props;
   const classes = useStyles();
+  const theme = useTheme();
   const {
     handleSubmit,
     register,
     control,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<BotConfig>({
     defaultValues,
     shouldUnregister: true,
   });
+
+  const filterTopic = allTopic?.filter(
+    (it) => it.knowledgeBaseId === defaultValues.knowledgeBaseId,
+  );
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [saveBotConfig, { loading, data }] = useMutation<Graphql>(
@@ -82,7 +129,7 @@ export default function BotConfigForm(props: FormProps) {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (loading) {
     onLoadding(loading);
@@ -94,6 +141,31 @@ export default function BotConfigForm(props: FormProps) {
     });
     afterMutationCallback();
   };
+
+  const hotQuesion = watch('hotQuestion')?.split(',');
+
+  function handleHotQuestionChange(
+    event: React.ChangeEvent<{
+      name?: string | undefined;
+      value: unknown;
+    }>,
+  ) {
+    const hotQuesiontIds = event.target.value as string[];
+    const tempHotQuestion = hotQuesiontIds.join(',');
+    setValue('hotQuestion', tempHotQuestion);
+  }
+
+  function handleHotQuestionDelete(connectId: string) {
+    const tempIds = hotQuesion?.filter((it) => it !== connectId);
+    if (tempIds && tempIds.length > 0) {
+      const tempHotQuestion = hotQuesion
+        ?.filter((it) => it !== connectId)
+        .join(',');
+      setValue('hotQuestion', tempHotQuestion);
+    } else {
+      setValue('hotQuestion', undefined);
+    }
+  }
 
   return (
     <div className={classes.paper}>
@@ -125,7 +197,7 @@ export default function BotConfigForm(props: FormProps) {
                   value={value}
                   onChange={(
                     _event: React.ChangeEvent<unknown>,
-                    newValue: number | number[]
+                    newValue: number | number[],
                   ) => {
                     onChange(newValue);
                   }}
@@ -201,14 +273,14 @@ export default function BotConfigForm(props: FormProps) {
           }) => (
             <>
               <FormControlLabel
-                control={
+                control={(
                   <Switch
                     checked={value}
                     onChange={onChange}
                     name="checkedB"
                     color="primary"
                   />
-                }
+                )}
                 label="展示相似问题"
               />
               {invalid && <FormHelperText>{error?.message}</FormHelperText>}
@@ -255,7 +327,7 @@ export default function BotConfigForm(props: FormProps) {
                   value={value}
                   onChange={(
                     _event: React.ChangeEvent<unknown>,
-                    newValue: number | number[]
+                    newValue: number | number[],
                   ) => {
                     onChange(newValue);
                   }}
@@ -271,6 +343,51 @@ export default function BotConfigForm(props: FormProps) {
             )}
           />
         </div>
+        <FormControl variant="outlined" margin="normal" fullWidth>
+          <InputLabel id="demo-mutiple-chip-label">热门问题</InputLabel>
+          <Select
+            labelId="demo-mutiple-chip-label"
+            id="demo-mutiple-chip"
+            multiple
+            input={<Input id="select-multiple-chip" />}
+            onChange={handleHotQuestionChange}
+            value={hotQuesion ?? []}
+            label="热门问题"
+            renderValue={(selected) => (
+              <div className={classes.chips}>
+                {(selected as string[]).map((id) => (
+                  <Chip
+                    key={id}
+                    label={
+                      filterTopic
+                        ?.filter((topic) => topic.id === id)
+                        ?.map((topic) => topic.question)[0] ?? ''
+                    }
+                    className={classes.chip}
+                    onDelete={() => {
+                      handleHotQuestionDelete(id);
+                    }}
+                    onMouseDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            MenuProps={MenuProps}
+          >
+            {filterTopic &&
+              filterTopic.map((topic) => (
+                <MenuItem
+                  key={topic.id}
+                  value={topic.id}
+                  style={getStyles(topic.id ?? '', hotQuesion ?? [], theme)}
+                >
+                  {topic.question}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
         <SubmitButton />
       </form>
     </div>

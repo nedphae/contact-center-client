@@ -72,6 +72,7 @@ export interface BotConfig {
   similarQuestionEnable: boolean;
   similarQuestionNotice: string;
   similarQuestionCount: number;
+  hotQuestion?: string;
 }
 
 export const botConfigNoAnswerReply = '抱歉，没有找到您想要的答案';

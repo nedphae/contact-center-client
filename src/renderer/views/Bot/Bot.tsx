@@ -90,6 +90,7 @@ const QUERY_BOTS = gql`
       similarQuestionEnable
       similarQuestionNotice
       similarQuestionCount
+      hotQuestion
     }
     allKnowledgeBase {
       id

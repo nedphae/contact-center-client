@@ -71,6 +71,7 @@ interface BotProps {
         allKnowledgeBase: KnowledgeBase[];
         botConfigMap: _.Dictionary<BotConfig[]>;
         botConfigList: BotConfig[];
+        memoAllTopic: Topic[];
       }
     | undefined;
   allTopicCategory: TopicCategory[] | undefined;
@@ -429,6 +430,7 @@ export default function BotSidecar(props: BotProps) {
             afterMutationCallback={() => {
               refetch();
             }}
+            allTopic={memoData?.memoAllTopic}
           />
         )) ||
           (configStaff && topicOrKnowladge.Knowladge?.id && (
@@ -445,6 +447,7 @@ export default function BotSidecar(props: BotProps) {
               afterMutationCallback={() => {
                 refetch();
               }}
+              allTopic={memoData?.memoAllTopic}
             />
           )) || <Typography>请先关联一个机器人账号</Typography>}
       </DraggableDialog>
