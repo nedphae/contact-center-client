@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { CssBaseline, Container } from '@material-ui/core';
 import comingSoon from 'renderer/assets/img/Coming-Soon.webp';
 

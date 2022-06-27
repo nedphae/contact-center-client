@@ -103,6 +103,7 @@ export default function Dashboard() {
               headers: {
                 'Content-Type': 'application/json',
                 'kbn-version': '7.16.1',
+                'kbn-xsrf': true,
               },
             }
           );

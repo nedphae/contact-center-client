@@ -35,6 +35,7 @@ import StaffAttendance from './views/Dashboard/StaffAttendance';
 // core components/views for RTL layout
 import CommentManagement from './views/Comment/CommentManagement';
 import StaffAttendanceDataGrid from './views/Attendance/StaffAttendanceDataGrid';
+import OnlineVersion from './views/Dashboard/OnlineVersion';
 
 function BotIcon(props: SvgIconTypeMap) {
   return (
@@ -58,7 +59,7 @@ const dashboardRoutes = [
     name: '监控统计',
     rtlName: 'لوحة القيادة',
     icon: Dashboard,
-    component: DashboardPage,
+    component: DashboardPage, // OnlineVersion,
     layout: '/admin',
     authority: ['admin'],
   },
@@ -67,7 +68,7 @@ const dashboardRoutes = [
     name: '考勤统计',
     rtlName: 'لوحة القيادة',
     icon: EventAvailableIcon,
-    component: StaffAttendance,
+    component: StaffAttendance, // OnlineVersion,
     layout: '/admin',
     authority: ['admin'],
   },
