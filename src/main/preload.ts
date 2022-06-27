@@ -13,7 +13,7 @@ const getAssetPath = (...paths: string[]): string => {
 
 export type Channels = 'ipc-example' | string;
 
-let titlebar;
+// let titlebar;
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
@@ -35,10 +35,10 @@ contextBridge.exposeInMainWorld('electron', {
 
 window.addEventListener('DOMContentLoaded', () => {
   // Title bar implemenation
-  titlebar = new Titlebar({
-    backgroundColor: Color.fromHex('#323233'),
-    itemBackgroundColor: Color.fromHex('#121212'),
-    containerOverflow: 'hidden',
-    icon: getAssetPath('icon.png'), // Add this line
-  });
+  // titlebar = new Titlebar({
+  //   backgroundColor: Color.fromHex('#323233'),
+  //   itemBackgroundColor: Color.fromHex('#121212'),
+  //   containerOverflow: 'hidden',
+  //   icon: getAssetPath('icon.png'), // Add this line
+  // });
 });

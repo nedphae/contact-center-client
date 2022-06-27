@@ -34,7 +34,7 @@ export default class AppUpdater {
 let mainWindow: BrowserWindow | null = null;
 
 // setup the titlebar main process
-setupTitlebar();
+// setupTitlebar();
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -85,7 +85,7 @@ const createWindow = async () => {
     width: 1920,
     height: 1080,
     icon: getAssetPath('icon.png'),
-    titleBarStyle: 'hidden',
+    // titleBarStyle: 'hidden',
     webPreferences: {
       webSecurity: !isDebug,
       preload: app.isPackaged
@@ -94,7 +94,7 @@ const createWindow = async () => {
     },
   });
   // attach fullscreen(f11 and not 'maximized') && focus listeners
-  attachTitlebarToWindow(mainWindow);
+  // attachTitlebarToWindow(mainWindow);
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
