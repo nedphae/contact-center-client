@@ -144,6 +144,10 @@ export const QUERY_CUUSTOMER_AND_LAST_CONV = gql`
         hidden
         href
       }
+      tags {
+        name
+        color
+      }
     }
     getLastConversation(userId: $userId) {
       ...conversationFields

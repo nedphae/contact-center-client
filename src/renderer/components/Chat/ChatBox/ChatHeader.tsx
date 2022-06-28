@@ -88,7 +88,7 @@ export default function ChatHeader() {
               {user?.name ?? user?.uid} {/** 获取用户信息 */}
             </Typography>
           </Grid>
-          <Grid item xs={5} zeroMinWidth>
+          <Grid item xs={4} zeroMinWidth>
             <Typography
               noWrap
               style={{ paddingLeft: 10 }}
@@ -101,7 +101,7 @@ export default function ChatHeader() {
                 user.status?.region?.replaceAll(/\||0/g, '')}
             </Typography>
           </Grid>
-          <Grid item xs={3} zeroMinWidth>
+          <Grid item xs={4} zeroMinWidth>
             {sessionDuration && (
               <Typography noWrap align="center" variant="body2">
                 咨询时长：{getDuration(sessionDuration)}{' '}
