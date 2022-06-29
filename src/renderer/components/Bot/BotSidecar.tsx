@@ -32,6 +32,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   Typography,
 } from '@material-ui/core';
 import StaffFormContainer from 'renderer/components/StaffForm/StaffFromContainer';
@@ -53,12 +54,14 @@ import {
 } from 'renderer/domain/graphql/Staff';
 import TreeToolbar from '../Header/TreeToolbar';
 import BotTreeView from './BotTreeView';
+import BotTopicUploadForm from './BotTopicUploadForm';
+import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
 
 type Graphql = AllStaffList;
 
 type TopicOrKnowladgeWithKey = Object.Merge<
-  TopicOrKnowladge,
-  { topicOrKnowladgeKey: TopicOrKnowladgeKey | undefined }
+TopicOrKnowladge,
+{ topicOrKnowladgeKey: TopicOrKnowladgeKey | undefined }
 >;
 
 interface BotProps {
@@ -67,13 +70,13 @@ interface BotProps {
   ) => Promise<ApolloQueryResult<unknown>>;
   loading: boolean;
   memoData:
-    | {
-        allKnowledgeBase: KnowledgeBase[];
-        botConfigMap: _.Dictionary<BotConfig[]>;
-        botConfigList: BotConfig[];
-        memoAllTopic: Topic[];
-      }
-    | undefined;
+  | {
+    allKnowledgeBase: KnowledgeBase[];
+    botConfigMap: _.Dictionary<BotConfig[]>;
+    botConfigList: BotConfig[];
+    memoAllTopic: Topic[];
+  }
+  | undefined;
   allTopicCategory: TopicCategory[] | undefined;
   onTopicCategoryClick: (selectTopicCategory?: TopicCategory) => void;
   selectTC: TopicCategory | undefined;
@@ -95,6 +98,16 @@ const MUTATION_TOPIC_CATEGORY = gql`
   }
 `;
 
+const MUTATION_TOPIC_EXPORT = gql`
+  mutation ExportTopic($knowledgeBaseId: Long!) {
+    exportTopic(knowledgeBaseId: $knowledgeBaseId)
+  }
+`;
+
+export interface MutationExportGraphql {
+  exportTopic: string;
+}
+
 export default function BotSidecar(props: BotProps) {
   const {
     loading,
@@ -108,6 +121,7 @@ export default function BotSidecar(props: BotProps) {
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfBotConfigDialog = useRef<DraggableDialogRef>(null);
   const refOfKnowladgeDialog = useRef<DraggableDialogRef>(null);
+  const refOfUploadForm = useRef<DraggableDialogRef>(null);
   const [configStaff, setConfigStaff] = useState<Staff>();
   const [topicOrKnowladge, setTopicOrKnowladge] =
     useState<TopicOrKnowladgeWithKey>({} as TopicOrKnowladgeWithKey);
@@ -122,26 +136,37 @@ export default function BotSidecar(props: BotProps) {
 
   const staffMap = useMemo(() => {
     const staffList = [...(data?.allStaff ?? [])].filter(
-      (it) => it.staffType === 0
+      (it) => it.staffType === 0,
     );
     return _.keyBy(staffList, 'id');
   }, [data?.allStaff]);
 
-  const { onCompleted, onError, onErrorMsg } = useAlert();
+  const { onCompleted, onError, onLoadding, onErrorMsg } = useAlert();
+
+  // 导出知识库
+  const [exportTopic, { loading: exporting }] =
+    useMutation<MutationExportGraphql>(MUTATION_TOPIC_EXPORT, {
+      onCompleted,
+      onError,
+    });
+  if (exporting) {
+    onLoadding(loading);
+  }
+
   // 删除 Mutation
   const [deleteKnowledgeBaseById] = useMutation<unknown>(
     MUTATION_KNOWLEDGE_BASE,
     {
       onCompleted,
       onError,
-    }
+    },
   );
   const [deleteTopicCategoryById] = useMutation<unknown>(
     MUTATION_TOPIC_CATEGORY,
     {
       onCompleted,
       onError,
-    }
+    },
   );
 
   const [deleteStaffByIds] = useMutation<unknown>(MUTATION_STAFF, {
@@ -156,7 +181,7 @@ export default function BotSidecar(props: BotProps) {
       event: React.MouseEvent<HTMLLIElement>,
       topicOrKnowladgeKey: TopicOrKnowladgeKey,
       Knowladge?: KnowledgeBase,
-      Topic?: TopicCategory
+      Topic?: TopicCategory,
     ) => {
       event.preventDefault();
       event.stopPropagation();
@@ -170,7 +195,7 @@ export default function BotSidecar(props: BotProps) {
         topicOrKnowladgeKey,
       });
     },
-    []
+    [],
   );
 
   const handleContextMenuClose = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -360,6 +385,7 @@ export default function BotSidecar(props: BotProps) {
             <MenuItem key="openBotConfig" onClick={openBotConfig}>
               机器人配置
             </MenuItem>,
+            <Divider />,
             <MenuItem
               key="editTopicOrKnowladge"
               onClick={() => {
@@ -384,6 +410,36 @@ export default function BotSidecar(props: BotProps) {
               }}
             >
               删除知识库
+            </MenuItem>,
+            <Divider />,
+            <MenuItem
+              key="exportTopic"
+              onClick={async () => {
+                if (topicOrKnowladge?.Knowladge?.id) {
+                  const exportResult = await exportTopic({
+                    variables: {
+                      knowledgeBaseId: topicOrKnowladge.Knowladge.id,
+                    },
+                  });
+                  const filekey = exportResult.data?.exportTopic;
+                  if (filekey) {
+                    const url = `${getDownloadS3ChatFilePath()}${filekey}`;
+                    window.open(url, '_blank');
+                  } else {
+                    onErrorMsg('导出失败');
+                  }
+                }
+              }}
+            >
+              导出知识库
+            </MenuItem>,
+            <MenuItem
+              key="importTopic"
+              onClick={() => {
+                refOfUploadForm.current?.setOpen(true);
+              }}
+            >
+              导入知识库
             </MenuItem>,
           ]}
           {topicOrKnowladge.topicOrKnowladgeKey === 'Topic' && [
@@ -474,7 +530,11 @@ export default function BotSidecar(props: BotProps) {
           />
         )}
       </DraggableDialog>
-
+      <DraggableDialog title="导入知识库" ref={refOfUploadForm}>
+        {topicOrKnowladge.Knowladge && topicOrKnowladge.Knowladge.id && (
+          <BotTopicUploadForm knowledgeBaseId={topicOrKnowladge.Knowladge.id} />
+        )}
+      </DraggableDialog>
       {/* 提醒是否删除知识库 */}
       <Dialog
         open={open && Boolean(tempTopicOrKnowladgeKey)}
