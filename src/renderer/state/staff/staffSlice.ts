@@ -25,6 +25,9 @@ const staffSlice = createSlice({
     clearToken: (staff) => {
       staff.token = undefined;
     },
+    updateToken: (staff, action?: PayloadAction<string>) => {
+      staff.token = action?.payload;
+    },
     updateOnlineStatusBySocket: (
       staff,
       action: PayloadAction<OnlineStatus>

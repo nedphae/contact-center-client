@@ -10,8 +10,13 @@ import { setAuthority } from 'renderer/utils/authority';
 import slice from './staffSlice';
 import { setSnackbarProp } from '../chat/chatAction';
 
-export const { setStaff, setOnline, updateOnlineStatusBySocket, clearToken } =
-  slice.actions;
+export const {
+  setStaff,
+  setOnline,
+  updateOnlineStatusBySocket,
+  clearToken,
+  updateToken,
+} = slice.actions;
 export const getStaff = (state: RootState) => {
   if (state.chat.monitored) {
     return state.chat.monitored.monitoredStaff;

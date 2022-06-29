@@ -29,7 +29,7 @@ export default interface Staff {
   avatar: string | undefined;
   personalizedSignature: string;
   syncState: boolean;
-  // just for websocket
+  // just for websocket and upload
   token: string | undefined;
   simultaneousService: number;
   maxTicketPerDay: number | undefined;

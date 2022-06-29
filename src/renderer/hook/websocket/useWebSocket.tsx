@@ -6,7 +6,7 @@ import IO from 'socket.io-client';
 
 import SocketHandler from 'renderer/service/websocket/SocketHandler';
 import config from 'renderer/config/clientConfig';
-import { getStaffToken } from 'renderer/state/staff/staffAction';
+import { getStaffToken, updateToken } from 'renderer/state/staff/staffAction';
 import { refreshToken } from 'renderer/electron/jwtStorage';
 import { verifyTokenPromise } from 'renderer/utils/jwtUtils';
 
@@ -53,7 +53,7 @@ const useWebSocket = () => {
   useEffect(() => {
     let tempSubscription: Subscription;
     if (window.socketRef && token) {
-      const period = 1000 * 60 * 10;
+      const period = 1000 * 60 * 60 * 2;
       let newToken = token;
       tempSubscription = interval(period).subscribe(() => {
         verifyTokenPromise(newToken, period * 2)
@@ -65,6 +65,7 @@ const useWebSocket = () => {
               newToken = accessToken.source;
               window.socketRef.io.opts.query = `token=${accessToken.source}`;
             }
+            dispatch(updateToken(newToken));
             return undefined;
           })
           .catch((error) => {
@@ -77,7 +78,7 @@ const useWebSocket = () => {
         tempSubscription.unsubscribe();
       }
     };
-  }, [token]);
+  }, [token, dispatch]);
 
   return [window.socketRef];
 };
