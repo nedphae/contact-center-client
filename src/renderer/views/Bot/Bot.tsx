@@ -239,6 +239,11 @@ export default function Bot() {
     onLoadding(deleteLoading);
   }
 
+  const refetchAll = () => {
+    refetch();
+    refetchTopic();
+  };
+
   const handleClickOpen = (selectTopic: Topic) => {
     setTopic(selectTopic);
     refOfTopicDialog.current?.setOpen(true);
@@ -404,7 +409,7 @@ export default function Bot() {
           loading={loading}
           memoData={memoData}
           allTopicCategory={memoData?.allTopicCategory}
-          refetch={refetch}
+          refetch={refetchAll}
           onTopicCategoryClick={onTopicCategoryClick}
           selectTC={selectTC}
         />
