@@ -93,7 +93,7 @@ export const QUERY_STAFF_BY_ID = gql`
 `;
 
 export const MUTATION_SHUNT_CLASS = gql`
-  mutation saveShuntClass($shuntClass: ShuntClassInput!) {
+  mutation SaveShuntClass($shuntClass: ShuntClassInput!) {
     saveShuntClass(shuntClass: $shuntClass) {
       id
       organizationId

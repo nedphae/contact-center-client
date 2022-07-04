@@ -23,6 +23,7 @@ import ComingSoon from 'renderer/components/ComingSoon/ComingSoon';
 import BlacklistView from 'renderer/components/Settings/org/BlacklistView';
 import SessionCategoryView from 'renderer/components/Settings/org/SessionCategoryView';
 import CustomerTagTable from 'renderer/components/Settings/CustomerTag/CustomerTagTable';
+import OrgInfo from 'renderer/components/Settings/org/OrgInfo';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,6 +80,10 @@ function settingPage(
       result = <ComingSoon />;
       break;
     }
+    case 'org.Info': {
+      result = <OrgInfo />;
+      break;
+    }
     case 'org.Account': {
       result = <AccountList />;
       break;
@@ -129,6 +134,7 @@ function settingPage(
 type PageName =
   | 'personal.Account'
   | 'personal.Client'
+  | 'org.Info'
   | 'org.Account'
   | 'org.Group'
   | 'org.Shunt'
@@ -174,6 +180,11 @@ export default function Setting() {
         </StyledTreeItem>
         <Authorized authority={['admin']} noMatch={<></>}>
           <StyledTreeItem nodeId="org" label="企业设置">
+            <StyledTreeItem
+              nodeId="org.Info"
+              label="企业信息"
+              onClick={() => setPageName('org.Info')}
+            />
             <StyledTreeItem
               nodeId="org.Account"
               label="账号管理"

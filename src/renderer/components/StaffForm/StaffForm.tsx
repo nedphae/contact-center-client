@@ -172,7 +172,8 @@ export default function StaffForm(props: FormProps) {
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity="error">
-          上传失败:{error}
+          上传失败:
+          {error}
         </Alert>
       </Snackbar>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
