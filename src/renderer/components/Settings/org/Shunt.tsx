@@ -7,10 +7,20 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Grid, Menu, MenuItem } from '@material-ui/core';
 import { TreeView } from '@material-ui/lab';
-import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowId,
+  GridValueGetterParams,
+} from '@material-ui/data-grid';
 
+import config from 'renderer/config/clientConfig';
 import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
-import { AllShunt, QUERY_STAFF, AllStaffList } from 'renderer/domain/graphql/Staff';
+import {
+  AllShunt,
+  QUERY_STAFF,
+  AllStaffList,
+} from 'renderer/domain/graphql/Staff';
 import StyledTreeItem, {
   CloseSquare,
   MinusSquare,
@@ -37,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '80vh',
       backgroundColor: theme.palette.background.paper,
     },
-  })
+  }),
 );
 
 const QUERY_SHUNT = gql`
@@ -78,7 +88,15 @@ const columns: GridColDef[] = [
   { field: 'name', headerName: '接待组名称', width: 150 },
   { field: 'shuntClassName', headerName: '接待组所属分类', width: 250 },
   { field: 'code', headerName: '接待组代码', width: 350 },
-  { field: 'openPush', headerName: '消息推送地址', width: 350 },
+  {
+    field: 'webUrl',
+    headerName: '接待组Web链接地址',
+    width: 350,
+    valueGetter: (params: GridValueGetterParams) => {
+      const { code } = params.row;
+      return `${config.web.host}/chat/?sc=${code}`;
+    },
+  },
 ];
 
 export default function Shunt() {
@@ -99,7 +117,7 @@ export default function Shunt() {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (deleteLoading) {
     onLoadding(deleteLoading);
@@ -126,7 +144,7 @@ export default function Shunt() {
 
   const handleContextMenuOpen = (
     event: React.MouseEvent<HTMLLIElement>,
-    selectStaffShuntClass: ShuntClass
+    selectStaffShuntClass: ShuntClass,
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -167,11 +185,11 @@ export default function Shunt() {
     const allShuntClass = _.cloneDeep(data?.allShuntClass ?? []);
     const allShuntClassMap = _.groupBy(
       _.cloneDeep(data?.allShuntClass),
-      (it) => it.catalogue
+      (it) => it.catalogue,
     );
     const allShuntClassIdMap = _.groupBy(
       _.cloneDeep(data?.allShuntClass),
-      (it) => it.id
+      (it) => it.id,
     );
     const pShuntClass = allShuntClass
       .map((it) => {
@@ -182,8 +200,8 @@ export default function Shunt() {
     const tempRows = (data?.allStaffShunt ?? []).map((item) =>
       _.defaults(
         { shuntClassName: allShuntClassIdMap[item.shuntClassId][0].className },
-        item
-      )
+        item,
+      ),
     );
     return [buildTreeView(pShuntClass), tempRows];
   }, [buildTreeView, data]);
