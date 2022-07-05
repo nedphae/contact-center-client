@@ -23,6 +23,7 @@ import {
 } from 'renderer/state/chat/chatAction';
 import { CloseReason } from 'renderer/domain/constant/Conversation';
 import { getEvaluation } from 'renderer/domain/Conversation';
+import { Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -34,7 +35,7 @@ const useStyles = makeStyles(() =>
     toolBar: {
       height: 50,
     },
-  })
+  }),
 );
 
 export default function ChatHeader() {
@@ -76,7 +77,8 @@ export default function ChatHeader() {
     <AppBar position="sticky" className={classes.appBar}>
       <Toolbar className={classes.toolBar}>
         {user && user.status && <UserHeader status={user.status} />}
-        <Grid container spacing={0}>
+        {/* 宽度减去头像宽度，防止溢出 */}
+        <Grid container spacing={0} style={{ width: 'calc(100% - 40px)' }}>
           <Grid item xs={4} zeroMinWidth>
             <Typography
               noWrap
@@ -85,7 +87,8 @@ export default function ChatHeader() {
               // 后面看是否要删除 inline
               display="inline"
             >
-              {user?.name ?? user?.uid} {/** 获取用户信息 */}
+              {/** 获取用户信息 */}
+              {user?.name ?? user?.uid}
             </Typography>
           </Grid>
           <Grid item xs={4} zeroMinWidth>
@@ -104,9 +107,10 @@ export default function ChatHeader() {
           <Grid item xs={4} zeroMinWidth>
             {sessionDuration && (
               <Typography noWrap align="center" variant="body2">
-                咨询时长：{getDuration(sessionDuration)}{' '}
-                {conv?.closeReason === 'TRANSFER' ? '会话已转接' : ''}
                 {/** 获取会话时长 */}
+                咨询时长：
+                {getDuration(sessionDuration)}{' '}
+                {conv?.closeReason === 'TRANSFER' ? '会话已转接' : ''}
               </Typography>
             )}
           </Grid>
@@ -114,28 +118,30 @@ export default function ChatHeader() {
             <>
               <Grid item xs={5} zeroMinWidth>
                 {session && session.userTypingText && (
-                  <Typography
-                    noWrap
-                    style={{ paddingLeft: 10 }}
-                    variant="body2"
-                  >
-                    <strong>正在输入: </strong>
-                    {session.userTypingText}
-                  </Typography>
+                  <Tooltip title={session.userTypingText}>
+                    <Typography
+                      noWrap
+                      style={{ paddingLeft: 10 }}
+                      variant="body2"
+                    >
+                      <strong>正在输入: </strong>
+                      {session.userTypingText}
+                    </Typography>
+                  </Tooltip>
                 )}
               </Grid>
               <Grid item xs={4} zeroMinWidth>
                 <Typography noWrap style={{ paddingLeft: 10 }} variant="body2">
                   {conv.evaluate
                     ? `评价结果: ${getEvaluation(
-                        conv.evaluate.evaluation
-                      )}，内容：${conv.evaluate.evaluationRemark}`
-                    : `未评价`}
+                      conv.evaluate.evaluation,
+                    )}，内容：${conv.evaluate.evaluationRemark}`
+                    : '未评价'}
                 </Typography>
               </Grid>
               <Grid item xs={3} zeroMinWidth>
                 <Typography noWrap variant="body2">
-                  {conv.category ? `已总结: ${conv.category}` : `未总结`}
+                  {conv.category ? `已总结: ${conv.category}` : '未总结'}
                 </Typography>
               </Grid>
             </>
