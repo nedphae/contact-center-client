@@ -227,6 +227,21 @@ export default function BotSidecar(props: BotProps) {
     refOfKnowladgeDialog.current?.setOpen(true);
   }
 
+  function addTopicChild(topicOrKnowladgeKey: TopicOrKnowladgeKey) {
+    setState(initialMousePoint);
+    if (topicOrKnowladge.Topic?.id) {
+      setTopicOrKnowladge({
+        topicOrKnowladgeKey,
+        // 表单 default value
+        Topic: {
+          knowledgeBaseId: topicOrKnowladge.Topic?.knowledgeBaseId,
+          pid: topicOrKnowladge.Topic.id,
+        },
+      });
+      refOfKnowladgeDialog.current?.setOpen(true);
+    }
+  }
+
   function selectTopic() {
     setState(initialMousePoint);
     onTopicCategoryClick(topicOrKnowladge.Topic);
@@ -450,6 +465,15 @@ export default function BotSidecar(props: BotProps) {
               }}
             >
               筛选知识库分类
+            </MenuItem>,
+            <MenuItem
+              key="addTopicCategory"
+              onClick={() => {
+                setState(initialMousePoint);
+                addTopicChild('Topic');
+              }}
+            >
+              添加子分类
             </MenuItem>,
             <MenuItem
               key="editTopicOrKnowladge"
