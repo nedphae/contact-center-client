@@ -599,18 +599,12 @@ export default function ChatHistory() {
 
   const handlePageChange = (params: number) => {
     // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
-    conversationFilterInput.page = new PageParam(
-      params,
-      conversationFilterInput.page.size
-    );
+    conversationFilterInput.page.page = params;
     setConversationFilterInput(conversationFilterInput);
     refetch({ conversationFilterInput });
   };
   const handlePageSizeChange = (params: number) => {
-    conversationFilterInput.page = new PageParam(
-      conversationFilterInput.page.page,
-      params
-    );
+    conversationFilterInput.page.size = params;
     setConversationFilterInput(conversationFilterInput);
     refetch({ conversationFilterInput });
   };

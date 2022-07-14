@@ -224,7 +224,7 @@ export const MUTATION_STAFF_ATTENDANCE_EXPORT = gql`
 const dateFnsUtils = new DateFnsUtils();
 
 const defaultValue = {
-  page: new PageParam(),
+  page: new PageParam(0, 20, 'DESC', ['date']),
   timeRange: {
     from: dateFnsUtils.format(
       dateFnsUtils.startOfDay(new Date()),
@@ -307,17 +307,11 @@ export default function StaffAttendanceDataGrid() {
   const staffAttendanceQuery = variables?.staffAttendanceFilter ?? defaultValue;
 
   const handlePageChange = (params: number) => {
-    staffAttendanceQuery.page = new PageParam(
-      params,
-      staffAttendanceQuery.page.size
-    );
+    staffAttendanceQuery.page.page = params;
     setAndRefetch(staffAttendanceQuery);
   };
   const handlePageSizeChange = (params: number) => {
-    staffAttendanceQuery.page = new PageParam(
-      staffAttendanceQuery.page.page,
-      params
-    );
+    staffAttendanceQuery.page.size = params;
     setAndRefetch(staffAttendanceQuery);
   };
   const result = data?.searchStaffAttendance;

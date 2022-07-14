@@ -183,18 +183,12 @@ export default function Crm() {
   }
 
   const handlePageChange = (params: number) => {
-    customerQueryInput.page = new PageParam(
-      params,
-      customerQueryInput.page.size
-    );
+    customerQueryInput.page.page = params;
     setAndRefetch(customerQueryInput);
   };
 
   const handlePageSizeChange = (params: number) => {
-    customerQueryInput.page = new PageParam(
-      customerQueryInput.page.page,
-      params
-    );
+    customerQueryInput.page.size = params;
     setAndRefetch(customerQueryInput);
   };
   const result = data?.searchCustomer;

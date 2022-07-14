@@ -158,11 +158,11 @@ export default function CommentManagement() {
   };
 
   const handlePageChange = (params: number) => {
-    commentQuery.page = new PageParam(params, commentQuery.page.size);
+    commentQuery.page.page = params;
     setAndRefetch(commentQuery);
   };
   const handlePageSizeChange = (params: number) => {
-    commentQuery.page = new PageParam(commentQuery.page.page, params);
+    commentQuery.page.size = params;
     setAndRefetch(commentQuery);
   };
   const result = data?.findComment;

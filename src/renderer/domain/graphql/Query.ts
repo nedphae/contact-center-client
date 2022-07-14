@@ -19,7 +19,7 @@ export class PageParam {
     page = 0,
     size = 20,
     direction: Direction = 'DESC',
-    properties: string[] | undefined = undefined
+    properties: string[] | undefined = ['id']
   ) {
     this.page = page;
     this.size = size;
