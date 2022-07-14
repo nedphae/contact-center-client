@@ -53,10 +53,10 @@ const useWebSocket = () => {
   useEffect(() => {
     let tempSubscription: Subscription;
     if (window.socketRef && token) {
-      const period = 1000 * 60 * 60 * 2;
+      const period = 1000 * 60 * 60;
       let newToken = token;
       tempSubscription = interval(period).subscribe(() => {
-        verifyTokenPromise(newToken, period * 2)
+        verifyTokenPromise(newToken, period * 1.5)
           .catch(() => {
             return refreshToken();
           })

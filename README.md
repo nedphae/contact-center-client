@@ -2,6 +2,15 @@
 
 基于 Electron + React 开发的客服系统客户端 
 
+查看客服系统服务端开源项目：[gitee:contact-center](https://gitee.com/nedgao/contact-center-open.git) [github:contact-center](https://github.com/nedphae/contact-center)
+
+其他项目 :
+
+| 项目名称     | 项目地址                             | 详细说明                             |
+| :---------: | :--------------------------------- | :--------------------------------- |
+| 客服系统服务端 | [gitee:contact-center](https://gitee.com/nedgao/contact-center-open.git) [github:contact-center](https://github.com/nedphae/contact-center) | 基于 Spring Cloud 的高并发，高可用，全异步开源微服务客服系统 |
+| 客服系统用户端 | [customer-web-client](https://github.com/nedphae/customer-web-client) | 客服系统用户端，基于 [ChatUI Pro](https://chatui.io/sdk/getting-started) 开发 |
+
 ### 特性
 
 - 100% TypeScript
