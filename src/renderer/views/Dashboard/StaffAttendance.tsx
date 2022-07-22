@@ -101,6 +101,7 @@ export default function StaffAttendance() {
           window.open(
             getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.staff),
             '_blank',
+            'electron:true'
           );
         }
       },

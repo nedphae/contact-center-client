@@ -12,7 +12,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import HeadsetMicIcon from '@material-ui/icons/HeadsetMic';
-import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
+import TabIcon from '@material-ui/icons/Tab';
 // core components
 import { gql, useQuery } from '@apollo/client';
 import {
@@ -142,13 +142,14 @@ export default function Dashboard() {
 
   const tempActions = [
     {
-      icon: <OpenInBrowserIcon />,
-      name: '在浏览器中打开',
+      icon: <TabIcon />,
+      name: '在新窗口中打开',
       doAction: () => {
         if (kibanaUrl) {
           window.open(
             getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.conv),
-            '_blank'
+            '_blank',
+            'electron:true'
           );
         }
       },

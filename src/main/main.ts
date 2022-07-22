@@ -118,6 +118,9 @@ const createWindow = async () => {
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
+    if (edata.features.includes('electron:true')) {
+      return { action: 'allow' };
+    }
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
