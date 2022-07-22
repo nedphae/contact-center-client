@@ -520,19 +520,21 @@ const columns: GridColDef[] = [
 
 const dateFnsUtils = new DateFnsUtils();
 
-const defaultValue = {
-  keyword: '',
-  page: new PageParam(),
-  timeRange: {
-    from: dateFnsUtils.format(
-      dateFnsUtils.startOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-    ),
-    to: dateFnsUtils.format(
-      dateFnsUtils.endOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-    ),
-  },
+const getDefaultValue = () => {
+  return {
+    keyword: '',
+    page: new PageParam(),
+    timeRange: {
+      from: dateFnsUtils.format(
+        dateFnsUtils.startOfDay(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      ),
+      to: dateFnsUtils.format(
+        dateFnsUtils.endOfDay(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      ),
+    },
+  };
 };
 
 type Graphql = SearchConv;
@@ -572,7 +574,7 @@ const QUERY = gql`
 export default function ChatHistory() {
   const [open, setOpen] = useState(false);
   const [conversationFilterInput, setConversationFilterInput] =
-    useState<ConversationFilterInput>(defaultValue);
+    useState<ConversationFilterInput>(getDefaultValue());
   const [selectConversation, setSelectConversation] = useState<Conversation>();
 
   const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
@@ -618,7 +620,7 @@ export default function ChatHistory() {
       newSearchParams = _.omit(
         newSearchParams,
         'evaluation',
-        'evaluationRange'
+        'evaluationRange',
       );
     }
     newSearchParams.page = conversationFilterInput.page;
@@ -642,7 +644,7 @@ export default function ChatHistory() {
       name: 'staffIdList',
       selectList: _.zipObject(
         staffList.map((value) => value.id),
-        staffList.map((value) => value.nickName)
+        staffList.map((value) => value.nickName),
       ),
       defaultValue: [],
     },
@@ -651,7 +653,7 @@ export default function ChatHistory() {
       name: 'groupIdList',
       selectList: _.zipObject(
         staffGroupList.map((value) => value.id),
-        staffGroupList.map((value) => value.groupName)
+        staffGroupList.map((value) => value.groupName),
       ),
       defaultValue: [],
     },
@@ -660,7 +662,7 @@ export default function ChatHistory() {
       name: 'shuntIdList',
       selectList: _.zipObject(
         staffShuntList.map((value) => value.id),
-        staffShuntList.map((value) => value.name)
+        staffShuntList.map((value) => value.name),
       ),
       defaultValue: [],
     },
@@ -672,7 +674,7 @@ export default function ChatHistory() {
 
   const handleDialogClose = (
     _event: unknown,
-    reason: 'backdropClick' | 'escapeKeyDown'
+    reason: 'backdropClick' | 'escapeKeyDown',
   ) => {
     if (reason !== 'backdropClick') {
       handleClose();
@@ -742,7 +744,7 @@ export default function ChatHistory() {
         </DialogContent>
       </Dialog>
       <SearchForm
-        defaultValues={defaultValue}
+        defaultValues={getDefaultValue()}
         currentValues={conversationFilterInput}
         searchAction={setSearchParams}
         selectKeyValueList={selectKeyValueList}
@@ -755,13 +757,13 @@ export default function ChatHistory() {
                 name="evaluation"
                 render={({ field: { onChange, value } }) => (
                   <FormControlLabel
-                    control={
+                    control={(
                       <Checkbox
                         checked={value}
                         onChange={(e) => onChange(e.target.checked)}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                       />
-                    }
+                    )}
                     label="筛选满意度区间"
                   />
                 )}

@@ -12,6 +12,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import HeadsetMicIcon from '@material-ui/icons/HeadsetMic';
+import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
 // core components
 import { gql, useQuery } from '@apollo/client';
 import {
@@ -25,6 +26,7 @@ import clientConfig, {
   getDashboardUrlById,
   getKibanaSpaceUrl,
 } from 'renderer/config/clientConfig';
+import SpeedDials from 'renderer/components/SpeedDials/SpeedDials';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 import Danger from '../../components/Typography/Danger';
@@ -138,8 +140,24 @@ export default function Dashboard() {
     };
   }, [refetch]);
 
+  const tempActions = [
+    {
+      icon: <OpenInBrowserIcon />,
+      name: '在浏览器中打开',
+      doAction: () => {
+        if (kibanaUrl) {
+          window.open(
+            getDashboardUrlById(kibanaUrl.spaceId, kibanaUrl.conv),
+            '_blank'
+          );
+        }
+      },
+    },
+  ];
+
   return (
     <div>
+      <SpeedDials actions={tempActions} />
       <GridContainer>
         <GridItem xs={12} sm={6} md={3}>
           <Card>

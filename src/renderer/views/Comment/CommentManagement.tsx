@@ -117,19 +117,21 @@ const QUERY = QUERY_COMMENT;
 
 const dateFnsUtils = new DateFnsUtils();
 
-const defaultValue = {
-  solved: 0,
-  page: new PageParam(),
-  timeRange: {
-    from: dateFnsUtils.format(
-      dateFnsUtils.startOfMonth(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-    ),
-    to: dateFnsUtils.format(
-      dateFnsUtils.endOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-    ),
-  },
+const getDefaultValue = () => {
+  return {
+    solved: 0,
+    page: new PageParam(),
+    timeRange: {
+      from: dateFnsUtils.format(
+        dateFnsUtils.startOfMonth(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      ),
+      to: dateFnsUtils.format(
+        dateFnsUtils.endOfDay(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      ),
+    },
+  };
 };
 
 export default function CommentManagement() {
@@ -137,7 +139,9 @@ export default function CommentManagement() {
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [expanded, setExpanded] = useState(false);
   const [selectCommentPojo, setSelectCommentPojo] = useState<CommentPojo>();
-  const [commentQuery, setCommentQuery] = useState<CommentQuery>(defaultValue);
+  const [commentQuery, setCommentQuery] = useState<CommentQuery>(
+    getDefaultValue()
+  );
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { commentQuery },
@@ -328,7 +332,7 @@ export default function CommentManagement() {
                 startIcon={<RotateLeftIcon />}
                 aria-label="reset"
                 onClick={() => {
-                  reset(defaultValue);
+                  reset(getDefaultValue());
                 }}
               >
                 重置

@@ -127,19 +127,21 @@ interface MutationExportGraphql {
 
 const dateFnsUtils = new DateFnsUtils();
 
-const defaultValue = {
-  keyword: '',
-  page: new PageParam(),
-  timeRange: {
-    from: dateFnsUtils.format(
-      dateFnsUtils.startOfMonth(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-    ),
-    to: dateFnsUtils.format(
-      dateFnsUtils.endOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-    ),
-  },
+const getDefaultValue = () => {
+  return {
+    keyword: '',
+    page: new PageParam(),
+    timeRange: {
+      from: dateFnsUtils.format(
+        dateFnsUtils.startOfMonth(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      ),
+      to: dateFnsUtils.format(
+        dateFnsUtils.endOfDay(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+      ),
+    },
+  };
 };
 
 export default function Crm() {
@@ -148,7 +150,7 @@ export default function Crm() {
     CustomerFormValues | undefined
   >(undefined);
   const [customerQueryInput, setCustomerQueryInput] =
-    useState<CustomerQueryInput>(defaultValue);
+    useState<CustomerQueryInput>(getDefaultValue());
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
     variables: { customerQuery: customerQueryInput },
@@ -221,7 +223,7 @@ export default function Crm() {
         <CustomerForm defaultValues={selectCustomer} shouldDispatch={false} />
       </DraggableDialog>
       <SearchForm
-        defaultValues={defaultValue}
+        defaultValues={getDefaultValue()}
         currentValues={customerQueryInput}
         searchAction={setSearchParams}
         selectKeyValueList={[]}

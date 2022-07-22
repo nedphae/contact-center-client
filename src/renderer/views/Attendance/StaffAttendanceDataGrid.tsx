@@ -223,18 +223,20 @@ export const MUTATION_STAFF_ATTENDANCE_EXPORT = gql`
 
 const dateFnsUtils = new DateFnsUtils();
 
-const defaultValue = {
-  page: new PageParam(0, 20, 'DESC', ['date']),
-  timeRange: {
-    from: dateFnsUtils.format(
-      dateFnsUtils.startOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
-    ),
-    to: dateFnsUtils.format(
-      dateFnsUtils.endOfDay(new Date()),
-      "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
-    ),
-  },
+const getDefaultValue = () => {
+  return {
+    page: new PageParam(0, 20, 'DESC', ['date']),
+    timeRange: {
+      from: dateFnsUtils.format(
+        dateFnsUtils.startOfDay(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+      ),
+      to: dateFnsUtils.format(
+        dateFnsUtils.endOfDay(new Date()),
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+      ),
+    },
+  };
 };
 
 export default function StaffAttendanceDataGrid() {
@@ -243,6 +245,7 @@ export default function StaffAttendanceDataGrid() {
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
   const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
+  const defaultValue = getDefaultValue();
 
   const { loading, data, refetch, variables } = useQuery<
     StaffAttendanceGraphql,
