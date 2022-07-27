@@ -4,7 +4,7 @@ import axios from 'axios';
 // @material-ui/core
 // @material-ui/icons
 // core components
-import OpenInBrowserIcon from '@material-ui/icons/OpenInBrowser';
+import TabIcon from '@material-ui/icons/Tab';
 import { gql, useQuery } from '@apollo/client';
 import useAlert from 'renderer/hook/alert/useAlert';
 import clientConfig, {
@@ -94,8 +94,8 @@ export default function StaffAttendance() {
 
   const tempActions = [
     {
-      icon: <OpenInBrowserIcon />,
-      name: '在浏览器中打开',
+      icon: <TabIcon />,
+      name: '在新窗口中打开',
       doAction: () => {
         if (kibanaUrl) {
           window.open(

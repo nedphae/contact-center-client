@@ -231,7 +231,7 @@ export default function TopicForm(props: FormProps) {
     appendRef({ question: '' });
   }
 
-  const { fields, update, remove } = useFieldArray({ name: 'answer', control });
+  const { fields, update } = useFieldArray({ name: 'answer', control });
   const picSrc = fields[1]?.content;
   const html = fields[2]?.content;
 
@@ -253,7 +253,7 @@ export default function TopicForm(props: FormProps) {
   };
 
   function handleDeletePic() {
-    remove(1);
+    update(1, { type: 'image', content: '' });
   }
 
   const id = data?.saveTopic.id || defaultValues?.id || '';
