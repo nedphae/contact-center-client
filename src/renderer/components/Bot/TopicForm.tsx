@@ -49,7 +49,7 @@ import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
 import useAlert from 'renderer/hook/alert/useAlert';
 import {
   getDownloadS3ChatImgPath,
-  getUploadS3ChatImgPath,
+  getUploadS3ChatPath,
 } from 'renderer/config/clientConfig';
 import { RcFile } from 'rc-upload/lib/interface';
 import SwipeableViews from 'react-swipeable-views';
@@ -240,7 +240,7 @@ export default function TopicForm(props: FormProps) {
   };
 
   const imgUploadProps = {
-    action: `${getUploadS3ChatImgPath()}`,
+    action: `${getUploadS3ChatPath()}`,
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onSuccess(response: unknown) {

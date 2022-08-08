@@ -26,8 +26,8 @@ import Upload from 'rc-upload';
 import { RcFile } from 'rc-upload/lib/interface';
 
 import {
-  getUploadS3ChatFilePath,
-  getUploadS3ChatImgPath,
+  getUploadS3ChatPath,
+  getUploadS3ChatPath,
 } from 'renderer/config/clientConfig';
 import { Attachments, PhotoContent } from 'renderer/domain/Message';
 import BlacklistForm from 'renderer/components/Blacklist/BlacklistForm';
@@ -192,7 +192,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   };
 
   const imgUploadProps = {
-    action: `${getUploadS3ChatImgPath()}`,
+    action: `${getUploadS3ChatPath()}`,
     multiple: false,
     accept: 'image/png,image/gif,image/jpeg',
     onStart(file: RcFile) {
@@ -215,7 +215,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   };
 
   const fileUploadProps = {
-    action: `${getUploadS3ChatFilePath()}`,
+    action: `${getUploadS3ChatPath()}`,
     multiple: false,
     accept: '*',
     onStart(file: RcFile) {

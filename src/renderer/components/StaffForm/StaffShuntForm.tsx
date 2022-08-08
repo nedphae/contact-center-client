@@ -51,7 +51,7 @@ import Upload from 'rc-upload';
 
 import config, {
   getDownloadS3ChatImgPath,
-  getUploadS3ChatImgPath,
+  getUploadS3ChatPath,
 } from 'renderer/config/clientConfig';
 import Staff, {
   ShuntClass,
@@ -223,7 +223,7 @@ export default function StaffShuntForm(props: FormProps) {
 
   const imgUploadProps = useMemo(() => {
     return {
-      action: getUploadS3ChatImgPath(),
+      action: getUploadS3ChatPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {
@@ -251,7 +251,7 @@ export default function StaffShuntForm(props: FormProps) {
 
   const avatarUploadProps = useMemo(() => {
     return {
-      action: getUploadS3ChatImgPath(),
+      action: getUploadS3ChatPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {

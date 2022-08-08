@@ -7,8 +7,8 @@ import { Editor, Toolbar } from '@wangeditor/editor-for-react';
 import { IDomEditor, IEditorConfig } from '@wangeditor/editor';
 import {
   getDownloadS3ChatImgPath,
-  getUploadS3ChatFilePath,
-  getUploadS3ChatImgPath,
+  getUploadS3ChatPath,
+  getUploadS3ChatPath,
 } from 'renderer/config/clientConfig';
 import useAlert from 'renderer/hook/alert/useAlert';
 
@@ -32,7 +32,7 @@ export default function RichText(props: RichTextProps) {
 
   if (editorConfig.MENU_CONF) {
     editorConfig.MENU_CONF.uploadImage = {
-      server: getUploadS3ChatImgPath(),
+      server: getUploadS3ChatPath(),
       fieldName: 'file',
 
       // 单个文件的最大体积限制，默认为 2M
@@ -70,7 +70,7 @@ export default function RichText(props: RichTextProps) {
       },
     };
     editorConfig.MENU_CONF.uploadVideo = {
-      server: getUploadS3ChatFilePath(),
+      server: getUploadS3ChatPath(),
       fieldName: 'file',
 
       // 单个文件的最大体积限制，默认为 10M

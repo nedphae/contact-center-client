@@ -34,7 +34,7 @@ import Upload from 'rc-upload';
 import Authorized from 'renderer/components/Authorized/Authorized';
 import {
   getDownloadS3StaffImgPath,
-  getUploadS3StaffImgPath,
+  getUploadS3StaffPath,
 } from 'renderer/config/clientConfig';
 import Staff from 'renderer/domain/StaffInfo';
 import {
@@ -125,7 +125,7 @@ export default function StaffForm(props: FormProps) {
 
   const imgUploadProps = useMemo(() => {
     return {
-      action: getUploadS3StaffImgPath(),
+      action: getUploadS3StaffPath(),
       multiple: false,
       accept: 'image/png,image/gif,image/jpeg',
       onStart() {

@@ -92,14 +92,14 @@ class ClientConfig {
 }
 const clientConfig = new ClientConfig();
 
-export function getUploadS3ChatImgPath() {
-  return `${clientConfig.web.host}${clientConfig.s3.path}/chat/img/${window.orgId}`;
+// export function getUploadS3ChatPath() {
+//   return `${clientConfig.web.host}${clientConfig.s3.path}/chat/${window.orgId}`;
+// }
+export function getUploadS3ChatPath() {
+  return `${clientConfig.web.host}${clientConfig.s3.path}/chat/${window.orgId}`;
 }
-export function getUploadS3ChatFilePath() {
-  return `${clientConfig.web.host}${clientConfig.s3.path}/chat/file/${window.orgId}`;
-}
-export function getUploadS3StaffImgPath() {
-  return `${clientConfig.web.host}${clientConfig.s3.path}/staff/img/${window.orgId}`;
+export function getUploadS3StaffPath() {
+  return `${clientConfig.web.host}${clientConfig.s3.path}/staff/${window.orgId}`;
 }
 export function getDownloadS3ChatImgPath() {
   return `${clientConfig.web.host}`;
