@@ -1,11 +1,10 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import _ from 'lodash';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import GroupIcon from '@material-ui/icons/Group';
 
 import { useMutation } from '@apollo/client';
 import useAlert from 'renderer/hook/alert/useAlert';
@@ -15,6 +14,15 @@ import {
   WeChatOpenInfo,
 } from 'renderer/domain/WeChatOpenInfo';
 import SubmitButton from 'renderer/components/Form/SubmitButton';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import {
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
+} from '@material-ui/core';
+import { StaffShunt } from 'renderer/domain/StaffInfo';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -33,14 +41,15 @@ type FormType = WeChatOpenInfo;
 interface FormProps {
   defaultValues: FormType | undefined;
   refetch: () => void;
+  shuntList: StaffShunt[];
 }
 
 export default function WeChatOpenInfoForm(props: FormProps) {
-  const { defaultValues, refetch } = props;
+  const { defaultValues, refetch, shuntList } = props;
   const classes = useStyles();
-  const { handleSubmit, register } = useForm<FormType>({
+  const { handleSubmit, register, control } = useForm<FormType>({
     defaultValues,
-    shouldUnregister: true,
+    // shouldUnregister: true,
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -68,26 +77,59 @@ export default function WeChatOpenInfoForm(props: FormProps) {
           type="hidden"
           {...register('id', { valueAsNumber: true })}
         />
+
         <TextField
           variant="outlined"
           margin="normal"
           fullWidth
-          id="groupName"
-          label="分组名称"
+          id="nickName"
+          label="微信昵称"
           InputProps={{
+            readOnly: true,
             startAdornment: (
               <InputAdornment position="start">
-                <GroupIcon />
+                <AccountCircle />
               </InputAdornment>
             ),
           }}
-          {...register('groupName', {
-            required: '必须设置分组名称',
-            maxLength: {
-              value: 50,
-              message: '分组名称不能大于50位',
-            },
-          })}
+          {...register('nickName')}
+        />
+
+        <Controller
+          control={control}
+          name="shuntId"
+          render={({
+            field: { onChange, value },
+            fieldState: { error: groupIdError },
+          }) => (
+            <FormControl
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              error={Boolean(groupIdError)}
+            >
+              <InputLabel id="demo-mutiple-chip-label">关联接待组</InputLabel>
+              <Select
+                labelId="shuntId"
+                id="shuntId"
+                onChange={onChange}
+                defaultValue=""
+                value={value}
+                label="关联接待组"
+              >
+                {shuntList.map((it) => {
+                  return (
+                    <MenuItem key={it.id} value={it.id}>
+                      {it.name}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+              {groupIdError && (
+                <FormHelperText>{groupIdError?.message}</FormHelperText>
+              )}
+            </FormControl>
+          )}
         />
         <SubmitButton />
       </form>

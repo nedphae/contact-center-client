@@ -18,7 +18,10 @@ export interface WeChatOpenInfo {
   enable: boolean;
   remove: boolean;
   // 关联的接待组
-  shuntId: number;
+  shuntId?: number;
+  bindingTime?: number;
+
+  shuntName?: string;
 }
 
 export const QUERY_WECHAT_INFO = gql`

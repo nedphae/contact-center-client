@@ -354,13 +354,13 @@ export default function StaffForm(props: FormProps) {
             rules={{ required: '所属分组必选' }}
             render={({
               field: { onChange, value },
-              fieldState: { invalid, error: groupIdError },
+              fieldState: { error: groupIdError },
             }) => (
               <FormControl
                 variant="outlined"
                 margin="normal"
                 fullWidth
-                error={invalid}
+                error={Boolean(groupIdError)}
               >
                 <InputLabel id="demo-mutiple-chip-label">所属分组</InputLabel>
                 <Select

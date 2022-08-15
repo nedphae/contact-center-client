@@ -1,7 +1,6 @@
 import React, { useRef, useState, useMemo, useCallback } from 'react';
 
 import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
