@@ -24,6 +24,7 @@ import BlacklistView from 'renderer/components/Settings/org/BlacklistView';
 import SessionCategoryView from 'renderer/components/Settings/org/SessionCategoryView';
 import CustomerTagTable from 'renderer/components/Settings/CustomerTag/CustomerTagTable';
 import OrgInfo from 'renderer/components/Settings/org/OrgInfo';
+import WeChatOpenInfoView from 'renderer/components/Settings/org/WeChatOpenInfoView';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -96,6 +97,10 @@ function settingPage(
       result = <Shunt />;
       break;
     }
+    case 'org.WeChat': {
+      result = <WeChatOpenInfoView />;
+      break;
+    }
     case 'org.Blacklist': {
       result = <BlacklistView />;
       break;
@@ -138,6 +143,7 @@ type PageName =
   | 'org.Account'
   | 'org.Group'
   | 'org.Shunt'
+  | 'org.WeChat'
   | 'org.Blacklist'
   | 'org.SessionCategory'
   | 'org.CustomerTag'
@@ -199,6 +205,11 @@ export default function Setting() {
               nodeId="org.Shunt"
               label="接待组"
               onClick={() => setPageName('org.Shunt')}
+            />
+            <StyledTreeItem
+              nodeId="org.WeChat"
+              label="微信接入"
+              onClick={() => setPageName('org.WeChat')}
             />
             <StyledTreeItem
               nodeId="org.SessionCategory"

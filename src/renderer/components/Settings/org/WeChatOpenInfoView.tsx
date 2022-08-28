@@ -49,9 +49,13 @@ export default function WeChatOpenInfoView() {
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_WECHAT_INFO);
-  const { data: staffShunt } = useQuery<StaffShuntList>(QUERY_SHUNT);
 
   const { onLoadding, onCompleted, onError } = useAlert();
+
+  const { data: staffShunt } = useQuery<StaffShuntList>(QUERY_SHUNT, {
+    onError,
+  });
+
   const [updateWeChatOpenInfo, { loading: updateLoading }] =
     useMutation<UpdateWeChatOpenInfoGraphql>(MUTATION_WECHAT_INFO, {
       onCompleted,
@@ -79,7 +83,7 @@ export default function WeChatOpenInfoView() {
   const columns: GridColDef[] = useMemo(() => {
     async function toggleWeChatOpenInfo(
       value: WeChatOpenInfo,
-      isEnable = true
+      isEnable = true,
     ) {
       if (isEnable) {
         value.enable = !value.enable;
@@ -141,8 +145,8 @@ export default function WeChatOpenInfoView() {
           onClick={() => {
             window.open(
               `${clientConfig.web.host}/wechat/api/auth/goto_auth_url`,
-              '_blank',
-              'electron:true'
+              '_blank'
+              // 'electron:true'
             );
           }}
         >

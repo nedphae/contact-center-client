@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';

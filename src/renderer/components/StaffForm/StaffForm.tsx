@@ -379,7 +379,7 @@ export default function StaffForm(props: FormProps) {
                     );
                   })}
                 </Select>
-                {invalid && (
+                {groupIdError && (
                   <FormHelperText>{groupIdError?.message}</FormHelperText>
                 )}
               </FormControl>

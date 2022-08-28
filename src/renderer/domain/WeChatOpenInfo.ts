@@ -39,9 +39,8 @@ export const QUERY_WECHAT_INFO = gql`
       alias
       qrcodeUrl
       signature
-      miniProgram
+      miniProgramInfo
       enable
-      remove
       shuntId
     }
   }
@@ -66,9 +65,8 @@ export const MUTATION_WECHAT_INFO = gql`
       alias
       qrcodeUrl
       signature
-      miniProgram
+      miniProgramInfo
       enable
-      remove
       shuntId
     }
   }
