@@ -8,6 +8,7 @@ import {
   GridCellParams,
   GridColDef,
   GridRowId,
+  GridValueGetterParams,
 } from '@material-ui/data-grid';
 
 import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
@@ -26,6 +27,9 @@ import {
 import { StaffShuntList } from 'renderer/domain/graphql/Staff';
 import { Button, ButtonGroup } from '@material-ui/core';
 import clientConfig from 'renderer/config/clientConfig';
+import { getMyself } from 'renderer/state/staff/staffAction';
+import { useAppSelector } from 'renderer/store';
+import javaInstant2DateStr from 'renderer/utils/timeUtils';
 import WeChatOpenInfoForm from './form/WeChatOpenInfoForm';
 
 type Graphql = WeChatOpenInfoGraphql;
@@ -45,6 +49,8 @@ const QUERY_SHUNT = gql`
 `;
 
 export default function WeChatOpenInfoView() {
+  const mySelf = useAppSelector(getMyself);
+
   const [weChatOpenInfo, setWeChatOpenInfo] = useState<WeChatOpenInfo>();
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
@@ -83,48 +89,82 @@ export default function WeChatOpenInfoView() {
   const columns: GridColDef[] = useMemo(() => {
     async function toggleWeChatOpenInfo(
       value: WeChatOpenInfo,
-      isEnable = true,
+      isEnable = true
     ) {
+      const tempWeChatOpenInfo = _.omit(value, '__typename');
       if (isEnable) {
-        value.enable = !value.enable;
+        tempWeChatOpenInfo.enable = !tempWeChatOpenInfo.enable;
       } else {
-        value.remove = !value.remove;
+        tempWeChatOpenInfo.remove = !tempWeChatOpenInfo.remove;
       }
-      await updateWeChatOpenInfo({ variables: value });
+      await updateWeChatOpenInfo({
+        variables: { weChatOpenInfo: tempWeChatOpenInfo },
+      });
       refetch();
     }
 
     return [
       // { field: 'id', headerName: 'ID', width: 90 },
       { field: 'nickName', headerName: '微信公众号', width: 250 },
-      { field: 'enable', headerName: '状态', width: 250 },
-      { field: 'bindingTime', headerName: '绑定时间', width: 250 },
+      {
+        field: 'enable',
+        headerName: '状态',
+        width: 250,
+        valueGetter: (params: GridValueGetterParams) => {
+          const enable = params.value;
+          return enable ? '启用' : '停用';
+        },
+      },
+      {
+        field: 'bindingTime',
+        headerName: '绑定时间',
+        width: 250,
+        valueGetter: (params: GridValueGetterParams) => {
+          return params.value
+            ? javaInstant2DateStr(params.value as number)
+            : null;
+        },
+      },
       {
         field: 'operation',
         headerName: '操作',
         width: 250,
         renderCell: function ColorIcon(params: GridCellParams) {
-          const { value } = params;
-          const cellWeChatOpenInfo = value as WeChatOpenInfo;
+          const { row } = params;
+          const cellWeChatOpenInfo = row as WeChatOpenInfo;
           return (
-            <>
+            <ButtonGroup color="primary" aria-label="wechat add">
               <Button
                 size="medium"
-                onClick={() => {
+                onClick={(event) => {
+                  handleClickOpen(cellWeChatOpenInfo);
+                  event.preventDefault();
+                  return false;
+                }}
+              >
+                关联到接待组
+              </Button>
+              <Button
+                size="medium"
+                onClick={(event) => {
                   toggleWeChatOpenInfo(cellWeChatOpenInfo);
+                  event.preventDefault();
+                  return false;
                 }}
               >
                 {cellWeChatOpenInfo.enable ? '停用' : '启用'}
               </Button>
               <Button
                 size="medium"
-                onClick={() => {
+                onClick={(event) => {
                   toggleWeChatOpenInfo(cellWeChatOpenInfo, false);
+                  event.preventDefault();
+                  return false;
                 }}
               >
                 解绑
               </Button>
-            </>
+            </ButtonGroup>
           );
         },
       },
@@ -144,9 +184,9 @@ export default function WeChatOpenInfoView() {
         <Button
           onClick={() => {
             window.open(
-              `${clientConfig.web.host}/wechat/api/auth/goto_auth_url`,
-              '_blank'
-              // 'electron:true'
+              `${clientConfig.web.host}/wechat/api/auth/auth_url_page?org_id=${mySelf.organizationId}`,
+              '_blank',
+              'electron:true'
             );
           }}
         >
@@ -164,9 +204,6 @@ export default function WeChatOpenInfoView() {
               refetch();
             },
           }),
-        }}
-        onRowClick={(param) => {
-          handleClickOpen(param.row as WeChatOpenInfo);
         }}
         rowsPerPageOptions={[20]}
         pagination

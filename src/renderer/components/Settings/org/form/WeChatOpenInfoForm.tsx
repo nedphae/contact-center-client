@@ -64,7 +64,7 @@ export default function WeChatOpenInfoForm(props: FormProps) {
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {
     await updateWeChatOpenInfo({
-      variables: { staffGroupInput: _.omit(form, '__typename') },
+      variables: { weChatOpenInfo: _.omit(form, '__typename') },
     });
     refetch();
   };

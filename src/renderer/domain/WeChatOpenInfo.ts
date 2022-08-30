@@ -20,7 +20,6 @@ export interface WeChatOpenInfo {
   // 关联的接待组
   shuntId?: number;
   bindingTime?: number;
-
   shuntName?: string;
 }
 
@@ -42,6 +41,7 @@ export const QUERY_WECHAT_INFO = gql`
       miniProgramInfo
       enable
       shuntId
+      bindingTime
     }
   }
 `;
@@ -68,6 +68,7 @@ export const MUTATION_WECHAT_INFO = gql`
       miniProgramInfo
       enable
       shuntId
+      bindingTime
     }
   }
 `;
