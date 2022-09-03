@@ -15,6 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import React from 'react';
 // @material-ui/icons
 import SvgIcon, { SvgIconTypeMap } from '@material-ui/core/SvgIcon';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
@@ -25,17 +26,7 @@ import CommentIcon from '@material-ui/icons/Comment';
 import SettingsIcon from '@material-ui/icons/Settings';
 import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 // core components/views for Admin layout
-import ChatHistory from 'renderer/views/ChatHistory/ChatHistory';
-import Crm from 'renderer/views/Crm/Crm';
-import Bot from 'renderer/views/Bot/Bot';
-import Setting from 'renderer/views/Setting/Settings';
-import Entertain from './views/Entertain/Entertain';
-import DashboardPage from './views/Dashboard/Dashboard';
-import StaffAttendance from './views/Dashboard/StaffAttendance';
 // core components/views for RTL layout
-import CommentManagement from './views/Comment/CommentManagement';
-import StaffAttendanceDataGrid from './views/Attendance/StaffAttendanceDataGrid';
-import OnlineVersion from './views/Dashboard/OnlineVersion';
 
 function BotIcon(props: SvgIconTypeMap) {
   return (
@@ -45,6 +36,28 @@ function BotIcon(props: SvgIconTypeMap) {
     </SvgIcon>
   );
 }
+
+const Entertain = React.lazy(() => import('./views/Entertain/Entertain'));
+const DashboardPage = React.lazy(() => import('./views/Dashboard/Dashboard'));
+const OnlineVersion = React.lazy(
+  () => import('./views/Dashboard/OnlineVersion'),
+);
+const StaffAttendance = React.lazy(
+  () => import('./views/Dashboard/StaffAttendance'),
+);
+const ChatHistory = React.lazy(
+  () => import('renderer/views/ChatHistory/ChatHistory')
+);
+const StaffAttendanceDataGrid = React.lazy(
+  () => import('./views/Attendance/StaffAttendanceDataGrid')
+);
+const CommentManagement = React.lazy(
+  () => import('./views/Comment/CommentManagement')
+);
+const Crm = React.lazy(() => import('renderer/views/Crm/Crm'));
+const Bot = React.lazy(() => import('renderer/views/Bot/Bot'));
+const Setting = React.lazy(() => import('renderer/views/Setting/Settings'));
+
 const dashboardRoutes = [
   {
     path: '/entertain',

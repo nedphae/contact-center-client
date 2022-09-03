@@ -31,7 +31,7 @@ import {
 } from '@material-ui/core';
 import Upload from 'rc-upload';
 
-import Authorized from 'renderer/components/Authorized/Authorized';
+import Authorized from 'renderer/utils/Authorized';
 import {
   getDownloadS3StaffImgPath,
   getUploadS3StaffPath,

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2021",
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": ["dom", "es2021"],
     "declaration": true,
     "declarationMap": true,
@@ -20,6 +20,12 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "outDir": "release/app/dist"
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    },
+    "esm": true
   },
   "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
 }

@@ -7,7 +7,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import Grid from '@material-ui/core/Grid';
 
-import Authorized from 'renderer/components/Authorized/Authorized';
+import Authorized from 'renderer/utils/Authorized';
 import StyledTreeItem, {
   CloseSquare,
   MinusSquare,

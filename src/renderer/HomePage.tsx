@@ -16,7 +16,7 @@
 
 */
 
-import { createContext, useMemo, useState } from 'react';
+import { createContext, Suspense, useMemo, useState } from 'react';
 
 import { Provider } from 'react-redux';
 import {
@@ -31,12 +31,12 @@ import { HotKeys } from 'react-hotkeys';
 
 import { createTheme, ThemeProvider } from '@material-ui/core';
 import { blue } from '@material-ui/core/colors';
+import Authorized from 'renderer/utils/Authorized';
 import { Store } from './store';
 // core components
 import Admin from './layouts/Admin';
 import RTL from './layouts/RTL';
 import Auth from './layouts/Auth';
-import Authorized from './components/Authorized/Authorized';
 // import useApolloClient from './hook/init/useApolloClient';
 import apolloClient from './utils/apolloClient';
 import routes from './routes';
@@ -53,7 +53,9 @@ const switchRoutes = routes.map((prop) => {
             authority={['admin', 'staff', 'leader', 'qa']}
             noMatch={<Navigate to="/login" />}
           >
-            <prop.component />
+            <Suspense fallback={<div>Loading...</div>}>
+              <prop.component />
+            </Suspense>
           </Authorized>
         )}
         key={prop.layout + prop.path}
