@@ -30,6 +30,7 @@ import { ApolloProvider } from '@apollo/client';
 import { HotKeys } from 'react-hotkeys';
 
 import { createTheme, ThemeProvider } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { blue } from '@material-ui/core/colors';
 import Authorized from 'renderer/utils/Authorized';
 import { Store } from './store';
@@ -53,7 +54,13 @@ const switchRoutes = routes.map((prop) => {
             authority={['admin', 'staff', 'leader', 'qa']}
             noMatch={<Navigate to="/login" />}
           >
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense
+              fallback={(
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress size={50} thickness={4} value={100} />
+                </div>
+              )}
+            >
               <prop.component />
             </Suspense>
           </Authorized>

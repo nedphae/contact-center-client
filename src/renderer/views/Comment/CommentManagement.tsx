@@ -120,7 +120,7 @@ const dateFnsUtils = new DateFnsUtils();
 const getDefaultValue = () => {
   return {
     solved: 0,
-    page: new PageParam(),
+    page: new PageParam(0, 20, 'DESC', ['created_at']),
     timeRange: {
       from: dateFnsUtils.format(
         dateFnsUtils.startOfMonth(new Date()),
