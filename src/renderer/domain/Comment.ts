@@ -20,6 +20,7 @@ export interface CommentPojo {
   /** 留言时间 */
   /** 所属接待组 */
   shuntId: number;
+  id: number;
   userId: number;
   uid: string;
   name: string;
