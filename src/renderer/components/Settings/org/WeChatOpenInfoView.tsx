@@ -78,20 +78,21 @@ export default function WeChatOpenInfoView() {
 
   const shuntList = staffShunt?.allStaffShunt ?? [];
   const shuntMap = _.groupBy(shuntList, 'id');
-  const rows = data?.getAllWeChatOpenInfo ?? [];
-  rows.forEach((it) => {
+  let rows = data?.getAllWeChatOpenInfo ?? [];
+  rows = rows.map((it) => {
     if (it.shuntId) {
       const [shunt] = shuntMap[it.shuntId];
-      it.shuntName = shunt.name;
+      return _.assign({ shuntName: shunt.name }, it);
     }
+    return it;
   });
 
   const columns: GridColDef[] = useMemo(() => {
     async function toggleWeChatOpenInfo(
       value: WeChatOpenInfo,
-      isEnable = true
+      isEnable = true,
     ) {
-      const tempWeChatOpenInfo = _.omit(value, '__typename');
+      const tempWeChatOpenInfo = _.omit(value, '__typename', 'shuntName');
       if (isEnable) {
         tempWeChatOpenInfo.enable = !tempWeChatOpenInfo.enable;
       } else {
@@ -186,7 +187,7 @@ export default function WeChatOpenInfoView() {
             window.open(
               `${clientConfig.web.host}/wechat/api/auth/auth_url_page?org_id=${mySelf.organizationId}`,
               '_blank',
-              'electron:true'
+              'electron:true',
             );
           }}
         >

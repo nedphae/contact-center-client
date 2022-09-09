@@ -175,7 +175,6 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
                           color="textSecondary"
                           display="inline"
                         >
-                          描述:
                           {base.description}
                         </Typography>
                       </Grid>
