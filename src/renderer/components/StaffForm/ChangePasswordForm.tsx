@@ -1,10 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import LockIcon from '@material-ui/icons/Lock';
@@ -12,10 +11,9 @@ import LockIcon from '@material-ui/icons/Lock';
 import { PasswordChanger } from 'renderer/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
 import useAlert from 'renderer/hook/alert/useAlert';
-import { Divider } from '@material-ui/core';
-import SubmitButton from '../Form/SubmitButton';
+import { Button, Divider } from '@material-ui/core';
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       // marginTop: theme.spacing(8),
@@ -23,7 +21,11 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-  })
+    wrapper: {
+      margin: theme.spacing(1),
+      position: 'relative',
+    },
+  }),
 );
 
 interface FormProps {
@@ -42,7 +44,7 @@ const MUTATION_STAFF_PASSWORD = gql`
 
 type PasswordChangerWithRepeat = Object.Merge<
   PasswordChanger,
-  { password_repeat?: string }
+{ password_repeat?: string }
 >;
 
 export default function ChangePasswordForm(props: FormProps) {
@@ -55,7 +57,7 @@ export default function ChangePasswordForm(props: FormProps) {
     formState: { errors },
   } = useForm<PasswordChangerWithRepeat>({
     defaultValues: { id },
-    shouldUnregister: true,
+    shouldUnregister: false,
   });
 
   const password = watch('newPassword');
@@ -66,7 +68,7 @@ export default function ChangePasswordForm(props: FormProps) {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (loading) {
     onLoadding(loading);
@@ -80,7 +82,7 @@ export default function ChangePasswordForm(props: FormProps) {
 
   return (
     <div className={classes.paper}>
-      <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+      <form noValidate autoComplete="off">
         <TextField
           value={id}
           type="hidden"
@@ -154,7 +156,17 @@ export default function ChangePasswordForm(props: FormProps) {
             validate: (value) => value === password || '密码不相符',
           })}
         />
-        <SubmitButton />
+        <div className={classes.wrapper}>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            // type="submit"
+            onClick={handleSubmit(onSubmit)}
+          >
+            保存
+          </Button>
+        </div>
       </form>
     </div>
   );
