@@ -521,7 +521,7 @@ initXiaobaiChat(params);
             _.pick(
               _.defaults({ shuntId: shuntResult?.data?.saveShunt?.id }, sc),
               ['shuntId', 'priority', 'staffId']
-            )
+            ),
           );
         saveStaffConfig({
           variables: { staffConfigList: forSave },
@@ -559,34 +559,8 @@ initXiaobaiChat(params);
     setError(undefined);
   };
 
-  function handleTitleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const newChatUIConfigObj = _.defaultsDeep(
-      {
-        navbar: {
-          title: event.target.value,
-        },
-      },
-      jsoneditor?.get()
-    );
-    updateChatUIConfig(newChatUIConfigObj);
-  }
-
-  function handleWelcomeMessageChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const newChatUIConfigObj = _.defaultsDeep(
-      {
-        messages: [
-          {
-            type: 'text',
-            content: {
-              text: event.target.value,
-            },
-          },
-        ],
-      },
-      jsoneditor?.get()
-    );
+  function handleChatUIConfigChange(sliceConfig: Record<string, unknown>) {
+    const newChatUIConfigObj = _.defaultsDeep(sliceConfig, jsoneditor?.get());
     updateChatUIConfig(newChatUIConfigObj);
   }
 
@@ -633,7 +607,8 @@ initXiaobaiChat(params);
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity="error">
-          上传失败:{error}
+          上传失败:
+          {error}
         </Alert>
       </Snackbar>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
@@ -824,7 +799,13 @@ initXiaobaiChat(params);
               </InputAdornment>
             ),
           }}
-          onChange={handleTitleChange}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              navbar: {
+                title: event.target.value,
+              },
+            });
+          }}
         />
         <TextField
           variant="outlined"
@@ -834,7 +815,7 @@ initXiaobaiChat(params);
           id="chatTitle"
           name="chatTitle"
           label="欢迎语设置"
-          value={(chatUIConfigObj?.messages ?? [])[0]?.content?.text || ''}
+          value={(chatUIConfigObj?.messages ?? [])[0]?.content?.text ?? ''}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -842,7 +823,230 @@ initXiaobaiChat(params);
               </InputAdornment>
             ),
           }}
-          onChange={handleWelcomeMessageChange}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              messages: [
+                {
+                  type: 'text',
+                  content: {
+                    text: event.target.value,
+                  },
+                },
+              ],
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="agentJoinTitle"
+          name="agentJoinTitle"
+          label="转人工客服按钮文本"
+          value={chatUIConfigObj?.agent.quickReply.name ?? '召唤人工客服'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              agent: {
+                quickReply: {
+                  name: event.target.value,
+                },
+              },
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="agentJoinTitle"
+          name="agentJoinTitle"
+          label="留言按钮文本"
+          value={(chatUIConfigObj?.quickReplies ?? [])[0]?.name ?? '留言'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              quickReplies: [
+                {
+                  name: event.target.value,
+                  innerType: true,
+                },
+                (chatUIConfigObj?.quickReplies ?? [])[1] ?? {
+                  name: '评价',
+                  innerType: true,
+                },
+              ],
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="agentJoinTitle"
+          name="agentJoinTitle"
+          label="评价按钮文本"
+          value={(chatUIConfigObj?.quickReplies ?? [])[1]?.name ?? '评价'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              quickReplies: [
+                (chatUIConfigObj?.quickReplies ?? [])[0] ?? {
+                  name: '留言',
+                  innerType: true,
+                },
+                {
+                  name: event.target.value,
+                  innerType: true,
+                },
+              ],
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="loadMoreText"
+          name="loadMoreText"
+          label="加载历史消息文本"
+          value={chatUIConfigObj?.loadMoreText ?? '点击加载历史消息'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              loadMoreText: event.target.value,
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="placeholder"
+          name="placeholder"
+          label="输入框占位符"
+          value={chatUIConfigObj?.placeholder ?? '输入任何您的问题'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              placeholder: event.target.value,
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="sendImageText"
+          name="sendImageText"
+          label="发送图片按钮文本"
+          value={(chatUIConfigObj?.toolbar ?? [])[0]?.title ?? '图片'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              toolbar: [
+                {
+                  type: 'image',
+                  icon: 'image',
+                  title: event.target.value,
+                },
+                jsoneditor?.get().toolbar[1],
+              ],
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="notificationText"
+          name="notificationText"
+          label="铃声按钮文本"
+          value={(chatUIConfigObj?.toolbar ?? [])[1]?.title ?? '铃声'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              toolbar: [
+                jsoneditor?.get().toolbar[0],
+                {
+                  type: 'notification',
+                  icon: 'bullhorn',
+                  title: event.target.value,
+                },
+              ],
+            });
+          }}
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          multiline
+          id="historyReminderText"
+          name="historyReminderText"
+          label="历史消息提醒文本"
+          value={chatUIConfigObj?.historyReminderText ?? '以上是历史消息'}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              historyReminderText: event.target.value,
+            });
+          }}
         />
         <Grid container>
           <Grid item xs={7}>
@@ -905,7 +1109,8 @@ initXiaobaiChat(params);
             </AccordionDetails>
           </Accordion>
         </div>
-        <div style={{ display: 'none' }}>
+        {/* <div style={{ display: 'none' }}> */}
+        <div>
           <Typography variant="h6" gutterBottom>
             配置ChatUI界面
             <Link

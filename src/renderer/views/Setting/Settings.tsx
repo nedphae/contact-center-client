@@ -25,6 +25,7 @@ import SessionCategoryView from 'renderer/components/Settings/org/SessionCategor
 import CustomerTagTable from 'renderer/components/Settings/CustomerTag/CustomerTagTable';
 import OrgInfo from 'renderer/components/Settings/org/OrgInfo';
 import WeChatOpenInfoView from 'renderer/components/Settings/org/WeChatOpenInfoView';
+import CommentAndEvaluateConfig from 'renderer/components/Settings/org/CommentAndEvaluateConfig';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -69,7 +70,8 @@ function settingPage(
   properties4Set: string | undefined,
   allProperties4Set: string[] | undefined,
   refetch: () => void,
-  properties?: RootProperties
+  customerProps: Pick<RootProperties, 'cae'>,
+  properties?: RootProperties,
 ) {
   let result: JSX.Element;
   switch (pageName) {
@@ -113,6 +115,12 @@ function settingPage(
       result = <CustomerTagTable />;
       break;
     }
+    case 'org.CommentAndEvaluate': {
+      result = (
+        <CommentAndEvaluateConfig props={customerProps.cae} refetch={refetch} />
+      );
+      break;
+    }
     case 'org.Properties': {
       if (properties && properties4Set && allProperties4Set) {
         result = (
@@ -147,20 +155,26 @@ type PageName =
   | 'org.Blacklist'
   | 'org.SessionCategory'
   | 'org.CustomerTag'
+  | 'org.CommentAndEvaluate'
   | 'org.Properties';
 
 export default function Setting() {
   const classes = useStyles();
-  const { data, refetch } = useQuery<Graphql>(QUERY);
+  const { data, refetch } = useQuery<Graphql>(QUERY, {
+    fetchPolicy: 'no-cache',
+  });
   const [pageName, setPageName] = useState<PageName>('personal.Account');
   const [properties4Set, setProperties4Set] = useState<string>();
   const [allProperties4Set, setAllProperties4Set] = useState<string[]>();
 
-  const properties: RootProperties = useMemo(
+  let properties: RootProperties = useMemo(
     () =>
       data?.getAllProperties ? JSON.parse(data?.getAllProperties) : undefined,
     [data]
   );
+
+  const customerProps = _.pick(properties, 'cae');
+  properties = _.omit(properties, _.keys(customerProps));
 
   const memoTreeView = useMemo(() => {
     return (
@@ -226,6 +240,11 @@ export default function Setting() {
               label="客户标签"
               onClick={() => setPageName('org.CustomerTag')}
             />
+            <StyledTreeItem
+              nodeId="org.CommentAndEvaluate"
+              label="留言评价配置"
+              onClick={() => setPageName('org.CommentAndEvaluate')}
+            />
             {properties &&
               _.keys(properties).map((k) => {
                 const propertiesFilter = _.keys(properties[k]).filter(
@@ -279,6 +298,7 @@ export default function Setting() {
             () => {
               refetch();
             },
+            customerProps,
             properties
           )}
       </Grid>

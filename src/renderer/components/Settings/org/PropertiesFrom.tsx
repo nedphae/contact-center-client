@@ -28,11 +28,11 @@ interface FormProps {
   refetch: () => void;
 }
 
-interface Graphql {
+export interface PropertiesUpdateGraphql {
   updateProperties: Properties;
 }
 
-const MUTATION_PROPERTIES = gql`
+export const MUTATION_PROPERTIES = gql`
   mutation Properties($properties: [PropertiesInput!]!) {
     updateProperties(properties: $properties) {
       id
@@ -75,7 +75,7 @@ export default function PropertiesFrom(props: FormProps) {
   });
 
   const { onLoadding, onCompleted, onError } = useAlert();
-  const [updateProperties, { loading }] = useMutation<Graphql>(
+  const [updateProperties, { loading }] = useMutation<PropertiesUpdateGraphql>(
     MUTATION_PROPERTIES,
     {
       onCompleted,
