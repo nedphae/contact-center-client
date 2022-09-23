@@ -698,7 +698,7 @@ initXiaobaiChat(params);
             margin="normal"
             fullWidth
             id="webJs"
-            label="web 链接接入（uid 等参数可以添加到 url 参数后）"
+            label="web 链接接入 (uid 等参数可以添加到 url 参数后）"
             value={webLink}
             InputProps={{
               readOnly: true,
@@ -840,7 +840,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="agentJoinTitle"
           name="agentJoinTitle"
           label="转人工客服按钮文本"
@@ -866,7 +865,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="agentJoinTitle"
           name="agentJoinTitle"
           label="留言按钮文本"
@@ -897,7 +895,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="agentJoinTitle"
           name="agentJoinTitle"
           label="评价按钮文本"
@@ -928,7 +925,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="loadMoreText"
           name="loadMoreText"
           label="加载历史消息文本"
@@ -950,7 +946,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="placeholder"
           name="placeholder"
           label="输入框占位符"
@@ -972,7 +967,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="sendImageText"
           name="sendImageText"
           label="发送图片按钮文本"
@@ -985,6 +979,12 @@ initXiaobaiChat(params);
             ),
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            const chatUIJson = jsoneditor?.get();
+            const bullhornJson = (chatUIJson?.toolbar ?? [])[1] ?? {
+              type: 'notification',
+              icon: 'bullhorn',
+              title: '铃声',
+            };
             handleChatUIConfigChange({
               toolbar: [
                 {
@@ -992,7 +992,7 @@ initXiaobaiChat(params);
                   icon: 'image',
                   title: event.target.value,
                 },
-                jsoneditor?.get().toolbar[1],
+                bullhornJson,
               ],
             });
           }}
@@ -1001,7 +1001,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="notificationText"
           name="notificationText"
           label="铃声按钮文本"
@@ -1014,9 +1013,15 @@ initXiaobaiChat(params);
             ),
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            const chatUIJson = jsoneditor?.get();
+            const imageJson = (chatUIJson?.toolbar ?? [])[0] ?? {
+              type: 'image',
+              icon: 'image',
+              title: '图片',
+            };
             handleChatUIConfigChange({
               toolbar: [
-                jsoneditor?.get().toolbar[0],
+                imageJson,
                 {
                   type: 'notification',
                   icon: 'bullhorn',
@@ -1030,7 +1035,6 @@ initXiaobaiChat(params);
           variant="outlined"
           margin="normal"
           fullWidth
-          multiline
           id="historyReminderText"
           name="historyReminderText"
           label="历史消息提醒文本"
