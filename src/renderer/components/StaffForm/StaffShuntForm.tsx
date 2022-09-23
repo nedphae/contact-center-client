@@ -1109,8 +1109,7 @@ initXiaobaiChat(params);
             </AccordionDetails>
           </Accordion>
         </div>
-        {/* <div style={{ display: 'none' }}> */}
-        <div>
+        <div style={{ display: 'none' }}>
           <Typography variant="h6" gutterBottom>
             配置ChatUI界面
             <Link
