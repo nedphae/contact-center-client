@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -17,12 +17,14 @@ import Icon from '@material-ui/core/Icon';
 import {
   hideSelectedSessionAndSetToLast,
   sendTextMessage,
+  setStaffDraft,
 } from 'renderer/state/session/sessionAction';
 import { Session } from 'renderer/domain/Session';
 import { getMyself } from 'renderer/state/staff/staffAction';
 import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { useAppDispatch, useAppSelector } from 'renderer/store';
+import { debounceTime, Subject } from 'rxjs';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -63,10 +65,15 @@ const searchQuickReply = (searchText: string) => {
   return result;
 };
 
+const subjectSearchText = new Subject<string>();
+
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
-  const [tempTextMessage, setTempTextMessage] = useState<string>('');
+  const [tempTextMessage, setTempTextMessage] = useState<string>(
+    selectedSession?.staffDraft ?? ''
+  );
+
   const dispatch = useAppDispatch();
   // 展示 快捷回复
   const [open, setOpen] = useState(true);
@@ -80,9 +87,26 @@ export default function Editor(selected: SelectedProps) {
 
   const quickReplyList = searchQuickReply(tempTextMessage);
 
+  const momeSubject = useMemo(() => {
+    return subjectSearchText.pipe(debounceTime(200)).subscribe({
+      next: (it) => {
+        if (selectedSession?.user.id) {
+          dispatch(
+            setStaffDraft({ userId: selectedSession.user.id, staffDraft: it })
+          );
+        }
+      },
+    });
+  }, [dispatch, selectedSession?.user]);
+  useEffect(() => {
+    return () => {
+      momeSubject.unsubscribe();
+    };
+  }, [momeSubject]);
+
   function setMessage(message: string) {
+    subjectSearchText.next(message);
     setTempTextMessage(message);
-    // subjectSearchText.next(message);
   }
 
   const filterQuickReplyList = quickReplyList?.filter(
@@ -101,10 +125,10 @@ export default function Editor(selected: SelectedProps) {
   function handleSendTextMessage() {
     if (mySelf.onlineStatus !== OnlineStatus.OFFLINE) {
       if (selectedSession && tempTextMessage !== '') {
+        setMessage('');
         dispatch(
           sendTextMessage(selectedSession.conversation.userId, tempTextMessage)
         );
-        setMessage('');
       }
     } else {
       onErrorMsg('当前客服不在线，无法发送消息');

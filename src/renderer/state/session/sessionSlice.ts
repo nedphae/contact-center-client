@@ -17,7 +17,6 @@ import { MessagesMap } from 'renderer/domain/Message';
 import { Customer, CustomerStatus } from 'renderer/domain/Customer';
 import { fromUserMessagesToMap, UserMessages } from 'renderer/domain/Chat';
 import { CreatorType } from 'renderer/domain/constant/Message';
-import { InteractionLogo } from 'renderer/domain/constant/Conversation';
 import { Conversation } from 'renderer/domain/Conversation';
 
 const initConver = {} as SessionMap;
@@ -36,7 +35,7 @@ const converSlice = createSlice({
     // 更新会话和用户信息
     updateConverAndCustomer: (
       converMap,
-      action: PayloadAction<UpdateConver>
+      action: PayloadAction<UpdateConver>,
     ) => {
       const { userId } = action.payload.conversation;
       if (userId && converMap[userId]) {
@@ -68,7 +67,7 @@ const converSlice = createSlice({
     },
     clearMessgeBadge: (
       converMap,
-      action: PayloadAction<number | undefined>
+      action: PayloadAction<number | undefined>,
     ) => {
       if (action.payload) {
         const conver = converMap[action.payload];
@@ -79,7 +78,7 @@ const converSlice = createSlice({
     },
     addNewMessgeBadge: (
       converMap,
-      action: PayloadAction<number | undefined>
+      action: PayloadAction<number | undefined>,
     ) => {
       if (action.payload) {
         const conver = converMap[action.payload];
@@ -99,7 +98,7 @@ const converSlice = createSlice({
     },
     updateCustomerStatus: (
       converMap,
-      action: PayloadAction<CustomerStatus>
+      action: PayloadAction<CustomerStatus>,
     ) => {
       if (action.payload.userId && converMap[action.payload.userId]) {
         converMap[action.payload.userId].user.status = action.payload;
@@ -135,7 +134,7 @@ const converSlice = createSlice({
     },
     setHasMore: (
       converMap,
-      action: PayloadAction<{ userId: number; hasMore: boolean }>
+      action: PayloadAction<{ userId: number; hasMore: boolean }>,
     ) => {
       const conver = converMap[action.payload.userId];
       conver.hasMore = action.payload.hasMore;
@@ -152,7 +151,7 @@ const converSlice = createSlice({
               map((f) => converMap[f!]),
               filter((f) => f !== undefined && f !== null),
               defaultIfEmpty<Session | undefined, Session | undefined>(
-                to ? converMap[to] : undefined
+                to ? converMap[to] : undefined,
               ),
               filter(() => msg.creatorType !== CreatorType.SYS),
               map((c) => {
@@ -172,9 +171,9 @@ const converSlice = createSlice({
                     c.firstNeedReplyTime = undefined;
                   }
                 }
-              })
+              }),
             );
-          })
+          }),
         )
         .subscribe();
     },
@@ -183,6 +182,20 @@ const converSlice = createSlice({
       conver.userTypingText = action.payload.userTypingText;
       conver.userTypingTime =
         conver.userTypingText === undefined ? undefined : new Date().getTime();
+    },
+    setStaffDraft: (
+      converMap,
+      action: PayloadAction<{ userId: number; staffDraft: string }>
+    ) => {
+      const conver = converMap[action.payload.userId];
+      conver.staffDraft = action.payload.staffDraft;
+    },
+    removeMessageByUUID: (
+      converMap,
+      action: PayloadAction<{ userId: number; uuid: string }>
+    ) => {
+      const cover = converMap[action.payload.userId];
+      delete cover.massageList[action.payload.uuid];
     },
   },
 });

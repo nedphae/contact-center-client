@@ -62,6 +62,7 @@ const {
   unhideSession,
   addNewMessgeBadge,
   hideSelectedSession,
+  removeMessageByUUID,
 } = slice.actions;
 export const {
   updateConverAndCustomer,
@@ -76,6 +77,7 @@ export const {
   setInteractionLogo,
   setTyping,
   updateSync,
+  setStaffDraft,
 } = slice.actions;
 
 export const getSessionByUserId = (userId: number) => (state: RootState) =>
@@ -434,6 +436,29 @@ export function sendEvaluationInvitedMsg(userId: number): AppThunk {
       content,
     };
     dispatch(sendMessage(message));
+  };
+}
+
+export function sendWithdrawMsg(
+  userId: number,
+  serviceContent: { uuid: string; seqId?: number }
+): AppThunk {
+  return (dispatch) => {
+    const content: Content = {
+      contentType: 'SYS',
+      sysCode: 'WITHDRAW',
+      serviceContent: JSON.stringify(serviceContent),
+    };
+    // 发送转接消息
+    const message: Message = {
+      uuid: uuidv4().substring(0, 8),
+      to: userId,
+      type: CreatorType.CUSTOMER,
+      creatorType: CreatorType.SYS,
+      content,
+    };
+    dispatch(sendMessage(message));
+    dispatch(removeMessageByUUID({ userId, uuid: serviceContent.uuid }));
   };
 }
 

@@ -64,6 +64,8 @@ export type SysCode =
   | 'CONV_UPDATE'
   // 邀请评价
   | 'EVALUATION_INVITED'
+  // 撤回消息
+  | 'WITHDRAW'
   // GRAPHQL
   | 'GRAPHQL'
   // 自定义 JSON

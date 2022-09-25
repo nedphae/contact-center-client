@@ -1,6 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
-import { useDispatch, useSelector } from 'react-redux';
 import Viewer from 'react-viewer';
 import clsx from 'clsx';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -24,6 +24,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
+import UndoIcon from '@material-ui/icons/Undo';
 
 import { Content, Message } from 'renderer/domain/Message';
 import Staff from 'renderer/domain/StaffInfo';
@@ -36,6 +37,7 @@ import {
 } from 'renderer/config/clientConfig';
 import {
   addHistoryMessage,
+  sendWithdrawMsg,
   setHasMore,
   updateSync,
 } from 'renderer/state/session/sessionAction';
@@ -49,11 +51,22 @@ import {
   setMonitoredMessage,
 } from 'renderer/state/chat/chatAction';
 import { CreatorType } from 'renderer/domain/constant/Message';
-import { Box } from '@material-ui/core';
+import { useAppDispatch, useAppSelector } from 'renderer/store';
+import {
+  Box,
+  ButtonGroup,
+  Fade,
+  IconButton,
+  Popper,
+  PopperPlacementType,
+  PopperProps,
+  Tooltip,
+} from '@material-ui/core';
 import {
   SyncMessageByUserGraphql,
   QUERY_SYNC_USER_MESSAGE,
 } from 'renderer/domain/graphql/Monitor';
+import { getMyself } from 'renderer/state/staff/staffAction';
 import FileCard from './FileCard';
 import RichTextStyle from './RichText.less';
 
@@ -116,13 +129,13 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       wordWrap: 'break-word',
       wordBreak: 'break-word',
     },
-  })
+  }),
 );
 
 export function createContent(
   content: Content,
   classes: ClassNameMap<'message'>,
-  openImageViewer: (src: string, alt: string) => void
+  openImageViewer: (src: string, alt: string) => void,
 ) {
   let element;
   switch (content.contentType) {
@@ -136,7 +149,7 @@ export function createContent(
           default: {
             element = (
               <ListItemText
-                primary={
+                primary={(
                   <Typography
                     variant="body1"
                     gutterBottom
@@ -144,7 +157,7 @@ export function createContent(
                   >
                     {text}
                   </Typography>
-                }
+                )}
               />
             );
             break;
@@ -153,7 +166,7 @@ export function createContent(
       } else {
         element = (
           <ListItemText
-            primary={
+            primary={(
               <Typography
                 variant="body1"
                 gutterBottom
@@ -161,7 +174,7 @@ export function createContent(
               >
                 {text}
               </Typography>
-            }
+            )}
           />
         );
       }
@@ -271,7 +284,7 @@ const CONTENT_QUERY = gql`
 const PAGE_QUERY = getPageQuery(
   'MessagePage',
   CONTENT_QUERY,
-  'myMessageContent'
+  'myMessageContent',
 );
 
 const QUERY = gql`
@@ -299,16 +312,27 @@ const MessageList = (props: MessageListProps) => {
     },
   });
 
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<PopperProps['anchorEl']>(null);
+  const [placement, setPlacement] =
+    useState<PopperPlacementType>('right-start');
+
+  const [withdrawUUID, setWithdrawUUID] = useState<{
+    uuid: string;
+    seqId?: number;
+  }>();
+
   const classes = useMessageListStyles();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+
   // 查询是否是监控
-  const monitorSession = useSelector(getMonitor)?.monitoredSession;
+  const monitorSession = useAppSelector(getMonitor)?.monitoredSession;
   const refOfScrollView = useRef<ScrollView>(null);
   const [loadHistoryMessage, { data, variables }] = useLazyQuery<MessagePage>(
     QUERY,
     {
       fetchPolicy: 'no-cache',
-    }
+    },
   );
   const [syncMessageByUser, { data: syncMsg, variables: syncVariables }] =
     useLazyQuery<SyncMessageByUserGraphql>(QUERY_SYNC_USER_MESSAGE, {
@@ -377,7 +401,7 @@ const MessageList = (props: MessageListProps) => {
               setMonitoredHasMore({
                 userId: user.userId,
                 hasMore: !data.loadHistoryMessage.last,
-              })
+              }),
             );
           } else {
             // 客服聊天历史消息
@@ -386,7 +410,7 @@ const MessageList = (props: MessageListProps) => {
               setHasMore({
                 userId: user.userId,
                 hasMore: !data.loadHistoryMessage.last,
-              })
+              }),
             );
           }
         } else if (monitorSession) {
@@ -394,7 +418,7 @@ const MessageList = (props: MessageListProps) => {
             setMonitoredHasMore({
               userId: user.userId,
               hasMore: false,
-            })
+            }),
           );
         } else {
           // 没有更多消息
@@ -402,7 +426,7 @@ const MessageList = (props: MessageListProps) => {
             setHasMore({
               userId: user.userId,
               hasMore: false,
-            })
+            }),
           );
         }
       }
@@ -467,42 +491,42 @@ const MessageList = (props: MessageListProps) => {
     user,
   ]);
 
-  function handleContentSizeChange(
-    _contentWidth: number,
-    contentHeight: number
-  ) {
-    // 检查是否是读取历史记录
-    if (refOfScrollView.current && user && user.userId) {
-      if (!isHistoryMessage) {
-        // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
-        const scrollViewHeight = (
-          refOfScrollView.current as unknown as HTMLDivElement
-        ).clientHeight;
-        if (contentHeight > scrollViewHeight) {
-          refOfScrollView.current.scrollTo({
-            x: 0,
-            y: contentHeight - scrollViewHeight,
-            animated: false,
-          });
+  const handleContentSizeChange = useCallback(
+    (_contentWidth: number, contentHeight: number) => {
+      // 检查是否是读取历史记录
+      if (refOfScrollView.current && user && user.userId) {
+        if (!isHistoryMessage) {
+          // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
+          const scrollViewHeight = (
+            refOfScrollView.current as unknown as HTMLDivElement
+          ).clientHeight;
+          if (contentHeight > scrollViewHeight) {
+            refOfScrollView.current.scrollTo({
+              x: 0,
+              y: contentHeight - scrollViewHeight,
+              animated: false,
+            });
+          } else {
+            refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
+          }
+          if (!animated) {
+            setAnimated(true);
+          }
         } else {
-          refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
+          setIsHistoryMessage(false);
         }
-        if (!animated) {
-          setAnimated(true);
-        }
-      } else {
-        setIsHistoryMessage(false);
       }
-    }
-  }
+    },
+    [animated, isHistoryMessage, user]
+  );
 
-  function closeImageViewerDialog() {
+  const closeImageViewerDialog = () => {
     toggleShowImageViewerDialog(false);
-  }
+  };
 
   function getImages() {
     const imageMessages = messages.filter(
-      (message) => message.content.contentType === 'IMAGE'
+      (message) => message.content.contentType === 'IMAGE',
     );
     const images = imageMessages.map((message) => {
       const url = `${getDownloadS3ChatImgPath}${message.content.photoContent?.mediaId}`;
@@ -518,6 +542,31 @@ const MessageList = (props: MessageListProps) => {
     toggleShowImageViewerDialog(true);
   }
 
+  const withdrawMsg = () => {
+    if (user?.userId && withdrawUUID) {
+      dispatch(sendWithdrawMsg(user?.userId, withdrawUUID));
+    }
+    setWithdrawUUID(undefined);
+  };
+
+  const id = open ? 'faked-reference-popper' : undefined;
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleMouseUp = (
+    right: boolean,
+    uuidWithSeqId?: { uuid: string; seqId?: number }
+  ) => {
+    return (event: React.MouseEvent<HTMLDivElement>) => {
+      setPlacement(right ? 'left-start' : 'right-start');
+      setOpen(right);
+      setAnchorEl(event.currentTarget);
+      setWithdrawUUID(uuidWithSeqId);
+    };
+  };
+
   // TODO 使用 View + Map 精确跳转到置顶聊天消息
   return (
     <ScrollView
@@ -526,6 +575,37 @@ const MessageList = (props: MessageListProps) => {
       onContentSizeChange={handleContentSizeChange}
       scrollEventThrottle={50}
     >
+      <Popper
+        onMouseEnter={() => {
+          setOpen(true);
+        }}
+        onMouseLeave={handleClose}
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        transition
+        placement={placement}
+      >
+        {({ TransitionProps }) => (
+          <Fade {...TransitionProps} timeout={350}>
+            <ButtonGroup
+              aria-label="outlined primary button group"
+              style={{ paddingLeft: '5px', paddingRight: '5px' }}
+            >
+              <Tooltip title="撤回">
+                <IconButton
+                  aria-label="withdraw"
+                  style={{ borderRadius: 0 }}
+                  size="small"
+                  onClick={withdrawMsg}
+                >
+                  <UndoIcon />
+                </IconButton>
+              </Tooltip>
+            </ButtonGroup>
+          </Fade>
+        )}
+      </Popper>
       {user && (
         <List className={classes.list}>
           {loadMore && hasMore && (
@@ -538,7 +618,11 @@ const MessageList = (props: MessageListProps) => {
           )}
           {messages &&
             messages.map(
-              ({ uuid, createdAt, content, creatorType, nickName }) => (
+              (
+                { uuid, seqId, createdAt, content, creatorType, nickName, from },
+                index,
+                msgs
+              ) => (
                 <React.Fragment key={uuid}>
                   <ListItem alignItems="flex-start">
                     {/* 接受到的消息的头像 */}
@@ -556,7 +640,7 @@ const MessageList = (props: MessageListProps) => {
                     >
                       <Grid item xs={12}>
                         <ListItemText
-                          primary={
+                          primary={(
                             <Grid
                               container
                               alignItems="center"
@@ -582,16 +666,23 @@ const MessageList = (props: MessageListProps) => {
                                 {createdAt && javaInstant2DateStr(createdAt)}
                               </Typography>
                             </Grid>
-                          }
+                          )}
                         />
                       </Grid>
                       <Paper
+                        onMouseEnter={handleMouseUp(
+                          creatorType === 1 &&
+                            index + 1 === msgs.length &&
+                            !from,
+                          { uuid, seqId },
+                        )}
+                        onMouseLeave={handleClose}
                         elevation={4}
                         className={clsx(
                           creatorType !== 1
                             ? classes.fromMessagePaper
                             : classes.toMessagePaper,
-                          classes.baseMessagePaper
+                          classes.baseMessagePaper,
                         )}
                       >
                         {createContent(content, classes, openImageViewer)}
@@ -610,7 +701,7 @@ const MessageList = (props: MessageListProps) => {
                     )}
                   </ListItem>
                 </React.Fragment>
-              )
+              ),
             )}
         </List>
       )}

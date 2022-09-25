@@ -70,7 +70,7 @@ const useStyles = makeStyles(() =>
     popper: {
       zIndex: 1,
     },
-  })
+  }),
 );
 
 interface EditorProps {
@@ -82,7 +82,7 @@ interface EditorProps {
 function createSessionCategory(
   sessionCategoryTreeList: SessionCategory[],
   open: boolean,
-  handleItemClick: (sessionCategory: SessionCategory) => void
+  handleItemClick: (sessionCategory: SessionCategory) => void,
 ) {
   return sessionCategoryTreeList.map((it) => {
     if (it.children) {
@@ -162,7 +162,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   function handleSendImageMessage(photoContent: PhotoContent) {
     if (selectedSession) {
       dispatch(
-        sendImageMessage(selectedSession.conversation.userId, photoContent)
+        sendImageMessage(selectedSession.conversation.userId, photoContent),
       );
     }
   }
@@ -170,18 +170,18 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   function handleSendFileMessage(attachments: Attachments) {
     if (selectedSession) {
       dispatch(
-        sendFileMessage(selectedSession.conversation.userId, attachments)
+        sendFileMessage(selectedSession.conversation.userId, attachments),
       );
     }
   }
 
   const handleClick =
     (newPlacement: PopperPlacementType) =>
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEl(event.currentTarget);
-      setOpen((prev) => placement !== newPlacement || !prev);
-      setPlacement(newPlacement);
-    };
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+        setOpen((prev) => placement !== newPlacement || !prev);
+        setPlacement(newPlacement);
+      };
 
   const onClose = () => setOpen(false);
 
@@ -254,7 +254,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     const conversationCategory: ConversationCategory =
       createConversationCategory(
         selectedSession.conversation.id,
-        sessionCategory
+        sessionCategory,
       );
     await updateCategory({ variables: { conversationCategory } });
     // 关闭 menu
@@ -288,7 +288,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           createSessionCategory(
             sessionCategoryTreeList,
             Boolean(menuAnchorEl),
-            updateConversationCategory
+            updateConversationCategory,
           )}
       </Menu>
       <Popper

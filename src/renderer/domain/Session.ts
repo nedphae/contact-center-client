@@ -30,6 +30,8 @@ export interface Session {
   userTypingTime?: number;
   // 如果更新会话后，需要重新同步用户消息
   shouldSync: boolean;
+  // 客服草稿
+  staffDraft?: string;
 }
 
 export interface TagParamer {
