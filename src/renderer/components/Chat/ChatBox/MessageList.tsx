@@ -569,6 +569,7 @@ const MessageList = (props: MessageListProps) => {
     };
   };
 
+  const now = new Date();
   // TODO 使用 View + Map 精确跳转到置顶聊天消息
   return (
     <ScrollView
@@ -621,7 +622,15 @@ const MessageList = (props: MessageListProps) => {
           {messages &&
             messages.map(
               (
-                { uuid, seqId, createdAt, content, creatorType, nickName, from },
+                {
+                  uuid,
+                  seqId,
+                  createdAt,
+                  content,
+                  creatorType,
+                  nickName,
+                  from,
+                },
                 index,
                 msgs
               ) => (
@@ -674,8 +683,8 @@ const MessageList = (props: MessageListProps) => {
                       <Paper
                         onMouseEnter={handleMouseUp(
                           creatorType === 1 &&
-                            index + 1 === msgs.length &&
-                            !from,
+                            Math.abs((createdAt as number) - now.getTime()) >=
+                              2 * 60 * 1000,
                           { uuid, seqId },
                         )}
                         onMouseLeave={handleClose}
