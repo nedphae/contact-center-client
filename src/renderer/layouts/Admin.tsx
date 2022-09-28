@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -26,7 +27,7 @@ import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
 
-import routes from '../routes';
+import useRoutes from '../useRoutes';
 
 import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
 
@@ -39,7 +40,7 @@ let ps: PerfectScrollbar;
 const useStyles = makeStyles(styles);
 
 export const WebSocketContext = createContext<
-SocketIOClient.Socket | undefined
+  SocketIOClient.Socket | undefined
 >(undefined);
 
 const subjectSearchText = new Subject<void>();
@@ -48,6 +49,9 @@ export default function Admin({ ...rest }) {
   // styles
   const classes = useStyles();
   const dispatch = useDispatch();
+  const routes = useRoutes();
+  const { t } = useTranslation();
+
   // ref to help us initialize PerfectScrollbar on windows devices
   const mainPanel = React.createRef<HTMLDivElement>();
   // states and functions
@@ -65,8 +69,8 @@ export default function Admin({ ...rest }) {
       next: () => {
         play();
         if (document.hidden) {
-          const notification = new Notification('您有新消息', {
-            body: '点击查看',
+          const notification = new Notification(t('New Message'), {
+            body: t('View Message'),
             silent: true,
             icon: logo,
           });
@@ -80,7 +84,7 @@ export default function Admin({ ...rest }) {
         dispatch(clearPlayNewMessageSound());
       },
     });
-  }, [dispatch, play]);
+  }, [dispatch, play, t]);
 
   const currentPath = useLocation().pathname;
   const playNewMessageSound = useSelector(getPlayNewMessageSound);

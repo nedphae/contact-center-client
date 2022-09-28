@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
@@ -66,6 +67,8 @@ interface KibanaUrlString {
 }
 
 export default function Dashboard() {
+  const { t } = useTranslation();
+
   const classes = useStyles();
   const { onErrorMsg } = useAlert();
 
@@ -110,7 +113,9 @@ export default function Dashboard() {
             }
           );
           if (result.status !== 200) {
-            onErrorMsg('登录Kibana失败，请联系管理员');
+            onErrorMsg(
+              'Failed to log in to Kibana, please contact the administrator'
+            );
           }
         } finally {
           setKibanaUrl(tempKibanaUrl);
@@ -143,7 +148,7 @@ export default function Dashboard() {
   const tempActions = [
     {
       icon: <TabIcon />,
-      name: '在新窗口中打开',
+      name: t('Open in new window'),
       doAction: () => {
         if (kibanaUrl) {
           window.open(
@@ -167,7 +172,7 @@ export default function Dashboard() {
                 {/* <Icon>content_copy</Icon> */}
                 <HeadsetMicIcon />
               </CardIcon>
-              <p className={classes.cardCategory}>在线客服</p>
+              <p className={classes.cardCategory}>{t('Online staff')}</p>
               <h3 className={classes.cardTitle}>
                 {realTimeStatistics.onlineStaffCount}
               </h3>
@@ -178,7 +183,7 @@ export default function Dashboard() {
                   <SyncIcon />
                 </Danger>
                 <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                  实时刷新在线客服数量
+                  {t('Refresh in real time')}
                 </a>
               </div>
             </CardFooter>
@@ -190,7 +195,7 @@ export default function Dashboard() {
               <CardIcon color="warning">
                 <RemoveCircleIcon />
               </CardIcon>
-              <p className={classes.cardCategory}>忙碌/离开客服</p>
+              <p className={classes.cardCategory}>{t('Busy/Away staff')}</p>
               <h3 className={classes.cardTitle}>
                 {realTimeStatistics.busyStaffCount}
               </h3>
@@ -198,7 +203,7 @@ export default function Dashboard() {
             <CardFooter stats>
               <div className={classes.stats}>
                 <LocalOffer />
-                当前在线客服中，设置了离开和忙碌的客服
+                {t('In the current online staff, leave and busy number')}
               </div>
             </CardFooter>
           </Card>
@@ -210,7 +215,7 @@ export default function Dashboard() {
                 {/* <Icon>info_outline</Icon> */}
                 <QuestionAnswerIcon />
               </CardIcon>
-              <p className={classes.cardCategory}>当前咨询量</p>
+              <p className={classes.cardCategory}>{t('Sessions count')}</p>
               <h3 className={classes.cardTitle}>
                 {realTimeStatistics.onlineCustomerCount}
               </h3>
@@ -218,7 +223,7 @@ export default function Dashboard() {
             <CardFooter stats>
               <div className={classes.stats}>
                 <LocalOffer />
-                当前进行中的会话数量
+                {t('Number of sessions currently in progress')}
               </div>
             </CardFooter>
           </Card>
@@ -229,7 +234,7 @@ export default function Dashboard() {
               <CardIcon color="danger">
                 <Icon icon={peopleQueue24Filled} />
               </CardIcon>
-              <p className={classes.cardCategory}>排队数量</p>
+              <p className={classes.cardCategory}>{t('Number of queues')}</p>
               <h3 className={classes.cardTitle}>
                 {realTimeStatistics.queueCount
                   ?.map((it) => it.count)
@@ -239,7 +244,7 @@ export default function Dashboard() {
             <CardFooter stats>
               <div className={classes.stats}>
                 <InfoIcon />
-                正在排队的客户数量
+                {t('Number of customers in queue')}
               </div>
             </CardFooter>
           </Card>

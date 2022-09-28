@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -107,6 +109,8 @@ export default function BotConfigForm(props: FormProps) {
   const { defaultValues, afterMutationCallback, allTopic } = props;
   const classes = useStyles();
   const theme = useTheme();
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -177,11 +181,12 @@ export default function BotConfigForm(props: FormProps) {
       >
         <div className={classes.form}>
           <Typography variant="subtitle1" gutterBottom>
-            问题精准度
+            {t('Problem accuracy')}
           </Typography>
           <Typography variant="body2" gutterBottom>
-            0 表示不检测问题精准度，1 表示问题要完全匹配，默认为
-            0.9。系统会返回高于此精准度的 Top 1 答案
+            {t(
+              '0 means not to detect the problem accuracy, 1 means the problem should be completely matched, the default is 0.9. The system will return the top 1 answers with a higher precision than this'
+            )}
           </Typography>
           <Controller
             control={control}
@@ -242,7 +247,7 @@ export default function BotConfigForm(props: FormProps) {
           fullWidth
           multiline
           id="noAnswerReply"
-          label="没有找到答案时的回复"
+          label={t('Reply when no answer found')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -255,13 +260,17 @@ export default function BotConfigForm(props: FormProps) {
           {...register('noAnswerReply', {
             maxLength: {
               value: 500,
-              message: '没有找到答案时的回复 长度不能大于500个字符',
+              message: t(
+                'Reply when no answer is found Must be no longer than 500 characters'
+              ),
             },
           })}
         />
         <Divider className={classes.divider} />
         <Typography variant="subtitle1" gutterBottom>
-          当有问题匹配，但是精准度低于配置时，是否显示相似问题
+          {t(
+            'When there is a problem matching, but the accuracy is lower than the configuration, whether to display similar problems'
+          )}
         </Typography>
         <Controller
           control={control}
@@ -281,7 +290,7 @@ export default function BotConfigForm(props: FormProps) {
                     color="primary"
                   />
                 )}
-                label="展示相似问题"
+                label={t('Show similar questions')}
               />
               {invalid && <FormHelperText>{error?.message}</FormHelperText>}
             </>
@@ -292,7 +301,7 @@ export default function BotConfigForm(props: FormProps) {
           margin="normal"
           fullWidth
           multiline
-          label="相似问题提示"
+          label={t('Similar question tips')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -305,13 +314,15 @@ export default function BotConfigForm(props: FormProps) {
           {...register('similarQuestionNotice', {
             maxLength: {
               value: 500,
-              message: '相似问题提示 长度不能大于500个字符',
+              message: t(
+                'Similar question tips length cannot be greater than 500 characters'
+              ),
             },
           })}
         />
         <div className={classes.form}>
           <Typography variant="subtitle1" gutterBottom>
-            相似问题个数
+            {t('Similar questions count')}
           </Typography>
           <Controller
             control={control}
@@ -344,7 +355,9 @@ export default function BotConfigForm(props: FormProps) {
           />
         </div>
         <FormControl variant="outlined" margin="normal" fullWidth>
-          <InputLabel id="demo-mutiple-chip-label">热门问题</InputLabel>
+          <InputLabel id="demo-mutiple-chip-label">
+            {t('Top Questions')}
+          </InputLabel>
           <Select
             labelId="demo-mutiple-chip-label"
             id="demo-mutiple-chip"
@@ -352,7 +365,7 @@ export default function BotConfigForm(props: FormProps) {
             input={<Input id="select-multiple-chip" />}
             onChange={handleHotQuestionChange}
             value={hotQuesion ?? []}
-            label="热门问题"
+            label={t('Top Questions')}
             renderValue={(selected) => (
               <div className={classes.chips}>
                 {(selected as string[]).map((id) => (

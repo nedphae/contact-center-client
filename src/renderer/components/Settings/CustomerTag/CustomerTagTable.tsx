@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   DataGrid,
   GridCellParams,
@@ -11,7 +12,7 @@ import {
 import ColorLensIcon from '@material-ui/icons/ColorLens';
 import { Chip } from '@material-ui/core';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -25,40 +26,9 @@ import {
 import { CustomerTag } from 'renderer/domain/Customer';
 import CustomerTagForm from './CustomerTagForm';
 
-const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'name', headerName: '标签名称', width: 150 },
-  {
-    field: 'color',
-    headerName: '颜色',
-    width: 150,
-    renderCell: function ColorIcon(params: GridCellParams) {
-      const { value: colorHex } = params;
-      return <ColorLensIcon style={{ color: colorHex as string }} />;
-    },
-  },
-  {
-    field: 'dispaly',
-    headerName: '展示效果',
-    width: 150,
-    renderCell: function ColorIcon(params: GridCellParams) {
-      const {
-        row: { color: colorHex, name },
-      } = params;
-      return (
-        <Chip
-          size="small"
-          color="secondary"
-          label={name}
-          style={{ backgroundColor: colorHex as string }}
-          onDelete={() => {}}
-        />
-      );
-    },
-  },
-];
-
 export default function CustomerTagTable() {
+  const { t, i18n } = useTranslation();
+
   const { loading, data, refetch } =
     useQuery<CustomerTagGraphql>(QUERY_CUSTOMER_TAG);
   const refOfDialog = useRef<DraggableDialogRef>(null);
@@ -96,9 +66,42 @@ export default function CustomerTagTable() {
     }
   }
 
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: t('tag.Id'), width: 90 },
+    { field: 'name', headerName: t('tag.Name'), width: 150 },
+    {
+      field: 'color',
+      headerName: t('tag.Color'),
+      width: 150,
+      renderCell: function ColorIcon(params: GridCellParams) {
+        const { value: colorHex } = params;
+        return <ColorLensIcon style={{ color: colorHex as string }} />;
+      },
+    },
+    {
+      field: 'dispaly',
+      headerName: t('tag.Display'),
+      width: 150,
+      renderCell: function ColorIcon(params: GridCellParams) {
+        const {
+          row: { color: colorHex, name },
+        } = params;
+        return (
+          <Chip
+            size="small"
+            color="secondary"
+            label={name}
+            style={{ backgroundColor: colorHex as string }}
+            onDelete={() => {}}
+          />
+        );
+      },
+    },
+  ];
+
   return (
     <>
-      <DraggableDialog title="客户标签" ref={refOfDialog}>
+      <DraggableDialog title={t('Customer Tag')} ref={refOfDialog}>
         <CustomerTagForm
           defaultValues={customerTag}
           refetch={() => {
@@ -108,7 +111,7 @@ export default function CustomerTagTable() {
         />
       </DraggableDialog>
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{

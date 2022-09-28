@@ -1,4 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
+import { useTranslation } from 'react-i18next';
+
 import { useSelector } from 'react-redux';
 import { Typography } from '@material-ui/core';
 import Upload, { UploadProps } from 'rc-upload';
@@ -12,6 +14,8 @@ interface FormProps {
 }
 export default function BotTopicUploadForm(props: FormProps) {
   const { knowledgeBaseId, onSuccess } = props;
+  const { t } = useTranslation();
+
   const token = useSelector(getStaffToken);
   const { onCompletedMsg, onLoadding, onErrorMsg } = useAlert();
 
@@ -30,14 +34,14 @@ export default function BotTopicUploadForm(props: FormProps) {
     onSuccess(file) {
       console.log('onSuccess', file);
       onSuccess();
-      onCompletedMsg('导入成功');
+      onCompletedMsg('Import Success');
     },
     onProgress(step, file) {
       onLoadding(true);
       console.log('onProgress', Math.round(step.percent!), file.name);
     },
     onError(err) {
-      onErrorMsg('导入失败');
+      onErrorMsg('Import Error');
       console.log('onError', err);
     },
   };
@@ -49,7 +53,9 @@ export default function BotTopicUploadForm(props: FormProps) {
     >
       <div>
         <Upload {...uploaderProps}>
-          <Typography variant="body1">点击上传知识库 Excel 文件</Typography>
+          <Typography variant="body1">
+            {t('Click to upload knowledge base Excel file')}
+          </Typography>
         </Upload>
       </div>
     </div>

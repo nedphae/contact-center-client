@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
@@ -40,6 +41,7 @@ interface KibanaUrlString {
 }
 
 export default function StaffAttendance() {
+  const { t } = useTranslation();
   const { onErrorMsg } = useAlert();
 
   const { data: kibanaUrlGraphql } =
@@ -82,7 +84,9 @@ export default function StaffAttendance() {
             },
           );
           if (result.status !== 200) {
-            onErrorMsg('登录Kibana失败，请联系管理员');
+            onErrorMsg(
+              'Failed to log in to Kibana, please contact the administrator'
+            );
           }
         } finally {
           setKibanaUrl(tempKibanaUrl);
@@ -95,7 +99,7 @@ export default function StaffAttendance() {
   const tempActions = [
     {
       icon: <TabIcon />,
-      name: '在新窗口中打开',
+      name: t('Open in new window'),
       doAction: () => {
         if (kibanaUrl) {
           window.open(

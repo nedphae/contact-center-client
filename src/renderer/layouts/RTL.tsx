@@ -10,7 +10,7 @@ import Footer from '../components/Footer/Footer';
 import Sidebar from '../components/Sidebar/Sidebar';
 import FixedPlugin from '../components/FixedPlugin/FixedPlugin';
 
-import routes from '../routes';
+import routes from '../useRoutes';
 
 import styles from '../assets/jss/material-dashboard-react/layouts/rtlStyle';
 

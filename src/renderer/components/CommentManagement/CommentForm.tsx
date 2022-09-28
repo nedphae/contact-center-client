@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import { useMutation } from '@apollo/client';
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
-  })
+  }),
 );
 
 interface CommentFormProps {
@@ -49,6 +49,8 @@ interface CommentFormProps {
 export default function CommentForm(props: CommentFormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+  const { t: optionT } = useTranslation();
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [saveComment, { loading }] = useMutation<SaveCommentGraphql>(
@@ -56,7 +58,7 @@ export default function CommentForm(props: CommentFormProps) {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (loading) {
     onLoadding(loading);
@@ -114,7 +116,7 @@ export default function CommentForm(props: CommentFormProps) {
           {...register('createdAt', { valueAsNumber: true })}
         />
         <Typography variant="h6" gutterBottom>
-          创建时间：
+          {`${t('Created Date')}: `}
           {defaultValues && javaInstant2DateStr(defaultValues.createdAt)}
         </Typography>
         <TextField
@@ -122,7 +124,7 @@ export default function CommentForm(props: CommentFormProps) {
           margin="normal"
           fullWidth
           id="uid"
-          label="用户标识"
+          label={t('UID')}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -138,7 +140,7 @@ export default function CommentForm(props: CommentFormProps) {
           margin="normal"
           fullWidth
           id="name"
-          label="用户姓名"
+          label={t('Name')}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -154,7 +156,7 @@ export default function CommentForm(props: CommentFormProps) {
           margin="normal"
           fullWidth
           id="mobile"
-          label="手机"
+          label={t('Mobile')}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -170,7 +172,7 @@ export default function CommentForm(props: CommentFormProps) {
           margin="normal"
           fullWidth
           id="email"
-          label="邮箱"
+          label={t('Email')}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -187,7 +189,7 @@ export default function CommentForm(props: CommentFormProps) {
           fullWidth
           multiline
           id="message"
-          label="留言内容"
+          label={t('Message')}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -199,7 +201,7 @@ export default function CommentForm(props: CommentFormProps) {
           {...register('message')}
         />
         <Typography variant="subtitle1" gutterBottom>
-          来源页：
+          {`${t('From Page')}: `}
           {defaultValues?.fromPage && (
             <Link href={defaultValues?.fromPage}>
               {defaultValues?.fromPage}
@@ -207,7 +209,8 @@ export default function CommentForm(props: CommentFormProps) {
           )}
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
-          来源IP：{defaultValues?.fromIp}
+          {`${t('IP')}: `}
+          {defaultValues?.fromIp}
         </Typography>
         {CommentSolved.UNSOLVED === defaultValues?.solved && (
           <Controller
@@ -217,7 +220,7 @@ export default function CommentForm(props: CommentFormProps) {
             render={({ field: { onChange, value } }) => (
               <FormControl variant="outlined" margin="normal" fullWidth>
                 <InputLabel id="demo-mutiple-chip-label">
-                  选择解决方式
+                  {t('Choose a solution')}
                 </InputLabel>
                 <Select
                   labelId="solved"
@@ -227,10 +230,10 @@ export default function CommentForm(props: CommentFormProps) {
                     onChange(tempId === '' ? undefined : +tempId);
                   }}
                   value={value === undefined ? '' : +value}
-                  label="选择解决方式"
+                  label={t('Choose a solution')}
                 >
-                  <MenuItem value={0}>手动标记</MenuItem>
-                  <MenuItem value={1}>短信通知</MenuItem>
+                  <MenuItem value={0}>{t('Manual tagging')}</MenuItem>
+                  <MenuItem value={1}>{t('SMS')}</MenuItem>
                 </Select>
               </FormControl>
             )}
@@ -240,10 +243,14 @@ export default function CommentForm(props: CommentFormProps) {
           <>
             {/* 通过短信处理留言 */}
             <Typography variant="subtitle1" gutterBottom>
-              通过短信处理留言
+              {t('Handling messages via SMS')}
             </Typography>
             <Typography variant="caption" display="block" gutterBottom>
-              (因政策限制，系统将把留言处理内容通过聊天消息发送给用户，并发送短信通知用户点击链接查看)
+              (
+              {t(
+                'Due to policy restrictions, the system will send the content of the message to the user through the chat message, and send a SMS notify the user to click the link to view',
+              )}
+              )
             </Typography>
           </>
         )}
@@ -255,7 +262,9 @@ export default function CommentForm(props: CommentFormProps) {
               defaultValue={0}
               render={({ field: { onChange, value } }) => (
                 <FormControl variant="outlined" margin="normal" fullWidth>
-                  <InputLabel id="demo-mutiple-chip-label">解决状态</InputLabel>
+                  <InputLabel id="demo-mutiple-chip-label">
+                    {t('Solved Status')}
+                  </InputLabel>
                   <Select
                     labelId="solved"
                     id="solved"
@@ -264,10 +273,10 @@ export default function CommentForm(props: CommentFormProps) {
                       onChange(tempId === '' ? undefined : +tempId);
                     }}
                     value={value === undefined ? '' : +value}
-                    label="解决状态"
+                    label={t('Solved Status')}
                   >
-                    <MenuItem value={0}>未解决</MenuItem>
-                    <MenuItem value={1}>已解决</MenuItem>
+                    <MenuItem value={0}>{t('Unsolved')}</MenuItem>
+                    <MenuItem value={1}>{t('Solved')}</MenuItem>
                   </Select>
                 </FormControl>
               )}
@@ -278,7 +287,9 @@ export default function CommentForm(props: CommentFormProps) {
               defaultValue={0}
               render={({ field: { onChange, value } }) => (
                 <FormControl variant="outlined" margin="normal" fullWidth>
-                  <InputLabel id="demo-mutiple-chip-label">解决方式</InputLabel>
+                  <InputLabel id="demo-mutiple-chip-label">
+                    {t('Solution')}
+                  </InputLabel>
                   <Select
                     labelId="solvedWay"
                     id="solvedWay"
@@ -287,10 +298,10 @@ export default function CommentForm(props: CommentFormProps) {
                       onChange(tempId === '' ? undefined : +tempId);
                     }}
                     value={value === undefined ? '' : +value}
-                    label="解决方式"
+                    label={t('Solution')}
                   >
-                    <MenuItem value={0}>手机</MenuItem>
-                    <MenuItem value={1}>邮件</MenuItem>
+                    <MenuItem value={0}>{t('Mobile')}</MenuItem>
+                    <MenuItem value={1}>{t('Email')}</MenuItem>
                   </Select>
                 </FormControl>
               )}
@@ -303,7 +314,7 @@ export default function CommentForm(props: CommentFormProps) {
           fullWidth
           multiline
           id="solvedMsg"
-          label="处理内容"
+          label={t('Solution content')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -321,7 +332,7 @@ export default function CommentForm(props: CommentFormProps) {
           color="primary"
           className={classes.submit}
         >
-          保存
+          {optionT('Save')}
         </Button>
       </form>
     </div>

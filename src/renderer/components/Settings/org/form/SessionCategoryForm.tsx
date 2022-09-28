@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -27,6 +28,8 @@ interface SessionCategoryFormProps {
 
 export default function SessionCategoryForm(props: SessionCategoryFormProps) {
   const { defaultValues, treeNodeProps, refetch } = props;
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -63,12 +66,16 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
           const value = selectedNodes.map((it) => it.value)[0];
           setValue('parentCategory', +value);
         }}
-        texts={{ placeholder: '选择咨询类型所属父类' }}
+        texts={{
+          placeholder: t(
+            'Select the parent class to which the consulting type belongs'
+          ),
+        }}
         className="mdl-demo"
         mode="radioSelect"
       />
     );
-  }, [setValue, treeNodeProps]);
+  }, [setValue, t, treeNodeProps]);
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -104,14 +111,16 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
         fullWidth
         autoFocus
         id="categoryName"
-        label="咨询类型名称"
+        label={t('Category name')}
         error={errors.categoryName && true}
         helperText={errors.categoryName?.message}
         {...register('categoryName', {
           required: true,
           maxLength: {
             value: 50,
-            message: '咨询类型名称长度不能大于50个字符',
+            message: t(
+              'Category name length cannot be greater than 50 characters'
+            ),
           },
         })}
       />

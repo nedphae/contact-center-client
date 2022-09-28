@@ -3,6 +3,7 @@
  * TODO: 客户信息 等的组件开发
  */
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import classNames from 'classnames';
 import SwipeableViews from 'react-swipeable-views';
@@ -28,6 +29,8 @@ function a11yProps(index: number) {
 
 export default function DetailCard() {
   const theme = useTheme();
+  const { t } = useTranslation();
+
   const [value, setValue] = useState(0);
   const style = {
     minWidth: 'calc(100% / 4)',
@@ -57,11 +60,11 @@ export default function DetailCard() {
         scrollButtons="auto"
         aria-label="scrollable prevent tabs example"
       >
-        <Tab style={style} label="客户信息" {...a11yProps(0)} />
-        <Tab style={style} label="客户轨迹" {...a11yProps(1)} />
-        <Tab style={style} label="历史会话" {...a11yProps(2)} />
-        <Tab style={style} label="快捷回复" {...a11yProps(3)} />
-        <Tab style={style} label="ERP" {...a11yProps(4)} />
+        <Tab style={style} label={t('Information')} {...a11yProps(0)} />
+        <Tab style={style} label={t('Track')} {...a11yProps(1)} />
+        <Tab style={style} label={t('History')} {...a11yProps(2)} />
+        <Tab style={style} label={t('Quick Reply')} {...a11yProps(3)} />
+        <Tab style={style} label={t('ERP')} {...a11yProps(4)} />
         {/* TODO: 后面可以做成配置型的 */}
       </Tabs>
       <SwipeableViews

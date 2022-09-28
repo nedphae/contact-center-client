@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -52,6 +54,8 @@ const MUTATION = gql`
 export default function TopicCategoryForm(props: FormProps) {
   const { defaultValues, allTopicCategoryList } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -122,7 +126,7 @@ export default function TopicCategoryForm(props: FormProps) {
                 parseInt(selectedNodes.map((it) => it.value)[0], 10)
               );
             }}
-            texts={{ placeholder: '选择上级分类' }}
+            texts={{ placeholder: t('Select a parent category') }}
             className="mdl-demo"
             mode="radioSelect"
           />
@@ -132,7 +136,7 @@ export default function TopicCategoryForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="name"
-          label="分类名称"
+          label={t('KB Category name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -145,7 +149,7 @@ export default function TopicCategoryForm(props: FormProps) {
           {...register('name', {
             maxLength: {
               value: 500,
-              message: '分类名称 长度不能大于500个字符',
+              message: t('Category name length cannot exceed 500 characters'),
             },
           })}
         />

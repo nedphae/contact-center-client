@@ -2,6 +2,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -25,10 +26,7 @@ import { Picker, BaseEmoji } from 'emoji-mart';
 import Upload from 'rc-upload';
 import { RcFile } from 'rc-upload/lib/interface';
 
-import {
-  getUploadS3ChatPath,
-  getUploadS3ChatPath,
-} from 'renderer/config/clientConfig';
+import { getUploadS3ChatPath } from 'renderer/config/clientConfig';
 import { Attachments, PhotoContent } from 'renderer/domain/Message';
 import BlacklistForm from 'renderer/components/Blacklist/BlacklistForm';
 import DraggableDialog, {
@@ -110,6 +108,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const theme = useTheme();
   const { textMessage, setMessage, selectedSession } = props;
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const blacklistInfo: BlacklistFormProp = {
     preventStrategy: 'UID',
@@ -210,7 +209,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     },
     onError(error: Error, _ret: any, _file: RcFile) {
       // console.log('onError', error);
-      onErrorMsg('图片上传失败');
+      onErrorMsg(t('Image upload failed'));
     },
   };
 
@@ -233,7 +232,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     },
     onError(error: Error, _ret: any, _file: RcFile) {
       // console.log('onError', error);
-      onErrorMsg('文件上传失败，请检查文件是否超过1MB');
+      onErrorMsg(t('File upload failed'));
     },
   };
 
@@ -264,12 +263,15 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   function sendEvaluationInvited() {
     const { userId } = selectedSession.conversation;
     dispatch(sendEvaluationInvitedMsg(userId));
-    onCompletedMsg('已发送评价邀请');
+    onCompletedMsg(t('chat.editor.tool.Rate invitation has been sent'));
   }
 
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
-      <DraggableDialog title="添加黑名单" ref={refOfDialog}>
+      <DraggableDialog
+        title={t('editor.tool.Add to blacklist')}
+        ref={refOfDialog}
+      >
         <BlacklistForm defaultValues={blacklistInfo} />
       </DraggableDialog>
       <TransferForm defaultValues={transferQuery} ref={refOfTransferDialog} />
@@ -330,7 +332,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <ImageOutlinedIcon />
         </IconButton>
       </Upload>
-      <Tooltip title="转接">
+      <Tooltip title={t('editor.tool.Transfer')}>
         <IconButton
           color="primary"
           aria-label="transfer"
@@ -345,7 +347,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <PersonAddOutlinedIcon />
         </IconButton>
       </Tooltip> */}
-      <Tooltip title="邀请评价">
+      <Tooltip title={t('editor.tool.Invite to rate')}>
         <IconButton
           color="primary"
           aria-label="evaluate"
@@ -355,12 +357,16 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <StarIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="咨询分类">
-        <IconButton aria-label="invite" size="small" onClick={handleMenuOpen}>
+      <Tooltip title={t('editor.tool.Conversation Category')}>
+        <IconButton
+          aria-label="Conversation Category"
+          size="small"
+          onClick={handleMenuOpen}
+        >
           <AssignmentTurnedInIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title="拉黑">
+      <Tooltip title={t('editor.tool.Block')}>
         <IconButton
           color="secondary"
           aria-label="evaluate"

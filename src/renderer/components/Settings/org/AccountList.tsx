@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import { useMutation, useQuery } from '@apollo/client';
@@ -16,7 +17,7 @@ import {
   AllStaffList,
   MUTATION_STAFF,
 } from 'renderer/domain/graphql/Staff';
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -27,84 +28,11 @@ import useAlert from 'renderer/hook/alert/useAlert';
 
 type Graphql = AllStaffList;
 
-export const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'username', headerName: '用户名', width: 150 },
-  { field: 'nickName', headerName: '昵称', width: 150 },
-  { field: 'realName', headerName: '实名', width: 150 },
-  {
-    field: 'role',
-    headerName: '角色',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '客服';
-      if (params.value === 'ROLE_ADMIN') {
-        result = '管理员';
-      }
-      return result;
-    },
-  },
-  {
-    field: 'staffType',
-    headerName: '客服类型',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '机器人';
-      if (params.value === 1) {
-        result = '人工';
-      }
-      return result;
-    },
-  },
-  { field: 'groupName', headerName: '组名', width: 150 },
-  {
-    field: 'gender',
-    headerName: '性别',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 0: {
-          result = '男';
-          break;
-        }
-        case 1: {
-          result = '女';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
-    },
-  },
-  { field: 'mobilePhone', headerName: '手机', width: 150 },
-  {
-    field: 'simultaneousService',
-    headerName: '同时服务数',
-    type: 'number',
-    width: 150,
-  },
-  {
-    field: 'maxTicketPerDay',
-    headerName: '每日上限（工单）',
-    type: 'number',
-    width: 150,
-  },
-  {
-    field: 'maxTicketAllTime',
-    headerName: '总上限（工单）',
-    type: 'number',
-    width: 150,
-  },
-  { field: 'personalizedSignature', headerName: '个性签名', width: 150 },
-  { field: 'enabled', headerName: '是否启用', type: 'boolean', width: 150 },
-];
-
 const defaultStaff = { staffType: 1 } as Staff;
 
-export default function AccountList() {
+export default function ist() {
+  const { t, i18n } = useTranslation();
+
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_STAFF);
   const { data: groupList } = useQuery<StaffGroupList>(QUERY_GROUP);
   const refOfDialog = useRef<DraggableDialogRef>(null);
@@ -117,7 +45,7 @@ export default function AccountList() {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (updateLoading) {
     onLoadding(updateLoading);
@@ -131,7 +59,7 @@ export default function AccountList() {
         {
           groupName: itGroup[0]?.groupName,
         },
-        it
+        it,
       );
     }
     return it;
@@ -150,23 +78,109 @@ export default function AccountList() {
   function deleteButtonClick() {
     const botMap = _.groupBy(
       rows.filter((it) => it.staffType === 0),
-      (it) => it.id
+      (it) => it.id,
     );
     const checkBot = selectionModel.flatMap((it) => botMap[it]).length > 0;
     if (checkBot) {
-      onErrorMsg('不能删除机器人，必须先删除知识库！');
+      onErrorMsg(
+        'The bot cannot be deleted, the knowledge base must be deleted first!'
+      );
     } else if (selectionModel && selectionModel.length > 0) {
       deleteStaffByIds({ variables: { ids: selectionModel } });
     }
   }
 
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: t('Id'), width: 90 },
+    { field: 'username', headerName: t('Username'), width: 150 },
+    { field: 'nickName', headerName: t('Nickname'), width: 150 },
+    { field: 'realName', headerName: t('Real name'), width: 150 },
+    {
+      field: 'role',
+      headerName: t('Role'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Staff');
+        if (params.value === 'ROLE_ADMIN') {
+          result = t('Administrator');
+        }
+        return result;
+      },
+    },
+    {
+      field: 'staffType',
+      headerName: t('Staff type'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Bot');
+        if (params.value === 1) {
+          result = t('Manual');
+        }
+        return result;
+      },
+    },
+    { field: 'groupName', headerName: t('Group name'), width: 150 },
+    {
+      field: 'gender',
+      headerName: t('Gender'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Other');
+        switch (params.value) {
+          case 0: {
+            result = t('Male');
+            break;
+          }
+          case 1: {
+            result = t('Female');
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        return result;
+      },
+    },
+    { field: 'mobilePhone', headerName: t('Mobile'), width: 150 },
+    {
+      field: 'simultaneousService',
+      headerName: t('Number of simultaneous services'),
+      type: 'number',
+      width: 150,
+    },
+    // {
+    //   field: 'maxTicketPerDay',
+    //   headerName: '每日上限（工单）',
+    //   type: 'number',
+    //   width: 150,
+    // },
+    // {
+    //   field: 'maxTicketAllTime',
+    //   headerName: '总上限（工单）',
+    //   type: 'number',
+    //   width: 150,
+    // },
+    {
+      field: 'personalizedSignature',
+      headerName: t('Signature'),
+      width: 150,
+    },
+    {
+      field: 'enabled',
+      headerName: t('Enable?'),
+      type: 'boolean',
+      width: 150,
+    },
+  ];
+
   return (
     <>
-      <DraggableDialog title="客服信息" ref={refOfDialog}>
+      <DraggableDialog title={t('Staff info')} ref={refOfDialog}>
         <StaffForm defaultValues={staff} />
       </DraggableDialog>
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{

@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useMutation, useQuery, useLazyQuery } from '@apollo/client';
 
@@ -10,7 +11,7 @@ import {
 } from '@material-ui/data-grid';
 import Button from '@material-ui/core/Button';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import { useSearchFormStyles } from 'renderer/components/SearchForm/SearchForm';
 import javaInstant2DateStr from 'renderer/utils/timeUtils';
@@ -29,16 +30,18 @@ import { Blacklist } from 'renderer/domain/Blacklist';
 
 export default function BlacklistView() {
   const classes = useSearchFormStyles();
+  const { t, i18n } = useTranslation();
+
   const [rows, setRows] = useState<Blacklist[]>([]);
   const { loading, data, refetch } = useQuery<BlacklistGraphql>(
     QUERY_BLACKLISTT,
     {
       variables: { audited: true },
-    }
+    },
   );
 
   const [getStaffByIds, { data: staffList }] = useLazyQuery<StaffListByIds>(
-    QUERY_STAFF_LIST_BY_IDS
+    QUERY_STAFF_LIST_BY_IDS,
   );
 
   const { onLoadding, onCompleted, onError } = useAlert();
@@ -65,9 +68,9 @@ export default function BlacklistView() {
         it.map((row) => ({
           ...row,
           staffName: staffList.getStaffByIds.find(
-            (staff) => staff.id === row.staffId
+            (staff) => staff.id === row.staffId,
           )?.realName,
-        }))
+        })),
       );
     }
   }, [staffList]);
@@ -95,17 +98,29 @@ export default function BlacklistView() {
             refetch();
           }}
         >
-          删除
+          {t('Delete')}
         </Button>
       );
     }
     return [
-      { field: 'preventStrategy', headerName: '黑名单类型', width: 150 },
-      { field: 'preventSource', headerName: '黑名单对象', width: 150 },
-      { field: 'staffName', headerName: '操作客服', width: 150 },
+      {
+        field: 'preventStrategy',
+        headerName: t('block-list.Block list type'),
+        width: 150,
+      },
+      {
+        field: 'preventSource',
+        headerName: t('block-list.Block target'),
+        width: 150,
+      },
+      {
+        field: 'staffName',
+        headerName: t('block-list.Operating staff'),
+        width: 150,
+      },
       {
         field: 'effectiveTime',
-        headerName: '有效期开始时间',
+        headerName: t('block-list.Validity start time'),
         width: 180,
         valueGetter: (params: GridValueGetterParams) => {
           return params.value
@@ -115,7 +130,7 @@ export default function BlacklistView() {
       },
       {
         field: 'failureTime',
-        headerName: '有效期结束时间',
+        headerName: t('block-list.Validity end time'),
         width: 180,
         valueGetter: (params: GridValueGetterParams) => {
           return params.value
@@ -125,17 +140,17 @@ export default function BlacklistView() {
       },
       {
         field: 'button',
-        headerName: '操作',
+        headerName: t('Operate'),
         minWidth: 150,
         renderCell: DeleteButton,
       },
     ] as GridColDef[];
-  }, [classes.button, deleteBlacklist, refetch]);
+  }, [classes.button, deleteBlacklist, refetch, t]);
 
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{

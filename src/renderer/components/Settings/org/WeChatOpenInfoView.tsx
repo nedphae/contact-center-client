@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -11,7 +12,7 @@ import {
   GridValueGetterParams,
 } from '@material-ui/data-grid';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
@@ -50,6 +51,7 @@ const QUERY_SHUNT = gql`
 
 export default function WeChatOpenInfoView() {
   const mySelf = useAppSelector(getMyself);
+  const { t, i18n } = useTranslation();
 
   const [weChatOpenInfo, setWeChatOpenInfo] = useState<WeChatOpenInfo>();
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
@@ -106,19 +108,23 @@ export default function WeChatOpenInfoView() {
 
     return [
       // { field: 'id', headerName: 'ID', width: 90 },
-      { field: 'nickName', headerName: '微信公众号', width: 250 },
+      {
+        field: 'nickName',
+        headerName: t('WeChat Official Accounts'),
+        width: 250,
+      },
       {
         field: 'enable',
-        headerName: '状态',
+        headerName: t('State'),
         width: 250,
         valueGetter: (params: GridValueGetterParams) => {
           const enable = params.value;
-          return enable ? '启用' : '停用';
+          return enable ? t('Enabled') : t('Disabled');
         },
       },
       {
         field: 'bindingTime',
-        headerName: '绑定时间',
+        headerName: t('Binding time'),
         width: 250,
         valueGetter: (params: GridValueGetterParams) => {
           return params.value
@@ -128,7 +134,7 @@ export default function WeChatOpenInfoView() {
       },
       {
         field: 'operation',
-        headerName: '操作',
+        headerName: t('Operate'),
         width: 250,
         renderCell: function ColorIcon(params: GridCellParams) {
           const { row } = params;
@@ -143,7 +149,7 @@ export default function WeChatOpenInfoView() {
                   return false;
                 }}
               >
-                关联到接待组
+                {t('Associate to shunt')}
               </Button>
               <Button
                 size="medium"
@@ -153,7 +159,7 @@ export default function WeChatOpenInfoView() {
                   return false;
                 }}
               >
-                {cellWeChatOpenInfo.enable ? '停用' : '启用'}
+                {cellWeChatOpenInfo.enable ? t('Disable') : t('Enable')}
               </Button>
               <Button
                 size="medium"
@@ -163,18 +169,18 @@ export default function WeChatOpenInfoView() {
                   return false;
                 }}
               >
-                解绑
+                {t('Unbind')}
               </Button>
             </ButtonGroup>
           );
         },
       },
     ];
-  }, [refetch, updateWeChatOpenInfo]);
+  }, [refetch, t, updateWeChatOpenInfo]);
 
   return (
     <>
-      <DraggableDialog title="关联接待组" ref={refOfDialog}>
+      <DraggableDialog title={t('Associate to shunt')} ref={refOfDialog}>
         <WeChatOpenInfoForm
           defaultValues={weChatOpenInfo}
           refetch={refetch}
@@ -191,12 +197,12 @@ export default function WeChatOpenInfoView() {
             );
           }}
         >
-          绑定公众号
+          {t('Bind the WeChat Official Accounts')}
         </Button>
         {/* <Button>绑定小程序</Button> */}
       </ButtonGroup>
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{

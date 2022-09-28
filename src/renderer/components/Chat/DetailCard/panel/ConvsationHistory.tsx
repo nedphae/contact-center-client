@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -73,6 +74,8 @@ page.properties = ['id'];
 
 export default function ConvsationHistory() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const user = useSelector(getSelectedConstomer);
   const [selectedId, setSelectedId] = useState<SelectedType>('');
   const [searchConv, { data }] = useLazyQuery<Graphql>(QUERY);
@@ -104,14 +107,14 @@ export default function ConvsationHistory() {
           <div className={classes.grow} />
           <FormControl variant="outlined" margin="normal" fullWidth>
             <InputLabel id="demo-simple-select-outlined-label">
-              选择会话 最近的20条会话
+              {t('Choose 20 recent sessions')}
             </InputLabel>
             <Select
               labelId="demo-simple-select-outlined-label"
               id="demo-simple-select-outlined"
               value={selectedId}
               onChange={handleChange}
-              label="选择会话 最近的20条会话"
+              label={t('Choose 20 recent sessions')}
             >
               {rows &&
                 rows.map((conv, index) => (

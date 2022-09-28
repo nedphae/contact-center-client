@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -17,6 +18,8 @@ interface AddQuickReplyProps {
 
 export default function AddQuickReply(prop: AddQuickReplyProps) {
   const { quickReplyDto, refetch } = prop;
+  const { t } = useTranslation();
+
   const [group, setGroup] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>(undefined);
   const openMenu = Boolean(anchorEl);
@@ -48,7 +51,6 @@ export default function AddQuickReply(prop: AddQuickReplyProps) {
         PaperProps={{
           style: {
             maxHeight: ITEM_HEIGHT * 4.5,
-            width: '20ch',
           },
         }}
       >
@@ -59,7 +61,7 @@ export default function AddQuickReply(prop: AddQuickReplyProps) {
             setOpen(true);
           }}
         >
-          添加快捷回复分组
+          {t('Add Quick Reply Group')}
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -68,7 +70,7 @@ export default function AddQuickReply(prop: AddQuickReplyProps) {
             setOpen(true);
           }}
         >
-          添加快捷回复
+          {t('Add Quick Reply')}
         </MenuItem>
       </Menu>
       {group ? (

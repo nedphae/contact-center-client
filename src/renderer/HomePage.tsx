@@ -40,37 +40,9 @@ import RTL from './layouts/RTL';
 import Auth from './layouts/Auth';
 // import useApolloClient from './hook/init/useApolloClient';
 import apolloClient from './utils/apolloClient';
-import routes from './routes';
+import useRoutes from './useRoutes';
 
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
-
-const switchRoutes = routes.map((prop) => {
-  if (prop.layout === '/admin') {
-    return (
-      <Route
-        path={prop.layout + prop.path}
-        element={(
-          <Authorized
-            authority={['admin', 'staff', 'leader', 'qa']}
-            noMatch={<Navigate to="/login" />}
-          >
-            <Suspense
-              fallback={(
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={50} thickness={4} value={100} />
-                </div>
-              )}
-            >
-              <prop.component />
-            </Suspense>
-          </Authorized>
-        )}
-        key={prop.layout + prop.path}
-      />
-    );
-  }
-  return null;
-});
 
 const keyMap = {
   // 关闭当前会话(隐藏)
@@ -129,6 +101,36 @@ const Root = ({ store, history }: Props) => {
         : createTheme(),
     [mode]
   );
+
+  const routes = useRoutes();
+  const switchRoutes = routes.map((prop) => {
+    if (prop.layout === '/admin') {
+      return (
+        <Route
+          path={prop.layout + prop.path}
+          element={(
+            <Authorized
+              authority={['admin', 'staff', 'leader', 'qa']}
+              noMatch={<Navigate to="/login" />}
+            >
+              <Suspense
+                fallback={(
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <CircularProgress size={50} thickness={4} value={100} />
+                  </div>
+                )}
+              >
+                <prop.component />
+              </Suspense>
+            </Authorized>
+          )}
+          key={prop.layout + prop.path}
+        />
+      );
+    }
+    return null;
+  });
+
   // check login
   return (
     <Provider store={store}>

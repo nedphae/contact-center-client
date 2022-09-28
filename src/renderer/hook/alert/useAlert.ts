@@ -1,6 +1,7 @@
 import { useMemo, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { debounceTime, Subject } from 'rxjs';
+import { useTranslation } from 'react-i18next';
 
 import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { ApolloError } from '@apollo/client';
@@ -20,6 +21,7 @@ interface Result {
  */
 const useAlert = (): Result => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const subjectSearchText = useMemo(() => {
     // 提供一定的延迟，防止同时刷新不同 UI 组件
@@ -45,7 +47,7 @@ const useAlert = (): Result => {
   const onCompletedMsg = (message?: string) => {
     subjectSearchText.next({
       open: true,
-      message: message ?? '操作成功',
+      message: message ?? 'Success',
       severity: 'success',
       autoHideDuration: 6000,
     });
@@ -54,14 +56,14 @@ const useAlert = (): Result => {
   const onErrorMsg = (message?: string) => {
     subjectSearchText.next({
       open: true,
-      message: message ?? '操作失败',
+      message: message ?? 'Fail',
       severity: 'error',
       autoHideDuration: 6000,
     });
   };
 
   const onError = (error: ApolloError) =>
-    onErrorMsg(`出现错误: ${error.message}`);
+    onErrorMsg(`${t('Error')}: ${error.message}`);
 
   useEffect(() => {
     return () => {

@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
 import { ColorResult, SketchPicker } from 'react-color';
@@ -36,6 +36,8 @@ interface FormProps {
 
 export default function CustomerTagForm(props: FormProps) {
   const { defaultValues, refetch } = props;
+  const { t } = useTranslation();
+
   const classes = useStyles();
   const { handleSubmit, register, control } = useForm<CustomerTag>({
     defaultValues,
@@ -71,7 +73,7 @@ export default function CustomerTagForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="name"
-          label="标签名称"
+          label={t('Tag name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -80,10 +82,10 @@ export default function CustomerTagForm(props: FormProps) {
             ),
           }}
           {...register('name', {
-            required: '必须设置标签名称',
+            required: t('Tag name must be set'),
             maxLength: {
               value: 50,
-              message: '标签名称不能大于50位',
+              message: t('Tag name cannot be greater than 50 characters'),
             },
           })}
         />

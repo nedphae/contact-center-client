@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/jsx-props-no-spreading */
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -85,6 +86,9 @@ export default function CommentAndEvaluateConfig(
   prop: CommentAndEvaluateConfigProp
 ) {
   const { props, refetch } = prop;
+  const { t } = useTranslation();
+  const { t: optionT } = useTranslation();
+
   const configJson = (props as unknown as { configJson: Properties })
     ?.configJson;
   const classes = useStyles();
@@ -153,95 +157,95 @@ export default function CommentAndEvaluateConfig(
         <Grid container spacing={4}>
           <Grid item sm={6} xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              留言展示文本配置
+              {t('Message display text configuration')}
             </Typography>
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="标题"
+              label={t('Title')}
               {...register('comment.title')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="姓名"
+              label={t('Name')}
               {...register('comment.nameText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="手机"
+              label={t('Mobile')}
               {...register('comment.mobileText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="邮箱"
+              label={t('Email')}
               {...register('comment.emailText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="留言内容"
+              label={t('Message content')}
               {...register('comment.messageText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="请输入"
+              label={t('Please enter')}
               {...register('comment.placeholder')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="取消"
+              label={t('Cancel')}
               {...register('comment.cancleBtnText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="提交"
+              label={t('Submit')}
               {...register('comment.submitBtnText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="留言提交成功"
+              label={t('Message submitted successfully')}
               {...register('comment.successMsg')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="留言为空"
+              label={t('Message content is empty')}
               {...register('comment.failMsg')}
             />
           </Grid>
           <Grid item sm={6} xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              评价展示文本配置
+              {t('Rate display text configuration')}
             </Typography>
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="标题"
+              label={t('Title')}
               {...register('evaluate.title')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="满意度"
+              label={t('Satisfaction')}
               {...register('evaluate.evaluationOptionsText')}
             />
             <Paper variant="outlined" square className={classes.paper}>
@@ -251,7 +255,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="非常满意"
+                    label={t('Very satisfied')}
                     {...register('evaluate.evaluationOptions.eval_100')}
                   />
                 </Grid>
@@ -260,7 +264,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="满意"
+                    label={t('Satisfied')}
                     {...register('evaluate.evaluationOptions.eval_75')}
                   />
                 </Grid>
@@ -269,7 +273,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="一般"
+                    label={t('Neutral')}
                     {...register('evaluate.evaluationOptions.eval_50')}
                   />
                 </Grid>
@@ -278,7 +282,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="不满意"
+                    label={t('Unsatisfied')}
                     {...register('evaluate.evaluationOptions.eval_25')}
                   />
                 </Grid>
@@ -287,7 +291,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="非常不满意"
+                    label={t('Very Unsatisfied')}
                     {...register('evaluate.evaluationOptions.eval_1')}
                   />
                 </Grid>
@@ -297,14 +301,14 @@ export default function CommentAndEvaluateConfig(
               variant="outlined"
               margin="normal"
               fullWidth
-              label="评价内容"
+              label={t('Rate content')}
               {...register('evaluate.evaluationRemarkText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="解决状态"
+              label={t('Solved Status')}
               {...register('evaluate.userResolvedStatusText')}
             />
             <Paper variant="outlined" square className={classes.paper}>
@@ -314,7 +318,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="已解决"
+                    label={t('Solved')}
                     {...register('evaluate.userResolvedOptions.status_1')}
                   />
                 </Grid>
@@ -323,7 +327,7 @@ export default function CommentAndEvaluateConfig(
                     variant="outlined"
                     margin="normal"
                     fullWidth
-                    label="未解决"
+                    label={t('Unsolved')}
                     {...register('evaluate.userResolvedOptions.status_2')}
                   />
                 </Grid>
@@ -333,28 +337,28 @@ export default function CommentAndEvaluateConfig(
               variant="outlined"
               margin="normal"
               fullWidth
-              label="请输入"
+              label={t('Please enter')}
               {...register('evaluate.placeholder')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="取消"
+              label={t('Cancel')}
               {...register('evaluate.cancleBtnText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="提交"
+              label={t('Submit')}
               {...register('evaluate.submitBtnText')}
             />
             <TextField
               variant="outlined"
               margin="normal"
               fullWidth
-              label="评价感谢语"
+              label={t('Thanks for your rate')}
               {...register('evaluate.thanks')}
             />
           </Grid>
@@ -372,7 +376,7 @@ export default function CommentAndEvaluateConfig(
                   reset(defaultValues);
                 }}
               >
-                重置
+                {optionT('Reset')}
               </Button>
             </div>
           </Grid>

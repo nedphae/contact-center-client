@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
@@ -96,6 +97,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
     selectTC,
   } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const handleContextMenuOpen = (
     event: React.MouseEvent<HTMLLIElement>,
@@ -138,7 +140,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
             <StyledTreeItem
               key={base.id?.toString()}
               nodeId={`knowledgeBase-${base.id}`}
-              label={
+              label={(
                 <ListItem component="ul">
                   <ListItemIcon>
                     <LibraryBooksIcon fontSize="small" />
@@ -163,7 +165,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
                           botConfigMap[base.id]
                             ? staffMap[botConfigMap[base.id][0]?.botId ?? -2]
                                 ?.realName
-                            : '未关联到机器人账号'}
+                            : t('Not associate to robot account')}
                         </Typography>
                         <Divider
                           orientation="vertical"
@@ -181,7 +183,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
                     )}
                   />
                 </ListItem>
-              }
+              )}
               onContextMenu={(event) =>
                 handleContextMenuOpen(event, 'Knowladge', base)
               }

@@ -1,6 +1,5 @@
 import { KnowledgeBase, TopicCategory } from 'renderer/domain/Bot';
 import unimplemented from 'renderer/utils/Error';
-import React from 'react';
 import KnowledgeBaseForm from './KnowledgeBaseForm';
 import TopicCategoryForm from './TopicCategoryForm';
 

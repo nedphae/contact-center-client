@@ -2,6 +2,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { useForm, SubmitHandler, Controller, Control } from 'react-hook-form';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -85,6 +86,8 @@ export default function SearchForm(props: FormProps) {
     customerForm,
   } = props;
   const classes = useSearchFormStyles();
+  const { t } = useTranslation();
+
   const { handleSubmit, register, reset, control, getValues, setValue } =
     useForm<FormType>({
       defaultValues: currentValues,
@@ -118,7 +121,7 @@ export default function SearchForm(props: FormProps) {
             <div className={classes.root}>
               <TextField
                 id="standard-basic"
-                label="关键字"
+                label={t('Keyword')}
                 {...register('keyword')}
               />
               <Controller
@@ -134,7 +137,7 @@ export default function SearchForm(props: FormProps) {
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                       />
                     }
-                    label="时间"
+                    label={t('Time Range')}
                   />
                 )}
               />
@@ -148,7 +151,7 @@ export default function SearchForm(props: FormProps) {
                     format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"
                     id="date-picker-inline"
-                    label="开始时间"
+                    label={t('Start time')}
                     value={value}
                     onChange={(d) => {
                       if (d) {
@@ -172,7 +175,7 @@ export default function SearchForm(props: FormProps) {
                     format="yyyy-MM-dd HH:mm:ss"
                     margin="normal"
                     id="date-picker-inline"
-                    label="结束时间"
+                    label={t('End Time')}
                     value={value}
                     onChange={(d) => {
                       if (d) {
@@ -198,7 +201,7 @@ export default function SearchForm(props: FormProps) {
                 reset(defaultValues);
               }}
             >
-              重置
+              {t('Reset')}
             </Button>
             <Button
               type="submit"
@@ -208,7 +211,7 @@ export default function SearchForm(props: FormProps) {
               startIcon={<SearchIcon />}
               aria-label="submit"
             >
-              搜索
+              {t('Search')}
             </Button>
             <IconButton
               className={clsx(classes.expand, {

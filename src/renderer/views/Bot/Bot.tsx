@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -24,7 +25,7 @@ import {
   GridValueGetterParams,
 } from '@material-ui/data-grid';
 import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import TopicForm from 'renderer/components/Bot/TopicForm';
 import BotSidecar from 'renderer/components/Bot/BotSidecar';
 import 'renderer/assets/css/DropdownTreeSelect.global.css';
@@ -37,7 +38,7 @@ const useStyles = makeStyles(() =>
     root: {
       flexGrow: 1,
     },
-  })
+  }),
 );
 
 interface BotGraphql {
@@ -106,97 +107,6 @@ const QUERY_BOTS = gql`
   }
 `;
 
-const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 200 },
-  { field: 'knowledgeBaseName', headerName: '所属知识库', width: 200 },
-  { field: 'categoryName', headerName: '知识点所属分类', width: 200 },
-  { field: 'question', headerName: '问题', width: 250 },
-  {
-    field: 'answer',
-    headerName: '问题的对外答案',
-    width: 250,
-    valueGetter: (params: GridValueGetterParams) => {
-      const answer = params.value as Answer[] | undefined;
-      let viewText = '';
-      if (answer) {
-        if (answer[2]?.content) {
-          viewText = '[富文本]';
-        }
-        if (answer[1]?.content) {
-          viewText = '[图片]';
-        }
-        if (answer[0]?.content) {
-          viewText = answer[0]?.content;
-        }
-      }
-      return viewText;
-    },
-  },
-  { field: 'innerAnswer', headerName: '问题的对内答案', width: 250 },
-  {
-    field: 'fromType',
-    headerName: '问题的来源',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 0: {
-          result = '用户手动添加';
-          break;
-        }
-        case 1: {
-          result = '文件导入';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
-    },
-  },
-  {
-    field: 'type',
-    headerName: '问题类型',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 1: {
-          result = '标准问题';
-          break;
-        }
-        case 2: {
-          result = '相似问题';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
-    },
-  },
-  {
-    field: 'refList',
-    headerName: '相似问题',
-    width: 250,
-    valueGetter: (params: GridValueGetterParams) => {
-      const refList = params.value as RefQuestion[] | undefined;
-      return refList?.map((refQ) => refQ.question);
-    },
-  },
-  {
-    field: 'enabled',
-    headerName: '是否有效标记位',
-    width: 150,
-    type: 'boolean',
-  },
-  { field: 'effectiveTime', headerName: '问题的有效时间', width: 200 },
-  { field: 'failureTime', headerName: '有效期结束', width: 150 },
-  { field: 'md5', headerName: '问题的md5', width: 150 },
-];
-
 const MUTATION_TOPIC = gql`
   mutation DeleteTopic($ids: [String!]!) {
     deleteTopicByIds(ids: $ids)
@@ -209,6 +119,8 @@ const defaultValue: TopicFilterInput = {
 
 export default function Bot() {
   const classes = useStyles();
+  const { t, i18n } = useTranslation();
+
   const refOfTopicDialog = useRef<DraggableDialogRef>(null);
   const [topic, setTopic] = useState<Topic>();
   const [topicFilterInput, setTopicFilterInput] =
@@ -233,7 +145,7 @@ export default function Bot() {
     {
       onCompleted,
       onError,
-    }
+    },
   );
   if (deleteLoading) {
     onLoadding(deleteLoading);
@@ -283,7 +195,7 @@ export default function Bot() {
       const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
       const topicCategoryGroup = _.groupBy(
         topicData?.searchTopic,
-        'categoryId'
+        'categoryId',
       );
 
       const pTopicCategory = allTopicCategory
@@ -296,7 +208,7 @@ export default function Bot() {
 
       const topicCategoryKnowledgeBaseGroup = _.groupBy(
         pTopicCategory,
-        'knowledgeBaseId'
+        'knowledgeBaseId',
       );
       const memoAllKnowledgeBase = allKnowledgeBase.map((it) => {
         const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
@@ -335,7 +247,7 @@ export default function Bot() {
   const onTopicCategoryClick = useCallback(
     (clickTopicCategory?: TopicCategory) => {
       function getAllTopicCategoryIds(
-        topicCategory?: TopicCategory
+        topicCategory?: TopicCategory,
       ): number[] | undefined {
         if (topicCategory) {
           const ids: number[] = [];
@@ -361,22 +273,117 @@ export default function Bot() {
       // TOOD: 更新数据，实现远程过滤
       // setTopicFilterInput({ ...topicFilterInput, categoryIds: ids });
     },
-    []
+    [],
   );
 
   const rows =
     memoData?.memoAllTopic?.filter(
       (it) =>
         selectTopicCategory === undefined ||
-        selectTopicCategory.includes(it.categoryId ?? -1)
+        selectTopicCategory.includes(it.categoryId ?? -1),
     ) ?? [];
 
   const allTopicData =
     allTopicCache?.filter(
       (it) =>
         selectTopicCategory === undefined ||
-        selectTopicCategory.includes(it.categoryId ?? -1)
+        selectTopicCategory.includes(it.categoryId ?? -1),
     ) ?? [];
+
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: t('Id'), width: 200 },
+    {
+      field: 'knowledgeBaseName',
+      headerName: t('Affiliated Knowledge Base'),
+      width: 200,
+    },
+    { field: 'categoryName', headerName: t('Affiliated Category'), width: 200 },
+    { field: 'question', headerName: t('Question'), width: 250 },
+    {
+      field: 'answer',
+      headerName: t('External answer'),
+      width: 250,
+      valueGetter: (params: GridValueGetterParams) => {
+        const answer = params.value as Answer[] | undefined;
+        let viewText = '';
+        if (answer) {
+          if (answer[2]?.content) {
+            viewText = `[${t('Rich text')}]`;
+          }
+          if (answer[1]?.content) {
+            viewText = `[${t('Image')}]`;
+          }
+          if (answer[0]?.content) {
+            viewText = answer[0]?.content;
+          }
+        }
+        return viewText;
+      },
+    },
+    { field: 'innerAnswer', headerName: t('Internal answers'), width: 250 },
+    {
+      field: 'fromType',
+      headerName: t('Source of the question'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Other');
+        switch (params.value) {
+          case 0: {
+            result = t('User manually added');
+            break;
+          }
+          case 1: {
+            result = t('File import');
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        return result;
+      },
+    },
+    {
+      field: 'type',
+      headerName: t('Question type'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Other');
+        switch (params.value) {
+          case 1: {
+            result = t('Standard question');
+            break;
+          }
+          case 2: {
+            result = t('Similar question');
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        return result;
+      },
+    },
+    {
+      field: 'refList',
+      headerName: t('Similar question'),
+      width: 250,
+      valueGetter: (params: GridValueGetterParams) => {
+        const refList = params.value as RefQuestion[] | undefined;
+        return refList?.map((refQ) => refQ.question);
+      },
+    },
+    {
+      field: 'enabled',
+      headerName: t('Effective'),
+      width: 150,
+      type: 'boolean',
+    },
+    { field: 'effectiveTime', headerName: t('Validity time'), width: 200 },
+    { field: 'failureTime', headerName: t('Validity ends'), width: 150 },
+    { field: 'md5', headerName: t('MD5 of the question'), width: 150 },
+  ];
 
   return (
     <>
@@ -422,7 +429,7 @@ export default function Bot() {
             }}
           />
           <DataGrid
-            localeText={GRID_DEFAULT_LOCALE_TEXT}
+            localeText={gridLocaleTextMap.get(i18n.language)}
             rows={rows}
             columns={columns}
             components={{

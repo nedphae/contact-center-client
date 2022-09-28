@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import { useMutation } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Menu, MenuItem } from '@material-ui/core';
@@ -13,7 +14,11 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ReplyIcon from '@material-ui/icons/Reply';
-import { QuickReply, QuickReplyDto, QuickReplyGroup } from 'renderer/domain/Chat';
+import {
+  QuickReply,
+  QuickReplyDto,
+  QuickReplyGroup,
+} from 'renderer/domain/Chat';
 import {
   MUTATION_DELETE_QUICK_REPLY,
   MUTATION_DELETE_QUICK_REPLY_GROUP,
@@ -48,6 +53,8 @@ type Form = QuickReply | QuickReplyGroup;
 export default function NestedList(prop: NestedListProps) {
   const { quickReplyDto, refetch } = prop;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const [open, setOpen] = useState(-1);
   const [openForm, setOpenForm] = useState<boolean>(false);
   const [state, setState] = useState<{
@@ -118,7 +125,7 @@ export default function NestedList(prop: NestedListProps) {
             setStateWithData();
           }}
         >
-          修改分组
+          {t('Edit Group')}
         </MenuItem>
       );
       menuList.push(
@@ -137,7 +144,7 @@ export default function NestedList(prop: NestedListProps) {
             }
           }}
         >
-          删除分组
+          {t('Delete Group')}
         </MenuItem>
       );
     } else {
@@ -149,7 +156,7 @@ export default function NestedList(prop: NestedListProps) {
             setOpenForm(true);
           }}
         >
-          修改快捷回复
+          {t('Edit Quick Reply')}
         </MenuItem>
       );
       menuList.push(
@@ -168,7 +175,7 @@ export default function NestedList(prop: NestedListProps) {
             }
           }}
         >
-          删除快捷回复
+          {t('Delete Quick Reply')}
         </MenuItem>
       );
     }

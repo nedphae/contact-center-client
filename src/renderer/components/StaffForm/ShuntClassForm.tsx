@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -38,6 +39,8 @@ interface FormProps {
 export default function ShuntClassForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
     shouldUnregister: true,
@@ -75,7 +78,7 @@ export default function ShuntClassForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="className"
-          label="分类名称"
+          label={t('KB Category name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -84,10 +87,10 @@ export default function ShuntClassForm(props: FormProps) {
             ),
           }}
           {...register('className', {
-            required: '必须设置分类名称',
+            required: t('Category name must be set'),
             maxLength: {
               value: 50,
-              message: '分类名称不能大于50位',
+              message: t('Category name cannot exceed 50 characters'),
             },
           })}
         />

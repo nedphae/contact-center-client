@@ -1,10 +1,15 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { TFunction, useTranslation } from 'react-i18next';
+
 import { useDispatch, useSelector } from 'react-redux';
 import Snackbar, { SnackbarCloseReason } from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
-import { getSnackbarProp, setSnackbarProp } from 'renderer/state/chat/chatAction';
+import {
+  getSnackbarProp,
+  setSnackbarProp,
+} from 'renderer/state/chat/chatAction';
 import { CircularProgress } from '@material-ui/core';
 import { SnackbarProp } from 'renderer/domain/Chat';
 
@@ -22,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getBySnackbarProp(
+  t: TFunction<'notification', undefined>,
   snackbarProp: SnackbarProp,
   onClose?: (event: React.SyntheticEvent) => void
 ) {
@@ -30,7 +36,7 @@ function getBySnackbarProp(
   }
   return (
     <Alert onClose={onClose} severity={snackbarProp.severity}>
-      {snackbarProp.message}
+      {!!snackbarProp.message && t(snackbarProp.message)}
     </Alert>
   );
 }
@@ -39,6 +45,7 @@ export default function DefaultSnackbar() {
   const classes = useStyles();
   const snackbarProp = useSelector(getSnackbarProp);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const handleClose = (
     _event: React.SyntheticEvent<Element, Event>,
@@ -60,7 +67,7 @@ export default function DefaultSnackbar() {
             autoHideDuration={snackbarProp.autoHideDuration}
             onClose={handleClose}
           >
-            {getBySnackbarProp(snackbarProp, handleClose)}
+            {getBySnackbarProp(t, snackbarProp, handleClose)}
           </Snackbar>
         </div>
       )}

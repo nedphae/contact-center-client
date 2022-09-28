@@ -1,3 +1,5 @@
+import i18n from 'i18next';
+
 import { AppThunk, RootState } from 'renderer/store';
 import { getCurrentStaff } from 'renderer/service/infoService';
 import Staff, { configStatus } from 'renderer/domain/StaffInfo';
@@ -39,7 +41,7 @@ export const setUserAsync =
     async (dispatch, getState) => {
     // substring 用于清除 ROLE_ 前缀
       setAuthority(
-        token.authorities.map((role) => role.substring(5).toLowerCase()),
+      token.authorities.map((role) => role.substring(5).toLowerCase())
     );
       try {
       // dispatch() dispatch 等待动画

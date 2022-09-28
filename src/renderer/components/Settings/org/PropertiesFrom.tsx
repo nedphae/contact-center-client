@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -57,6 +56,7 @@ type FormResult = {
 export default function PropertiesFrom(props: FormProps) {
   const { defaultValues, properties4Set, allProperties4Set, refetch } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const allDefaultProperties = allProperties4Set.map((p4s) => {
     const properties = _.at(defaultValues, p4s)[0];
@@ -121,7 +121,7 @@ export default function PropertiesFrom(props: FormProps) {
                     margin="normal"
                     fullWidth
                     multiline
-                    label={childProp.label}
+                    label={t(childProp.label)}
                     id={`${properties4Set}.${childProp.id}.value`}
                     {...register(`props.${index}.value`)}
                   />

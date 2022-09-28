@@ -17,7 +17,7 @@ import AdminNavbarLinks from "../Navbars/AdminNavbarLinks";
 import RTLNavbarLinks from "../Navbars/RTLNavbarLinks";
 
 import styles from "../../assets/jss/material-dashboard-react/components/sidebarStyle";
-import { RouteType } from "renderer/routes";
+import { RouteType } from "renderer/useRoutes";
 import { checkPermissions } from "../Authorized/CheckPermissions";
 import { CURRENT } from "../Authorized/renderAuthorize";
 

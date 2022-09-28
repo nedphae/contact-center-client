@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import Fuse from 'fuse.js';
 import { from, of, zip } from 'rxjs';
 import { groupBy, mergeMap, toArray, map } from 'rxjs/operators';
+import { useTranslation } from 'react-i18next';
 
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -13,7 +14,10 @@ import { AppBar, Box, IconButton, Toolbar } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
 import useInitData from 'renderer/hook/init/useInitData';
-import { getFilterQuickReply, getQuickReply } from 'renderer/state/chat/chatAction';
+import {
+  getFilterQuickReply,
+  getQuickReply,
+} from 'renderer/state/chat/chatAction';
 import { QuickReplyDto } from 'renderer/domain/Chat';
 import { noGroupOptions } from 'renderer/utils/fuseUtils';
 
@@ -60,6 +64,8 @@ const useStyles = makeStyles(() =>
 // useInitData 会触发 redux，TODO: 待修复
 export default function QuickReply() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [serarchText, setSerarchText] = useState('');
   const quickReplyList = useSelector(getQuickReply);
@@ -68,19 +74,19 @@ export default function QuickReply() {
 
   const optionFun = [
     {
-      name: '全部',
+      name: t('All'),
       run: () => {
         setSelectedIndex(0);
       },
     },
     {
-      name: '个人',
+      name: t('Personal'),
       run: () => {
         setSelectedIndex(1);
       },
     },
     {
-      name: '企业',
+      name: t('Company'),
       run: () => {
         setSelectedIndex(2);
       },
@@ -198,7 +204,7 @@ export default function QuickReply() {
             <InputBase
               className={classes.input}
               value={serarchText}
-              placeholder="搜索快捷回复"
+              placeholder={t('Search Quick Reply')}
               onChange={handleTextChange}
               inputProps={{ 'aria-label': 'search quick replies' }}
             />

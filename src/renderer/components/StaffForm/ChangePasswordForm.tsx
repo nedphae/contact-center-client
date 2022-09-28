@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
+
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -50,6 +52,8 @@ type PasswordChangerWithRepeat = Object.Merge<
 export default function ChangePasswordForm(props: FormProps) {
   const { id } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -94,7 +98,7 @@ export default function ChangePasswordForm(props: FormProps) {
           fullWidth
           id="oldPassword"
           type="password"
-          label="旧密码"
+          label={t('Old Password')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -111,7 +115,7 @@ export default function ChangePasswordForm(props: FormProps) {
           fullWidth
           id="newPassword"
           type="password"
-          label="新密码"
+          label={t('New Password')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -124,15 +128,19 @@ export default function ChangePasswordForm(props: FormProps) {
           {...register('newPassword', {
             maxLength: {
               value: 50,
-              message: '密码不能大于50位',
+              message: t(
+                'Password length cannot be greater than 50 characters'
+              ),
             },
             minLength: {
               value: 8,
-              message: '密码至少8位',
+              message: t('Password length must be at least 8 characters'),
             },
             pattern: {
               value: /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$).{8,50}$/,
-              message: '密码必须包含 数字、字母、特殊字符 中两种或以上',
+              message: t(
+                'Password must contain two or more of numbers, letters and special characters'
+              ),
             },
           })}
         />
@@ -142,7 +150,7 @@ export default function ChangePasswordForm(props: FormProps) {
           fullWidth
           id="password_repeat"
           type="password"
-          label="确认密码"
+          label={t('Confirm Password')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -153,7 +161,7 @@ export default function ChangePasswordForm(props: FormProps) {
           error={errors.password_repeat && true}
           helperText={errors.password_repeat?.message}
           {...register('password_repeat', {
-            validate: (value) => value === password || '密码不相符',
+            validate: (value) => value === password || t('Password does not match'),
           })}
         />
         <div className={classes.wrapper}>
@@ -164,7 +172,7 @@ export default function ChangePasswordForm(props: FormProps) {
             // type="submit"
             onClick={handleSubmit(onSubmit)}
           >
-            保存
+            {t('Save')}
           </Button>
         </div>
       </form>

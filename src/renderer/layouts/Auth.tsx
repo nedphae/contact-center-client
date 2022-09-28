@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
+import { useTranslation, Trans } from 'react-i18next';
+
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -38,6 +40,7 @@ import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import { saveOnlineStatus } from 'renderer/electron/jwtStorage';
 import logo from 'renderer/assets/img/logo.ico';
 import { green } from '@material-ui/core/colors';
+import LanguageSwitcher from 'renderer/components/LanguageSwitcher/LanguageSwitcher';
 
 function Copyright() {
   return (
@@ -90,7 +93,7 @@ interface NumberFormatCustomProps {
 }
 
 function NumberFormatCustom(props: NumberFormatCustomProps) {
-  const { inputRef, onChange, ...other } = props;
+  const { inputRef, onChange, name, ...other } = props;
 
   return (
     <NumberFormat
@@ -99,7 +102,7 @@ function NumberFormatCustom(props: NumberFormatCustomProps) {
       onValueChange={(values) => {
         onChange({
           target: {
-            name: props.name,
+            name,
             value: values.value,
           },
         });
@@ -123,6 +126,7 @@ export default function Auth() {
   const dispatch = useDispatch();
   const classes = useStyles();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { savedToken } = useAutoLogin(true);
   const {
@@ -161,7 +165,7 @@ export default function Auth() {
         navigate('/');
       } catch (ex) {
         setSigning(false);
-        setError('登录失败，请检查用户名或密码');
+        setError(t('Login failed, please check your username or password'));
       }
     }
   };
@@ -208,7 +212,7 @@ export default function Auth() {
             required
             fullWidth
             id="org"
-            label="机构ID"
+            label={t('Organization Id')}
             autoFocus
             InputProps={{
               inputComponent: NumberFormatCustom as any,
@@ -217,7 +221,10 @@ export default function Auth() {
             error={errors.org_id && true}
             helperText={errors.org_id?.message}
             {...register('org_id', {
-              required: { value: true, message: '机构ID必填' },
+              required: {
+                value: true,
+                message: t('Plaese enter a organization Id'),
+              },
               maxLength: 50,
             })}
           />
@@ -227,12 +234,15 @@ export default function Auth() {
             required
             fullWidth
             id="username"
-            label="用户名"
+            label={t('Username')}
             autoComplete="username"
             error={errors.username && true}
             helperText={errors.username?.message}
             {...register('username', {
-              required: { value: true, message: '用户名必填' },
+              required: {
+                value: true,
+                message: t('Plaese enter your username'),
+              },
               maxLength: 100,
             })}
           />
@@ -241,14 +251,17 @@ export default function Auth() {
             margin="normal"
             required
             fullWidth
-            label="密码"
+            label={t('Password')}
             type="password"
             id="password"
             error={errors.password && true}
             helperText={errors.password?.message}
             autoComplete="current-password"
             {...register('password', {
-              required: { value: true, message: '密码必填' },
+              required: {
+                value: true,
+                message: t('Plaese enter your password'),
+              },
               maxLength: 100,
             })}
           />
@@ -258,18 +271,20 @@ export default function Auth() {
             defaultValue={1}
             render={({ field: { onChange, value } }) => (
               <FormControl variant="outlined" margin="normal" fullWidth>
-                <InputLabel id="demo-mutiple-chip-label">在线状态</InputLabel>
+                <InputLabel id="demo-mutiple-chip-label">
+                  {t('Online Status')}
+                </InputLabel>
                 <Select
                   labelId="onlineStatus"
                   id="onlineStatus"
                   onChange={onChange}
                   value={value}
-                  label="在线状态"
+                  label={t('Online Status')}
                 >
-                  <MenuItem value={1}>在线</MenuItem>
-                  <MenuItem value={0}>离线</MenuItem>
-                  <MenuItem value={2}>忙碌</MenuItem>
-                  <MenuItem value={3}>离开</MenuItem>
+                  <MenuItem value={1}>{t('onlineStatus.Online')}</MenuItem>
+                  <MenuItem value={0}>{t('onlineStatus.Offline')}</MenuItem>
+                  <MenuItem value={2}>{t('onlineStatus.Bussy')}</MenuItem>
+                  <MenuItem value={3}>{t('onlineStatus.Leave')}</MenuItem>
                 </Select>
               </FormControl>
             )}
@@ -280,14 +295,14 @@ export default function Auth() {
             defaultValue={false}
             render={({ field: { onChange, value } }) => (
               <FormControlLabel
-                control={
+                control={(
                   <Checkbox
                     checked={value}
                     onChange={(e) => onChange(e.target.checked)}
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                   />
-                }
-                label="记住我"
+                )}
+                label={t('Remember Me')}
               />
             )}
           />
@@ -300,7 +315,7 @@ export default function Auth() {
               disabled={signing}
               className={classes.submit}
             >
-              登录
+              {t('Login')}
             </Button>
             {signing && (
               <CircularProgress size={24} className={classes.buttonProgress} />
@@ -320,6 +335,7 @@ export default function Auth() {
           </Grid> */}
         </form>
       </div>
+      <LanguageSwitcher />
       <Box mt={8}>
         <Copyright />
       </Box>

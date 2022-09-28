@@ -1,4 +1,7 @@
 import { createRoot } from 'react-dom/client';
+
+import './i18n/i18n'; // 引用多语言配置文件
+
 // import App from './App';
 import HomePage from './HomePage';
 

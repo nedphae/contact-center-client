@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
@@ -101,6 +102,7 @@ interface CustomerFormProps {
 export default function CustomerForm(props: CustomerFormProps) {
   const { defaultValues: tempDefaultValues, shouldDispatch } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -192,7 +194,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="uid"
-          label="用户标识"
+          label={t('UID')}
           InputProps={{
             readOnly: defaultValues?.uid !== undefined,
             startAdornment: (
@@ -213,7 +215,9 @@ export default function CustomerForm(props: CustomerFormProps) {
           // }}
           render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
-              <InputLabel id="demo-mutiple-chip-label">客户标签</InputLabel>
+              <InputLabel id="demo-mutiple-chip-label">
+                {t('Customer Tag')}
+              </InputLabel>
               <Select
                 labelId="demo-mutiple-chip-label"
                 id="demo-mutiple-chip"
@@ -226,7 +230,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                 value={((value as CustomerTagView[]) ?? []).map((it) =>
                   JSON.stringify(it, ['name', 'color'].sort()),
                 )}
-                label="客户标签"
+                label={t('Customer Tag')}
                 renderValue={(selected) => (
                   <div className={classes.chips}>
                     {(selected as string[])
@@ -284,7 +288,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="name"
-          label="用户姓名"
+          label={t('Name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -297,7 +301,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           {...register('name', {
             maxLength: {
               value: 80,
-              message: '用户姓名长度不能大于80个字符',
+              message: t('Name Max Length'),
             },
           })}
         />
@@ -306,7 +310,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="mobile"
-          label="手机"
+          label={t('Mobile')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -319,7 +323,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           {...register('mobile', {
             maxLength: {
               value: 20,
-              message: '手机号码长度不能大于20个字符',
+              message: t('Mobile Max Length'),
             },
           })}
         />
@@ -328,7 +332,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="email"
-          label="邮箱"
+          label={t('Email')}
           error={errors.email && true}
           helperText={errors.email?.message}
           InputProps={{
@@ -341,7 +345,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           {...register('email', {
             maxLength: {
               value: 150,
-              message: '邮箱长度不能大于150个字符',
+              message: t('Email Max Length'),
             },
           })}
         />
@@ -351,7 +355,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           fullWidth
           multiline
           id="address"
-          label="地址"
+          label={t('Address')}
           error={errors.address && true}
           helperText={errors.address?.message}
           InputProps={{
@@ -368,7 +372,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           margin="normal"
           fullWidth
           id="vipLevel"
-          label="Vip 等级"
+          label={t('Vip')}
           type="number"
           error={errors.vipLevel && true}
           helperText={errors.vipLevel?.message}
@@ -386,11 +390,11 @@ export default function CustomerForm(props: CustomerFormProps) {
           {...register('vipLevel', {
             min: {
               value: 0,
-              message: 'VIP 等级最小为0',
+              message: t('Vip Min'),
             },
             max: {
               value: 99,
-              message: 'VIP 等级最大为99',
+              message: t('Vip Max'),
             },
             valueAsNumber: true,
           })}
@@ -401,7 +405,7 @@ export default function CustomerForm(props: CustomerFormProps) {
           fullWidth
           multiline
           id="remarks"
-          label="备注"
+          label={t('Remarks')}
           error={errors.remarks && true}
           helperText={errors.remarks?.message}
           InputProps={{
@@ -414,14 +418,14 @@ export default function CustomerForm(props: CustomerFormProps) {
           {...register('remarks', {
             maxLength: {
               value: 500,
-              message: '备注长度不能大于500个字符',
+              message: t('Remarks Max Length'),
             },
           })}
         />
         {defaultValues?.status?.referrer && (
           <>
             <Typography variant="body1" gutterBottom>
-              来源页:&nbsp;&nbsp;
+              {t('From Page')}:&nbsp;&nbsp;
             </Typography>
             <Tooltip title={defaultValues.status.referrer} aria-label="add">
               <div className={classes.wrapper}>
@@ -439,7 +443,7 @@ export default function CustomerForm(props: CustomerFormProps) {
         )}
         {defaultValues?.status?.title && (
           <Typography variant="body1" gutterBottom>
-            来源页标题:&nbsp;&nbsp;
+            {t('From Page Title')}:&nbsp;&nbsp;
             {defaultValues?.status.title}
           </Typography>
         )}
@@ -500,14 +504,14 @@ export default function CustomerForm(props: CustomerFormProps) {
                     variant="body2"
                     style={{ marginLeft: 10 }}
                   >
-                    点击查看详细信息
+                    {t('Click to view details')}
                   </Link>
                 )}
               </React.Fragment>
             ))}
         {defaultValues?.createdDate && (
           <Typography variant="body1" gutterBottom>
-            创建日期:&nbsp;&nbsp;
+            {t('Created Date')}:&nbsp;&nbsp;
             {javaInstant2DateStr(defaultValues?.createdDate as number)}
           </Typography>
         )}

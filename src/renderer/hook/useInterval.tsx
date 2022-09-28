@@ -10,7 +10,7 @@ import { useEffect, useRef } from 'react';
 /** keep typescript happy */
 const noop = () => {};
 
-export function useInterval(
+function useInterval(
   callback: () => void,
   delay: number | null | false,
   immediate?: boolean

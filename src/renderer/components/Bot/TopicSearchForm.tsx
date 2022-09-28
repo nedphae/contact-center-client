@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -56,6 +57,8 @@ interface FormProps {
 
 export default function TopicSearchFrom(props: FormProps) {
   const { defaultValues, currentValues, searchAction } = props;
+  const { t } = useTranslation();
+
   const classes = useSearchFormStyles();
   const { handleSubmit, register, reset } = useForm<FormType>({
     defaultValues: currentValues,
@@ -86,7 +89,7 @@ export default function TopicSearchFrom(props: FormProps) {
               <TextField
                 fullWidth
                 id="standard-basic"
-                label="关键字"
+                label={t('Keyword')}
                 {...register('keyword')}
               />
             </div>
@@ -100,7 +103,7 @@ export default function TopicSearchFrom(props: FormProps) {
                 reset(defaultValues);
               }}
             >
-              重置
+              {t('Reset')}
             </Button>
             <Button
               type="submit"
@@ -110,7 +113,7 @@ export default function TopicSearchFrom(props: FormProps) {
               startIcon={<SearchIcon />}
               aria-label="submit"
             >
-              搜索
+              {t('Search')}
             </Button>
           </CardActions>
         </Card>

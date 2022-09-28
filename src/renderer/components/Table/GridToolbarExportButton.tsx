@@ -1,4 +1,5 @@
 import React, { forwardRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 
 import { GridMenu, GridSaveAltIcon } from '@material-ui/data-grid';
@@ -14,6 +15,8 @@ export const GridToolbarExportButton = forwardRef<
   GridToolbarDataProps
 >(function GridToolbarDataButton(props, ref) {
   const { exportToExcel, exportText } = props;
+  const { t } = useTranslation();
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -46,7 +49,7 @@ export const GridToolbarExportButton = forwardRef<
         aria-label="数据"
         aria-haspopup="menu"
       >
-        导出
+        {t('Export')}
       </Button>
       <GridMenu
         open={Boolean(anchorEl)}

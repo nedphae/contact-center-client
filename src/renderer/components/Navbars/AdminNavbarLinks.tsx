@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 
+import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 // @material-ui/core components
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -48,6 +49,7 @@ import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
 import styles from '../../assets/jss/material-dashboard-react/components/headerLinksStyle';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 
 const useStyles = makeStyles(styles);
 
@@ -120,6 +122,7 @@ export default function AdminNavbarLinks() {
   const colorMode = useContext(ColorModeContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [openNotification, setOpenNotification] = React.useState<any>(null);
   const [openProfile, setOpenProfile] = React.useState<any>(null);
@@ -182,7 +185,8 @@ export default function AdminNavbarLinks() {
               dispatch(
                 setSnackbarProp({
                   open: true,
-                  message: '在线客服人数已达上限，请稍后再试',
+                  message:
+                    'The number of online customer service has reached the upper limit, please try again later',
                   severity: 'warning',
                 }),
               );
@@ -207,7 +211,7 @@ export default function AdminNavbarLinks() {
         .catch((error) => console.error(error));
       setOpenProfile(null);
     },
-    [assignmentFromQueue, dispatch, updateStaffStatus],
+    [assignmentFromQueue, dispatch, t, updateStaffStatus]
   );
 
   const memoMap = useMemo(() => {
@@ -219,7 +223,7 @@ export default function AdminNavbarLinks() {
           onClick={handleChangeOnlineStatus(OnlineStatus.ONLINE)}
           className={classes.dropdownItem}
         >
-          设置在线
+          {t('onlineStatus.Online')}
         </MenuItem>,
       )
       .set(
@@ -229,7 +233,7 @@ export default function AdminNavbarLinks() {
           onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
           className={classes.dropdownItem}
         >
-          设置忙碌
+          {t('onlineStatus.Bussy')}
         </MenuItem>,
       )
       .set(
@@ -239,7 +243,7 @@ export default function AdminNavbarLinks() {
           onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
           className={classes.dropdownItem}
         >
-          设置离开
+          {t('onlineStatus.Leave')}
         </MenuItem>,
       )
       .set(
@@ -249,11 +253,11 @@ export default function AdminNavbarLinks() {
           onClick={handleChangeOnlineStatus(OnlineStatus.OFFLINE)}
           className={classes.dropdownItem}
         >
-          设置离线
+          {t('onlineStatus.Offline')}
         </MenuItem>,
       );
     return map;
-  }, [classes.dropdownItem, handleChangeOnlineStatus]);
+  }, [classes.dropdownItem, handleChangeOnlineStatus, t]);
 
   function getOnlineStatusMenuItem(onlineStatus: OnlineStatus) {
     const map = new Map(memoMap);
@@ -282,6 +286,9 @@ export default function AdminNavbarLinks() {
         </Button>
       </div>
        */}
+      <div className={classes.manager}>
+        <LanguageSwitcher />
+      </div>
       <NavLink
         className={(navData) => (navData.isActive ? 'active' : '')}
         to="/admin/entertain"
@@ -443,7 +450,7 @@ export default function AdminNavbarLinks() {
                       onClick={handleLogout}
                       className={classes.dropdownItem}
                     >
-                      退出系统
+                      {t('Logout')}
                     </MenuItem>
                   </MenuList>
                 </ClickAwayListener>

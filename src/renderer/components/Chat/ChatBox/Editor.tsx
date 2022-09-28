@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
@@ -12,7 +13,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import Icon from '@material-ui/core/Icon';
+import SendIcon from '@material-ui/icons/Send';
 
 import {
   hideSelectedSessionAndSetToLast,
@@ -69,6 +70,8 @@ const subjectSearchText = new Subject<string>();
 
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
+  const { t } = useTranslation();
+
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
   const [tempTextMessage, setTempTextMessage] = useState<string>(
     selectedSession?.staffDraft ?? ''
@@ -131,7 +134,11 @@ export default function Editor(selected: SelectedProps) {
         );
       }
     } else {
-      onErrorMsg('当前客服不在线，无法发送消息');
+      onErrorMsg(
+        t(
+          'editor.The current customer service is not online, and the message cannot be sent'
+        )
+      );
     }
   }
 
@@ -215,7 +222,11 @@ export default function Editor(selected: SelectedProps) {
                   onKeyDown={handleListKeyDown}
                   ref={menuListRef}
                 >
-                  <MenuItem disabled>按两次上下键选择 tab 取消选择</MenuItem>
+                  <MenuItem disabled>
+                    {t(
+                      'editor.Press the up key twice to select, press the tab to cancel the selection'
+                    )}
+                  </MenuItem>
                   {quickReplyList &&
                     quickReplyList.map((quickReply) => (
                       <MenuItem
@@ -253,7 +264,7 @@ export default function Editor(selected: SelectedProps) {
               ref={textFieldRef}
               className={classes.textarea}
               aria-label="maximum height"
-              placeholder="请输入消息..."
+              placeholder={t('editor.Placeholder')}
               onChange={handleTextChange}
               onKeyDown={setFocusToQuickReplyMenu}
               value={tempTextMessage}
@@ -271,17 +282,17 @@ export default function Editor(selected: SelectedProps) {
               disabled={tempTextMessage === ''}
               variant="contained"
               color="primary"
-              endIcon={<Icon>send</Icon>}
+              endIcon={<SendIcon />}
               onClick={handleSendTextMessage}
             >
-              发送
+              {t('editor.Send')}
             </Button>
             <Button
               style={{ minWidth: 50 }}
               variant="outlined"
               onClick={escNode}
             >
-              关闭
+              {t('editor.Close')}
             </Button>
           </>
         )}

@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -61,7 +63,7 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-  })
+  }),
 );
 
 interface FormProps {
@@ -83,12 +85,14 @@ const MUTATION_STAFF = gql`
 `;
 
 type StaffWithPassword = Object.Merge<
-  Object.Omit<Staff, 'staffGroup'>,
-  { password?: string; password_repeat?: string }
+Object.Omit<Staff, 'staffGroup'>,
+{ password?: string; password_repeat?: string }
 >;
 
 export default function StaffForm(props: FormProps) {
   const { defaultValues, mutationCallback } = props;
+  const { t } = useTranslation();
+
   const classes = useStyles();
   const refOfDialog = useRef<DraggableDialogRef>(null);
 
@@ -172,7 +176,7 @@ export default function StaffForm(props: FormProps) {
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity="error">
-          上传失败:
+          {`${t('Upload failed')}:`}
           {error}
         </Alert>
       </Snackbar>
@@ -188,7 +192,7 @@ export default function StaffForm(props: FormProps) {
             alt="上传头像"
             src={avatar && `${getDownloadS3StaffImgPath()}${avatar}`}
           >
-            头像
+            {t('Avatar')}
           </Avatar>
         </Upload>
         <TextField
@@ -196,7 +200,7 @@ export default function StaffForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="username"
-          label="用户名"
+          label={t('Username')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -207,14 +211,16 @@ export default function StaffForm(props: FormProps) {
           error={errors.username && true}
           helperText={errors.username?.message}
           {...register('username', {
-            required: '必须提供用户名',
+            required: t('Username is required'),
             maxLength: {
               value: 50,
-              message: '用户名不能大于50位',
+              message: t(
+                'Username length cannot be greater than 50 characters',
+              ),
             },
             minLength: {
               value: 4,
-              message: '用户名至少4位',
+              message: t('Username must be at least 4 characters'),
             },
           })}
         />
@@ -224,17 +230,17 @@ export default function StaffForm(props: FormProps) {
           render={({ field }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="staffType-simple-select-outlined-label">
-                是否是人工
+                {t('Is it Manual')}
               </InputLabel>
               <Select
                 labelId="staffType-simple-select-outlined-label"
                 id="staffType"
-                label="是否是机器人"
+                label={t('Is it Manual')}
                 readOnly
                 {...field}
               >
-                <MenuItem value={0}>机器人</MenuItem>
-                <MenuItem value={1}>人工</MenuItem>
+                <MenuItem value={0}>{t('Bot')}</MenuItem>
+                <MenuItem value={1}>{t('Manual')}</MenuItem>
               </Select>
             </FormControl>
           )}
@@ -242,7 +248,7 @@ export default function StaffForm(props: FormProps) {
 
         {staffType === 1 && !!defaultValues.id && (
           <>
-            <DraggableDialog title="修改密码" ref={refOfDialog}>
+            <DraggableDialog title={t('Change Password')} ref={refOfDialog}>
               <ChangePasswordForm id={defaultValues.id} />
             </DraggableDialog>
             <Button
@@ -252,7 +258,7 @@ export default function StaffForm(props: FormProps) {
                 refOfDialog.current?.setOpen(true);
               }}
             >
-              修改密码
+              {t('Change Password')}
             </Button>
           </>
         )}
@@ -263,7 +269,7 @@ export default function StaffForm(props: FormProps) {
               margin="normal"
               fullWidth
               type="password"
-              label="密码"
+              label={t('Password')}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -276,15 +282,19 @@ export default function StaffForm(props: FormProps) {
               {...register('password', {
                 maxLength: {
                   value: 50,
-                  message: '密码不能大于50位',
+                  message: t(
+                    'Password length cannot be greater than 50 characters'
+                  ),
                 },
                 minLength: {
                   value: 8,
-                  message: '密码至少8位',
+                  message: t('Password length must be at least 8 characters'),
                 },
                 pattern: {
                   value: /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$).{8,50}$/,
-                  message: '密码必须包含 数字、字母、特殊字符 中两种或以上',
+                  message: t(
+                    'Password must contain two or more of numbers, letters and special characters'
+                  ),
                 },
               })}
             />
@@ -293,7 +303,7 @@ export default function StaffForm(props: FormProps) {
               margin="normal"
               fullWidth
               type="password"
-              label="确认密码"
+              label={t('Confirm Password')}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -304,7 +314,8 @@ export default function StaffForm(props: FormProps) {
               error={errors.password_repeat && true}
               helperText={errors.password_repeat?.message}
               {...register('password_repeat', {
-                validate: (value) => value === password || '密码不相符',
+                validate: (value) =>
+                  value === password || t('Password does not match'),
               })}
             />
           </>
@@ -316,21 +327,21 @@ export default function StaffForm(props: FormProps) {
           render={({ field }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="role-simple-select-outlined-label">
-                角色
+                {t('Role')}
               </InputLabel>
 
               <Authorized
                 authority={['admin']}
-                noMatch={
+                noMatch={(
                   <Select
                     labelId="role-simple-select-outlined-label"
                     id="role"
-                    label="角色"
+                    label={t('Role')}
                     {...field}
                   >
-                    <MenuItem value="ROLE_STAFF">客服</MenuItem>
+                    <MenuItem value="ROLE_STAFF">{t('Staff')}</MenuItem>
                   </Select>
-                }
+                )}
               >
                 <Select
                   labelId="role-simple-select-outlined-label"
@@ -338,10 +349,10 @@ export default function StaffForm(props: FormProps) {
                   label="角色"
                   {...field}
                 >
-                  <MenuItem value="ROLE_ADMIN">管理员</MenuItem>
+                  <MenuItem value="ROLE_ADMIN">{t('Administrator')}</MenuItem>
                   {/* <MenuItem value="ROLE_LEADER">组长</MenuItem> */}
                   {/* <MenuItem value="ROLE_QA">质检</MenuItem> */}
-                  <MenuItem value="ROLE_STAFF">客服</MenuItem>
+                  <MenuItem value="ROLE_STAFF">{t('Staff')}</MenuItem>
                 </Select>
               </Authorized>
             </FormControl>
@@ -351,7 +362,7 @@ export default function StaffForm(props: FormProps) {
           <Controller
             control={control}
             name="groupId"
-            rules={{ required: '所属分组必选' }}
+            rules={{ required: t('The group is required') }}
             render={({
               field: { onChange, value },
               fieldState: { error: groupIdError },
@@ -362,14 +373,16 @@ export default function StaffForm(props: FormProps) {
                 fullWidth
                 error={Boolean(groupIdError)}
               >
-                <InputLabel id="demo-mutiple-chip-label">所属分组</InputLabel>
+                <InputLabel id="demo-mutiple-chip-label">
+                  {t('Belong to Group')}
+                </InputLabel>
                 <Select
                   labelId="groupId"
                   id="groupId"
                   onChange={onChange}
                   defaultValue=""
                   value={value}
-                  label="所属分组"
+                  label={t('Belong to Group')}
                 >
                   {groupList.map((it) => {
                     return (
@@ -391,7 +404,7 @@ export default function StaffForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="realName"
-          label="实名"
+          label={t('Real name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -406,7 +419,7 @@ export default function StaffForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="nickName"
-          label="昵称"
+          label={t('Nickname')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -422,7 +435,7 @@ export default function StaffForm(props: FormProps) {
           fullWidth
           type="number"
           id="simultaneousService"
-          label="同时接待量"
+          label={t('Number of simultaneous services')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -435,7 +448,7 @@ export default function StaffForm(props: FormProps) {
           {...register('simultaneousService', {
             min: {
               value: 0,
-              message: '同时接待量 最小为0',
+              message: t('The minimum Number of simultaneous services is 0'),
             },
             valueAsNumber: true,
           })}
@@ -505,18 +518,18 @@ export default function StaffForm(props: FormProps) {
           render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="gender-simple-select-outlined-label">
-                性别
+                {t('Gender')}
               </InputLabel>
               <Select
                 labelId="gender-simple-select-outlined-label"
                 id="gender"
                 onChange={onChange}
                 value={value}
-                label="性别"
+                label={t('Gender')}
               >
-                <MenuItem value={0}>男</MenuItem>
-                <MenuItem value={1}>女</MenuItem>
-                <MenuItem value={99}>其他</MenuItem>
+                <MenuItem value={0}>{t('Male')}</MenuItem>
+                <MenuItem value={1}>{t('Female')}</MenuItem>
+                <MenuItem value={99}>{t('Other')}</MenuItem>
               </Select>
             </FormControl>
           )}
@@ -526,7 +539,7 @@ export default function StaffForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="mobilePhone"
-          label="手机"
+          label={t('Mobile')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -541,7 +554,7 @@ export default function StaffForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="personalizedSignature"
-          label="个性签名"
+          label={t('Signature')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -554,7 +567,7 @@ export default function StaffForm(props: FormProps) {
           {...register('personalizedSignature', { maxLength: 250 })}
         />
         <FormControlLabel
-          control={
+          control={(
             <Controller
               control={control}
               defaultValue
@@ -567,8 +580,8 @@ export default function StaffForm(props: FormProps) {
                 />
               )}
             />
-          }
-          label="是否启用"
+          )}
+          label={t('Enable?')}
         />
         <SubmitButton />
       </form>

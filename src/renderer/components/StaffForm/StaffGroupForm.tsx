@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -49,6 +50,8 @@ const MUTATION_STAFF_GROUP = gql`
 export default function StaffGroupForm(props: FormProps) {
   const { defaultValues, refetch } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const { handleSubmit, register } = useForm<FormType>({
     defaultValues,
     shouldUnregister: true,
@@ -86,7 +89,7 @@ export default function StaffGroupForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="groupName"
-          label="分组名称"
+          label={t('Group Name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -95,10 +98,10 @@ export default function StaffGroupForm(props: FormProps) {
             ),
           }}
           {...register('groupName', {
-            required: '必须设置分组名称',
+            required: t('Group name must be set'),
             maxLength: {
               value: 50,
-              message: '分组名称不能大于50位',
+              message: t('Group name cannot be greater than 50 characters'),
             },
           })}
         />

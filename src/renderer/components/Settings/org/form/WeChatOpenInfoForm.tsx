@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
@@ -47,6 +48,8 @@ interface FormProps {
 export default function WeChatOpenInfoForm(props: FormProps) {
   const { defaultValues, refetch, shuntList } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const { handleSubmit, register, control } = useForm<FormType>({
     defaultValues,
     // shouldUnregister: true,
@@ -83,7 +86,7 @@ export default function WeChatOpenInfoForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="nickName"
-          label="微信昵称"
+          label={t('Wechat nickname')}
           InputProps={{
             readOnly: true,
             startAdornment: (
@@ -108,14 +111,16 @@ export default function WeChatOpenInfoForm(props: FormProps) {
               fullWidth
               error={Boolean(groupIdError)}
             >
-              <InputLabel id="demo-mutiple-chip-label">关联接待组</InputLabel>
+              <InputLabel id="demo-mutiple-chip-label">
+                {t('Associate to the shunt')}
+              </InputLabel>
               <Select
                 labelId="shuntId"
                 id="shuntId"
                 onChange={onChange}
                 defaultValue=""
                 value={value}
-                label="关联接待组"
+                label={t('Associate to the shunt')}
               >
                 {shuntList.map((it) => {
                   return (

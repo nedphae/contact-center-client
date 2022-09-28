@@ -1,4 +1,4 @@
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -22,6 +22,7 @@ interface FileProps {
 
 export default function FileCard(props: FileProps) {
   const classes = useStyles();
+  const { t } = useTranslation();
   const { filename, fileSize, url } = props;
 
   function downloadFile() {
@@ -38,9 +39,9 @@ export default function FileCard(props: FileProps) {
         />
       </CardActionArea>
       <CardActions>
-        <Button size="small">预览</Button>
+        {/* <Button size="small">预览</Button> */}
         <Button size="small" onClick={downloadFile}>
-          下载
+          {t('Download')}
         </Button>
       </CardActions>
     </Card>

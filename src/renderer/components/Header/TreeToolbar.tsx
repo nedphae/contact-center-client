@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Menu from '@material-ui/core/Menu';
@@ -32,6 +33,8 @@ interface BotToolbarProps {
 export default function TreeToolbar(props: BotToolbarProps) {
   const { title, add, adderName, refetch, clearTopicCategorySelect } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>(undefined);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -67,7 +70,7 @@ export default function TreeToolbar(props: BotToolbarProps) {
             handleMenuClose();
           }}
         >
-          刷新
+          {t('Refresh')}
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -84,7 +87,7 @@ export default function TreeToolbar(props: BotToolbarProps) {
               handleMenuClose();
             }}
           >
-            清除分类筛选
+            {t('Clear topic category select')}
           </MenuItem>
         )}
       </Menu>

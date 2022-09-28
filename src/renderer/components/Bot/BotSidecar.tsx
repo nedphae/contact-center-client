@@ -1,15 +1,9 @@
 import React, { useRef, useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
-import { Object } from 'ts-toolbelt';
-import {
-  ApolloQueryResult,
-  FetchResult,
-  gql,
-  OperationVariables,
-  useMutation,
-  useQuery,
-} from '@apollo/client';
+import { Object, T } from 'ts-toolbelt';
+import { FetchResult, gql, useMutation, useQuery } from '@apollo/client';
 
 import Grid from '@material-ui/core/Grid';
 import Menu from '@material-ui/core/Menu';
@@ -115,6 +109,8 @@ export default function BotSidecar(props: BotProps) {
     onTopicCategoryClick,
     selectTC,
   } = props;
+  const { t } = useTranslation();
+
   const [state, setState] = useState<MousePoint>(initialMousePoint);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfBotConfigDialog = useRef<DraggableDialogRef>(null);
@@ -261,12 +257,16 @@ export default function BotSidecar(props: BotProps) {
           topicOrKnowladge?.Topic?.children &&
           topicOrKnowladge?.Topic?.children.length > 0
         ) {
-          onErrorMsg('当前分类不为空，请先删除子分类');
+          onErrorMsg(
+            'The current category is not empty, please delete the subcategory first'
+          );
         } else if (
           topicOrKnowladge.Topic?.topicList &&
           topicOrKnowladge.Topic?.topicList?.length > 0
         ) {
-          onErrorMsg('当前分类下存在问题条目，请先删除问题条目');
+          onErrorMsg(
+            'There are problem items in the current category, please delete the problem items first'
+          );
         } else {
           const id = topicOrKnowladge.Topic?.id;
           if (id)
@@ -355,12 +355,12 @@ export default function BotSidecar(props: BotProps) {
     <Grid item xs={12} sm={2}>
       {/* 功能菜单 */}
       <TreeToolbar
-        title="知识库"
+        title={t('Knowledge base')}
         refetch={() => {
           refetch();
           refetchStaff();
         }}
-        adderName="添加知识库"
+        adderName={t('Add knowledge base')}
         add={() => newTopicOrKnowladge('Knowladge')}
         clearTopicCategorySelect={() => {
           onTopicCategoryClick(undefined);
@@ -393,10 +393,10 @@ export default function BotSidecar(props: BotProps) {
         >
           {topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' && [
             <MenuItem key="interrelateBot" onClick={interrelateBot}>
-              关联机器人账号
+              {t('Associate to a robot account')}
             </MenuItem>,
             <MenuItem key="openBotConfig" onClick={openBotConfig}>
-              机器人配置
+              {t('Bot configuration')}
             </MenuItem>,
             <Divider />,
             <MenuItem
@@ -405,7 +405,7 @@ export default function BotSidecar(props: BotProps) {
                 editTopicOrKnowladge('Knowladge');
               }}
             >
-              修改知识库
+              {t('Modify knowledge base')}
             </MenuItem>,
             <MenuItem
               key="addTopicCategory"
@@ -414,7 +414,7 @@ export default function BotSidecar(props: BotProps) {
                 newTopicOrKnowladge('Topic');
               }}
             >
-              添加知识库分类
+              {t('Add knowledge base category')}
             </MenuItem>,
             <MenuItem
               key="deleteTopicOrKnowladge"
@@ -422,7 +422,7 @@ export default function BotSidecar(props: BotProps) {
                 deleteTopicOrKnowladge('Knowladge');
               }}
             >
-              删除知识库
+              {t('Delete knowledge base')}
             </MenuItem>,
             <Divider />,
             <MenuItem
@@ -440,12 +440,12 @@ export default function BotSidecar(props: BotProps) {
                     const url = `${getDownloadS3ChatFilePath()}${filekey}`;
                     window.open(url, '_blank');
                   } else {
-                    onErrorMsg('导出失败');
+                    onErrorMsg('Export failed');
                   }
                 }
               }}
             >
-              导出知识库
+              {t('Export knowledge base')}
             </MenuItem>,
             <MenuItem
               key="importTopic"
@@ -454,7 +454,7 @@ export default function BotSidecar(props: BotProps) {
                 refOfUploadForm.current?.setOpen(true);
               }}
             >
-              导入知识库
+              {t('Import knowledge base')}
             </MenuItem>,
           ]}
           {topicOrKnowladge.topicOrKnowladgeKey === 'Topic' && [
@@ -464,7 +464,7 @@ export default function BotSidecar(props: BotProps) {
                 selectTopic();
               }}
             >
-              筛选知识库分类
+              {t('Filter knowledge base categories')}
             </MenuItem>,
             <MenuItem
               key="addTopicCategory"
@@ -473,7 +473,7 @@ export default function BotSidecar(props: BotProps) {
                 addTopicChild('Topic');
               }}
             >
-              添加子分类
+              {t('Add subcategory')}
             </MenuItem>,
             <MenuItem
               key="editTopicOrKnowladge"
@@ -481,7 +481,7 @@ export default function BotSidecar(props: BotProps) {
                 editTopicOrKnowladge('Topic');
               }}
             >
-              修改知识分类
+              {t('Modify knowledge category')}
             </MenuItem>,
             <MenuItem
               key="deleteTopicOrKnowladge"
@@ -489,13 +489,16 @@ export default function BotSidecar(props: BotProps) {
                 deleteTopicOrKnowladge('Topic');
               }}
             >
-              删除知识分类
+              {t('Delete knowledge category')}
             </MenuItem>,
           ]}
         </Menu>
       </div>
       {/* 显示 弹窗配置知识库对应的机器人 */}
-      <DraggableDialog title="关联机器人账号" ref={refOfDialog}>
+      <DraggableDialog
+        title={t('Associate to a robot account')}
+        ref={refOfDialog}
+      >
         <StaffFormContainer
           staffId={memoStaffAndBotConfig.staffId}
           mutationCallback={(staff) => {
@@ -503,7 +506,10 @@ export default function BotSidecar(props: BotProps) {
           }}
         />
       </DraggableDialog>
-      <DraggableDialog title="机器人配置" ref={refOfBotConfigDialog}>
+      <DraggableDialog
+        title={t('Bot configuration')}
+        ref={refOfBotConfigDialog}
+      >
         {(memoStaffAndBotConfig.botConfig && (
           <BotConfigForm
             defaultValues={memoStaffAndBotConfig.botConfig}
@@ -529,13 +535,17 @@ export default function BotSidecar(props: BotProps) {
               }}
               allTopic={memoData?.memoAllTopic}
             />
-          )) || <Typography>请先关联一个机器人账号</Typography>}
+          )) || (
+            <Typography>
+              {t('Please associate a robot account first')}
+            </Typography>
+        )}
       </DraggableDialog>
       <DraggableDialog
         title={
           (topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' &&
-            '配置知识库') ||
-          '配置知识库分类'
+            t('Configure the knowledge base') ||
+          t('Configure knowledge base categories'))
         }
         ref={refOfKnowladgeDialog}
       >
@@ -554,7 +564,10 @@ export default function BotSidecar(props: BotProps) {
           />
         )}
       </DraggableDialog>
-      <DraggableDialog title="导入知识库" ref={refOfUploadForm}>
+      <DraggableDialog
+        title={t('Import knowledge base')}
+        ref={refOfUploadForm}
+      >
         {topicOrKnowladge.Knowladge && topicOrKnowladge.Knowladge.id && (
           <BotTopicUploadForm
             knowledgeBaseId={topicOrKnowladge.Knowladge.id}
@@ -573,20 +586,23 @@ export default function BotSidecar(props: BotProps) {
       >
         <DialogTitle id="alert-dialog-title">
           {tempTopicOrKnowladgeKey === 'Topic'
-            ? '确定删除知识库分类？'
-            : '确定删除知识库？'}
+            ? t('Are you sure you want to delete the knowledge base category?')
+            : t('Are you sure you want to delete the knowledge base?')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {tempTopicOrKnowladgeKey === 'Topic'
               ? ''
-              : '如果删除知识库，将会删除该知识库下的所有知识分类和知识，并且会删除关联的机器人账号！'}
-            此操作不可逆，请谨慎操作！
+              : t(
+                  'If you delete a knowledge base, all knowledge categories and knowledge under the knowledge base will be deleted, and the associated robot account will be deleted!'
+                )}
+            <br />
+            {t('This operation is irreversible, please be careful!')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            取消
+            {t('Cancel')}
           </Button>
           <Button
             onClick={() => {
@@ -595,7 +611,7 @@ export default function BotSidecar(props: BotProps) {
             color="secondary"
             autoFocus
           >
-            确定
+            {t('OK')}
           </Button>
         </DialogActions>
       </Dialog>

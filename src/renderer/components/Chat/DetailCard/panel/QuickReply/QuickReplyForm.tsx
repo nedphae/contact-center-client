@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import {
   Dialog,
@@ -52,6 +52,8 @@ type QuickReplyFormProps = Object.Merge<
 
 export function QuickReplyForm(props: QuickReplyFormProps) {
   const { open, handleClose, defaultValues, refetch, quickReplyGroup } = props;
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -88,7 +90,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
       aria-labelledby="form-dialog-title"
     >
       <DialogTitle id="form-dialog-title" onClose={handleClose}>
-        添加快捷回复
+        {t('Add Quick Reply')}
       </DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -111,7 +113,9 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
                 fullWidth
                 error={invalid}
               >
-                <InputLabel id="demo-mutiple-chip-label">分组</InputLabel>
+                <InputLabel id="demo-mutiple-chip-label">
+                  {t('Group')}
+                </InputLabel>
                 <Select
                   labelId="groupId"
                   id="groupId"
@@ -121,7 +125,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
                     onChange(groupId === '' || !groupId ? undefined : +groupId);
                   }}
                   value={value}
-                  label="分组"
+                  label={t('Group')}
                 >
                   <MenuItem value="">
                     <em>None</em>
@@ -147,13 +151,15 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             fullWidth
             autoFocus
             id="title"
-            label="快捷回复标题"
+            label={t('Quick reply title')}
             error={errors.title && true}
             helperText={errors.title?.message}
             {...register('title', {
               maxLength: {
                 value: 80,
-                message: '快捷回复标题长度不能大于80个字符',
+                message: t(
+                  'Quick reply title length cannot be greater than 80 characters'
+                ),
               },
             })}
           />
@@ -163,13 +169,15 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             fullWidth
             multiline
             id="content"
-            label="快捷回复内容"
+            label={t('Quick reply content')}
             error={errors.content && true}
             helperText={errors.content?.message}
             {...register('content', {
               maxLength: {
                 value: 500,
-                message: '快捷回复内容长度不能大于500个字符',
+                message: t(
+                  'Quick reply content length cannot be greater than 500 characters'
+                ),
               },
             })}
           />
@@ -179,14 +187,14 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
             name="personal"
             render={({ field: { onChange, value } }) => (
               <FormControlLabel
-                control={
+                control={(
                   <Checkbox
                     checked={value}
                     onChange={(e) => onChange(e.target.checked)}
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                   />
-                }
-                label="是否个人"
+                )}
+                label={t('Is personal')}
               />
             )}
           />
@@ -208,6 +216,8 @@ type QuickReplyGroupFormProps = Object.Merge<
 
 export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
   const { open, handleClose, defaultValues, refetch } = props;
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -246,7 +256,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
       aria-labelledby="form-dialog-title"
     >
       <DialogTitle id="form-dialog-title" onClose={handleClose}>
-        添加快捷回复分组
+        {t('Add Quick Reply Group')}
       </DialogTitle>
       <DialogContent>
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -261,13 +271,15 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
             fullWidth
             autoFocus
             id="groupName"
-            label="分组名称"
+            label={t('Group Name')}
             error={errors.groupName && true}
             helperText={errors.groupName?.message}
             {...register('groupName', {
               maxLength: {
                 value: 50,
-                message: '分组名称长度不能大于50个字符',
+                message: t(
+                  'Group name length cannot be greater than 50 characters'
+                ),
               },
             })}
           />
@@ -277,14 +289,14 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
             name="personal"
             render={({ field: { onChange, value } }) => (
               <FormControlLabel
-                control={
+                control={(
                   <Checkbox
                     checked={value}
                     onChange={(e) => onChange(e.target.checked)}
                     inputProps={{ 'aria-label': 'primary checkbox' }}
                   />
-                }
-                label="是否个人"
+                )}
+                label={t('Is personal')}
               />
             )}
           />

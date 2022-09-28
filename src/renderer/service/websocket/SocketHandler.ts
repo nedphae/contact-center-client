@@ -40,7 +40,7 @@ export default class SocketHandler implements EventInterface {
       this.dispatch(
         setSnackbarProp({
           open: true,
-          message: '网络异常，正在重新连接网络...',
+          message: 'websocket.error',
           severity: 'error',
           autoHideDuration: undefined,
         })
@@ -50,7 +50,7 @@ export default class SocketHandler implements EventInterface {
       this.dispatch(
         setSnackbarProp({
           open: true,
-          message: '网络重新连接成功',
+          message: 'websocket.success',
           severity: 'success',
           autoHideDuration: 6000,
         })

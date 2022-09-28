@@ -1,6 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { useMutation } from '@apollo/client';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -37,6 +36,7 @@ interface BlacklistFormProps {
 export default function BlacklistForm(props: BlacklistFormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const { onLoadding, onCompleted, onError } = useAlert();
   const [saveBlacklist, { loading }] = useMutation<SaveBlacklistGraphql>(
@@ -89,29 +89,29 @@ export default function BlacklistForm(props: BlacklistFormProps) {
           render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
               <InputLabel id="role-simple-select-outlined-label">
-                黑名单类型
+                {t('Block list type')}
               </InputLabel>
               <Select
                 labelId="role-simple-select-outlined-label"
                 id="role"
-                label="黑名单类型"
+                label={t('Block list type')}
                 onChange={onChange}
                 value={value}
               >
-                <MenuItem value="UID">用户标识 UID</MenuItem>
-                <MenuItem value="IP">IP地址</MenuItem>
+                <MenuItem value="UID">{t('UID')}</MenuItem>
+                <MenuItem value="IP">{t('IP Address')}</MenuItem>
               </Select>
             </FormControl>
           )}
         />
         <FormControl variant="outlined" margin="normal" fullWidth>
           <InputLabel id="role-simple-select-outlined-label">
-            拉黑时间
+            {t('Block time')}
           </InputLabel>
           <Select
             labelId="role-simple-select-outlined-label"
             id="role"
-            label="黑名单类型"
+            label={t('Block type')}
             defaultValue={0}
             onChange={(event) => {
               if (event.target.value !== 0) {
@@ -127,14 +127,14 @@ export default function BlacklistForm(props: BlacklistFormProps) {
               }
             }}
           >
-            <MenuItem value={0}>永久屏蔽</MenuItem>
-            <MenuItem value={0.5}>半小时</MenuItem>
-            <MenuItem value={1}>1小时</MenuItem>
-            <MenuItem value={2}>2小时</MenuItem>
-            <MenuItem value={6}>6小时</MenuItem>
-            <MenuItem value={12}>12小时</MenuItem>
-            <MenuItem value={24}>一天</MenuItem>
-            <MenuItem value={24 * 7}>一周</MenuItem>
+            <MenuItem value={0}>{t('Forever')}</MenuItem>
+            <MenuItem value={0.5}>{t('Half an hour')}</MenuItem>
+            <MenuItem value={1}>{t('1 hour')}</MenuItem>
+            <MenuItem value={2}>{t('2 hours')}</MenuItem>
+            <MenuItem value={6}>{t('6 hours')}</MenuItem>
+            <MenuItem value={12}>{t('12 hours')}</MenuItem>
+            <MenuItem value={24}>{t('1 day')}</MenuItem>
+            <MenuItem value={24 * 7}>{t('1 week')}</MenuItem>
           </Select>
         </FormControl>
         <SubmitButton />

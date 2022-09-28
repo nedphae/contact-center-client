@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import clsx from 'clsx';
@@ -17,7 +18,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import SearchIcon from '@material-ui/icons/Search';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import {
   Card,
   CardActions,
@@ -47,71 +48,6 @@ import DraggableDialog, {
   DraggableDialogRef,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
 
-const columns: GridColDef[] = [
-  {
-    field: 'createdAt',
-    headerName: '创建时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  { field: 'shuntId', headerName: '接待组', width: 150 },
-  { field: 'userId', headerName: '用户ID', width: 150 },
-  { field: 'uid', headerName: '用户标识', width: 150 },
-  { field: 'name', headerName: '用户姓名', width: 150 },
-  { field: 'mobile', headerName: '手机', width: 150 },
-  { field: 'email', headerName: '邮箱', width: 150 },
-  { field: 'message', headerName: '留言内容', width: 350 },
-  {
-    field: 'solved',
-    headerName: '解决状态',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 0: {
-          result = '未解决';
-          break;
-        }
-        case 1: {
-          result = '已解决';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
-    },
-  },
-  {
-    field: 'solvedWay',
-    headerName: '解决方式',
-    width: 150,
-    valueGetter: (params: GridValueGetterParams) => {
-      let result = '其他';
-      switch (params.value) {
-        case 0: {
-          result = '手机';
-          break;
-        }
-        case 1: {
-          result = '邮件';
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-      return result;
-    },
-  },
-  { field: 'fromPage', headerName: '来源页', width: 150 },
-  { field: 'fromIp', headerName: '来源IP', width: 150 },
-  { field: 'solvedMsg', headerName: '处理内容', width: 150 },
-];
-
 type Graphql = CommentGraphql;
 const QUERY = QUERY_COMMENT;
 
@@ -124,11 +60,11 @@ const getDefaultValue = () => {
     timeRange: {
       from: dateFnsUtils.format(
         dateFnsUtils.startOfMonth(new Date()),
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
       ),
       to: dateFnsUtils.format(
         dateFnsUtils.endOfDay(new Date()),
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
       ),
     },
   };
@@ -136,11 +72,13 @@ const getDefaultValue = () => {
 
 export default function CommentManagement() {
   const classes = useSearchFormStyles();
+  const { t, i18n } = useTranslation();
+
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [expanded, setExpanded] = useState(false);
   const [selectCommentPojo, setSelectCommentPojo] = useState<CommentPojo>();
   const [commentQuery, setCommentQuery] = useState<CommentQuery>(
-    getDefaultValue()
+    getDefaultValue(),
   );
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
@@ -169,10 +107,10 @@ export default function CommentManagement() {
     commentQuery.page.size = params;
     setAndRefetch(commentQuery);
   };
-  const result = data?.findComment;
-  const rows = result && result.content ? result.content : [];
-  const pageSize = result ? result.size : 20;
-  const rowCount = result ? result.totalElements : 0;
+  const findComment = data?.findComment;
+  const rows = findComment && findComment.content ? findComment.content : [];
+  const pageSize = findComment ? findComment.size : 20;
+  const rowCount = findComment ? findComment.totalElements : 0;
 
   const setSearchParams = (searchParams: CommentQuery) => {
     searchParams.page = commentQuery.page;
@@ -187,9 +125,76 @@ export default function CommentManagement() {
     }
   };
 
+  const columns: GridColDef[] = [
+    {
+      field: 'createdAt',
+      headerName: t('Created Date'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    { field: 'shuntId', headerName: t('Shunt'), width: 150 },
+    { field: 'userId', headerName: t('CustomerId'), width: 150 },
+    { field: 'uid', headerName: t('UID'), width: 150 },
+    { field: 'name', headerName: t('Name'), width: 150 },
+    { field: 'mobile', headerName: t('Mobile'), width: 150 },
+    { field: 'email', headerName: t('Email'), width: 150 },
+    { field: 'message', headerName: t('Message content'), width: 350 },
+    {
+      field: 'solved',
+      headerName: t('Solved Status'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Other');
+        switch (params.value) {
+          case 0: {
+            result = t('Unsolved');
+            break;
+          }
+          case 1: {
+            result = t('Solved');
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        return result;
+      },
+    },
+    {
+      field: 'solvedWay',
+      headerName: t('Solution'),
+      width: 150,
+      valueGetter: (params: GridValueGetterParams) => {
+        let result = t('Other');
+        switch (params.value) {
+          case 0: {
+            result = t('Mobile');
+            break;
+          }
+          case 1: {
+            result = t('Email');
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        return result;
+      },
+    },
+    { field: 'fromPage', headerName: t('From Page'), width: 150 },
+    { field: 'fromIp', headerName: t('Visitor IP'), width: 150 },
+    { field: 'solvedMsg', headerName: t('Solution content'), width: 150 },
+  ];
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
-      <DraggableDialog title="详细留言信息" ref={refOfDialog}>
+      <DraggableDialog title={t('Detailed message')} ref={refOfDialog}>
         <CommentForm defaultValues={selectCommentPojo} />
       </DraggableDialog>
       <MuiPickersUtilsProvider utils={DateFnsUtils} locale={zhCN}>
@@ -204,14 +209,14 @@ export default function CommentManagement() {
                   name="time"
                   render={({ field: { onChange, value } }) => (
                     <FormControlLabel
-                      control={
+                      control={(
                         <Checkbox
                           checked={value}
                           onChange={(e) => onChange(e.target.checked)}
                           inputProps={{ 'aria-label': 'primary checkbox' }}
                         />
-                      }
-                      label="时间"
+                      )}
+                      label={t('Time Range')}
                     />
                   )}
                 />
@@ -225,15 +230,15 @@ export default function CommentManagement() {
                       format="yyyy-MM-dd HH:mm:ss"
                       margin="normal"
                       id="date-picker-inline"
-                      label="开始时间"
+                      label={t('Start time')}
                       value={value}
                       onChange={(d) => {
                         if (d) {
                           onChange(
                             dateFnsUtils.format(
                               d,
-                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-                            )
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+                            ),
                           );
                         }
                       }}
@@ -252,15 +257,15 @@ export default function CommentManagement() {
                       format="yyyy-MM-dd HH:mm:ss"
                       margin="normal"
                       id="date-picker-inline"
-                      label="结束时间"
+                      label={t('End Time')}
                       value={value}
                       onChange={(d) => {
                         if (d) {
                           onChange(
                             dateFnsUtils.format(
                               d,
-                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
-                            )
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+                            ),
                           );
                         }
                       }}
@@ -276,7 +281,7 @@ export default function CommentManagement() {
                   render={({ field: { onChange, value } }) => (
                     <FormControl variant="outlined" margin="normal">
                       <InputLabel id="demo-mutiple-chip-label">
-                        解决状态
+                        {t('Solved Status')}
                       </InputLabel>
                       <Select
                         labelId="solved"
@@ -286,13 +291,13 @@ export default function CommentManagement() {
                           onChange(tempId === '' ? null : +tempId);
                         }}
                         value={_.isNil(value) ? '' : value}
-                        label="解决状态"
+                        label={t('Solved Status')}
                       >
                         <MenuItem value="">
-                          <em>全部</em>
+                          <em>{t('All')}</em>
                         </MenuItem>
-                        <MenuItem value="0">未解决</MenuItem>
-                        <MenuItem value="1">已解决</MenuItem>
+                        <MenuItem value="0">{t('Unsolved')}</MenuItem>
+                        <MenuItem value="1">{t('Solved')}</MenuItem>
                       </Select>
                     </FormControl>
                   )}
@@ -303,7 +308,7 @@ export default function CommentManagement() {
                   render={({ field: { onChange, value } }) => (
                     <FormControl variant="outlined" margin="normal">
                       <InputLabel id="demo-mutiple-chip-label">
-                        解决方式
+                      {t('Solution')}
                       </InputLabel>
                       <Select
                         labelId="solvedWay"
@@ -313,13 +318,13 @@ export default function CommentManagement() {
                           onChange(tempId === '' ? null : +tempId);
                         }}
                         value={_.isNil(value) ? '' : value}
-                        label="解决方式"
+                        label={t('Solution')}
                       >
                         <MenuItem value="">
-                          <em>全部</em>
+                          <em>{t('All')}</em>
                         </MenuItem>
-                        <MenuItem value={0}>手机</MenuItem>
-                        <MenuItem value={1}>邮件</MenuItem>
+                        <MenuItem value={0}>{t('Mobile')}</MenuItem>
+                        <MenuItem value={1}>{t('Email')}</MenuItem>
                       </Select>
                     </FormControl>
                   )}
@@ -335,7 +340,7 @@ export default function CommentManagement() {
                   reset(getDefaultValue());
                 }}
               >
-                重置
+                {t('Reset')}
               </Button>
               <Button
                 type="submit"
@@ -345,7 +350,7 @@ export default function CommentManagement() {
                 startIcon={<SearchIcon />}
                 aria-label="submit"
               >
-                搜索
+                {t('Search')}
               </Button>
               <IconButton
                 className={clsx(classes.expand, {
@@ -368,7 +373,7 @@ export default function CommentManagement() {
       </MuiPickersUtilsProvider>
       <Divider variant="inset" component="li" />
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{

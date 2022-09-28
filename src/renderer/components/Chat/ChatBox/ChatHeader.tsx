@@ -1,8 +1,9 @@
 /**
  * 聊天窗口头，显示用户信息，和基本统计
  */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -22,7 +23,7 @@ import {
   getSelectedSession,
 } from 'renderer/state/chat/chatAction';
 import { CloseReason } from 'renderer/domain/constant/Conversation';
-import { getEvaluation } from 'renderer/domain/Conversation';
+import { getEvaluation, useEvalProp } from 'renderer/domain/Conversation';
 import { Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles(() =>
@@ -40,10 +41,13 @@ const useStyles = makeStyles(() =>
 
 export default function ChatHeader() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const session = useSelector(getSelectedSession);
   const conv = useSelector(getSelectedConv);
   const user = useSelector(getSelectedConstomer);
   const [sessionDuration, setSessionDuration] = useState<number>();
+  const evalProp = useEvalProp();
 
   useEffect(() => {
     let timer: number;
@@ -108,9 +112,13 @@ export default function ChatHeader() {
             {sessionDuration && (
               <Typography noWrap align="center" variant="body2">
                 {/** 获取会话时长 */}
-                咨询时长：
-                {getDuration(sessionDuration)}{' '}
-                {conv?.closeReason === 'TRANSFER' ? '会话已转接' : ''}
+                {t('header.Chat Duration')}
+                {': '}
+                {getDuration(sessionDuration)}
+{' '}
+                {conv?.closeReason === 'TRANSFER'
+                  ? t('header.Conversation Transferred')
+                  : ''}
               </Typography>
             )}
           </Grid>
@@ -124,7 +132,7 @@ export default function ChatHeader() {
                       style={{ paddingLeft: 10 }}
                       variant="body2"
                     >
-                      <strong>正在输入: </strong>
+                      <strong>{`${t('header.User Typing')}: `}</strong>
                       {session.userTypingText}
                     </Typography>
                   </Tooltip>
@@ -132,16 +140,21 @@ export default function ChatHeader() {
               </Grid>
               <Grid item xs={4} zeroMinWidth>
                 <Typography noWrap style={{ paddingLeft: 10 }} variant="body2">
-                  {conv.evaluate
-                    ? `评价结果: ${getEvaluation(
-                      conv.evaluate.evaluation,
-                    )}，内容：${conv.evaluate.evaluationRemark}`
-                    : '未评价'}
+                  {conv.evaluate && evalProp
+                    ? `${t('header.Rated Result')}: ${getEvaluation(
+                        evalProp,
+                        conv.evaluate.evaluation
+                    )}, ${t('header.Rated Content')}: ${
+                      conv.evaluate.evaluationRemark
+                      }`
+                    : t('header.Unrated')}
                 </Typography>
               </Grid>
               <Grid item xs={3} zeroMinWidth>
                 <Typography noWrap variant="body2">
-                  {conv.category ? `已总结: ${conv.category}` : '未总结'}
+                  {conv.category
+                    ? `${t('header.Category')}: ${conv.category}`
+                    : t('header.No Category')}
                 </Typography>
               </Grid>
             </>

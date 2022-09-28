@@ -6,18 +6,15 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import _ from 'lodash';
 
-import { gql, useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import JSONEditor, { JSONEditorOptions } from 'jsoneditor';
-import {
-  createStyles,
-  makeStyles,
-  Theme,
-  useTheme,
-} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
@@ -25,7 +22,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import TitleIcon from '@material-ui/icons/Title';
 import LinkIcon from '@material-ui/icons/Link';
 import CodeIcon from '@material-ui/icons/Code';
-import HttpsIcon from '@material-ui/icons/Https';
 import {
   Typography,
   Link,
@@ -33,7 +29,6 @@ import {
   InputLabel,
   FormHelperText,
   MenuItem,
-  Input,
   Select,
   Accordion,
   AccordionDetails,
@@ -43,7 +38,6 @@ import {
   Switch,
   CircularProgress,
   Snackbar,
-  Chip,
   Button,
 } from '@material-ui/core';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
@@ -62,7 +56,6 @@ import { ShuntUIConfig } from 'renderer/domain/Config';
 
 import './Jsoneditor.global.css';
 import useAlert from 'renderer/hook/alert/useAlert';
-import { TopicGraphql, QUERY_BOT_TOPIC } from 'renderer/domain/graphql/Bot';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -112,7 +105,7 @@ const useStyles = makeStyles((theme: Theme) =>
     chip: {
       margin: 2,
     },
-  })
+  }),
 );
 
 // 去除掉没用的循环属性
@@ -204,6 +197,7 @@ function Alert(props: AlertProps) {
 export default function StaffShuntForm(props: FormProps) {
   const { defaultValues, shuntClassList, staffList } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const jsoneditorRef = useRef<HTMLDivElement>(null);
   const [jsoneditor, setJsoneditor] = useState<JSONEditor>();
@@ -218,7 +212,7 @@ export default function StaffShuntForm(props: FormProps) {
       jsoneditor?.update(newChatUIConfigObj);
       setChatUIConfigObj(newChatUIConfigObj);
     },
-    [jsoneditor]
+    [jsoneditor],
   );
 
   const imgUploadProps = useMemo(() => {
@@ -237,7 +231,7 @@ export default function StaffShuntForm(props: FormProps) {
               logo: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
-          jsoneditor?.get()
+          jsoneditor?.get(),
         );
         updateChatUIConfig(newChatUIConfigObj);
         setUploading(false);
@@ -265,7 +259,7 @@ export default function StaffShuntForm(props: FormProps) {
               avatar: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
-          jsoneditor?.get()
+          jsoneditor?.get(),
         );
         updateChatUIConfig(newChatUIConfigObj);
         setUploading(false);
@@ -388,7 +382,7 @@ initXiaobaiChat(params);
     {
       onCompleted,
       onError,
-    }
+    },
   );
   const [saveChatUIConfig, { loading: uiLoading, data: savedChatUIConfig }] =
     useMutation<ChatUIConfigGraphql>(MUTATION_UICONFIG, {
@@ -419,7 +413,7 @@ initXiaobaiChat(params);
     const staffConfigMap = _.groupBy(
       savedStaffConfigList?.saveStaffConfig ??
         staffConfigList?.staffConfigByShuntId,
-      'staffId'
+      'staffId',
     );
     // 根据获取的 StaffConfig list 创建一个临时列
     const scl = staffList.map((staff) => {
@@ -431,7 +425,7 @@ initXiaobaiChat(params);
             staffType: staff.staffType,
             enabled: true,
           },
-          sc[0]
+          sc[0],
         );
       }
       return {
@@ -456,7 +450,7 @@ initXiaobaiChat(params);
       };
       const editor = new JSONEditor(jsoneditorRef.current, options);
       editor.setText(
-        '{"navbar":{"title":"智能助理"},"toolbar":[{"type":"image","icon":"image","title":"图片"}],"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}'
+        '{"navbar":{"title":"智能助理"},"toolbar":[{"type":"image","icon":"image","title":"图片"}],"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}',
       );
       setJsoneditor(editor);
     }
@@ -520,7 +514,7 @@ initXiaobaiChat(params);
           .map((sc) =>
             _.pick(
               _.defaults({ shuntId: shuntResult?.data?.saveShunt?.id }, sc),
-              ['shuntId', 'priority', 'staffId']
+              ['shuntId', 'priority', 'staffId'],
             ),
           );
         saveStaffConfig({
@@ -542,15 +536,15 @@ initXiaobaiChat(params);
 
   const handleSliderChange =
     (staffId?: number) =>
-    (_event: React.ChangeEvent<unknown>, value: number | number[]) => {
-      const changed = tempStaffConfig?.map((sc) => {
-        if (sc.staffId === staffId) {
-          return _.assign(sc, { priority: value });
-        }
-        return sc;
-      });
-      setTempStaffConfig(changed);
-    };
+      (_event: React.ChangeEvent<unknown>, value: number | number[]) => {
+        const changed = tempStaffConfig?.map((sc) => {
+          if (sc.staffId === staffId) {
+            return _.assign(sc, { priority: value });
+          }
+          return sc;
+        });
+        setTempStaffConfig(changed);
+      };
 
   const handleClose = (_event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
@@ -607,7 +601,7 @@ initXiaobaiChat(params);
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity="error">
-          上传失败:
+          {`${t('Upload failed')}:`}
           {error}
         </Alert>
       </Snackbar>
@@ -620,7 +614,7 @@ initXiaobaiChat(params);
         <Controller
           control={control}
           name="shuntClassId"
-          rules={{ required: '接待组分类必选' }}
+          rules={{ required: t('Shunt classification required') }}
           render={({
             field: { onChange, value },
             fieldState: { invalid, error: shuntClassIdError },
@@ -631,13 +625,15 @@ initXiaobaiChat(params);
               fullWidth
               error={invalid}
             >
-              <InputLabel id="demo-mutiple-chip-label">接待组分类</InputLabel>
+              <InputLabel id="demo-mutiple-chip-label">
+                {t('Shunt Classification')}
+              </InputLabel>
               <Select
                 labelId="shuntClassId"
                 id="shuntClassId"
                 onChange={onChange}
                 value={value || ''}
-                label="接待组分类"
+                label={t('Shunt Classification')}
               >
                 {shuntClassList &&
                   shuntClassList.map((it) => {
@@ -659,7 +655,7 @@ initXiaobaiChat(params);
           margin="normal"
           fullWidth
           id="name"
-          label="接待组名称"
+          label={t('Shunt Name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -668,10 +664,10 @@ initXiaobaiChat(params);
             ),
           }}
           {...register('name', {
-            required: '必须设置接待组名称',
+            required: t('Shunt group name must be set'),
             maxLength: {
               value: 50,
-              message: '接待组名称不能大于50位',
+              message: t('Shunt group name cannot exceed 50 characters'),
             },
           })}
         />
@@ -680,7 +676,7 @@ initXiaobaiChat(params);
           margin="normal"
           fullWidth
           id="code"
-          label="接待组链接代码"
+          label={t('Shunt Code')}
           value={defaultValues?.code || data?.saveShunt?.code || ''}
           InputProps={{
             readOnly: true,
@@ -698,7 +694,9 @@ initXiaobaiChat(params);
             margin="normal"
             fullWidth
             id="webJs"
-            label="web 链接接入 (uid 等参数可以添加到 url 参数后）"
+            label={t(
+              'Web link access (parameters such as uid can be added to the url parameter)'
+            )}
             value={webLink}
             InputProps={{
               readOnly: true,
@@ -712,7 +710,7 @@ initXiaobaiChat(params);
         )}
         {shuntCode && webLink && (
           <Link target="_blank" href={webLink}>
-            测试接待组链接
+            {t('Test Shunt group link')}
           </Link>
         )}
         {shuntCode && (
@@ -722,7 +720,7 @@ initXiaobaiChat(params);
             fullWidth
             multiline
             id="webJs"
-            label="web-js 弹窗接入"
+            label={t('web-js popup')}
             value={webEmbedded}
             InputProps={{
               readOnly: true,
@@ -763,7 +761,9 @@ initXiaobaiChat(params);
           <Grid item xs={7}>
             <Upload {...imgUploadProps}>
               <Typography variant="body1">
-                自定义导航栏Logo（点击头像或上传添加/修改）
+                {t(
+                  'Customize the navigation bar Logo (click on the avatar or upload to add/modify)',
+                )}
               </Typography>
               {chatUIConfigObj && chatUIConfigObj.navbar.logo ? (
                 <img
@@ -773,14 +773,14 @@ initXiaobaiChat(params);
                 />
               ) : (
                 <Button variant="contained" color="primary">
-                  上传图片
+                  {t('Upload image')}
                 </Button>
               )}
             </Upload>
           </Grid>
           <Grid item xs={5}>
             <Button color="secondary" onClick={onDeleteLogoClick}>
-              删除图片
+              {t('Delete image')}
             </Button>
           </Grid>
         </Grid>
@@ -790,7 +790,7 @@ initXiaobaiChat(params);
           fullWidth
           id="chatTitle"
           name="chatTitle"
-          label="自定义聊天标题"
+          label={t('Custom chat title')}
           value={chatUIConfigObj?.navbar?.title || ''}
           InputProps={{
             startAdornment: (
@@ -814,7 +814,7 @@ initXiaobaiChat(params);
           multiline
           id="chatTitle"
           name="chatTitle"
-          label="欢迎语设置"
+          label={t('Welcome setting')}
           value={(chatUIConfigObj?.messages ?? [])[0]?.content?.text ?? ''}
           InputProps={{
             startAdornment: (
@@ -842,7 +842,7 @@ initXiaobaiChat(params);
           fullWidth
           id="agentJoinTitle"
           name="agentJoinTitle"
-          label="转人工客服按钮文本"
+          label={t('Transfer to human customer service button text')}
           value={chatUIConfigObj?.agent.quickReply.name ?? '召唤人工客服'}
           InputProps={{
             startAdornment: (
@@ -867,7 +867,7 @@ initXiaobaiChat(params);
           fullWidth
           id="agentJoinTitle"
           name="agentJoinTitle"
-          label="留言按钮文本"
+          label={t('Message button text')}
           value={(chatUIConfigObj?.quickReplies ?? [])[0]?.name ?? '留言'}
           InputProps={{
             startAdornment: (
@@ -897,7 +897,7 @@ initXiaobaiChat(params);
           fullWidth
           id="agentJoinTitle"
           name="agentJoinTitle"
-          label="评价按钮文本"
+          label={t('Comment button text')}
           value={(chatUIConfigObj?.quickReplies ?? [])[1]?.name ?? '评价'}
           InputProps={{
             startAdornment: (
@@ -927,7 +927,7 @@ initXiaobaiChat(params);
           fullWidth
           id="loadMoreText"
           name="loadMoreText"
-          label="加载历史消息文本"
+          label={t('Load historical message text')}
           value={chatUIConfigObj?.loadMoreText ?? '点击加载历史消息'}
           InputProps={{
             startAdornment: (
@@ -948,7 +948,7 @@ initXiaobaiChat(params);
           fullWidth
           id="placeholder"
           name="placeholder"
-          label="输入框占位符"
+          label={t('Input box placeholder')}
           value={chatUIConfigObj?.placeholder ?? '输入任何您的问题'}
           InputProps={{
             startAdornment: (
@@ -969,7 +969,7 @@ initXiaobaiChat(params);
           fullWidth
           id="sendImageText"
           name="sendImageText"
-          label="发送图片按钮文本"
+          label={t('Send image button text')}
           value={(chatUIConfigObj?.toolbar ?? [])[0]?.title ?? '图片'}
           InputProps={{
             startAdornment: (
@@ -1003,7 +1003,7 @@ initXiaobaiChat(params);
           fullWidth
           id="notificationText"
           name="notificationText"
-          label="铃声按钮文本"
+          label={t('Ringtone button text')}
           value={(chatUIConfigObj?.toolbar ?? [])[1]?.title ?? '铃声'}
           InputProps={{
             startAdornment: (
@@ -1037,7 +1037,7 @@ initXiaobaiChat(params);
           fullWidth
           id="historyReminderText"
           name="historyReminderText"
-          label="历史消息提醒文本"
+          label={t('History message reminder text')}
           value={chatUIConfigObj?.historyReminderText ?? '以上是历史消息'}
           InputProps={{
             startAdornment: (
@@ -1056,7 +1056,9 @@ initXiaobaiChat(params);
           <Grid item xs={7}>
             <Upload {...avatarUploadProps}>
               <Typography variant="body1">
-                客服头像设置 (最大 108 * 108，点击头像或上传添加/修改)
+                {t(
+                  'Customer service avatar settings (maximum 108 * 108, click on the avatar or upload to add/modify)'
+                )}
               </Typography>
               {chatUIConfigObj && chatUIConfigObj.robot?.avatar ? (
                 <img
@@ -1066,14 +1068,14 @@ initXiaobaiChat(params);
                 />
               ) : (
                 <Button variant="contained" color="primary">
-                  上传图片
+                  {t('Upload image')}
                 </Button>
               )}
             </Upload>
           </Grid>
           <Grid item xs={5}>
             <Button color="secondary" onClick={onDeleteAvatarClick}>
-              删除图片
+              {t('Delete image')}
             </Button>
           </Grid>
         </Grid>
@@ -1085,25 +1087,31 @@ initXiaobaiChat(params);
               id="panel1c-header"
             >
               <div className={classes.column}>
-                <Typography className={classes.heading}>设置客服</Typography>
+                <Typography className={classes.heading}>
+                  {t('Set up customer service')}
+                </Typography>
               </div>
               <div className={classes.column}>
                 <Typography className={classes.secondaryHeading}>
-                  选择要加入此接待组的客服和优先级
+                  {t('Select agents and priorities to join this shunt group')}
                 </Typography>
               </div>
             </AccordionSummary>
             <AccordionDetails className={classes.details}>
               <Grid container spacing={4}>
                 <Grid item sm={6} xs={12}>
-                  <Typography variant="caption">机器人客服</Typography>
+                  <Typography variant="caption">
+                    {t('Robot customer service')}
+                  </Typography>
                   {tempStaffConfig &&
                     tempStaffConfig
                       .filter((sc) => sc.staffType === 0)
                       .map((sc) => createStaffConfigList(sc))}
                 </Grid>
                 <Grid item sm={6} xs={12} className={classes.helper}>
-                  <Typography variant="caption">人工客服</Typography>
+                  <Typography variant="caption">
+                    {t('Manual customer service')}
+                  </Typography>
                   {tempStaffConfig &&
                     tempStaffConfig
                       .filter((sc) => sc.staffType === 1)

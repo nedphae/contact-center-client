@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { ChangeEvent, Dispatch, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import _ from 'lodash';
 import {
   useForm,
   SubmitHandler,
   Controller,
   useFieldArray,
-  Control,
 } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
 
@@ -32,7 +33,6 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
-  FormControlProps,
   FormHelperText,
   Grid,
   IconButton,
@@ -54,7 +54,7 @@ import {
 import { RcFile } from 'rc-upload/lib/interface';
 import SwipeableViews from 'react-swipeable-views';
 import { Autocomplete } from '@material-ui/lab';
-import ChipSelect, { SelectKeyValue } from '../Form/ChipSelect';
+import { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
 import RichText from './RichText';
 
@@ -153,6 +153,7 @@ export default function TopicForm(props: FormProps) {
   } = props;
   const theme = useTheme();
   const classes = useStyles();
+  const { t } = useTranslation();
 
   const [defaultValues, setDefaultValues] = useState(
     _.omitBy(defaultTopic, _.isNull)
@@ -248,7 +249,7 @@ export default function TopicForm(props: FormProps) {
       update(1, { type: 'image', content: (response as string[])[0] });
     },
     onError(error: Error, _ret: any, _file: RcFile) {
-      onErrorMsg('图片上传失败');
+      onErrorMsg('Image upload failed');
     },
   };
 
@@ -316,7 +317,7 @@ export default function TopicForm(props: FormProps) {
             )
           );
         }}
-        texts={{ placeholder: '选择所属分类' }}
+        texts={{ placeholder: t('Select the category') }}
         className="mdl-demo"
         mode="radioSelect"
       />
@@ -334,7 +335,7 @@ export default function TopicForm(props: FormProps) {
           error={errors.categoryId && true}
           helperText={errors.categoryId?.message}
           {...register('categoryId', {
-            required: '必须选择知识库分类',
+            required: t('Knowledge base category must be selected'),
             valueAsNumber: true,
           })}
         />
@@ -348,7 +349,7 @@ export default function TopicForm(props: FormProps) {
           helperText={errors.knowledgeBaseId?.message}
           type="hidden"
           {...register('knowledgeBaseId', {
-            required: '必须选择知识库',
+            required: t('Knowledge base must be selected'),
             valueAsNumber: true,
           })}
         />
@@ -386,7 +387,7 @@ export default function TopicForm(props: FormProps) {
           fullWidth
           multiline
           id="question"
-          label="问题"
+          label={t('Question')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -397,10 +398,12 @@ export default function TopicForm(props: FormProps) {
           error={errors.question && true}
           helperText={errors.question?.message}
           {...register('question', {
-            required: '问题必填',
+            required: t('Question required'),
             maxLength: {
               value: 500,
-              message: '问题长度不能大于500个字符',
+              message: t(
+                'Question length cannot be greater than 500 characters'
+              ),
             },
           })}
         />
@@ -418,7 +421,7 @@ export default function TopicForm(props: FormProps) {
                   margin="normal"
                   fullWidth
                   multiline
-                  label="相似问题"
+                  label={t('Similar question')}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -433,10 +436,12 @@ export default function TopicForm(props: FormProps) {
                     errors.refList[index]?.question?.message
                   }
                   {...register(`refList.${index}.question`, {
-                    required: '相似问题必填',
+                    required: t('Similar questions are required'),
                     maxLength: {
                       value: 500,
-                      message: '问题长度不能大于500个字符',
+                      message: t(
+                        'Question length cannot be greater than 500 characters'
+                      ),
                     },
                   })}
                 />
@@ -455,12 +460,16 @@ export default function TopicForm(props: FormProps) {
             </Grid>
           ))}
         <Button onClick={appendRefQuestion} startIcon={<AddIcon />}>
-          添加相似问题
+          {t('Add similar questions')}
         </Button>
         <Alert severity="info" className={classes.alert}>
-          图文和富文本答案可以同时存在，顺序是先文字，然后图片，最后富文本。如果相应答案为空，则不显示。
+          {t(
+            'Graphical and rich text answers can exist at the same time, the order is text first, then pictures, and finally rich text. If the corresponding answer is empty, it will not be displayed.'
+          )}
           <br />
-          如果需要配置问题转人工，只需要把全部外部答案留空即可。
+          {t(
+            'If you need to configure the question to be transferred to manual, you only need to leave all external answers blank.'
+          )}
         </Alert>
         {questionType === 1 && (
           <>
@@ -484,8 +493,8 @@ export default function TopicForm(props: FormProps) {
                   variant="fullWidth"
                   aria-label="full width tabs example"
                 >
-                  <Tab label="图文答案" {...a11yProps(0)} />
-                  <Tab label="富文本答案" {...a11yProps(1)} />
+                  <Tab label={t('Graphical answer')} {...a11yProps(0)} />
+                  <Tab label={t('Rich text answer')} {...a11yProps(1)} />
                 </Tabs>
               </AppBar>
               <SwipeableViews
@@ -500,7 +509,7 @@ export default function TopicForm(props: FormProps) {
                     margin="normal"
                     fullWidth
                     multiline
-                    label="问题的对外答案"
+                    label={t('External answer')}
                     error={errors.answer && true}
                     helperText={
                       errors.answer && errors.answer[0]?.content?.message
@@ -519,14 +528,14 @@ export default function TopicForm(props: FormProps) {
                     <img
                       src={`${getDownloadS3ChatImgPath()}${picSrc}`}
                       style={{ maxWidth: '400px' }}
-                      alt="图片消息"
+                      alt="Message"
                     />
                   )}
 
                   <Grid container alignItems="center">
                     <Upload {...imgUploadProps}>
                       <Button variant="contained" color="primary">
-                        添加图片
+                        {t('Add picture')}
                       </Button>
                     </Upload>
                     <Divider orientation="vertical" />
@@ -535,7 +544,7 @@ export default function TopicForm(props: FormProps) {
                       color="primary"
                       onClick={handleDeletePic}
                     >
-                      删除图片
+                      {t('Delete picture')}
                     </Button>
                   </Grid>
                 </TabPanel>
@@ -555,7 +564,7 @@ export default function TopicForm(props: FormProps) {
               fullWidth
               multiline
               id="innerAnswer"
-              label="问题的对内答案"
+              label={t('Internal answers')}
               error={errors.innerAnswer && true}
               helperText={errors.innerAnswer?.message}
               InputProps={{
@@ -601,14 +610,14 @@ export default function TopicForm(props: FormProps) {
                     onChange(newValue.map((it) => it.id));
                   }}
                   className={classes.alert}
-                  noOptionsText="没有匹配的问题"
+                  noOptionsText={t('No matching questions')}
                   filterSelectedOptions
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       variant="outlined"
-                      label="关联问题"
-                      placeholder="请选择关联问题"
+                      label={t('Association questions')}
+                      placeholder={t('Please select associated questions')}
                     />
                   )}
                 />
@@ -621,7 +630,7 @@ export default function TopicForm(props: FormProps) {
             control={control}
             name="refId"
             defaultValue={undefined}
-            rules={{ required: '相似问题必选' }}
+            rules={{ required: t('Similar questions required') }}
             render={({
               field: { onChange, value },
               fieldState: { invalid, error: refIdError },
@@ -632,13 +641,15 @@ export default function TopicForm(props: FormProps) {
                 fullWidth
                 error={invalid}
               >
-                <InputLabel id="demo-mutiple-chip-label">相似问题</InputLabel>
+                <InputLabel id="demo-mutiple-chip-label">
+                  {t('Similar questions')}
+                </InputLabel>
                 <Select
                   labelId="refId"
                   id="refId"
                   onChange={onChange}
                   value={value || ''}
-                  label="相似问题"
+                  label={t('Similar questions')}
                 >
                   <MenuItem>
                     <em>None</em>
@@ -665,14 +676,14 @@ export default function TopicForm(props: FormProps) {
           name="enabled"
           render={({ field: { onChange, value } }) => (
             <FormControlLabel
-              control={
+              control={(
                 <Checkbox
                   checked={value}
                   onChange={(e) => onChange(e.target.checked)}
                   inputProps={{ 'aria-label': 'primary checkbox' }}
                 />
-              }
-              label="是否启用"
+              )}
+              label={t('Enable?')}
             />
           )}
         />

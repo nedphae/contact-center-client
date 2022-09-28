@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { DataGrid, GridColDef, GridRowId } from '@material-ui/data-grid';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import { QUERY_GROUP, StaffGroupList } from 'renderer/domain/graphql/Staff';
 import { StaffGroup } from 'renderer/domain/StaffInfo';
 import DraggableDialog, {
@@ -31,6 +32,7 @@ export default function Group() {
   const [staffGroup, setStaffGroup] = useState<StaffGroup | undefined>(
     undefined
   );
+  const { t, i18n } = useTranslation();
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_GROUP);
@@ -68,11 +70,11 @@ export default function Group() {
 
   return (
     <>
-      <DraggableDialog title="添加/修改客服组" ref={refOfDialog}>
+      <DraggableDialog title={t('Add/Modify staff group')} ref={refOfDialog}>
         <StaffGroupForm defaultValues={staffGroup} refetch={refetch} />
       </DraggableDialog>
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{

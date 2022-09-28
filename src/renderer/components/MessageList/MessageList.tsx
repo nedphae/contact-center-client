@@ -62,7 +62,7 @@ export default function MessageList(props: MessageListProps) {
     <Paper
       square
       className={classes.paper}
-      style={{ overflowY: 'auto', maxHeight: '80vh' }}
+      style={{ overflowY: 'auto', maxHeight: 'calc(80vh - 80px)' }}
     >
       <List className={classes.list}>
         {messages.map(({ uuid, createdAt, content, creatorType }) => (

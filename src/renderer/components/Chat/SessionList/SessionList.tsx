@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -65,6 +66,8 @@ function SessionList(props: SessionListProps) {
   const { history } = props;
   const classes = useStyles();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
   // 默认不选取
   const selectedSession = useSelector(getSelectedSession);
   const sessions = useSelector(getSession(history));
@@ -158,13 +161,13 @@ function SessionList(props: SessionListProps) {
     if (!menuState.sticky) {
       menuList.push(
         <MenuItem key="sticky" onClick={() => doSticky(menuState.userId)}>
-          置顶
+          {t('menu.Pin')}
         </MenuItem>
       );
     } else {
       menuList.push(
         <MenuItem key="sticky" onClick={() => doSticky(menuState.userId)}>
-          取消置顶
+          {t('menu.Unpin')}
         </MenuItem>
       );
     }
@@ -174,7 +177,7 @@ function SessionList(props: SessionListProps) {
           key="important"
           onClick={() => doTag(menuState.userId, 'important')}
         >
-          重要
+          {t('menu.Important')}
         </MenuItem>
       );
     } else {
@@ -183,7 +186,7 @@ function SessionList(props: SessionListProps) {
           key="clear"
           onClick={() => doTag(menuState.userId, undefined)}
         >
-          清除标记
+          {t('menu.Clear Tag')}
         </MenuItem>
       );
     }
@@ -211,27 +214,35 @@ function SessionList(props: SessionListProps) {
     let logo;
     switch (interactionLogo) {
       case InteractionLogo.NEW: {
-        logo = <Chip label="新用户" size="small" />;
+        logo = <Chip label={t('logo.NEW')} size="small" />;
         break;
       }
       case InteractionLogo.UNREAD: {
-        logo = <Chip label="未读" size="small" color="secondary" />;
+        logo = <Chip label={t('logo.UNREAD')} size="small" color="secondary" />;
         break;
       }
       case InteractionLogo.READ_UNREPLIE: {
-        logo = <Chip label="已读未回" size="small" color="secondary" />;
+        logo = (
+          <Chip
+            label={t('logo.READ_UNREPLIE')}
+            size="small"
+            color="secondary"
+          />
+        );
         break;
       }
       case InteractionLogo.REPLIED: {
-        logo = <Chip label="已读已回" size="small" color="primary" />;
+        logo = <Chip label={t('logo.REPLIED')} size="small" color="primary" />;
         break;
       }
       case InteractionLogo.TRANSFERED: {
-        logo = <Chip label="已转接" size="small" color="primary" />;
+        logo = (
+          <Chip label={t('logo.TRANSFERED')} size="small" color="primary" />
+        );
         break;
       }
       case InteractionLogo.RECONNECTED: {
-        logo = <Chip label="重新接入" size="small" />;
+        logo = <Chip label={t('logo.RECONNECTED')} size="small" />;
         break;
       }
       default: {

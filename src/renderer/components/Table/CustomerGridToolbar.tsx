@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 import {
   GridToolbarContainer,
   GridToolbarColumnsButton,
@@ -43,6 +45,8 @@ export function CustomerExportGridToolbar(
   props: CustomerExportGridToolbarProps
 ) {
   const { exportToExcel, exportText, ...dataProps } = props;
+  const { t } = useTranslation();
+
   return (
     <GridToolbarContainer>
       <GridToolbarDataButton {...dataProps} />
@@ -51,7 +55,9 @@ export function CustomerExportGridToolbar(
       <GridToolbarDensitySelector />
       <GridToolbarExportButton
         exportToExcel={exportToExcel}
-        exportText={exportText ?? '导出至Excel(链接一天内有效)'}
+        exportText={t(
+          exportText ?? 'Export to Excel (link is valid for one day)'
+        )}
       />
     </GridToolbarContainer>
   );
@@ -67,9 +73,9 @@ export function CustomerExportGridToolbarCreater(
 }
 
 CustomerExportGridToolbarCreater.defaultProps = {
-  exportText: '导出至Excel(链接一天内有效)',
+  exportText: 'Export to Excel (link is valid for one day)',
 };
 
 CustomerExportGridToolbar.defaultProps = {
-  exportText: '导出至Excel(链接一天内有效)',
+  exportText: 'Export to Excel (link is valid for one day)',
 };

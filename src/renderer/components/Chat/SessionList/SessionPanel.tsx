@@ -57,7 +57,7 @@ export default function SessionPanel() {
     <div className={classes.root}>
       <Authorized
         authority={['admin']}
-        noMatch={
+        noMatch={(
           <>
             <Tabs
               value={value}
@@ -96,7 +96,7 @@ export default function SessionPanel() {
               </TabPanel>
             </SwipeableViews>
           </>
-        }
+        )}
       >
         <Tabs
           value={value}

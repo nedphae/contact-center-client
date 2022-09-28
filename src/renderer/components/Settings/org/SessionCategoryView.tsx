@@ -1,4 +1,5 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -87,6 +88,8 @@ function treeNodeToTreeNodeProps(
 
 export default function SessionCategoryView() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const treeTableRef = useRef(null);
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [treeValue, setTreeValue] = useState(TreeState.createEmpty());
@@ -163,7 +166,7 @@ export default function SessionCategoryView() {
             refOfDialog.current?.setOpen(true);
           }}
         >
-          修改
+          {t('Modify')}
         </Button>
         <Button
           size="large"
@@ -174,10 +177,10 @@ export default function SessionCategoryView() {
             refOfDialog.current?.setOpen(true);
           }}
         >
-          新增子项
+          {t('Add child item')}
         </Button>
         <Button size="large" onClick={() => handleDelete(row.data.id)}>
-          删除
+          {t('Delete')}
         </Button>
       </>
     );
@@ -192,17 +195,17 @@ export default function SessionCategoryView() {
             refOfDialog.current?.setOpen(true);
           }}
         >
-          新增
+          {t('Add')}
         </Button>
         <Button
           onClick={() => {
             refetch();
           }}
         >
-          刷新
+          {t('Refresh')}
         </Button>
       </ButtonGroup>
-      <DraggableDialog title="添加/修改 咨询类型" ref={refOfDialog}>
+      <DraggableDialog title={t('Add/Modify Category')} ref={refOfDialog}>
         <SessionCategoryForm
           defaultValues={selectSessionCategory}
           treeNodeProps={treeNodeToTreeNodeProps(
@@ -222,11 +225,11 @@ export default function SessionCategoryView() {
       >
         <TreeTable.Column
           renderCell={renderIndexCell}
-          renderHeaderCell={renderHeaderCell('咨询类型')}
+          renderHeaderCell={renderHeaderCell(t('Session Category'))}
         />
         <TreeTable.Column
           renderCell={renderOperatorCell}
-          renderHeaderCell={renderHeaderCell('操作')}
+          renderHeaderCell={renderHeaderCell(t('Operate'))}
           basis="300px"
           grow={0}
         />

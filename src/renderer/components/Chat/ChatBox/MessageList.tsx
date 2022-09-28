@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Viewer from 'react-viewer';
 import clsx from 'clsx';
 import PerfectScrollbar from 'perfect-scrollbar';
+import { useTranslation } from 'react-i18next';
 
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -303,6 +304,7 @@ interface MessagePage {
 const MessageList = (props: MessageListProps) => {
   const { session, messages, staff, user, loadMore } = props;
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const styles = StyleSheet.create({
     container: {
@@ -592,7 +594,7 @@ const MessageList = (props: MessageListProps) => {
               aria-label="outlined primary button group"
               style={{ paddingLeft: '5px', paddingRight: '5px' }}
             >
-              <Tooltip title="撤回">
+              <Tooltip title={t('Withdraw')}>
                 <IconButton
                   aria-label="withdraw"
                   style={{ borderRadius: 0 }}
@@ -612,7 +614,7 @@ const MessageList = (props: MessageListProps) => {
             <ListItem button onClick={handleLoadMore}>
               <ListItemText
                 style={{ display: 'flex', justifyContent: 'center' }}
-                primary="点击加载更多"
+                primary={t('Load More')}
               />
             </ListItem>
           )}

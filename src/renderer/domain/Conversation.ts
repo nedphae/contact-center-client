@@ -1,6 +1,7 @@
 /** 会话管理 */
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
 import {
-  CloseReason,
   CloseReasonTypeKey,
   ConversationType,
   FromType,
@@ -9,6 +10,8 @@ import {
   TransferType,
 } from './constant/Conversation';
 import { CreatorType } from './constant/Message';
+import usePropetyByKey from './graphql/Properties';
+import getPropetyByKey from './graphql/Properties';
 import { Message } from './Message';
 import { SessionCategory } from './SessionCategory';
 
@@ -109,7 +112,7 @@ function createDetailByParent(sessionCategory: SessionCategory): string {
 
 export function createConversationCategory(
   conversationId: number,
-  sessionCategory: SessionCategory
+  sessionCategory: SessionCategory,
 ) {
   const conversationCategory: ConversationCategory = {
     id: conversationId,
@@ -165,33 +168,39 @@ export interface TransferMessageResponse {
   reason?: string;
 }
 
-export function getEvaluation(evaluation: number) {
-  let result = '未评价';
-  switch (evaluation) {
-    case 100: {
-      result = '非常满意';
-      break;
+export const defaultEvalProp = {
+  eval_100: '非常满意',
+  eval_75: '满意',
+  eval_50: '一般',
+  eval_25: '不满意',
+  eval_1: '非常不满意',
+};
+
+export type EvalPropType = typeof defaultEvalProp;
+
+export function getEvaluationPropety(propertyStr: string): EvalPropType {
+  const evalPropObj = propertyStr
+    ? JSON.parse(propertyStr).evaluationOptions
+    : {};
+  return _.defaults(evalPropObj, defaultEvalProp);
+}
+
+export function getEvaluation(
+  evalMap: EvalPropType,
+  evaluation: number,
+): string | undefined {
+  const anyEvalMap = evalMap as any;
+  return anyEvalMap[`eval_${evaluation}`];
+}
+
+export function useEvalProp(): EvalPropType {
+  const property = usePropetyByKey('cae.configJson.evaluate');
+  const [evalProp, setEvalProp] = useState<EvalPropType>(defaultEvalProp);
+  useEffect(() => {
+    if (property?.value) {
+      const propObj = getEvaluationPropety(property?.value);
+      setEvalProp(propObj);
     }
-    case 75: {
-      result = '满意';
-      break;
-    }
-    case 50: {
-      result = '一般';
-      break;
-    }
-    case 25: {
-      result = '不满意';
-      break;
-    }
-    case 1: {
-      result = '非常不满意';
-      break;
-    }
-    default: {
-      result = '未评价';
-      break;
-    }
-  }
-  return result;
+  }, [property]);
+  return evalProp;
 }

@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import { useLazyQuery } from '@apollo/client';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
     resetContainer: {
       padding: theme.spacing(3),
     },
-  })
+  }),
 );
 
 const fakeUserTrack = {
@@ -83,6 +84,8 @@ const fakeUserTrack = {
 
 export default function UserTrack() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   // const status = fakeUserTrack;
   const dispatch = useDispatch();
   const status = useSelector(getSelectedConstomer)?.status;
@@ -91,7 +94,7 @@ export default function UserTrack() {
     {
       variables: { userId: status?.userId },
       fetchPolicy: 'no-cache',
-    }
+    },
   );
 
   useEffect(() => {
@@ -110,13 +113,15 @@ export default function UserTrack() {
           <Stepper nonLinear activeStep={activeStep} orientation="vertical">
             {status.userTrackList.map((userTrack) => {
               const time = userTrack.awayTime
-                ? `时长: ${Math.trunc(
+                ? `${t('Duration')}: ${Math.trunc(
                     userTrack.awayTime - userTrack.enterTime
-                  )} 秒`
-                : '正在访问';
+                )} ${t('Second')}`
+                : t('Being visiting');
               return (
                 <Step key={`${userTrack.enterTime}-${userTrack.url}`}>
-                  <StepLabel>{`${time}, 页面: ${userTrack.url}`}</StepLabel>
+                  <StepLabel>
+                    {`${time}, ${t('Being visiting')}: ${userTrack.url}`}
+                  </StepLabel>
                   <StepContent>
                     <Typography>{userTrack.title}</Typography>
                   </StepContent>
@@ -126,7 +131,7 @@ export default function UserTrack() {
           </Stepper>
           {activeStep === status.userTrackList.length && (
             <Paper square elevation={0} className={classes.resetContainer}>
-              <Typography>用户已经离开网页</Typography>
+              <Typography>{t('The user has left the webpage')}</Typography>
             </Paper>
           )}
           {getStatus && (
@@ -140,7 +145,7 @@ export default function UserTrack() {
                   }}
                   className={classes.button}
                 >
-                  刷新
+                  {t('Refresh')}
                 </Button>
               </div>
             </div>

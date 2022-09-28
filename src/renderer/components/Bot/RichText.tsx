@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // import '@wangeditor/editor/dist/css/style.css';
 import './wangeditor.global.css';
@@ -7,7 +8,6 @@ import { Editor, Toolbar } from '@wangeditor/editor-for-react';
 import { IDomEditor, IEditorConfig } from '@wangeditor/editor';
 import {
   getDownloadS3ChatImgPath,
-  getUploadS3ChatPath,
   getUploadS3ChatPath,
 } from 'renderer/config/clientConfig';
 import useAlert from 'renderer/hook/alert/useAlert';
@@ -21,12 +21,14 @@ type InsertFnType = (url: string, alt: string, href: string) => void;
 
 export default function RichText(props: RichTextProps) {
   const { html, setHtml } = props; // 编辑器内容
+  const { t } = useTranslation();
+
   const [editor, setEditor] = useState<IDomEditor | null>(null); // 存储 editor 实例
   const { onErrorMsg } = useAlert();
 
   const toolbarConfig = {};
   const editorConfig: Partial<IEditorConfig> = {
-    placeholder: '请输入内容...',
+    placeholder: t('placeholder'),
     MENU_CONF: {},
   };
 
@@ -66,7 +68,7 @@ export default function RichText(props: RichTextProps) {
 
       // 上传错误，或者触发 timeout 超时
       onError(file: File, err: any, res: any) {
-        onErrorMsg('上传失败');
+        onErrorMsg('Upload failed');
       },
     };
     editorConfig.MENU_CONF.uploadVideo = {
@@ -101,7 +103,7 @@ export default function RichText(props: RichTextProps) {
 
       // 上传错误，或者触发 timeout 超时
       onError(file: File, err: any, res: any) {
-        onErrorMsg('上传失败');
+        onErrorMsg('Upload failed');
       },
     };
   }

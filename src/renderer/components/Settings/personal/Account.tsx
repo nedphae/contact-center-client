@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useSelector, useDispatch } from 'react-redux';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core';

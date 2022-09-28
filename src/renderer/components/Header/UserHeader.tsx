@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Avatar } from '@material-ui/core';
 import WebIcon from '@material-ui/icons/Web';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';

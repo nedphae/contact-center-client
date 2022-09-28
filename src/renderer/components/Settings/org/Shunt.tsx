@@ -1,4 +1,5 @@
 import React, { useRef, useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -14,7 +15,7 @@ import {
 } from '@material-ui/data-grid';
 
 import config from 'renderer/config/clientConfig';
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import {
   AllShunt,
   QUERY_STAFF,
@@ -82,24 +83,30 @@ const MUTATION_DELETE_SHUNT_CLASS = gql`
 
 type Graphql = AllShunt;
 
-const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'name', headerName: '接待组名称', width: 150 },
-  { field: 'shuntClassName', headerName: '接待组所属分类', width: 250 },
-  { field: 'code', headerName: '接待组代码', width: 350 },
-  {
-    field: 'webUrl',
-    headerName: '接待组Web链接地址',
-    width: 350,
-    valueGetter: (params: GridValueGetterParams) => {
-      const { code } = params.row;
-      return `${config.web.host}/chat/?sc=${code}`;
-    },
-  },
-];
-
 export default function Shunt() {
   const classes = useStyles();
+  const { t, i18n } = useTranslation();
+
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'name', headerName: t('Shunt Name'), width: 150 },
+    {
+      field: 'shuntClassName',
+      headerName: t('Shunt Classification'),
+      width: 250,
+    },
+    { field: 'code', headerName: t('Shunt Code'), width: 350 },
+    {
+      field: 'webUrl',
+      headerName: t('Shunt Web URL'),
+      width: 350,
+      valueGetter: (params: GridValueGetterParams) => {
+        const { code } = params.row;
+        return `${config.web.host}/chat/?sc=${code}`;
+      },
+    },
+  ];
+
   const [mousePoint, setMousePoint] = useState<MousePoint>(initialMousePoint);
 
   const [staffShunt, setStaffShunt] = useState<StaffShunt>();
@@ -229,7 +236,7 @@ export default function Shunt() {
               setMousePoint(initialMousePoint);
             }}
           >
-            修改接待组分类
+            {t('Modify Shunt Classification')}
           </MenuItem>
           {staffShuntClass && staffShuntClass.catalogue !== -1 && (
             <MenuItem
@@ -243,13 +250,13 @@ export default function Shunt() {
                 setMousePoint(initialMousePoint);
               }}
             >
-              删除接待组分类
+              {t('Delete Shunt Classification')}
             </MenuItem>
           )}
         </Menu>
       </div>
       <DraggableDialog
-        title="添加/修改接待组"
+        title={t('Add/Modify Shunt')}
         ref={refOfDialog}
         fullWidth
         maxWidth="md"
@@ -261,13 +268,16 @@ export default function Shunt() {
         />
       </DraggableDialog>
       <Grid item xs={12} sm={2}>
-        <DraggableDialog title="添加/修改接待组分类" ref={refOfClassDialog}>
+        <DraggableDialog
+          title={t('Add/Modify Shunt Classification')}
+          ref={refOfClassDialog}
+        >
           <ShuntClassForm defaultValues={staffShuntClass} />
         </DraggableDialog>
         <TreeToolbar
-          title="接待组分类"
+          title={t('Shunt Classification')}
           refetch={refetch}
-          adderName="添加接待组分类"
+          adderName={t('Add Shunt Classification')}
           add={() => {
             setStaffShuntClass(undefined);
             refOfClassDialog.current?.setOpen(true);
@@ -286,7 +296,7 @@ export default function Shunt() {
       </Grid>
       <Grid item xs={12} sm={10}>
         <DataGrid
-          localeText={GRID_DEFAULT_LOCALE_TEXT}
+          localeText={gridLocaleTextMap.get(i18n.language)}
           rows={rows}
           columns={columns}
           components={{

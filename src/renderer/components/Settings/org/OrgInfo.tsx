@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import _ from 'lodash';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -34,6 +36,8 @@ const useStyles = makeStyles(() =>
 
 export default function OrgInfo() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const { data: defaultOrganization } =
     useQuery<OrganizationGraphql>(QUERY_ORG);
 
@@ -71,7 +75,7 @@ export default function OrgInfo() {
           variant="outlined"
           margin="normal"
           fullWidth
-          label="企业名称"
+          label={t('Enterprise Name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -85,7 +89,7 @@ export default function OrgInfo() {
           variant="outlined"
           margin="normal"
           fullWidth
-          label="注册手机号"
+          label={t('Register mobile number')}
           value={defaultOrganization?.getOrganization.phone}
           InputProps={{
             readOnly: true,
@@ -100,7 +104,7 @@ export default function OrgInfo() {
           variant="outlined"
           margin="normal"
           fullWidth
-          label="企业邮箱"
+          label={t('Enterprise mailbox')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -114,7 +118,7 @@ export default function OrgInfo() {
           variant="outlined"
           margin="normal"
           fullWidth
-          label="企业地址"
+          label={t('Enterprise address')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -128,7 +132,7 @@ export default function OrgInfo() {
           variant="outlined"
           margin="normal"
           fullWidth
-          label="企业主页"
+          label={t('Enterprise homepage')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -142,7 +146,7 @@ export default function OrgInfo() {
           variant="outlined"
           margin="normal"
           fullWidth
-          label="企业详细信息"
+          label={t('Enterprise details')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

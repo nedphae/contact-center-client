@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { Object } from 'ts-toolbelt';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { gql, useMutation } from '@apollo/client';
@@ -48,6 +49,8 @@ const MUTATION = gql`
 export default function KnowledgeBaseForm(props: FormProps) {
   const { defaultValues } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const {
     handleSubmit,
     register,
@@ -86,7 +89,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="name"
-          label="知识库名称"
+          label={t('Knowledge base name')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -97,10 +100,12 @@ export default function KnowledgeBaseForm(props: FormProps) {
           error={errors.name && true}
           helperText={errors.name?.message}
           {...register('name', {
-            required: '必须提供知识库名称',
+            required: t('Knowledge base name is required'),
             maxLength: {
               value: 200,
-              message: '知识库名称 长度不能大于500个字符',
+              message: t(
+                'Knowledge base name length cannot be greater than 500 characters'
+              ),
             },
           })}
         />
@@ -109,7 +114,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
           margin="normal"
           fullWidth
           id="description"
-          label="知识库描述"
+          label={t('Knowledge base description')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -122,7 +127,9 @@ export default function KnowledgeBaseForm(props: FormProps) {
           {...register('description', {
             maxLength: {
               value: 500,
-              message: '知识库描述 长度不能大于500个字符',
+              message: t(
+                'Knowledge base description length cannot exceed 500 characters'
+              ),
             },
           })}
         />

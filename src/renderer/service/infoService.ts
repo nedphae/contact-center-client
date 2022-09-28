@@ -8,7 +8,7 @@ import { Customer } from 'renderer/domain/Customer';
 import { QUERY_CUSTOMER } from 'renderer/domain/graphql/Customer';
 
 export async function getCurrentStaff(): Promise<Staff> {
-  const result = await axios.get<Staff>(`/staff/info`);
+  const result = await axios.get<Staff>('/staff/info');
   return result.data;
 }
 

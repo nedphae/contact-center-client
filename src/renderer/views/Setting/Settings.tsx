@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
 import { gql, useQuery } from '@apollo/client';
@@ -160,6 +161,8 @@ type PageName =
 
 export default function Setting() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const { data, refetch } = useQuery<Graphql>(QUERY, {
     fetchPolicy: 'no-cache',
   });
@@ -186,10 +189,10 @@ export default function Setting() {
         defaultExpandIcon={<PlusSquare />}
         defaultEndIcon={<CloseSquare />}
       >
-        <StyledTreeItem nodeId="personal" label="个人设置">
+        <StyledTreeItem nodeId="personal" label={t('Personal Settings')}>
           <StyledTreeItem
             nodeId="personal.Account"
-            label="账号设置"
+            label={t('Account Settings')}
             onClick={() => setPageName('personal.Account')}
           />
           {/* <StyledTreeItem
@@ -199,50 +202,50 @@ export default function Setting() {
             /> */}
         </StyledTreeItem>
         <Authorized authority={['admin']} noMatch={<></>}>
-          <StyledTreeItem nodeId="org" label="企业设置">
+          <StyledTreeItem nodeId="org" label={t('Enterprise settings')}>
             <StyledTreeItem
               nodeId="org.Info"
-              label="企业信息"
+              label={t('Enterprise Information')}
               onClick={() => setPageName('org.Info')}
             />
             <StyledTreeItem
               nodeId="org.Account"
-              label="账号管理"
+              label={t('Account Management')}
               onClick={() => setPageName('org.Account')}
             />
             <StyledTreeItem
               nodeId="org.Group"
-              label="客服组"
+              label={t('Customer Service Group')}
               onClick={() => setPageName('org.Group')}
             />
             <StyledTreeItem
               nodeId="org.Shunt"
-              label="接待组"
+              label={t('Shunt Group')}
               onClick={() => setPageName('org.Shunt')}
             />
             <StyledTreeItem
               nodeId="org.WeChat"
-              label="微信接入"
+              label={t('WeChat Access')}
               onClick={() => setPageName('org.WeChat')}
             />
             <StyledTreeItem
               nodeId="org.SessionCategory"
-              label="咨询类型"
+              label={t('Session Category')}
               onClick={() => setPageName('org.SessionCategory')}
             />
             <StyledTreeItem
               nodeId="org.Blacklist"
-              label="黑名单"
+              label={t('Blocklist')}
               onClick={() => setPageName('org.Blacklist')}
             />
             <StyledTreeItem
               nodeId="org.CustomerTag"
-              label="客户标签"
+              label={t('Customer Tags')}
               onClick={() => setPageName('org.CustomerTag')}
             />
             <StyledTreeItem
               nodeId="org.CommentAndEvaluate"
-              label="留言评价配置"
+              label={t('Message & Rate Config')}
               onClick={() => setPageName('org.CommentAndEvaluate')}
             />
             {properties &&
@@ -257,7 +260,7 @@ export default function Setting() {
                   <StyledTreeItem
                     key={k}
                     nodeId={`properties.${k}`}
-                    label={properties[k].label}
+                    label={t(properties[k].label)}
                   >
                     {propertiesFilter.map((fk) => {
                       const childProp = properties[k][fk] as Properties;
@@ -265,8 +268,8 @@ export default function Setting() {
                         <StyledTreeItem
                           key={fk}
                           nodeId={`properties.${k}.${fk}`}
-                          label={childProp.label}
-                          onClick={() => {
+                          label={t(childProp.label)}
+                          onClick={ () => {
                             setPageName('org.Properties');
                             setProperties4Set(`${k}.${fk}`);
                             setAllProperties4Set(allProperties4SetTemp);
@@ -281,7 +284,7 @@ export default function Setting() {
         </Authorized>
       </TreeView>
     );
-  }, [classes, properties]);
+  }, [classes.list, properties, t]);
 
   return (
     <Grid container className={classes.root}>

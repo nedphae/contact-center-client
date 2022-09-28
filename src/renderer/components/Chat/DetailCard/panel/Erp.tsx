@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { gql, useQuery } from '@apollo/client';
 

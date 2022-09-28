@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
@@ -18,7 +19,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import SearchIcon from '@material-ui/icons/Search';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import {
   Card,
   CardActions,
@@ -49,67 +50,6 @@ import ChipSelect, {
 import getPageQuery from 'renderer/domain/graphql/Page';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
-
-const columns: GridColDef[] = [
-  { field: 'staffId', headerName: '客服ID', width: 150 },
-  { field: 'staffName', headerName: '客服名字', width: 150 },
-  { field: 'groupId', headerName: '分组ID', width: 150 },
-  { field: 'groupName', headerName: '分组名称', width: 150 },
-  {
-    field: 'date',
-    headerName: '统计时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  {
-    field: 'firstLoginTs',
-    headerName: '首次登录时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  {
-    field: 'firstOnlineTs',
-    headerName: '首次在线时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  {
-    field: 'lastLogoutTs',
-    headerName: '最后登出时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  {
-    field: 'lastBusyTs',
-    headerName: '最后忙碌时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  {
-    field: 'lastAwayTs',
-    headerName: '最后离开时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-  { field: 'loginDuration', headerName: '登录时长(秒)', width: 200 },
-  { field: 'onlineDuration', headerName: '在线时长(秒)', width: 200 },
-  { field: 'busyDuration', headerName: '忙碌时长(秒)', width: 200 },
-  { field: 'busyTimes', headerName: '忙碌次数', width: 200 },
-  { field: 'awayDuration', headerName: '离开时长(秒)', width: 200 },
-  { field: 'awayTimes', headerName: '离开次数', width: 200 },
-];
 
 type StaffInfoGraphql = Object.Omit<AllStaffInfo, 'allStaffShunt'>;
 const QUERY_STAFF_INFO = gql`
@@ -241,6 +181,8 @@ const getDefaultValue = () => {
 
 export default function StaffAttendanceDataGrid() {
   const classes = useSearchFormStyles();
+  const { t, i18n } = useTranslation();
+
   const [expanded, setExpanded] = useState(false);
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
 
@@ -270,7 +212,7 @@ export default function StaffAttendanceDataGrid() {
 
   const selectKeyValueList: SelectKeyValue[] = [
     {
-      label: '客服',
+      label: t('Staff'),
       name: 'staffIdList',
       selectList: _.zipObject(
         staffList.map((value) => value.id),
@@ -279,7 +221,7 @@ export default function StaffAttendanceDataGrid() {
       defaultValue: [],
     },
     {
-      label: '客服组',
+      label: t('Staff Group'),
       name: 'groupIdList',
       selectList: _.zipObject(
         staffGroupList.map((value) => value.id),
@@ -336,6 +278,95 @@ export default function StaffAttendanceDataGrid() {
     }
   };
 
+  const columns: GridColDef[] = [
+    { field: 'staffId', headerName: t('Staff Id'), width: 150 },
+    { field: 'staffName', headerName: t('Staff Name'), width: 150 },
+    { field: 'groupId', headerName: t('Group Id'), width: 150 },
+    { field: 'groupName', headerName: t('Group Name'), width: 150 },
+    {
+      field: 'date',
+      headerName: t('Statistics Time'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    {
+      field: 'firstLoginTs',
+      headerName: t('First login time'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    {
+      field: 'firstOnlineTs',
+      headerName: t('First online time'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    {
+      field: 'lastLogoutTs',
+      headerName: t('Last logout time'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    {
+      field: 'lastBusyTs',
+      headerName: t('Last busy time'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    {
+      field: 'lastAwayTs',
+      headerName: t('Last leave time'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+    {
+      field: 'loginDuration',
+      headerName: t('Login duration (seconds)'),
+      width: 200,
+    },
+    {
+      field: 'onlineDuration',
+      headerName: t('Online duration (seconds)'),
+      width: 200,
+    },
+    {
+      field: 'busyDuration',
+      headerName: t('Busy duration (seconds)'),
+      width: 200,
+    },
+    { field: 'busyTimes', headerName: t('Busy times'), width: 200 },
+    {
+      field: 'awayDuration',
+      headerName: t('Leave duration (seconds)'),
+      width: 200,
+    },
+    { field: 'awayTimes', headerName: t('Leave times'), width: 200 },
+  ];
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
       <MuiPickersUtilsProvider utils={DateFnsUtils} locale={zhCN}>
@@ -357,7 +388,7 @@ export default function StaffAttendanceDataGrid() {
                           inputProps={{ 'aria-label': 'primary checkbox' }}
                         />
                       )}
-                      label="时间"
+                      label={t('Time Range')}
                     />
                   )}
                 />
@@ -371,7 +402,7 @@ export default function StaffAttendanceDataGrid() {
                       format="yyyy-MM-dd HH:mm:ss"
                       margin="normal"
                       id="date-picker-inline"
-                      label="开始时间"
+                      label={t('Start time')}
                       value={value}
                       onChange={(d) => {
                         if (d) {
@@ -398,7 +429,7 @@ export default function StaffAttendanceDataGrid() {
                       format="yyyy-MM-dd HH:mm:ss"
                       margin="normal"
                       id="date-picker-inline"
-                      label="结束时间"
+                      label={t('End Time')}
                       value={value}
                       onChange={(d) => {
                         if (d) {
@@ -427,7 +458,7 @@ export default function StaffAttendanceDataGrid() {
                   reset(defaultValue);
                 }}
               >
-                重置
+                {t('Reset')}
               </Button>
               <Button
                 type="submit"
@@ -437,7 +468,7 @@ export default function StaffAttendanceDataGrid() {
                 startIcon={<SearchIcon />}
                 aria-label="submit"
               >
-                搜索
+                {t('Search')}
               </Button>
               <IconButton
                 className={clsx(classes.expand, {
@@ -480,7 +511,7 @@ export default function StaffAttendanceDataGrid() {
       </MuiPickersUtilsProvider>
       <Divider variant="inset" component="li" />
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{
@@ -497,7 +528,7 @@ export default function StaffAttendanceDataGrid() {
                 const url = `${getDownloadS3ChatFilePath()}${filekey}`;
                 window.open(url, '_blank');
               } else {
-                onErrorMsg('导出失败');
+                onErrorMsg('Export failed');
               }
             },
           }),

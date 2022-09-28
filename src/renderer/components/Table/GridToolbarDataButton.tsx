@@ -1,4 +1,6 @@
 import React, { forwardRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import PropTypes from 'prop-types';
 
 import { GridMenu } from '@material-ui/data-grid';
@@ -16,6 +18,8 @@ export const GridToolbarDataButton = forwardRef<
   GridToolbarDataProps
 >(function GridToolbarDataButton(props, ref) {
   const { newButtonClick, deleteButtonClick, refetch } = props;
+  const { t } = useTranslation();
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) =>
@@ -67,10 +71,10 @@ export const GridToolbarDataButton = forwardRef<
         }
         onClick={handleMenuOpen}
         aria-expanded={anchorEl ? 'true' : undefined}
-        aria-label="数据"
+        aria-label="data"
         aria-haspopup="menu"
       >
-        数据
+        {t('Data')}
       </Button>
       <GridMenu
         open={Boolean(anchorEl)}
@@ -83,10 +87,14 @@ export const GridToolbarDataButton = forwardRef<
           onKeyDown={handleListKeyDown}
           autoFocusItem={Boolean(anchorEl)}
         >
-          {refetch && <MenuItem onClick={handleRefetch}>刷新</MenuItem>}
-          {newButtonClick && <MenuItem onClick={handleNew}>新建</MenuItem>}
+          {refetch && (
+            <MenuItem onClick={handleRefetch}>{t('Refresh')}</MenuItem>
+          )}
+          {newButtonClick && (
+            <MenuItem onClick={handleNew}>{t('New')}</MenuItem>
+          )}
           {deleteButtonClick && (
-            <MenuItem onClick={handleDelete}>删除</MenuItem>
+            <MenuItem onClick={handleDelete}>{t('Delete')}</MenuItem>
           )}
         </MenuList>
       </GridMenu>

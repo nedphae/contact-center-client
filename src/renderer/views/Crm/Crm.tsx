@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import _ from 'lodash';
+import { useTranslation } from 'react-i18next';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 
@@ -12,7 +13,7 @@ import {
   GridValueGetterParams,
 } from '@material-ui/data-grid';
 
-import GRID_DEFAULT_LOCALE_TEXT from 'renderer/variables/gridLocaleText';
+import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import { Chip, Divider } from '@material-ui/core';
 import { PageResult } from 'renderer/domain/Page';
 import { Customer, CustomerTagView } from 'renderer/domain/Customer';
@@ -34,47 +35,6 @@ import DraggableDialog, {
 import useAlert from 'renderer/hook/alert/useAlert';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
 import javaInstant2DateStr from 'renderer/utils/timeUtils';
-
-const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'uid', headerName: '用户标识', width: 150 },
-  { field: 'name', headerName: '用户姓名', width: 150 },
-  {
-    field: 'tags',
-    headerName: '用户标签',
-    width: 300,
-    renderCell: function ColorIcon(params: GridCellParams) {
-      const { value } = params;
-      const customerTagViewList = value as CustomerTagView[] | undefined;
-      return (
-        <>
-          {customerTagViewList &&
-            customerTagViewList.map(({ name, color: colorHex }) => (
-              <Chip
-                key={name}
-                size="small"
-                color="secondary"
-                label={name}
-                style={{ backgroundColor: colorHex as string }}
-              />
-            ))}
-        </>
-      );
-    },
-  },
-  { field: 'email', headerName: '用户邮箱', width: 150 },
-  { field: 'mobile', headerName: '用户手机号', width: 150 },
-  { field: 'vipLevel', headerName: 'vip等级', width: 150 },
-  { field: 'remarks', headerName: '备注', width: 150 },
-  {
-    field: 'createdDate',
-    headerName: '创建时间',
-    width: 180,
-    valueGetter: (params: GridValueGetterParams) => {
-      return params.value ? javaInstant2DateStr(params.value as number) : null;
-    },
-  },
-];
 
 interface Graphql {
   searchCustomer: PageResult<SearchHit<Customer>>;
@@ -145,6 +105,8 @@ const getDefaultValue = () => {
 };
 
 export default function Crm() {
+  const { t, i18n } = useTranslation();
+
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const [selectCustomer, setSelectCustomer] = useState<
     CustomerFormValues | undefined
@@ -217,9 +179,52 @@ export default function Crm() {
     refetch({ customerQuery: searchParams });
   };
 
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: t('CustomerId'), width: 90 },
+    { field: 'uid', headerName: t('UID'), width: 150 },
+    { field: 'name', headerName: t('Name'), width: 150 },
+    {
+      field: 'tags',
+      headerName: t('Customer Tags'),
+      width: 300,
+      renderCell: function ColorIcon(params: GridCellParams) {
+        const { value } = params;
+        const customerTagViewList = value as CustomerTagView[] | undefined;
+        return (
+          <>
+            {customerTagViewList &&
+              customerTagViewList.map(({ name, color: colorHex }) => (
+                <Chip
+                  key={name}
+                  size="small"
+                  color="secondary"
+                  label={name}
+                  style={{ backgroundColor: colorHex as string }}
+                />
+              ))}
+          </>
+        );
+      },
+    },
+    { field: 'email', headerName: t('Email'), width: 150 },
+    { field: 'mobile', headerName: t('Mobile'), width: 150 },
+    { field: 'vipLevel', headerName: t('Vip'), width: 150 },
+    { field: 'remarks', headerName: t('Remarks'), width: 150 },
+    {
+      field: 'createdDate',
+      headerName: t('Created Date'),
+      width: 180,
+      valueGetter: (params: GridValueGetterParams) => {
+        return params.value
+          ? javaInstant2DateStr(params.value as number)
+          : null;
+      },
+    },
+  ];
+
   return (
     <div style={{ height: '80vh', width: '100%' }}>
-      <DraggableDialog title="详细用户信息" ref={refOfDialog}>
+      <DraggableDialog title={t('Detailed Customer Info')} ref={refOfDialog}>
         <CustomerForm defaultValues={selectCustomer} shouldDispatch={false} />
       </DraggableDialog>
       <SearchForm
@@ -230,7 +235,7 @@ export default function Crm() {
       />
       <Divider variant="inset" component="li" />
       <DataGrid
-        localeText={GRID_DEFAULT_LOCALE_TEXT}
+        localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}
         columns={columns}
         components={{
@@ -251,7 +256,7 @@ export default function Crm() {
                 const url = `${getDownloadS3ChatFilePath()}${filekey}`;
                 window.open(url, '_blank');
               } else {
-                onErrorMsg('导出失败');
+                onErrorMsg('Export failed');
               }
             },
           }),
