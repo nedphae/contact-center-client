@@ -464,7 +464,7 @@ export default function BotSidecar(props: BotProps) {
                 selectTopic();
               }}
             >
-              {t('Filter knowledge base categories')}
+              {t('Filter knowledge base category')}
             </MenuItem>,
             <MenuItem
               key="addTopicCategory"

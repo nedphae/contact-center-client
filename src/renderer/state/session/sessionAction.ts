@@ -1,5 +1,5 @@
 import { AppDispatch, AppThunk, RootState } from 'renderer/store';
-import { createSelector } from '@reduxjs/toolkit';
+import { createSelector, createAsyncThunk } from '@reduxjs/toolkit';
 import { of } from 'rxjs';
 import { map, filter, tap, catchError } from 'rxjs/operators';
 import _ from 'lodash';
