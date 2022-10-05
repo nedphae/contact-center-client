@@ -18,7 +18,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { CustomerStatus } from 'renderer/domain/Customer';
 import Staff, { StaffGroup } from 'renderer/domain/StaffInfo';
-import { from, interval, of, Subscription, zip } from 'rxjs';
+import { from, of, zip } from 'rxjs';
 import { groupBy, map, mergeMap, toArray } from 'rxjs/operators';
 import useMonitorUserAndMsg from 'renderer/hook/init/useMonitorUserAndMsg';
 import { setMonitorSelectedSession } from 'renderer/state/chat/chatAction';
@@ -79,7 +79,9 @@ function Monitor(props: MonitorProps) {
       fetchPolicy: 'no-cache',
     }
   );
-  const { data, refetch } = useQuery<MonitorGraphql>(QUERY_MONITOR);
+  const { data } = useQuery<MonitorGraphql>(QUERY_MONITOR, {
+    pollInterval: refreshInterval ?? 5000,
+  });
   // 懒加载 用户信息，降低服务器一次性获取的数据量
   const [getCustomerInfo, { data: monitoredUserData }] =
     useLazyQuery<CustomerAndConversationGraphql>(QUERY_CUUSTOMER_AND_LAST_CONV);
@@ -104,18 +106,10 @@ function Monitor(props: MonitorProps) {
 
   // 同步在线列表
   useEffect(() => {
-    const tempSubscription: Subscription = interval(
-      refreshInterval ?? 5000
-    ).subscribe(() => {
-      refetch();
-    });
     return () => {
-      if (tempSubscription) {
-        tempSubscription.unsubscribe();
-      }
       dispatch(setMonitorSelectedSession(undefined));
     };
-  }, [dispatch, refetch, refreshInterval]);
+  }, [dispatch]);
 
   const handleClick = (index: number) => {
     setOpen(index);

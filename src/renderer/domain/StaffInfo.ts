@@ -24,7 +24,7 @@ export default interface Staff {
   realName: string;
   username: string;
   nickName: string;
-  gender: string | undefined;
+  gender: number | undefined;
   createTime: Date;
   avatar: string | undefined;
   personalizedSignature: string;

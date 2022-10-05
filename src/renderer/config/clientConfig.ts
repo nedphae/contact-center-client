@@ -3,7 +3,7 @@ class ClientConfig {
     // gateway 配置地址
     // 后端接口地址，仅修改此地址即可
     host:
-      process.env.NODE_ENV === 'production'
+      process.env.NODE_ENV !== 'production'
         ? 'https://im.xbcs.top'
         : 'http://localhost:8080',
   };
@@ -25,8 +25,6 @@ class ClientConfig {
     scope: 'staff',
     // json-storage 存储名称
     tokenName: 'jwt.token',
-    // localStorage 存储名称
-    accessTokenName: 'jwt.access_token',
   };
 
   // clientId 配置

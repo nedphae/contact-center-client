@@ -26,6 +26,6 @@ export function generateResponse<T>(
 
 export function generateRequest<T>(data: T): WebSocketRequest<T> {
   /** 生成消息id */
-  const header = { mid: uuidv4().substr(0, 8) };
+  const header = { mid: uuidv4().substring(0, 8) };
   return { header, body: data };
 }

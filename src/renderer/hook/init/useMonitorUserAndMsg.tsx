@@ -2,7 +2,10 @@ import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useLazyQuery } from '@apollo/client';
-import { getMonitor, setMonitoredMessage } from 'renderer/state/chat/chatAction';
+import {
+  getMonitor,
+  setMonitoredMessage,
+} from 'renderer/state/chat/chatAction';
 import { interval, Subscription } from 'rxjs';
 import {
   SyncMessageByUserGraphql,

@@ -11,7 +11,6 @@ import {
 } from './constant/Conversation';
 import { CreatorType } from './constant/Message';
 import usePropetyByKey from './graphql/Properties';
-import getPropetyByKey from './graphql/Properties';
 import { Message } from './Message';
 import { SessionCategory } from './SessionCategory';
 

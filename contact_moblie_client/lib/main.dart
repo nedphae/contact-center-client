@@ -1,8 +1,18 @@
+import 'package:contact_moblie_client/common/config.dart';
 import 'package:contact_moblie_client/pages/login.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await initHiveForFlutter();
+  runApp(
+    /// Providers are above [MyApp] instead of inside it, so that tests
+    /// can use [MyApp] while mocking the providers
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,23 +21,29 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '小白客服',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const ChatterLogin()
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    ValueNotifier<GraphQLClient> client = ValueNotifier(
+      graphQLClient,
     );
+
+    return GraphQLProvider(
+        client: client,
+        child: MaterialApp(
+            title: '小白客服',
+            theme: ThemeData(
+              // This is the theme of your application.
+              //
+              // Try running your application with "flutter run". You'll see the
+              // application has a blue toolbar. Then, without quitting the app, try
+              // changing the primarySwatch below to Colors.green and then invoke
+              // "hot reload" (press "r" in the console where you ran "flutter run",
+              // or simply save your changes to "hot reload" in a Flutter IDE).
+              // Notice that the counter didn't reset back to zero; the application
+              // is not restarted.
+              primarySwatch: Colors.blue,
+            ),
+            home: const XBCSLogin()
+            // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+            ));
   }
 }
 

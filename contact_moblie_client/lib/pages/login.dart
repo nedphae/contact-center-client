@@ -1,56 +1,18 @@
+import 'package:contact_moblie_client/common/config.dart';
+import 'package:contact_moblie_client/states/staff_state.dart';
 import 'package:contact_moblie_client/widgets/custombutton.dart';
 import 'package:contact_moblie_client/widgets/customtextinput.dart';
 import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-const SERVER_IP = 'https://im.xbcs.top';
-
-class ChatterLogin extends StatefulWidget {
-  const ChatterLogin({super.key});
-
-  @override
-  ChatterLoginState createState() => ChatterLoginState();
-}
-
-class OauthToken {
-  final String accessToken;
-  final String tokenType;
-  final String refreshToken;
-  final int expiresIn;
-  final String scope;
-  final int oid;
-  final int sid;
-  final String jti;
-
-  const OauthToken({
-    required this.accessToken,
-    required this.tokenType,
-    required this.refreshToken,
-    required this.expiresIn,
-    required this.scope,
-    required this.oid,
-    required this.sid,
-    required this.jti,
-  });
-
-  factory OauthToken.fromJson(Map<String, dynamic> json) {
-    return OauthToken(
-      accessToken: json['access_token'] as String,
-      tokenType: json['token_type'] as String,
-      refreshToken: json['refresh_token'] as String,
-      expiresIn: json['expires_in'] as int,
-      scope: json['scope'] as String,
-      oid: json['oid'] as int,
-      sid: json['sid'] as int,
-      jti: json['jti'] as String,
-    );
-  }
-}
+import '../model/staff.dart';
 
 Future<OauthToken?> attemptLogIn(
     {required int orgId,
@@ -59,7 +21,7 @@ Future<OauthToken?> attemptLogIn(
   String credentials = "Xsrr8fXfGJ:K&wroZ4M6z4@a!W62q\$*Dks";
   Codec<String, String> stringToBase64 = utf8.fuse(base64);
   String encoder = stringToBase64.encoder.convert(credentials);
-  String url = "$SERVER_IP/oauth/token?grant_type=password";
+  String url = "$serverIp/oauth/token?grant_type=password";
   var res = await http.post(Uri.parse(url),
       headers: <String, String>{
         'Authorization': "Basic $encoder",
@@ -75,11 +37,48 @@ Future<OauthToken?> attemptLogIn(
   return null;
 }
 
-class ChatterLoginState extends State<ChatterLogin> {
+class XBCSLogin extends StatefulHookConsumerWidget {
+  // const ChatterLogin({super.key});
+  const XBCSLogin({Key? key}) : super(key: key);
+
+  @override
+  XBCSLoginState createState() => XBCSLoginState();
+}
+
+class XBCSLoginState extends ConsumerState<XBCSLogin> {
   int? orgId;
   String? username;
   String? password;
   bool loggingin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocalData();
+  }
+
+  _getLocalData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt.token');
+    if (token != null) {
+      final jwtMap = jsonDecode(token) as Map<String, dynamic>;
+      try {
+        // 读取 JWT 并添加到 状态容器
+        final jwt = OauthToken.fromJson(jwtMap);
+        ref.read(jwtProvider.notifier).setJwt(oauth: jwt);
+
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) return;
+          Navigator.of(context).pushNamed('/home');
+        });
+      } catch (_) {}
+    }
+  }
+
+  void _saveJwt({required OauthToken oauth}) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("jwt.token", jsonEncode(oauth));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,12 +181,18 @@ class ChatterLoginState extends State<ChatterLogin> {
                                 username: username!,
                                 password: password!);
                             if (loggedUser != null) {
+                              // 添加 JWT 到 状态容器
+                              ref
+                                  .read(jwtProvider.notifier)
+                                  .setJwt(oauth: loggedUser);
+                              _saveJwt(oauth: loggedUser);
+
                               setState(() {
                                 loggingin = false;
                               });
 
                               if (!mounted) return;
-                              Navigator.of(context).pushNamed('/chat');
+                              Navigator.of(context).pushNamed('/home');
                             } else {
                               setState(() {
                                 loggingin = false;
@@ -195,8 +200,7 @@ class ChatterLoginState extends State<ChatterLogin> {
                               if (!mounted) return;
                               edgeAlert(context,
                                   title: '登录失败',
-                                  description:
-                                      '请检查您的用户名和密码',
+                                  description: '请检查您的用户名和密码',
                                   gravity: Gravity.bottom,
                                   icon: Icons.error,
                                   duration: 5,
@@ -207,7 +211,7 @@ class ChatterLoginState extends State<ChatterLogin> {
                               loggingin = false;
                             });
                             edgeAlert(context,
-                                title: 'Login Failed',
+                                title: '登录失败',
                                 description: e.toString(),
                                 gravity: Gravity.bottom,
                                 icon: Icons.error,
