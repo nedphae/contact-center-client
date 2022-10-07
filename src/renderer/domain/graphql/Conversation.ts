@@ -71,6 +71,7 @@ export const CONVERSATION_FIELD = gql`
     isStaffInvited
     valid
     nickName
+    uid
     organizationId
     realName
     relatedId

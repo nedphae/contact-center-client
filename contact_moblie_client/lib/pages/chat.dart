@@ -1,43 +1,29 @@
+import 'package:contact_moblie_client/common/config.dart';
 import 'package:contact_moblie_client/common/globals.dart';
 import 'package:contact_moblie_client/model/conversation.dart';
+import 'package:contact_moblie_client/model/customer.dart';
+import 'package:contact_moblie_client/model/message.dart';
 import 'package:contact_moblie_client/model/staff.dart';
 import 'package:contact_moblie_client/model/constants.dart';
+import 'package:contact_moblie_client/model/web_socket_request.dart';
 import 'package:contact_moblie_client/states/staff_state.dart';
-import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ChatterScreen extends StatefulHookConsumerWidget {
   const ChatterScreen({super.key});
 
   @override
-  _ChatterScreenState createState() => _ChatterScreenState();
+  ChatterScreenState createState() => ChatterScreenState();
 }
 
-class _ChatterScreenState extends ConsumerState<ChatterScreen> {
+class ChatterScreenState extends ConsumerState<ChatterScreen> {
   final chatMsgTextController = TextEditingController();
   Staff? _currentStaff;
   late Session _currentSession;
+  late Customer _customer;
   String? messageText;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentStaff = ref.watch(staffProvider);
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final selectUserId = args['selectUserId'] as int;
-    final selectSession = ref.watch(sessionProvider)[selectUserId];
-    if (selectSession != null) {
-      _currentSession = selectSession;
-    } else {
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) return;
-        Navigator.of(context).pushNamed('/login');
-      });
-    }
-    // getMessages();
-  }
   // void getMessages()async{
   //   final messages=await _firestore.collection('messages').getDocuments();
   //   for(var message in messages.documents){
@@ -51,12 +37,81 @@ class _ChatterScreenState extends ConsumerState<ChatterScreen> {
   //   }
   // }
 
+  sendTextMessage() {
+    if (messageText != null && messageText!.isNotEmpty) {
+      final content = Content(
+          contentType: "TEXT", textContent: TextContent(text: messageText!));
+      final message = Message(
+          uuid: uuid.v4(),
+          to: _customer.id,
+          type: CreatorType.customer,
+          creatorType: CreatorType.staff,
+          content: content);
+      // 使用 websocket 发送消息
+      final messageMap = message.toJson();
+      messageMap.removeWhere((key, value) => value == null);
+
+      final request = WebSocketRequest.generateRequest(messageMap);
+      ref.read(sessionProvider.notifier).newMessage({_customer.id: message});
+      Globals.socket.emitWithAck('msg/send', request, ack: (data) {
+        final response = WebSocketResponse.fromJson(data);
+        final body = response.body as Map<String, dynamic>;
+        ref.read(sessionProvider.notifier).updateMessageSeqId(
+            _customer.id, message.uuid, body['seqId'], body['createdAt']);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final customer = _currentSession.customer;
+    _currentStaff = ref.watch(staffProvider);
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final selectUserId = args['selectUserId'] as int;
+
+    final selectSession =
+        ref.watch(sessionProvider.select((value) => value[selectUserId]));
+
+    if (selectSession != null) {
+      _currentSession = selectSession;
+      _customer = selectSession.customer;
+      if (selectSession.messageList?.isEmpty ?? false) {
+        // 没有消息，读取历史消息
+        Future.sync(() async {
+          final result = await graphQLClient.query(QueryOptions(
+            document: gql(Message.loadHistoryMsg),
+            variables: {'userId': _customer.id, 'cursor': null, 'limit': 20},
+            fetchPolicy: FetchPolicy.noCache,
+          ));
+
+          final messageListMap = result.data?['loadHistoryMessage'];
+          if (messageListMap != null) {
+            final messagePage = PageResult.fromJson(messageListMap);
+            final messageList =
+                messagePage.content.map((e) => Message.fromJson(e)).toList();
+
+            ref
+                .read(sessionProvider.notifier)
+                .addHistoryMessage({selectUserId: messageList});
+          }
+        });
+      }
+    } else {
+      Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
+        Navigator.of(context).pushNamed('/home');
+      });
+    }
+
     return Scaffold(
       // AppBar 会自动提供回退按钮 可通过 automaticallyImplyLeading 修改
       appBar: AppBar(
+        leading: BackButton(onPressed: () {
+          ref
+              .read(sessionProvider.notifier)
+              .setChatting(selectUserId, chatting: false);
+          Navigator.maybePop(context);
+        }),
         iconTheme: const IconThemeData(color: Colors.deepPurple),
         elevation: 0,
         bottom: PreferredSize(
@@ -64,7 +119,6 @@ class _ChatterScreenState extends ConsumerState<ChatterScreen> {
           child: Container(
             decoration: const BoxDecoration(
                 // color: Colors.blue,
-
                 // borderRadius: BorderRadius.circular(20)
                 ),
             constraints: const BoxConstraints.expand(height: 1),
@@ -103,37 +157,32 @@ class _ChatterScreenState extends ConsumerState<ChatterScreen> {
         actions: <Widget>[
           GestureDetector(
             child: PopupMenuButton<Text>(
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  onTap: () {
-
-                  },
-                  child: const Text(
-                    '历史会话',
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    onTap: () {},
+                    child: const Text(
+                      '历史会话',
+                    ),
                   ),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-
-                  },
-                  child: const Text(
-                    '用户信息',
+                  PopupMenuItem(
+                    onTap: () {},
+                    child: const Text(
+                      '用户信息',
+                    ),
                   ),
-                ),
-                PopupMenuItem(
-                  onTap: () {
-                    ref.read(sessionProvider.notifier).hideConv(customer.id);
-                    if (mounted) return;
-                    Navigator.of(context).pushNamed('/home');
-                  },
-                  child: const Text(
-                    '关闭会话',
+                  PopupMenuItem(
+                    onTap: () {
+                      ref.read(sessionProvider.notifier).hideConv(_customer.id);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      '关闭会话',
+                    ),
                   ),
-                ),
-              ];
-            },
-          ),
+                ];
+              },
+            ),
           )
         ],
       ),
@@ -141,7 +190,11 @@ class _ChatterScreenState extends ConsumerState<ChatterScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          ChatStream(),
+          ChatStream(
+            messageaList: _currentSession.messageList ?? [],
+            staff: _currentStaff!,
+            customer: _currentSession.customer,
+          ),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             decoration: kMessageContainerDecoration,
@@ -171,17 +224,15 @@ class _ChatterScreenState extends ConsumerState<ChatterScreen> {
                 MaterialButton(
                     shape: const CircleBorder(),
                     color: Colors.blue,
-                    onPressed: () {
-                      chatMsgTextController.clear();
-                      // 使用 websocket 发送消息
-                      Globals.socket.emit('msg/send', {});
-                      _firestore.collection('messages').add({
-                        'sender': username,
-                        'text': messageText,
-                        'timestamp': DateTime.now().millisecondsSinceEpoch,
-                        'senderemail': email
-                      });
-                    },
+                    onPressed: (messageText != null && messageText!.isNotEmpty)
+                        ? () {
+                            chatMsgTextController.clear();
+                            sendTextMessage();
+                            setState(() {
+                              messageText = null;
+                            });
+                          }
+                        : null,
                     child: const Padding(
                       padding: EdgeInsets.all(10.0),
                       child: Icon(
@@ -204,51 +255,133 @@ class _ChatterScreenState extends ConsumerState<ChatterScreen> {
 }
 
 class ChatStream extends StatelessWidget {
+  final List<Message> messageaList;
+  final Staff staff;
+  final Customer customer;
+
+  const ChatStream(
+      {super.key,
+      required this.messageaList,
+      required this.staff,
+      required this.customer});
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream:
-          _firestore.collection('messages').orderBy('timestamp').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final messages = snapshot.data.documents.reversed;
-          List<MessageBubble> messageWidgets = [];
-          for (var message in messages) {
-            final msgText = message.data['text'];
-            final msgSender = message.data['sender'];
-            // final msgSenderEmail = message.data['senderemail'];
-            final currentUser = loggedInUser.displayName;
+    List<MessageBubble> messageWidgets = [];
 
-            // print('MSG'+msgSender + '  CURR'+currentUser);
-            final msgBubble = MessageBubble(
-                msgText: msgText,
-                msgSender: msgSender,
-                user: currentUser == msgSender);
-            messageWidgets.add(msgBubble);
-          }
-          return Expanded(
-            child: ListView(
-              reverse: true,
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-              children: messageWidgets,
-            ),
-          );
-        } else {
-          return const Center(
-            child:
-                CircularProgressIndicator(backgroundColor: Colors.deepPurple),
-          );
-        }
-      },
-    );
+    final messageaList = this.messageaList;
+
+    if (messageaList.isNotEmpty) {
+      messageaList.sort((a, b) =>
+          (b.seqId ?? 0x7fffffffffffffff) - (a.seqId ?? 0x7fffffffffffffff));
+
+      for (var message in messageaList) {
+        final isStaff = message.creatorType == CreatorType.staff;
+        final msgBubble = MessageBubble(
+          msgSender: isStaff ? staff.nickName : customer.name,
+          staff: isStaff,
+          message: message,
+        );
+        messageWidgets.add(msgBubble);
+      }
+
+      return Expanded(
+        child: ListView(
+          reverse: true,
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          children: messageWidgets,
+        ),
+      );
+    } else {
+      return const Center(
+        child: CircularProgressIndicator(backgroundColor: Colors.deepPurple),
+      );
+    }
   }
 }
 
 class MessageBubble extends StatelessWidget {
-  final String msgText;
   final String msgSender;
-  final bool user;
-  MessageBubble({this.msgText, this.msgSender, this.user});
+  final bool staff;
+  final Message message;
+
+  const MessageBubble(
+      {super.key,
+      required this.msgSender,
+      required this.staff,
+      required this.message});
+
+  Widget createBubble(Message message) {
+    Widget result = Text(
+      '',
+      style: TextStyle(
+        color: staff ? Colors.white : Colors.blue,
+        fontFamily: 'Poppins',
+        fontSize: 15,
+      ),
+    );
+    final content = message.content;
+    switch (message.content.contentType) {
+      case 'TEXT':
+        result = Text(
+          content.textContent?.text ?? '',
+          style: TextStyle(
+            color: staff ? Colors.white : Colors.blue,
+            fontFamily: 'Poppins',
+            fontSize: 15,
+          ),
+        );
+        break;
+      case 'IMAGE':
+        final imageUrl = "$serverIp${content.photoContent?.mediaId}";
+        result = Image.network(
+          imageUrl,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              decoration: const BoxDecoration(
+                color: Color(0xffE8E8E8),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8),
+                ),
+              ),
+              width: 200,
+              height: 200,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: const Color(0xfff5a623),
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+                ),
+              ),
+            );
+          },
+          errorBuilder: (context, object, stackTrace) {
+            return Material(
+              borderRadius: const BorderRadius.all(
+                Radius.circular(8),
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Image.asset(
+                'images/img_not_available.jpeg',
+                width: 200,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            );
+          },
+          width: 200,
+          height: 200,
+          fit: BoxFit.cover,
+        );
+        break;
+      default:
+        break;
+    }
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +389,7 @@ class MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment:
-            user ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            staff ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -270,23 +403,16 @@ class MessageBubble extends StatelessWidget {
             borderRadius: BorderRadius.only(
               bottomLeft: const Radius.circular(50),
               topLeft:
-                  user ? const Radius.circular(50) : const Radius.circular(0),
+                  staff ? const Radius.circular(50) : const Radius.circular(0),
               bottomRight: const Radius.circular(50),
               topRight:
-                  user ? const Radius.circular(0) : const Radius.circular(50),
+                  staff ? const Radius.circular(0) : const Radius.circular(50),
             ),
-            color: user ? Colors.blue : Colors.white,
+            color: staff ? Colors.blue : Colors.white,
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Text(
-                msgText,
-                style: TextStyle(
-                  color: user ? Colors.white : Colors.blue,
-                  fontFamily: 'Poppins',
-                  fontSize: 15,
-                ),
-              ),
+              child: createBubble(message),
             ),
           ),
         ],

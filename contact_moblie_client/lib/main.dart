@@ -1,4 +1,6 @@
 import 'package:contact_moblie_client/common/config.dart';
+import 'package:contact_moblie_client/pages/chat.dart';
+import 'package:contact_moblie_client/pages/home.dart';
 import 'package:contact_moblie_client/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -41,7 +43,13 @@ class MyApp extends StatelessWidget {
               // is not restarted.
               primarySwatch: Colors.blue,
             ),
-            home: const XBCSLogin()
+            initialRoute: '/login',
+            routes: {
+              '/home': (context) => const XBCSHomeContainer(),
+              '/login': (context) => const XBCSLogin(),
+              '/chat': (context) => const ChatterScreen(),
+              // '/chats':(context)=>ChatterScreen()
+            }
             // home: const MyHomePage(title: 'Flutter Demo Home Page'),
             ));
   }

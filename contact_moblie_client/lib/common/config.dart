@@ -4,10 +4,10 @@ import 'package:contact_moblie_client/model/staff.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-const serverIp = 'https://im.xbcs.top';
+const serverIp = 'http://192.168.50.13:8080'; //'https://im.xbcs.top';
 
 final HttpLink httpLink = HttpLink(
-  'https://im.xbcs.top/graphql',
+  '$serverIp/graphql',
 );
 
 final AuthLink authLink = AuthLink(
@@ -19,7 +19,7 @@ final AuthLink authLink = AuthLink(
       try {
         // 读取 JWT 并添加到 状态容器
         final jwt = OauthToken.fromJson(jwtMap);
-        return jwt.accessToken;
+        return 'Bearer ${jwt.accessToken}';
       } catch (_) {}
     }
     return null;
@@ -34,4 +34,3 @@ final graphQLClient = GraphQLClient(
   // The default store is the InMemoryStore, which does NOT persist to disk
   cache: GraphQLCache(store: HiveStore()),
 );
-

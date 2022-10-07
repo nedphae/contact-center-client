@@ -49,4 +49,10 @@ class WebSocketResponse {
   factory WebSocketResponse.fromJson(Map<String, dynamic> json) =>
       _$WebSocketResponseFromJson(json);
   Map<String, dynamic> toJson() => _$WebSocketResponseToJson(this);
+
+  factory WebSocketResponse.generateResponse({required Header header, dynamic body, code = 200}) {
+    final mid = uuid.v4().substring(0, 8);
+    final header = Header(mid: mid);
+    return WebSocketResponse(header: header, code: code, body: body);
+  }
 }

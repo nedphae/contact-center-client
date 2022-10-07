@@ -8,14 +8,14 @@ part of 'message.dart';
 
 Message _$MessageFromJson(Map<String, dynamic> json) => Message(
       seqId: json['seqId'] as int?,
-      createdAt: json['createdAt'] as int?,
+      createdAt: (json['createdAt'] as num?)?.toDouble(),
       sync: json['sync'] as bool? ?? false,
       uuid: json['uuid'] as String,
       conversationId: json['conversationId'] as int?,
       from: json['from'] as int?,
       to: json['to'] as int?,
-      type: json['type'] as String,
-      creatorType: json['creatorType'] as String,
+      type: $enumDecode(_$CreatorTypeEnumMap, json['type']),
+      creatorType: $enumDecode(_$CreatorTypeEnumMap, json['creatorType']),
       content: Content.fromJson(json['content'] as Map<String, dynamic>),
       nickName: json['nickName'] as String?,
     );
@@ -28,14 +28,21 @@ Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
       'conversationId': instance.conversationId,
       'from': instance.from,
       'to': instance.to,
-      'type': instance.type,
-      'creatorType': instance.creatorType,
+      'type': _$CreatorTypeEnumMap[instance.type]!,
+      'creatorType': _$CreatorTypeEnumMap[instance.creatorType]!,
       'content': instance.content,
       'nickName': instance.nickName,
     };
 
+const _$CreatorTypeEnumMap = {
+  CreatorType.sys: 0,
+  CreatorType.staff: 1,
+  CreatorType.customer: 2,
+  CreatorType.group: 3,
+};
+
 Content _$ContentFromJson(Map<String, dynamic> json) => Content(
-      contentType: json['contentType'] as String?,
+      contentType: json['contentType'] as String,
       sysCode: json['sysCode'] as String?,
       serviceContent: json['serviceContent'] as String?,
       textContent: json['textContent'] == null
@@ -78,4 +85,83 @@ Map<String, dynamic> _$PhotoContentToJson(PhotoContent instance) =>
       'filename': instance.filename,
       'picSize': instance.picSize,
       'type': instance.type,
+    };
+
+Sort _$SortFromJson(Map<String, dynamic> json) => Sort(
+      unsorted: json['unsorted'] as bool,
+      sorted: json['sorted'] as bool,
+      empty: json['empty'] as bool,
+    );
+
+Map<String, dynamic> _$SortToJson(Sort instance) => <String, dynamic>{
+      'unsorted': instance.unsorted,
+      'sorted': instance.sorted,
+      'empty': instance.empty,
+    };
+
+Pageable _$PageableFromJson(Map<String, dynamic> json) => Pageable(
+      sort: json['sort'] == null
+          ? null
+          : Sort.fromJson(json['sort'] as Map<String, dynamic>),
+      offset: json['offset'] as int,
+      pageNumber: json['pageNumber'] as int,
+      pageSize: json['pageSize'] as int,
+      paged: json['paged'] as bool,
+      unpaged: json['unpaged'] as bool,
+    );
+
+Map<String, dynamic> _$PageableToJson(Pageable instance) => <String, dynamic>{
+      'sort': instance.sort,
+      'offset': instance.offset,
+      'pageNumber': instance.pageNumber,
+      'pageSize': instance.pageSize,
+      'paged': instance.paged,
+      'unpaged': instance.unpaged,
+    };
+
+PageResult _$PageResultFromJson(Map<String, dynamic> json) => PageResult(
+      content: json['content'] as List<dynamic>,
+      pageable: json['pageable'] == null
+          ? null
+          : Pageable.fromJson(json['pageable'] as Map<String, dynamic>),
+      last: json['last'] as bool,
+      totalElements: json['totalElements'] as int,
+      totalPages: json['totalPages'] as int,
+      size: json['size'] as int,
+      number: json['number'] as int,
+      sort: json['sort'] == null
+          ? null
+          : Sort.fromJson(json['sort'] as Map<String, dynamic>),
+      first: json['first'] as bool,
+      numberOfElements: json['numberOfElements'] as int,
+      empty: json['empty'] as bool,
+    );
+
+Map<String, dynamic> _$PageResultToJson(PageResult instance) =>
+    <String, dynamic>{
+      'content': instance.content,
+      'pageable': instance.pageable,
+      'last': instance.last,
+      'totalElements': instance.totalElements,
+      'totalPages': instance.totalPages,
+      'size': instance.size,
+      'number': instance.number,
+      'sort': instance.sort,
+      'first': instance.first,
+      'numberOfElements': instance.numberOfElements,
+      'empty': instance.empty,
+    };
+
+UpdateMessage _$UpdateMessageFromJson(Map<String, dynamic> json) =>
+    UpdateMessage(
+      pts: json['pts'] as int,
+      message: Message.fromJson(json['message'] as Map<String, dynamic>),
+      ptsCount: json['ptsCount'] as int,
+    );
+
+Map<String, dynamic> _$UpdateMessageToJson(UpdateMessage instance) =>
+    <String, dynamic>{
+      'pts': instance.pts,
+      'message': instance.message,
+      'ptsCount': instance.ptsCount,
     };

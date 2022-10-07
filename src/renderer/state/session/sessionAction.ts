@@ -683,7 +683,7 @@ export function sendImageMessage(
       photoContent,
     };
     const message: Message = {
-      uuid: uuidv4().substr(0, 8),
+      uuid: uuidv4(),
       to,
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
@@ -704,7 +704,7 @@ export function sendFileMessage(
       attachments,
     };
     const message: Message = {
-      uuid: uuidv4().substr(0, 8),
+      uuid: uuidv4(),
       to,
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,

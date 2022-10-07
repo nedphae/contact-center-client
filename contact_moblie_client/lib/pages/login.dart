@@ -68,7 +68,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
         ref.read(jwtProvider.notifier).setJwt(oauth: jwt);
 
         Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) return;
+          if (!mounted) return;
           Navigator.of(context).pushNamed('/home');
         });
       } catch (_) {}
@@ -183,7 +183,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                             if (loggedUser != null) {
                               // 添加 JWT 到 状态容器
                               ref
-                                  .read(jwtProvider.notifier)
+                                  .watch(jwtProvider.notifier)
                                   .setJwt(oauth: loggedUser);
                               _saveJwt(oauth: loggedUser);
 
