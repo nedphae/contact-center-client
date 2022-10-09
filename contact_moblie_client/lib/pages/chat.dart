@@ -8,8 +8,10 @@ import 'package:contact_moblie_client/model/constants.dart';
 import 'package:contact_moblie_client/model/web_socket_request.dart';
 import 'package:contact_moblie_client/states/staff_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatterScreen extends StatefulHookConsumerWidget {
   const ChatterScreen({super.key});
@@ -53,7 +55,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 
       final request = WebSocketRequest.generateRequest(messageMap);
       ref.read(sessionProvider.notifier).newMessage({_customer.id: message});
-      Globals.socket.emitWithAck('msg/send', request, ack: (data) {
+      Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
         final response = WebSocketResponse.fromJson(data);
         final body = response.body as Map<String, dynamic>;
         ref.read(sessionProvider.notifier).updateMessageSeqId(
@@ -68,40 +70,78 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final selectUserId = args['selectUserId'] as int;
-
     final selectSession =
         ref.watch(sessionProvider.select((value) => value[selectUserId]));
+
+    final sessionMsgList = selectSession?.messageList;
+    final topMsgId =
+        sessionMsgList?.isNotEmpty ?? false ? sessionMsgList?.last.seqId : null;
+
+    final historyMessageResult = useQuery(QueryOptions(
+      document: gql(Message.loadHistoryMsg),
+      variables: {'userId': selectUserId, 'cursor': topMsgId, 'limit': 20},
+    ));
+
+    List<Message> messageList = [];
 
     if (selectSession != null) {
       _currentSession = selectSession;
       _customer = selectSession.customer;
-      if (selectSession.messageList?.isEmpty ?? false) {
-        // 没有消息，读取历史消息
-        Future.sync(() async {
-          final result = await graphQLClient.query(QueryOptions(
-            document: gql(Message.loadHistoryMsg),
-            variables: {'userId': _customer.id, 'cursor': null, 'limit': 20},
-            fetchPolicy: FetchPolicy.noCache,
-          ));
 
-          final messageListMap = result.data?['loadHistoryMessage'];
-          if (messageListMap != null) {
-            final messagePage = PageResult.fromJson(messageListMap);
-            final messageList =
-                messagePage.content.map((e) => Message.fromJson(e)).toList();
-
-            ref
-                .read(sessionProvider.notifier)
-                .addHistoryMessage({selectUserId: messageList});
-          }
-        });
+      final messageListMap =
+          historyMessageResult.result.data?['loadHistoryMessage'];
+      if (messageListMap != null) {
+        final messagePage = PageResult.fromJson(messageListMap);
+        final historyMsgList =
+            messagePage.content.map((e) => Message.fromJson(e)).toList();
+        messageList.addAll(historyMsgList);
       }
+      messageList.addAll(_currentSession.messageList ?? []);
+
+      // 去重
+      messageList = messageList
+          .map((e) => {e.uuid: e})
+          .reduce((value, element) {
+            value.addAll(element);
+            return value;
+          })
+          .values
+          .toList();
     } else {
       Future.delayed(const Duration(seconds: 1), () {
         if (!mounted) return;
         Navigator.of(context).pushNamed('/home');
       });
     }
+
+    messageList.sort((a, b) =>
+        (b.seqId ?? 0x7fffffffffffffff) - (a.seqId ?? 0x7fffffffffffffff));
+
+    final fetchMoreCursor = messageList.last.seqId;
+    FetchMoreOptions opts = FetchMoreOptions(
+      variables: {
+        'userId': selectUserId,
+        'cursor': fetchMoreCursor,
+        'limit': 20
+      },
+      updateQuery: (previousResultData, fetchMoreResultData) {
+        // this function will be called so as to combine both the original and fetchMore results
+        // it allows you to combine them as you would like
+        final List<dynamic> repos = [
+          ...previousResultData?['loadHistoryMessage']['content']
+              as List<dynamic>,
+          ...?fetchMoreResultData?['loadHistoryMessage']['content']
+              as List<dynamic>?,
+        ];
+
+        // to avoid a lot of work, lets just update the list of repos in returned
+        // data with new data, this also ensures we have the endCursor already set
+        // correctly
+        fetchMoreResultData?['loadHistoryMessage']['content'] = repos;
+
+        return fetchMoreResultData;
+      },
+    );
 
     return Scaffold(
       // AppBar 会自动提供回退按钮 可通过 automaticallyImplyLeading 修改
@@ -145,8 +185,8 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                       fontSize: 16,
                       color: Colors.deepPurple),
                 ),
-                const Text('by ishandeveloper',
-                    style: TextStyle(
+                Text(_currentSession.customer.uid,
+                    style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 8,
                         color: Colors.deepPurple))
@@ -191,9 +231,12 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           ChatStream(
-            messageaList: _currentSession.messageList ?? [],
+            messageaList: messageList,
             staff: _currentStaff!,
             customer: _currentSession.customer,
+            onRefresh: () {
+              return historyMessageResult.fetchMore(opts);
+            },
           ),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -258,12 +301,14 @@ class ChatStream extends StatelessWidget {
   final List<Message> messageaList;
   final Staff staff;
   final Customer customer;
+  final Future<void> Function() onRefresh;
 
   const ChatStream(
       {super.key,
       required this.messageaList,
       required this.staff,
-      required this.customer});
+      required this.customer,
+      required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -272,9 +317,6 @@ class ChatStream extends StatelessWidget {
     final messageaList = this.messageaList;
 
     if (messageaList.isNotEmpty) {
-      messageaList.sort((a, b) =>
-          (b.seqId ?? 0x7fffffffffffffff) - (a.seqId ?? 0x7fffffffffffffff));
-
       for (var message in messageaList) {
         final isStaff = message.creatorType == CreatorType.staff;
         final msgBubble = MessageBubble(
@@ -286,10 +328,13 @@ class ChatStream extends StatelessWidget {
       }
 
       return Expanded(
-        child: ListView(
-          reverse: true,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-          children: messageWidgets,
+        child: RefreshIndicator(
+          onRefresh: onRefresh,
+          child: ListView(
+            reverse: true,
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+            children: messageWidgets,
+          ),
         ),
       );
     } else {
@@ -313,7 +358,7 @@ class MessageBubble extends StatelessWidget {
 
   Widget createBubble(Message message) {
     Widget result = Text(
-      '',
+      '不支持的消息类型',
       style: TextStyle(
         color: staff ? Colors.white : Colors.blue,
         fontFamily: 'Poppins',
@@ -376,6 +421,22 @@ class MessageBubble extends StatelessWidget {
           height: 200,
           fit: BoxFit.cover,
         );
+        break;
+      case 'RICH_TEXT':
+        final htmlText = content.textContent?.text;
+        if (htmlText != null) {
+          result = Html(
+            data: htmlText,
+            onLinkTap: (String? url, RenderContext context,
+                Map<String, String> attributes, dynamic element) async {
+              if (url != null && await canLaunchUrl(Uri.parse(url))) {
+                await launchUrl(Uri.parse(url));
+              } else {
+                throw 'Could not launch $url';
+              }
+            },
+          );
+        }
         break;
       default:
         break;

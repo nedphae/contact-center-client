@@ -1,4 +1,5 @@
 import 'package:contact_moblie_client/common/config.dart';
+import 'package:contact_moblie_client/common/globals.dart';
 import 'package:contact_moblie_client/states/staff_state.dart';
 import 'package:contact_moblie_client/widgets/custombutton.dart';
 import 'package:contact_moblie_client/widgets/customtextinput.dart';
@@ -10,7 +11,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/staff.dart';
 
@@ -54,30 +54,15 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
   @override
   void initState() {
     super.initState();
-    _getLocalData();
-  }
-
-  _getLocalData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt.token');
-    if (token != null) {
-      final jwtMap = jsonDecode(token) as Map<String, dynamic>;
-      try {
-        // 读取 JWT 并添加到 状态容器
-        final jwt = OauthToken.fromJson(jwtMap);
-        ref.read(jwtProvider.notifier).setJwt(oauth: jwt);
-
-        Future.delayed(const Duration(seconds: 1), () {
-          if (!mounted) return;
-          Navigator.of(context).pushNamed('/home');
-        });
-      } catch (_) {}
-    }
+    Future.delayed(const Duration(seconds: 1), () {
+      ref.refresh(staffProvider);
+      ref.refresh(sessionProvider);
+    });
   }
 
   void _saveJwt({required OauthToken oauth}) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString("jwt.token", jsonEncode(oauth));
+    Globals.prefs.setString(Globals.prefsOauthToken, jsonEncode(oauth));
+    Globals.prefs.setString(Globals.prefsAccessToken, oauth.accessToken);
   }
 
   @override
@@ -182,9 +167,6 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                                 password: password!);
                             if (loggedUser != null) {
                               // 添加 JWT 到 状态容器
-                              ref
-                                  .watch(jwtProvider.notifier)
-                                  .setJwt(oauth: loggedUser);
                               _saveJwt(oauth: loggedUser);
 
                               setState(() {
@@ -192,7 +174,8 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                               });
 
                               if (!mounted) return;
-                              Navigator.of(context).pushNamed('/home');
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/home', ModalRoute.withName('/'));
                             } else {
                               setState(() {
                                 loggingin = false;
@@ -235,24 +218,24 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                   const SizedBox(
                     height: 5,
                   ),
-                  GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacementNamed(context, '/signup');
-                      },
-                      child: const Text(
-                        'or create an account',
-                        style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            color: Colors.deepPurple),
-                      )),
+                  // GestureDetector(
+                  //     onTap: () {
+                  //       Navigator.pushReplacementNamed(context, '/signup');
+                  //     },
+                  //     child: const Text(
+                  //       'or create an account',
+                  //       style: TextStyle(
+                  //           fontFamily: 'Poppins',
+                  //           fontSize: 12,
+                  //           color: Colors.deepPurple),
+                  //     )),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.1,
                   ),
                   const Hero(
                     tag: 'footer',
                     child: Text(
-                      'Made with ♥ by 小白客服',
+                      '小白客服',
                       style: TextStyle(fontFamily: 'Poppins'),
                     ),
                   )

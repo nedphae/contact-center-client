@@ -10,11 +10,11 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  const acessToken = await getTokenSource();
+  const accessToken = await getTokenSource();
   return {
     headers: {
       ...headers,
-      authorization: acessToken ? `Bearer ${acessToken}` : '',
+      authorization: accessToken ? `Bearer ${accessToken}` : '',
     },
   };
 });

@@ -12,6 +12,7 @@ import {
 import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import { AppDispatch } from 'renderer/store';
 import { setSnackbarProp } from 'renderer/state/chat/chatAction';
+import { getTokenSource } from 'renderer/electron/jwtStorage';
 import EventInterface, { CallBack } from './EventInterface';
 
 export default class SocketHandler implements EventInterface {
@@ -35,7 +36,10 @@ export default class SocketHandler implements EventInterface {
     // 分配客户
     this.socket.on('assign', this.onAssignment);
     // this.socket.connect();
-    this.socket.on('disconnect', () => {
+    this.socket.on('disconnect', async () => {
+      const accessToken = await getTokenSource();
+      this.socket.io.opts.query = `token=${accessToken}`;
+
       this.dispatch(updateOnlineStatusBySocket(OnlineStatus.OFFLINE));
       this.dispatch(
         setSnackbarProp({
@@ -66,6 +70,7 @@ export default class SocketHandler implements EventInterface {
      * 发送客服注册信息(在线状态等)
      * 系统初始化信息，个人设置 等
      */
+    this.dispatch(setSnackbarProp(undefined));
     this.dispatch(configStaff());
   };
 

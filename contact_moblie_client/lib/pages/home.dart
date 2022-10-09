@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:contact_moblie_client/common/config.dart';
 import 'package:contact_moblie_client/common/globals.dart';
+import 'package:contact_moblie_client/common/token_utils.dart';
 import 'package:contact_moblie_client/model/conversation.dart';
 import 'package:contact_moblie_client/model/customer.dart';
 import 'package:contact_moblie_client/model/message.dart';
@@ -9,6 +10,7 @@ import 'package:contact_moblie_client/model/staff.dart';
 import 'package:contact_moblie_client/model/web_socket_request.dart';
 import 'package:contact_moblie_client/hook/graphql_client.dart';
 import 'package:contact_moblie_client/pages/contacts.dart';
+import 'package:contact_moblie_client/pages/staff_info.dart';
 import 'package:contact_moblie_client/states/staff_state.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -28,9 +30,7 @@ _initCustomerInfo(
     if (customerMap != null) {
       final customer = Customer.fromJson(customerMap);
       final session = Session(
-          conversation: element,
-          customer: customer,
-          messageList: List.empty());
+          conversation: element, customer: customer, messageList: List.empty());
       ref.read(sessionProvider.notifier).addConv(session: session);
     }
   }
@@ -95,7 +95,8 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
   @override
   void dispose() {
     _currentIndex.dispose();
-    Globals.socket.dispose();
+    // TODO 移动到注销按钮
+    Globals.socket?.dispose();
     if (_timer != null) {
       _timer?.cancel();
     }
@@ -103,74 +104,79 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
   }
 
   _initWS(Staff staff) {
-    final token = ref.watch(jwtProvider)?.accessToken;
+    final token = Globals.prefs.getString(Globals.prefsAccessToken);
 
-    final socket = IO.io(
-        "$serverIp/im/staff",
-        OptionBuilder()
-            .setQuery({'token': token}).setTransports(['websocket']).build());
-    socket.onConnect((_) {
-      // 注册客服信息
-      final staffInfo = _staffInfo;
-      if (staffInfo != null) {
-        intervalConfigStaff(Timer? timer) {
-          socket.emit(
-              'register',
-              WebSocketRequest.generateRequest({
-                'onlineStatus': 1,
-                'groupId': staffInfo.groupId,
-              }));
+    if (Globals.socket == null) {
+      final socket = IO.io(
+          "$serverIp/im/staff",
+          OptionBuilder()
+              .setQuery({'token': token}).setTransports(['websocket']).build());
+      socket.onConnect((_) {
+        // 注册客服信息
+        final staffInfo = _staffInfo;
+        if (staffInfo != null) {
+          intervalConfigStaff(Timer? timer) {
+            socket.emit(
+                'register',
+                WebSocketRequest.generateRequest({
+                  'onlineStatus': 1,
+                  'groupId': staffInfo.groupId,
+                }));
+          }
+          _timer =
+              Timer.periodic(const Duration(minutes: 5), intervalConfigStaff);
+          intervalConfigStaff(_timer);
         }
+      });
+      socket.on('msg/sync', (data) {
+        // 新消息
+        final dataList = data as List;
+        final ack = dataList.last as Function;
 
-        _timer =
-            Timer.periodic(const Duration(minutes: 5), intervalConfigStaff);
-        intervalConfigStaff(_timer);
-      }
-    });
-    socket.on('msg/sync', (data) {
-      // 新消息
-      final dataList = data as List;
-      final ack = dataList.last as Function;
-
-      final request = WebSocketRequest.fromJson(data.first);
-      if (request.body != null) {
-        final updateMessage = UpdateMessage.fromJson(request.body);
-        final message = updateMessage.message;
-        final userId = message.creatorType == CreatorType.customer
-            ? message.from
-            : message.to;
-        if (!message.isSys && userId != null) {
-          ref.read(sessionProvider.notifier).newMessage({userId: message});
+        final request = WebSocketRequest.fromJson(data.first);
+        if (request.body != null) {
+          final updateMessage = UpdateMessage.fromJson(request.body);
+          final message = updateMessage.message;
+          final userId = message.creatorType == CreatorType.customer
+              ? message.from
+              : message.to;
+          if (!message.isSys && userId != null) {
+            ref.read(sessionProvider.notifier).newMessage({userId: message});
+          }
+          ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
+        } else {
+          ack(WebSocketResponse(
+              header: request.header, code: 400, body: 'request empty'));
         }
-        ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
-      } else {
-        ack(WebSocketResponse(
-            header: request.header, code: 400, body: 'request empty'));
-      }
-    });
-    socket.on('assign', (data) {
-      // 分配客服
-      final dataList = data as List;
-      final ack = dataList.last as Function;
+      });
+      socket.on('assign', (data) {
+        // 分配客服
+        final dataList = data as List;
+        final ack = dataList.last as Function;
 
-      final request = WebSocketRequest.fromJson(data.first);
-      if (request.body != null) {
-        final conv = Conversation.fromJson(request.body);
-        _initCustomerInfo(ref, graphQLClient, [conv]);
-        ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
-      } else {
-        ack(WebSocketResponse(
-            header: request.header, code: 400, body: 'request empty'));
-      }
-    });
-    socket.onDisconnect((data) => null);
+        final request = WebSocketRequest.fromJson(data.first);
+        if (request.body != null) {
+          final conv = Conversation.fromJson(request.body);
+          _initCustomerInfo(ref, graphQLClient, [conv]);
+          ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
+        } else {
+          ack(WebSocketResponse(
+              header: request.header, code: 400, body: 'request empty'));
+        }
+      });
+      socket.onDisconnect((data) async {
+        // 需要重新连接，更新 token
+        final token = await getAccessToken();
+        Globals.socket?.query = 'token=$token';
+      });
 
-    Globals.socket = socket;
+      Globals.socket = socket;
+    }
   }
 
   Future<Staff?> _getRemoteData() async {
-    final jwt = ref.read(jwtProvider);
-    if (jwt != null) {
+    final token = Globals.prefs.getString(Globals.prefsAccessToken);
+    if (token != null) {
       // 获取用户信息 并添加到 状态容器
       final staffInfo = await getStaffInfo();
       if (staffInfo != null) {
@@ -187,9 +193,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
   static const List<Widget> _widgetOptions = <Widget>[
     XBCSContacts(),
     XBCSContacts(hide: true),
-    Text(
-      'Index 2: School',
-    ),
+    StaffInfoPage(),
   ];
 
   @override
@@ -228,7 +232,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
               child: child,
             );
           },
-          child: widget.isLoading
+          child: widget.isLoading && _currentIndex.value < 2
               ? const Text('正在加载会话')
               : _widgetOptions.elementAt(_currentIndex.value),
         ),

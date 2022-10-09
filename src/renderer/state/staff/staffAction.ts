@@ -1,5 +1,3 @@
-import i18n from 'i18next';
-
 import { AppThunk, RootState } from 'renderer/store';
 import { getCurrentStaff } from 'renderer/service/infoService';
 import Staff, { configStatus } from 'renderer/domain/StaffInfo';

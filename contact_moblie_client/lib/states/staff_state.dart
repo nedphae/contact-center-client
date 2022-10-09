@@ -15,33 +15,23 @@ class StaffState extends StateNotifier<Staff?> {
   }
 }
 
-final jwtProvider = StateNotifierProvider<OauthState, OauthToken?>((ref) {
-  return OauthState(null);
-});
-
-class OauthState extends StateNotifier<OauthToken?> {
-  OauthState(OauthToken? oauth) : super(oauth);
-
-  void setJwt({required OauthToken oauth}) {
-    state = oauth;
-  }
-}
-
 final sessionProvider =
     StateNotifierProvider<SessionMapState, Map<int, Session>>((ref) {
   return SessionMapState({});
-});
-
-final autoDisposeSessionProvider =
-    Provider.autoDispose.family<Session?, int>((ref, userId) {
-  return ref.watch(sessionProvider)[userId];
 });
 
 class SessionMapState extends StateNotifier<Map<int, Session>> {
   SessionMapState(Map<int, Session> sessionMap) : super(sessionMap);
 
   void addConv({required Session session}) {
-    state = {...state, session.conversation.userId: session};
+    var tempSession = state[session.conversation.userId];
+    if (tempSession == null) {
+      state = {...state, session.conversation.userId: session};
+    } else {
+      tempSession = tempSession.clone;
+      tempSession.conversation = session.conversation;
+      state = {...state, session.conversation.userId: tempSession};
+    }
   }
 
   void hideConv(int userId) {
@@ -97,7 +87,8 @@ class SessionMapState extends StateNotifier<Map<int, Session>> {
     }
   }
 
-  void updateMessageSeqId(int userId, String uuid, int seqId, double createdAt) {
+  void updateMessageSeqId(
+      int userId, String uuid, int seqId, double createdAt) {
     final session = state[userId];
     if (session != null && session.messageList != null) {
       final msg =

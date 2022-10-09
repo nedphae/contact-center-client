@@ -50,35 +50,35 @@ const useWebSocket = () => {
     };
   }, []);
 
-  useEffect(() => {
-    let tempSubscription: Subscription;
-    if (window.socketRef && token) {
-      const period = 1000 * 60 * 60;
-      let newToken = token;
-      tempSubscription = interval(period).subscribe(() => {
-        verifyTokenPromise(newToken, period * 1.5)
-          .catch(() => {
-            return refreshToken();
-          })
-          .then((accessToken) => {
-            if (accessToken && window.socketRef) {
-              newToken = accessToken.source;
-              window.socketRef.io.opts.query = `token=${accessToken.source}`;
-            }
-            dispatch(updateToken(newToken));
-            return undefined;
-          })
-          .catch((error) => {
-            throw error;
-          });
-      });
-    }
-    return () => {
-      if (tempSubscription) {
-        tempSubscription.unsubscribe();
-      }
-    };
-  }, [token, dispatch]);
+  // useEffect(() => {
+  //   let tempSubscription: Subscription;
+  //   if (window.socketRef && token) {
+  //     const period = 1000 * 60 * 60;
+  //     let newToken = token;
+  //     tempSubscription = interval(period).subscribe(() => {
+  //       verifyTokenPromise(newToken, period * 1.5)
+  //         .catch(() => {
+  //           return refreshToken();
+  //         })
+  //         .then((accessToken) => {
+  //           if (accessToken && window.socketRef) {
+  //             newToken = accessToken.source;
+  //             window.socketRef.io.opts.query = `token=${accessToken.source}`;
+  //           }
+  //           dispatch(updateToken(newToken));
+  //           return undefined;
+  //         })
+  //         .catch((error) => {
+  //           throw error;
+  //         });
+  //     });
+  //   }
+  //   return () => {
+  //     if (tempSubscription) {
+  //       tempSubscription.unsubscribe();
+  //     }
+  //   };
+  // }, [token, dispatch]);
 
   return [window.socketRef];
 };

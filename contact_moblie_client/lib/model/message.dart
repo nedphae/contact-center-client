@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:json_annotation/json_annotation.dart';
 
 part 'message.g.dart';
@@ -36,7 +34,7 @@ fragment pageOn$pageName on $pageName {
 }
 
 class MessageBuilder {
-  
+
 }
 
 @JsonSerializable()

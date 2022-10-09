@@ -1,13 +1,18 @@
+import 'dart:convert';
+
 import 'package:contact_moblie_client/common/config.dart';
+import 'package:contact_moblie_client/common/globals.dart';
 import 'package:contact_moblie_client/pages/chat.dart';
 import 'package:contact_moblie_client/pages/home.dart';
 import 'package:contact_moblie_client/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   await initHiveForFlutter();
+  Globals.prefs = await SharedPreferences.getInstance();
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
     /// can use [MyApp] while mocking the providers
@@ -17,16 +22,26 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends HookConsumerWidget {
   const MyApp({super.key});
+
+  String _getLocalData(WidgetRef ref) {
+    final token = Globals.prefs.getString(Globals.prefsOauthToken);
+    if (token != null) {
+      return '/home';
+    } else {
+      return '/login';
+    }
+  }
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     ValueNotifier<GraphQLClient> client = ValueNotifier(
       graphQLClient,
     );
 
+    final initialRoute = _getLocalData(ref);
     return GraphQLProvider(
         client: client,
         child: MaterialApp(
@@ -43,7 +58,7 @@ class MyApp extends StatelessWidget {
               // is not restarted.
               primarySwatch: Colors.blue,
             ),
-            initialRoute: '/login',
+            initialRoute: initialRoute,
             routes: {
               '/home': (context) => const XBCSHomeContainer(),
               '/login': (context) => const XBCSLogin(),
