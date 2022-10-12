@@ -291,9 +291,7 @@ class Session {
 
   bool hide;
 
-  bool chatting = false;
-
-  bool shouldSync = false;
+  bool shouldSync;
 
   Session({
     required this.conversation,
@@ -302,15 +300,25 @@ class Session {
     this.messageList,
     this.lastMessage,
     this.hide = false,
-    this.chatting = false,
+    this.shouldSync = false,
   });
 
-  Session get clone => Session(
-      conversation: conversation,
-      customer: customer,
-      unread: unread,
-      messageList: messageList,
-      lastMessage: lastMessage,
-      hide: hide,
-      chatting: chatting);
+  Session cloneWith({
+    Conversation? conversation,
+    Customer? customer,
+    int? unread,
+    List<Message>? messageList,
+    Message? lastMessage,
+    bool? hide,
+    bool? shouldSync,
+  }) =>
+      Session(
+        conversation: conversation ?? this.conversation,
+        customer: customer ?? this.customer,
+        unread: unread ?? this.unread,
+        messageList: messageList ?? this.messageList,
+        lastMessage: lastMessage ?? this.lastMessage,
+        hide: hide ?? this.hide,
+        shouldSync: shouldSync ?? this.shouldSync,
+      );
 }

@@ -1,0 +1,137 @@
+import 'package:contact_moblie_client/model/chatstate.dart';
+import 'package:contact_moblie_client/model/conversation.dart';
+import 'package:contact_moblie_client/model/message.dart';
+import 'package:contact_moblie_client/model/staff.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+final staffProvider = StateNotifierProvider<StaffState, Staff?>((ref) {
+  return StaffState(null);
+});
+
+class StaffState extends StateNotifier<Staff?> {
+  StaffState(Staff? staff) : super(staff);
+
+  void setLoginStaff({required Staff staff}) {
+    state = staff;
+  }
+}
+
+final chatStateProvider =
+    StateNotifierProvider<ChatStateState, ChatState>((ref) {
+  return ChatStateState(ChatState());
+});
+
+class ChatStateState extends StateNotifier<ChatState> {
+  ChatStateState(ChatState chatState) : super(chatState);
+
+  void setChattingUser(int userId) {
+    var sessionMap = state.sessionMap;
+    final session = sessionMap[userId];
+    if (session != null &&
+        session.conversation.userId != state.chattingUserId) {
+      session.unread = 0;
+      sessionMap = {...sessionMap};
+      state = state.cloneWith(chattingUserId: userId, sessionMap: sessionMap);
+    }
+  }
+
+  void clearChattingUser() {
+    if (state.chattingUserId != null) {
+      state.chattingUserId = null;
+      state = state.cloneWith();
+    }
+  }
+
+  void addConv({required Session session}) {
+    var sessionMap = state.sessionMap;
+    var tempSession = sessionMap[session.conversation.userId];
+    if (tempSession == null) {
+      sessionMap = {...sessionMap, session.conversation.userId: session};
+    } else {
+      tempSession = tempSession.cloneWith(
+          conversation: session.conversation, shouldSync: true);
+      tempSession.messageList = null;
+      sessionMap.remove(session.conversation.userId);
+      sessionMap = {
+        session.conversation.userId: tempSession,
+        ...sessionMap,
+      };
+    }
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void setShouldSync({required int userId, shouldSync = false}) {
+    var sessionMap = state.sessionMap;
+    sessionMap[userId]?.shouldSync = shouldSync;
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void hideConv(int userId) {
+    var sessionMap = state.sessionMap;
+    sessionMap[userId]?.hide = true;
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void unhideConv(int userId) {
+    var sessionMap = state.sessionMap;
+    final session = sessionMap[userId];
+    if (session != null && session.hide) {
+      session.hide = false;
+    }
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void addHistoryMessage(Map<int, List<Message>> userMessages) {
+    var sessionMap = state.sessionMap;
+    for (var element in userMessages.entries) {
+      final userId = element.key;
+      final messageList = element.value;
+      var session = sessionMap[userId];
+      if (session != null) {
+        session.messageList = [...?session.messageList, ...messageList];
+        session = session.cloneWith();
+        sessionMap[userId] = session;
+      }
+    }
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void newMessage(Map<int, Message> userMessage) {
+    var sessionMap = state.sessionMap;
+    for (var element in userMessage.entries) {
+      final userId = element.key;
+      final message = element.value;
+      var session = sessionMap[userId];
+      if (session != null) {
+        session.messageList = [...?session.messageList, message];
+        session.lastMessage = message;
+        if (state.chattingUserId != session.conversation.userId) {
+          session.unread += 1;
+        }
+        sessionMap[userId] = session.cloneWith();
+      }
+    }
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void updateMessageSeqId(
+      int userId, String uuid, int seqId, double createdAt) {
+    var sessionMap = state.sessionMap;
+    final session = sessionMap[userId];
+    if (session != null && session.messageList != null) {
+      final msg =
+          session.messageList?.firstWhere((element) => element.uuid == uuid);
+      if (msg != null) {
+        msg.seqId = seqId;
+        msg.createdAt = createdAt;
+      }
+      sessionMap = {...sessionMap};
+      state = state.cloneWith(sessionMap: sessionMap);
+    }
+  }
+}

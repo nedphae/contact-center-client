@@ -11,7 +11,7 @@ import 'package:contact_moblie_client/model/web_socket_request.dart';
 import 'package:contact_moblie_client/hook/graphql_client.dart';
 import 'package:contact_moblie_client/pages/contacts.dart';
 import 'package:contact_moblie_client/pages/staff_info.dart';
-import 'package:contact_moblie_client/states/staff_state.dart';
+import 'package:contact_moblie_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -32,7 +32,7 @@ _initCustomerInfo(
       final customer = Customer.fromJson(customerMap);
       final session = Session(
           conversation: element, customer: customer, messageList: List.empty());
-      ref.read(sessionProvider.notifier).addConv(session: session);
+      ref.read(chatStateProvider.notifier).addConv(session: session);
     }
   }
 }
@@ -160,7 +160,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
               ? message.from
               : message.to;
           if (!message.isSys && userId != null) {
-            ref.read(sessionProvider.notifier).newMessage({userId: message});
+            ref.read(chatStateProvider.notifier).newMessage({userId: message});
           }
           ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
         } else {

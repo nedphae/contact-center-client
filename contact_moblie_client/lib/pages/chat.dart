@@ -6,8 +6,7 @@ import 'package:contact_moblie_client/model/message.dart';
 import 'package:contact_moblie_client/model/staff.dart';
 import 'package:contact_moblie_client/model/constants.dart';
 import 'package:contact_moblie_client/model/web_socket_request.dart';
-import 'package:contact_moblie_client/states/staff_state.dart';
-import 'package:flutter/foundation.dart';
+import 'package:contact_moblie_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -55,11 +54,11 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       messageMap.removeWhere((key, value) => value == null);
 
       final request = WebSocketRequest.generateRequest(messageMap);
-      ref.read(sessionProvider.notifier).newMessage({_customer.id: message});
+      ref.read(chatStateProvider.notifier).newMessage({_customer.id: message});
       Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
         final response = WebSocketResponse.fromJson(data);
         final body = response.body as Map<String, dynamic>;
-        ref.read(sessionProvider.notifier).updateMessageSeqId(
+        ref.read(chatStateProvider.notifier).updateMessageSeqId(
             _customer.id, message.uuid, body['seqId'], body['createdAt']);
       });
     }
@@ -71,8 +70,8 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final selectUserId = args['selectUserId'] as int;
-    final selectSession =
-        ref.watch(sessionProvider.select((value) => value[selectUserId]));
+    final selectSession = ref.watch(
+        chatStateProvider.select((value) => value.sessionMap[selectUserId]));
 
     final sessionMsgList = selectSession?.messageList;
     final topMsgId =
@@ -93,7 +92,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
         historyMessageResult.refetch();
         Future.delayed(const Duration(seconds: 1), () {
           ref
-              .read(sessionProvider.notifier)
+              .read(chatStateProvider.notifier)
               .setShouldSync(userId: _currentSession.conversation.userId);
         });
       }
@@ -157,155 +156,159 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       },
     );
 
-    return Scaffold(
-      // AppBar 会自动提供回退按钮 可通过 automaticallyImplyLeading 修改
-      appBar: AppBar(
-        leading: BackButton(onPressed: () {
-          ref
-              .read(sessionProvider.notifier)
-              .setChatting(selectUserId, chatting: false);
-          Navigator.maybePop(context);
-        }),
-        iconTheme: const IconThemeData(color: Colors.deepPurple),
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size(25, 10),
-          child: Container(
-            decoration: const BoxDecoration(
-                // color: Colors.blue,
-                // borderRadius: BorderRadius.circular(20)
-                ),
-            constraints: const BoxConstraints.expand(height: 1),
-            child: LinearProgressIndicator(
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-              backgroundColor: Colors.blue[100],
+    return WillPopScope(
+      onWillPop: () => Future.sync(() {
+        if (!mounted) return false;
+        ref.read(chatStateProvider.notifier).clearChattingUser();
+        return true;
+      }),
+      child: Scaffold(
+        // AppBar 会自动提供回退按钮 可通过 automaticallyImplyLeading 修改
+        appBar: AppBar(
+          iconTheme: const IconThemeData(color: Colors.deepPurple),
+          elevation: 0,
+          bottom: PreferredSize(
+            preferredSize: const Size(25, 10),
+            child: Container(
+              decoration: const BoxDecoration(
+                  // color: Colors.blue,
+                  // borderRadius: BorderRadius.circular(20)
+                  ),
+              constraints: const BoxConstraints.expand(height: 1),
+              child: LinearProgressIndicator(
+                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                backgroundColor: Colors.blue[100],
+              ),
             ),
           ),
-        ),
-        backgroundColor: Colors.white10,
-        // leading: Padding(
-        //   padding: const EdgeInsets.all(12.0),
-        //   child: CircleAvatar(backgroundImage: NetworkImage('https://cdn.clipart.email/93ce84c4f719bd9a234fb92ab331bec4_frisco-specialty-clinic-vail-health_480-480.png'),),
-        // ),
-        title: Row(
-          children: <Widget>[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  _currentSession.customer.name,
-                  style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      color: Colors.deepPurple),
-                ),
-                Text(_currentSession.customer.uid,
+          backgroundColor: Colors.white10,
+          // leading: Padding(
+          //   padding: const EdgeInsets.all(12.0),
+          //   child: CircleAvatar(backgroundImage: NetworkImage('https://cdn.clipart.email/93ce84c4f719bd9a234fb92ab331bec4_frisco-specialty-clinic-vail-health_480-480.png'),),
+          // ),
+          title: Row(
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    _currentSession.customer.name,
                     style: const TextStyle(
                         fontFamily: 'Poppins',
-                        fontSize: 8,
-                        color: Colors.deepPurple))
-              ],
+                        fontSize: 16,
+                        color: Colors.deepPurple),
+                  ),
+                  Text(_currentSession.customer.uid,
+                      style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 8,
+                          color: Colors.deepPurple))
+                ],
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            GestureDetector(
+              child: PopupMenuButton<Text>(
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      onTap: () {},
+                      child: const Text(
+                        '历史会话',
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () {},
+                      child: const Text(
+                        '用户信息',
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () {
+                        ref
+                            .read(chatStateProvider.notifier)
+                            .hideConv(_customer.id);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        '关闭会话',
+                      ),
+                    ),
+                  ];
+                },
+              ),
+            )
+          ],
+        ),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            ChatStream(
+              messageaList: messageList,
+              staff: _currentStaff!,
+              customer: _currentSession.customer,
+              onRefresh: () {
+                return historyMessageResult.fetchMore(opts);
+              },
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              decoration: kMessageContainerDecoration,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: Material(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.white,
+                      elevation: 5,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              messageText = value;
+                            });
+                          },
+                          controller: chatMsgTextController,
+                          decoration: kMessageTextFieldDecoration,
+                        ),
+                      ),
+                    ),
+                  ),
+                  MaterialButton(
+                      shape: const CircleBorder(),
+                      color: Colors.blue,
+                      onPressed:
+                          (messageText != null && messageText!.isNotEmpty)
+                              ? () {
+                                  chatMsgTextController.clear();
+                                  sendTextMessage();
+                                  setState(() {
+                                    messageText = null;
+                                  });
+                                }
+                              : null,
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Icon(
+                          Icons.send,
+                          color: Colors.white,
+                        ),
+                      )
+                      // Text(
+                      //   'Send',
+                      //   style: kSendButtonTextStyle,
+                      // ),
+                      ),
+                ],
+              ),
             ),
           ],
         ),
-        actions: <Widget>[
-          GestureDetector(
-            child: PopupMenuButton<Text>(
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                    onTap: () {},
-                    child: const Text(
-                      '历史会话',
-                    ),
-                  ),
-                  PopupMenuItem(
-                    onTap: () {},
-                    child: const Text(
-                      '用户信息',
-                    ),
-                  ),
-                  PopupMenuItem(
-                    onTap: () {
-                      ref.read(sessionProvider.notifier).hideConv(_customer.id);
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      '关闭会话',
-                    ),
-                  ),
-                ];
-              },
-            ),
-          )
-        ],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ChatStream(
-            messageaList: messageList,
-            staff: _currentStaff!,
-            customer: _currentSession.customer,
-            onRefresh: () {
-              return historyMessageResult.fetchMore(opts);
-            },
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            decoration: kMessageContainerDecoration,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: Material(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.white,
-                    elevation: 5,
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            messageText = value;
-                          });
-                        },
-                        controller: chatMsgTextController,
-                        decoration: kMessageTextFieldDecoration,
-                      ),
-                    ),
-                  ),
-                ),
-                MaterialButton(
-                    shape: const CircleBorder(),
-                    color: Colors.blue,
-                    onPressed: (messageText != null && messageText!.isNotEmpty)
-                        ? () {
-                            chatMsgTextController.clear();
-                            sendTextMessage();
-                            setState(() {
-                              messageText = null;
-                            });
-                          }
-                        : null,
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      ),
-                    )
-                    // Text(
-                    //   'Send',
-                    //   style: kSendButtonTextStyle,
-                    // ),
-                    ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

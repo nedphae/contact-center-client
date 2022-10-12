@@ -1,4 +1,4 @@
-import 'package:contact_moblie_client/states/staff_state.dart';
+import 'package:contact_moblie_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:badges/badges.dart';
@@ -18,7 +18,7 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
   @override
   Widget build(BuildContext context) {
     final sessionList = ref
-        .watch(sessionProvider)
+        .watch(chatStateProvider.select((value) => value.sessionMap))
         .values
         .where((element) => widget.hide == element.hide)
         .toList();
@@ -38,14 +38,15 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
                       lastMessage.createdAt!.toInt() * 1000,
                       isUtc: true)
                   : null;
-          final lastMsgTimeStr =
-              lastMsgTime != null ? dateFormat.format(lastMsgTime.toLocal()) : '';
+          final lastMsgTimeStr = lastMsgTime != null
+              ? dateFormat.format(lastMsgTime.toLocal())
+              : '';
 
           return ListTile(
             onTap: () {
               ref
-                  .read(sessionProvider.notifier)
-                  .setChatting(sessionList[index].conversation.userId);
+                  .read(chatStateProvider.notifier)
+                  .setChattingUser(sessionList[index].conversation.userId);
               // 选择会话，跳转到聊天页面，并通过 ModalRoute 获取传递的参数
               // final args = ModalRoute.of(context)!.settings.arguments
               Navigator.pushNamed(context, '/chat', arguments: {
@@ -62,8 +63,7 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
             title: Text(
               sessionList[index].customer.name,
             ),
-            subtitle: Text(
-                sessionList[index].lastMessage?.content.textContent?.text ?? '',
+            subtitle: Text(lastMessage?.content.textContent?.text ?? '',
                 overflow: TextOverflow.ellipsis),
             trailing: Text(lastMsgTimeStr),
           );

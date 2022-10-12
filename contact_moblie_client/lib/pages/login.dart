@@ -1,6 +1,6 @@
 import 'package:contact_moblie_client/common/config.dart';
 import 'package:contact_moblie_client/common/globals.dart';
-import 'package:contact_moblie_client/states/staff_state.dart';
+import 'package:contact_moblie_client/states/state.dart';
 import 'package:contact_moblie_client/widgets/custombutton.dart';
 import 'package:contact_moblie_client/widgets/customtextinput.dart';
 import 'package:edge_alerts/edge_alerts.dart';
@@ -56,7 +56,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
     super.initState();
     Future.delayed(const Duration(seconds: 1), () {
       ref.refresh(staffProvider);
-      ref.refresh(sessionProvider);
+      ref.refresh(chatStateProvider);
     });
   }
 
