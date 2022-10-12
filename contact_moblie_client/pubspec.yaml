@@ -53,6 +53,7 @@ dependencies:
   url_launcher: ^6.1.6
   flutter_html: ^2.2.1
   settings_ui: ^2.0.2
+  jpush_flutter: ^2.4.0
 
 dev_dependencies:
   flutter_test:

@@ -18,6 +18,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:jpush_flutter/jpush_flutter.dart';
 
 _initCustomerInfo(
     WidgetRef ref, GraphQLClient client, List<Conversation> convList) async {
@@ -79,6 +80,8 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
   Timer? _timer;
   bool online = false;
 
+  final JPush jpush = JPush();
+
   final RestorableInt _currentIndex = RestorableInt(0);
 
   @override
@@ -105,10 +108,17 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
     super.dispose();
   }
 
-  _initWS(Staff staff) {
+  _initWS(Staff staff) async {
     final token = Globals.prefs.getString(Globals.prefsAccessToken);
-
     if (Globals.socket == null) {
+      jpush.setup(
+        appKey: '02f9538e566126ed95e4cb9d',
+        channel: "developer-default",
+        production: false,
+        debug: true, // 设置是否打印 debug 日志
+      );
+      final registrationId = await jpush.getRegistrationID();
+
       final socket = IO.io(
           "$serverIp/im/staff",
           OptionBuilder()
@@ -125,7 +135,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
                   'groupId': staffInfo.groupId,
                   'deviceType': 'ANDROID',
                   // 手机客户端注册id，用于推送
-                  'registrationId': 'test',
+                  'registrationId': registrationId,
                 }));
           }
 
