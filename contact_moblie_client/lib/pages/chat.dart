@@ -7,6 +7,7 @@ import 'package:contact_moblie_client/model/staff.dart';
 import 'package:contact_moblie_client/model/constants.dart';
 import 'package:contact_moblie_client/model/web_socket_request.dart';
 import 'package:contact_moblie_client/states/staff_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -88,6 +89,15 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       _currentSession = selectSession;
       _customer = selectSession.customer;
 
+      if (_currentSession.shouldSync) {
+        historyMessageResult.refetch();
+        Future.delayed(const Duration(seconds: 1), () {
+          ref
+              .read(sessionProvider.notifier)
+              .setShouldSync(userId: _currentSession.conversation.userId);
+        });
+      }
+
       final messageListMap =
           historyMessageResult.result.data?['loadHistoryMessage'];
       if (messageListMap != null) {
@@ -97,7 +107,16 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
         messageList.addAll(historyMsgList);
       }
       messageList.addAll(_currentSession.messageList ?? []);
+    } else {
+      Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
+        Navigator.of(context).pushNamed('/home');
+      });
+    }
 
+    int? fetchMoreCursor;
+
+    if (messageList.isNotEmpty) {
       // 去重
       messageList = messageList
           .map((e) => {e.uuid: e})
@@ -107,17 +126,12 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
           })
           .values
           .toList();
-    } else {
-      Future.delayed(const Duration(seconds: 1), () {
-        if (!mounted) return;
-        Navigator.of(context).pushNamed('/home');
-      });
+
+      messageList.sort((a, b) =>
+          (b.seqId ?? 0x7fffffffffffffff) - (a.seqId ?? 0x7fffffffffffffff));
+      fetchMoreCursor = messageList.last.seqId;
     }
 
-    messageList.sort((a, b) =>
-        (b.seqId ?? 0x7fffffffffffffff) - (a.seqId ?? 0x7fffffffffffffff));
-
-    final fetchMoreCursor = messageList.last.seqId;
     FetchMoreOptions opts = FetchMoreOptions(
       variables: {
         'userId': selectUserId,
@@ -469,7 +483,7 @@ class MessageBubble extends StatelessWidget {
               topRight:
                   staff ? const Radius.circular(0) : const Radius.circular(50),
             ),
-            color: staff ? Colors.blue : Colors.white,
+            color: staff ? Colors.green : Colors.white,
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),

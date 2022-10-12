@@ -29,9 +29,20 @@ class SessionMapState extends StateNotifier<Map<int, Session>> {
       state = {...state, session.conversation.userId: session};
     } else {
       tempSession = tempSession.clone;
+      tempSession.messageList = null;
       tempSession.conversation = session.conversation;
-      state = {...state, session.conversation.userId: tempSession};
+      tempSession.shouldSync = true;
+      state.remove(session.conversation.userId);
+      state = {
+        session.conversation.userId: tempSession,
+        ...state,
+      };
     }
+  }
+
+  void setShouldSync({required int userId, shouldSync = false}) {
+    state[userId]?.shouldSync = shouldSync;
+    state = {...state};
   }
 
   void hideConv(int userId) {

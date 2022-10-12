@@ -77,6 +77,7 @@ class XBCSHome extends StatefulHookConsumerWidget {
 class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
   Staff? _staffInfo;
   Timer? _timer;
+  bool online = false;
 
   final RestorableInt _currentIndex = RestorableInt(0);
 
@@ -97,6 +98,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
     _currentIndex.dispose();
     // TODO 移动到注销按钮
     Globals.socket?.dispose();
+    Globals.socket = null;
     if (_timer != null) {
       _timer?.cancel();
     }
@@ -121,11 +123,18 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
                 WebSocketRequest.generateRequest({
                   'onlineStatus': 1,
                   'groupId': staffInfo.groupId,
+                  'deviceType': 'ANDROID',
+                  // 手机客户端注册id，用于推送
+                  'registrationId': 'test',
                 }));
           }
+
           _timer =
               Timer.periodic(const Duration(minutes: 5), intervalConfigStaff);
           intervalConfigStaff(_timer);
+          setState(() {
+            online = true;
+          });
         }
       });
       socket.on('msg/sync', (data) {
@@ -168,6 +177,9 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
         // 需要重新连接，更新 token
         final token = await getAccessToken();
         Globals.socket?.query = 'token=$token';
+        setState(() {
+          online = false;
+        });
       });
 
       Globals.socket = socket;
@@ -215,8 +227,9 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
         label: '我',
       ),
     ];
-    final title =
+    var title =
         bottomNavigationBarItems.elementAt(_currentIndex.value).label ?? '';
+    title += online ? "" : " (离线)";
 
     return Scaffold(
       appBar: AppBar(

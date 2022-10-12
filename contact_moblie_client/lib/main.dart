@@ -13,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   await initHiveForFlutter();
   Globals.prefs = await SharedPreferences.getInstance();
+  // 重新打开，清理 graphQL 缓存
+  graphQLClient.cache.store.reset();
   runApp(
     /// Providers are above [MyApp] instead of inside it, so that tests
     /// can use [MyApp] while mocking the providers

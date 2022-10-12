@@ -5,6 +5,8 @@ import 'package:contact_moblie_client/common/token_utils.dart';
 import 'package:contact_moblie_client/model/staff.dart';
 import 'package:contact_moblie_client/states/staff_state.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:settings_ui/settings_ui.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -18,55 +20,87 @@ class StaffInfoPage extends StatefulHookConsumerWidget {
 class StaffInfoPageState extends ConsumerState<StaffInfoPage> {
   @override
   Widget build(BuildContext context) {
-    final staff = ref.watch(staffProvider)!;
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      children: [
-        ProfileWidget(
-          imagePath: "$serverIp${staff.avatar}",
-          // onClicked: () {
-          //   Navigator.of(context).push(
-          //     MaterialPageRoute(builder: (context) => EditProfilePage()),
-          //   );
-          // },
-        ),
-        const SizedBox(height: 24),
-        buildName(staff),
-        const SizedBox(height: 48),
-        Divider(
-          color: Colors.grey.shade300,
-          height: 20,
-          thickness: 1,
-          indent: 0,
-          endIndent: 0,
-        ),
-        ListTile(
-          title: const Text(
-            '退出登录',
+    final staff = ref.watch(staffProvider);
+
+    if (staff != null) {
+      return Column(
+        children: <Widget>[
+          ProfileWidget(
+            imagePath: "$serverIp${staff.avatar}",
+            // onClicked: () {
+            //   Navigator.of(context).push(
+            //     MaterialPageRoute(builder: (context) => EditProfilePage()),
+            //   );
+            // },
           ),
-          leading: const Icon(Icons.logout),
-          onTap: () {
-            clearToken();
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil('/login', ModalRoute.withName('/'));
-          },
-        ),
-        Divider(
-          color: Colors.grey.shade300,
-          height: 20,
-          thickness: 1,
-          indent: 30,
-          endIndent: 30,
-        ),
-        ListTile(
-          title: const Text(
-            '退出应用',
+          const SizedBox(height: 24),
+          buildName(staff),
+          const SizedBox(height: 48),
+          Expanded(
+            child: SettingsList(
+              platform: DevicePlatform.iOS,
+              sections: [
+                SettingsSection(
+                  tiles: <SettingsTile>[
+                    SettingsTile.navigation(
+                      title: const Text('不再接受离线通知'),
+                      onPressed: (context) async {
+                        await graphQLClient.mutate(MutationOptions(
+                            document: gql(Staff.offlineClientMutation),
+                            variables: const {
+                              'staffChangeStatus': {'clientId': 'ANDROID'}
+                            }));
+                        showDialog<String>(
+                          context: context,
+                          builder: (BuildContext context) => AlertDialog(
+                            content: const Text('关闭离线通知成功，是否退出应用'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(context, 'Cancel'),
+                                child: const Text('取消'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context, 'OK');
+                                  exit(0);
+                                },
+                                child: const Text('退出'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    SettingsTile.navigation(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('退出登录'),
+                      onPressed: (context) async {
+                        clearToken();
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/login', ModalRoute.withName('/'));
+                        await graphQLClient.mutate(MutationOptions(
+                            document: gql(Staff.offlineClientMutation),
+                            variables: const {
+                              'staffChangeStatus': {'clientId': 'ANDROID'}
+                            }));
+                      },
+                    ),
+                    SettingsTile.navigation(
+                      leading: const Icon(Icons.exit_to_app),
+                      title: const Text('退出应用'),
+                      onPressed: (context) => exit(0),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          leading: const Icon(Icons.exit_to_app),
-          onTap: () => exit(0),
-        ),
-      ],
-    );
+        ],
+      );
+    } else {
+      return const Text("正在读取个人信息");
+    }
   }
 
   Widget buildName(Staff staff) => Column(

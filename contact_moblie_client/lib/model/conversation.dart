@@ -39,7 +39,7 @@ class Conversation {
   int? transferFromShunt;
   String? transferRemarks;
   bool isStaffInvited;
-  int relatedId;
+  int? relatedId;
   dynamic relatedType;
   String? category;
   String? categoryDetail;
@@ -292,6 +292,8 @@ class Session {
   bool hide;
 
   bool chatting = false;
+
+  bool shouldSync = false;
 
   Session({
     required this.conversation,

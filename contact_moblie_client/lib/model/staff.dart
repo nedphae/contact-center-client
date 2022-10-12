@@ -131,6 +131,14 @@ query Staff {
     }
   }
 """;
+
+  static const offlineClientMutation = """
+mutation Staff(\$staffChangeStatus: StaffChangeStatusInput!) {
+    offlineClient(staffChangeStatus: \$staffChangeStatus) {
+      # 当前先不要返回的状态
+    }
+  }
+""";
 }
 
 enum OnlineStatus {
