@@ -128,7 +128,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
         final staffInfo = _staffInfo;
         if (staffInfo != null) {
           intervalConfigStaff(Timer? timer) {
-            socket.emit(
+            socket.emitWithAck(
                 'register',
                 WebSocketRequest.generateRequest({
                   'onlineStatus': 1,
@@ -136,7 +136,15 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
                   'deviceType': 'ANDROID',
                   // 手机客户端注册id，用于推送
                   'registrationId': registrationId,
-                }));
+                }), ack: (data) {
+              if (data != null) {
+                final response = WebSocketResponse.fromJson(data);
+                final staffStatus = StaffStatus.fromJson(response.body);
+                ref
+                    .read(staffProvider.notifier)
+                    .addStaffStatus(staffStatus: staffStatus);
+              }
+            });
           }
 
           _timer =

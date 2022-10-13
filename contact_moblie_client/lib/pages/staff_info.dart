@@ -43,6 +43,19 @@ class StaffInfoPageState extends ConsumerState<StaffInfoPage> {
                 SettingsSection(
                   tiles: <SettingsTile>[
                     SettingsTile.navigation(
+                      title: const Text('在线状态'),
+                      trailing:
+                          buildOnlineStatus(staff.staffStatus?.onlineStatusStr),
+                      onPressed: (context) async {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          builder: (context) {
+                            return const OnlineStatusBottomSheet();
+                          },
+                        );
+                      },
+                    ),
+                    SettingsTile.navigation(
                       title: const Text('不再接受离线通知'),
                       onPressed: (context) async {
                         await graphQLClient.mutate(MutationOptions(
@@ -116,6 +129,24 @@ class StaffInfoPageState extends ConsumerState<StaffInfoPage> {
           )
         ],
       );
+
+  Widget buildOnlineStatus(String? onlineStatus) {
+    var onlineStatusStr = '在线';
+    switch (onlineStatus) {
+      case "OFFLINE":
+        onlineStatusStr = "离线";
+        break;
+      case "BUSY":
+        onlineStatusStr = "忙碌";
+        break;
+      case "AWAY":
+        onlineStatusStr = "离开";
+        break;
+      default:
+        break;
+    }
+    return Text(onlineStatusStr);
+  }
 }
 
 class ProfileWidget extends StatelessWidget {
@@ -192,4 +223,74 @@ class ProfileWidget extends StatelessWidget {
           child: child,
         ),
       );
+}
+
+class OnlineStatusBottomSheet extends HookConsumerWidget {
+  const OnlineStatusBottomSheet({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    updateOnlineStatus(String onlineStatus) async {
+      final result = await graphQLClient.mutate(MutationOptions(
+          document: gql(StaffStatus.mutationOnlineStatus),
+          variables: {
+            "updateStaffStatus": {"onlineStatus": onlineStatus}
+          }));
+
+      final staffStatusReslut =
+          StaffStatus.fromJson(result.data?["updateStaffStatus"]);
+      ref
+          .read(staffProvider.notifier)
+          .addStaffStatus(staffStatus: staffStatusReslut);
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("在线状态"),
+        toolbarHeight: 40,
+      ),
+      body: SettingsList(
+        platform: DevicePlatform.iOS,
+        sections: [
+          SettingsSection(
+            tiles: <SettingsTile>[
+              SettingsTile.navigation(
+                title: const Text('在线'),
+                onPressed: (context) async {
+                  final navigator = Navigator.of(context);
+                  await updateOnlineStatus("ONLINE");
+                  navigator.pop();
+                },
+              ),
+              SettingsTile.navigation(
+                title: const Text('离线'),
+                onPressed: (context) async {
+                  final navigator = Navigator.of(context);
+                  await updateOnlineStatus("OFFLINE");
+                  navigator.pop();
+                },
+              ),
+              SettingsTile.navigation(
+                title: const Text('忙碌'),
+                onPressed: (context) async {
+                  final navigator = Navigator.of(context);
+                  await updateOnlineStatus("BUSY");
+                  navigator.pop();
+                },
+              ),
+              SettingsTile.navigation(
+                title: const Text('离开'),
+                onPressed: (context) async {
+                  final navigator = Navigator.of(context);
+                  await updateOnlineStatus("AWAY");
+                  navigator.pop();
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

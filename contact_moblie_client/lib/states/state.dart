@@ -14,6 +14,11 @@ class StaffState extends StateNotifier<Staff?> {
   void setLoginStaff({required Staff staff}) {
     state = staff;
   }
+
+  void addStaffStatus({required StaffStatus staffStatus}) {
+    final newState = state?.cloneWith(staffStatus: staffStatus);
+    state = newState;
+  }
 }
 
 final chatStateProvider =

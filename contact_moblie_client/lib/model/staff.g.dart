@@ -11,22 +11,22 @@ StaffStatus _$StaffStatusFromJson(Map<String, dynamic> json) => StaffStatus(
       onlineStatus:
           $enumDecodeNullable(_$OnlineStatusEnumMap, json['onlineStatus']) ??
               OnlineStatus.online,
+      onlineStatusStr: json['onlineStatusStr'] as String?,
       maxServiceCount: json['maxServiceCount'] as int?,
       currentServiceCount: json['currentServiceCount'] as int?,
-      priorityOfShunt: json['priorityOfShunt'] as String?,
-      loginTime: (json['loginTime'] as num).toDouble(),
-      syncState: json['syncState'] as bool? ?? true,
+      priorityOfShunt: json['priorityOfShunt'],
+      loginTime: (json['loginTime'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$StaffStatusToJson(StaffStatus instance) =>
     <String, dynamic>{
       'staffId': instance.staffId,
-      'onlineStatus': _$OnlineStatusEnumMap[instance.onlineStatus]!,
+      'onlineStatus': _$OnlineStatusEnumMap[instance.onlineStatus],
       'maxServiceCount': instance.maxServiceCount,
       'currentServiceCount': instance.currentServiceCount,
       'priorityOfShunt': instance.priorityOfShunt,
       'loginTime': instance.loginTime,
-      'syncState': instance.syncState,
+      'onlineStatusStr': instance.onlineStatusStr,
     };
 
 const _$OnlineStatusEnumMap = {
@@ -53,6 +53,9 @@ Staff _$StaffFromJson(Map<String, dynamic> json) => Staff(
       maxTicketAllTime: json['maxTicketAllTime'] as int?,
       mobilePhone: json['mobilePhone'] as String?,
       enabled: json['enabled'] as bool,
+      staffStatus: json['staffStatus'] == null
+          ? null
+          : StaffStatus.fromJson(json['staffStatus'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
@@ -72,6 +75,7 @@ Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
       'maxTicketAllTime': instance.maxTicketAllTime,
       'mobilePhone': instance.mobilePhone,
       'enabled': instance.enabled,
+      'staffStatus': instance.staffStatus,
     };
 
 OauthToken _$OauthTokenFromJson(Map<String, dynamic> json) => OauthToken(

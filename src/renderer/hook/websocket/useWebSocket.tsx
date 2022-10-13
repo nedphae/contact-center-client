@@ -1,14 +1,11 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { interval, Subscription } from 'rxjs';
 
 import IO from 'socket.io-client';
 
 import SocketHandler from 'renderer/service/websocket/SocketHandler';
 import config from 'renderer/config/clientConfig';
-import { getStaffToken, updateToken } from 'renderer/state/staff/staffAction';
-import { refreshToken } from 'renderer/electron/jwtStorage';
-import { verifyTokenPromise } from 'renderer/utils/jwtUtils';
+import { getStaffToken } from 'renderer/state/staff/staffAction';
 
 /**
  * WebSocket Hook, 返回 websocket对象

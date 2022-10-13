@@ -10,27 +10,47 @@ class StaffStatus {
   int staffId;
 
   // String? groupName;
-  OnlineStatus onlineStatus;
+  OnlineStatus? onlineStatus;
   int? maxServiceCount;
   int? currentServiceCount;
-  String? priorityOfShunt;
+  dynamic priorityOfShunt;
   // Int64List userIdList;
-  double loginTime;
-  bool syncState;
+  double? loginTime;
+  String? onlineStatusStr;
 
   StaffStatus({
     required this.staffId,
     this.onlineStatus = OnlineStatus.online,
-    required this.maxServiceCount,
-    required this.currentServiceCount,
-    required this.priorityOfShunt,
-    required this.loginTime,
-    this.syncState = true,
+    this.onlineStatusStr,
+    this.maxServiceCount,
+    this.currentServiceCount,
+    this.priorityOfShunt,
+    this.loginTime,
   });
 
   factory StaffStatus.fromJson(Map<String, dynamic> json) =>
       _$StaffStatusFromJson(json);
   Map<String, dynamic> toJson() => _$StaffStatusToJson(this);
+
+  static const mutationOnlineStatus = """
+  mutation UpdateStaffStatus(\$updateStaffStatus: UpdateStaffStatusInput!) {
+    updateStaffStatus(updateStaffStatus: \$updateStaffStatus) {
+      autoBusy
+      currentServiceCount
+      groupId
+      loginTime
+      maxServiceCount
+      organizationId
+      priorityOfShunt
+      role
+      shunt
+      staffId
+      staffType
+      userIdList
+      onlineStatusStr: onlineStatus
+    }
+  }
+""";
 }
 
 @JsonSerializable()
@@ -54,56 +74,70 @@ class Staff {
   String? mobilePhone;
   bool enabled;
   // customerList?: CustomerStatus[];
+  StaffStatus? staffStatus;
 
-  Staff(
-      {required this.organizationId,
-      required this.id,
-      required this.groupId,
-      required this.role,
-      required this.staffType,
-      required this.realName,
-      required this.username,
-      required this.nickName,
-      this.gender,
-      required this.avatar,
-      required this.personalizedSignature,
-      required this.simultaneousService,
-      this.maxTicketPerDay,
-      this.maxTicketAllTime,
-      this.mobilePhone,
-      required this.enabled});
+  Staff({
+    required this.organizationId,
+    required this.id,
+    required this.groupId,
+    required this.role,
+    required this.staffType,
+    required this.realName,
+    required this.username,
+    required this.nickName,
+    this.gender,
+    required this.avatar,
+    required this.personalizedSignature,
+    required this.simultaneousService,
+    this.maxTicketPerDay,
+    this.maxTicketAllTime,
+    this.mobilePhone,
+    required this.enabled,
+    this.staffStatus,
+  });
 
   factory Staff.fromJson(Map<String, dynamic> json) => _$StaffFromJson(json);
   Map<String, dynamic> toJson() => _$StaffToJson(this);
 
-  // factory Staff.fromJson(Map<String, dynamic> json) {
-  //   return Staff(
-  //       organizationId: json['organizationId'] as int,
-  //       id: json['id'] as int,
-  //       groupId: json['groupId'] as int,
-  //       role: json['role'] as String,
-  //       onlineStatus: OnlineStatus.values[json['onlineStatus'] as int],
-  //       maxServiceCount: json['maxServiceCount'] as int,
-  //       currentServiceCount: json['currentServiceCount'] as int,
-  //       priorityOfShunt: json['priorityOfShunt'] as String,
-  //       userIdList: json['userIdList'] as Int64List,
-  //       loginTime: json['loginTime'] as double,
-  //       staffType: json['staffType'] as int,
-  //       realName: json['realName'] as String,
-  //       username: json['username'] as String,
-  //       nickName: json['nickName'] as String,
-  //       gender: json['gender'] as int?,
-  //       createTime: json['createTime'] as double,
-  //       avatar: json['avatar'] as String?,
-  //       personalizedSignature: json['personalizedSignature'] as String?,
-  //       syncState: json['syncState'] as bool,
-  //       token: json['token'] as String?,
-  //       simultaneousService: json['simultaneousService'] as int,
-  //       maxTicketPerDay: json['maxTicketPerDay'] as int?,
-  //       maxTicketAllTime: json['maxTicketAllTime'] as int?,
-  //       mobilePhone: json['mobilePhone'] as String?,
-  //       enabled: json['enabled'] as bool);
-  // }
+  Staff cloneWith({
+    int? organizationId,
+    int? id,
+    int? groupId,
+    String? role,
+    int? staffType,
+    String? realName,
+    String? username,
+    String? nickName,
+    int? gender,
+    String? avatar,
+    String? personalizedSignature,
+    int? simultaneousService,
+    int? maxTicketPerDay,
+    int? maxTicketAllTime,
+    String? mobilePhone,
+    bool? enabled,
+    StaffStatus? staffStatus,
+  }) =>
+      Staff(
+        organizationId: organizationId ?? this.organizationId,
+        id: id ?? this.id,
+        groupId: groupId ?? this.groupId,
+        role: role ?? this.role,
+        staffType: staffType ?? this.staffType,
+        realName: realName ?? this.realName,
+        username: username ?? this.username,
+        nickName: nickName ?? this.nickName,
+        gender: gender ?? this.gender,
+        avatar: avatar ?? this.avatar,
+        personalizedSignature:
+            personalizedSignature ?? this.personalizedSignature,
+        simultaneousService: simultaneousService ?? this.simultaneousService,
+        maxTicketPerDay: maxTicketPerDay ?? this.maxTicketPerDay,
+        maxTicketAllTime: maxTicketAllTime ?? this.maxTicketAllTime,
+        mobilePhone: mobilePhone ?? this.mobilePhone,
+        enabled: enabled ?? this.enabled,
+        staffStatus: staffStatus ?? this.staffStatus,
+      );
 
   static const queryMyInfo = """
 fragment staffFields on Staff {
