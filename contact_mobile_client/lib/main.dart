@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
 import 'package:contact_mobile_client/pages/chat.dart';

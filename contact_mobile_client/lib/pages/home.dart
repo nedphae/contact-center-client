@@ -112,12 +112,12 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
     final token = Globals.prefs.getString(Globals.prefsAccessToken);
     if (Globals.socket == null) {
       jpush.setup(
-        appKey: '02f9538e566126ed95e4cb9d',
+        appKey: '5c1dbc4aae1e51031ba51d91',
         channel: "developer-default",
         production: false,
         debug: true, // 设置是否打印 debug 日志
       );
-      jpush.setUnShowAtTheForeground(unShow: true);
+      // jpush.setUnShowAtTheForeground(unShow: true);
       final registrationId = await jpush.getRegistrationID();
 
       final socket = IO.io(
