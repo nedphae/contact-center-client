@@ -1,7 +1,7 @@
-import 'package:contact_moblie_client/model/chatstate.dart';
-import 'package:contact_moblie_client/model/conversation.dart';
-import 'package:contact_moblie_client/model/message.dart';
-import 'package:contact_moblie_client/model/staff.dart';
+import 'package:contact_mobile_client/model/chatstate.dart';
+import 'package:contact_mobile_client/model/conversation.dart';
+import 'package:contact_mobile_client/model/message.dart';
+import 'package:contact_mobile_client/model/staff.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final staffProvider = StateNotifierProvider<StaffState, Staff?>((ref) {

@@ -1,12 +1,12 @@
-import 'package:contact_moblie_client/common/config.dart';
-import 'package:contact_moblie_client/common/globals.dart';
-import 'package:contact_moblie_client/model/conversation.dart';
-import 'package:contact_moblie_client/model/customer.dart';
-import 'package:contact_moblie_client/model/message.dart';
-import 'package:contact_moblie_client/model/staff.dart';
-import 'package:contact_moblie_client/model/constants.dart';
-import 'package:contact_moblie_client/model/web_socket_request.dart';
-import 'package:contact_moblie_client/states/state.dart';
+import 'package:contact_mobile_client/common/config.dart';
+import 'package:contact_mobile_client/common/globals.dart';
+import 'package:contact_mobile_client/model/conversation.dart';
+import 'package:contact_mobile_client/model/customer.dart';
+import 'package:contact_mobile_client/model/message.dart';
+import 'package:contact_mobile_client/model/staff.dart';
+import 'package:contact_mobile_client/model/constants.dart';
+import 'package:contact_mobile_client/model/web_socket_request.dart';
+import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -89,8 +89,8 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       _customer = selectSession.customer;
 
       if (_currentSession.shouldSync) {
-        historyMessageResult.refetch();
         Future.delayed(const Duration(seconds: 1), () {
+          historyMessageResult.refetch();
           ref
               .read(chatStateProvider.notifier)
               .setShouldSync(userId: _currentSession.conversation.userId);

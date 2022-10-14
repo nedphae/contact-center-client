@@ -1,5 +1,5 @@
 // import 'dart:typed_data';
-import 'package:contact_moblie_client/common/config.dart';
+import 'package:contact_mobile_client/common/config.dart';
 import 'package:graphql_flutter/graphql_flutter.dart' hide JsonSerializable;
 import 'package:json_annotation/json_annotation.dart';
 

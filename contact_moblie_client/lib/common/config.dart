@@ -1,4 +1,4 @@
-import 'package:contact_moblie_client/common/token_utils.dart';
+import 'package:contact_mobile_client/common/token_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 

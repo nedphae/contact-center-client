@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:contact_moblie_client/common/config.dart';
-import 'package:contact_moblie_client/common/globals.dart';
-import 'package:contact_moblie_client/common/token_utils.dart';
-import 'package:contact_moblie_client/model/conversation.dart';
-import 'package:contact_moblie_client/model/customer.dart';
-import 'package:contact_moblie_client/model/message.dart';
-import 'package:contact_moblie_client/model/staff.dart';
-import 'package:contact_moblie_client/model/web_socket_request.dart';
-import 'package:contact_moblie_client/hook/graphql_client.dart';
-import 'package:contact_moblie_client/pages/contacts.dart';
-import 'package:contact_moblie_client/pages/staff_info.dart';
-import 'package:contact_moblie_client/states/state.dart';
+import 'package:contact_mobile_client/common/config.dart';
+import 'package:contact_mobile_client/common/globals.dart';
+import 'package:contact_mobile_client/common/token_utils.dart';
+import 'package:contact_mobile_client/model/conversation.dart';
+import 'package:contact_mobile_client/model/customer.dart';
+import 'package:contact_mobile_client/model/message.dart';
+import 'package:contact_mobile_client/model/staff.dart';
+import 'package:contact_mobile_client/model/web_socket_request.dart';
+import 'package:contact_mobile_client/hook/graphql_client.dart';
+import 'package:contact_mobile_client/pages/contacts.dart';
+import 'package:contact_mobile_client/pages/staff_info.dart';
+import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -117,6 +117,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
         production: false,
         debug: true, // 设置是否打印 debug 日志
       );
+      jpush.setUnShowAtTheForeground(unShow: true);
       final registrationId = await jpush.getRegistrationID();
 
       final socket = IO.io(
@@ -169,8 +170,36 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
               : message.to;
           if (!message.isSys && userId != null) {
             ref.read(chatStateProvider.notifier).newMessage({userId: message});
+
+            ack(WebSocketResponse(
+                header: request.header, code: 200, body: 'OK'));
+
+            final session = ref.read(chatStateProvider).sessionMap[userId];
+            // 推送通知
+            var messageNotificationStr = "";
+            switch (message.content.contentType) {
+              case "IMAGE":
+                messageNotificationStr = "[图片]";
+                break;
+              case "TEXT":
+                messageNotificationStr =
+                    message.content.textContent?.text ?? "";
+                break;
+              default:
+                break;
+            }
+            var localNotification = LocalNotification(
+              id: 2,
+              title: session?.customer.name ?? session?.conversation.uid ?? '',
+              buildId: 1,
+              content: messageNotificationStr,
+              fireTime: DateTime.now(),
+            );
+            jpush.sendLocalNotification(localNotification).then((res) {});
+          } else {
+            ack(WebSocketResponse(
+                header: request.header, code: 400, body: 'request empty'));
           }
-          ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
         } else {
           ack(WebSocketResponse(
               header: request.header, code: 400, body: 'request empty'));
@@ -186,6 +215,16 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
           final conv = Conversation.fromJson(request.body);
           _initCustomerInfo(ref, graphQLClient, [conv]);
           ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
+
+          // 推送通知
+          var localNotification = LocalNotification(
+            id: 1,
+            title: conv.uid,
+            buildId: 1,
+            content: '您有新的会话',
+            fireTime: DateTime.now(),
+          );
+          jpush.sendLocalNotification(localNotification).then((res) {});
         } else {
           ack(WebSocketResponse(
               header: request.header, code: 400, body: 'request empty'));

@@ -1,5 +1,5 @@
-import 'package:contact_moblie_client/model/customer.dart';
-import 'package:contact_moblie_client/model/message.dart';
+import 'package:contact_mobile_client/model/customer.dart';
+import 'package:contact_mobile_client/model/message.dart';
 
 import 'package:json_annotation/json_annotation.dart';
 

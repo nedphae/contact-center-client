@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:contact_moblie_client/common/config.dart';
-import 'package:contact_moblie_client/common/globals.dart';
-import 'package:contact_moblie_client/pages/chat.dart';
-import 'package:contact_moblie_client/pages/home.dart';
-import 'package:contact_moblie_client/pages/login.dart';
+import 'package:contact_mobile_client/common/config.dart';
+import 'package:contact_mobile_client/common/globals.dart';
+import 'package:contact_mobile_client/pages/chat.dart';
+import 'package:contact_mobile_client/pages/home.dart';
+import 'package:contact_mobile_client/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';

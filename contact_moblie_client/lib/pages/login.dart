@@ -1,8 +1,8 @@
-import 'package:contact_moblie_client/common/config.dart';
-import 'package:contact_moblie_client/common/globals.dart';
-import 'package:contact_moblie_client/states/state.dart';
-import 'package:contact_moblie_client/widgets/custombutton.dart';
-import 'package:contact_moblie_client/widgets/customtextinput.dart';
+import 'package:contact_mobile_client/common/config.dart';
+import 'package:contact_mobile_client/common/globals.dart';
+import 'package:contact_mobile_client/states/state.dart';
+import 'package:contact_mobile_client/widgets/custombutton.dart';
+import 'package:contact_mobile_client/widgets/customtextinput.dart';
 import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

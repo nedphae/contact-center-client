@@ -1,6 +1,6 @@
 {
-    "name": "contact_moblie_client",
-    "short_name": "contact_moblie_client",
+    "name": "contact_mobile_client",
+    "short_name": "contact_mobile_client",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

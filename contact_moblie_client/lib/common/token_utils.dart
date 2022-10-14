@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
-import 'package:contact_moblie_client/common/config.dart';
-import 'package:contact_moblie_client/common/globals.dart';
-import 'package:contact_moblie_client/model/staff.dart';
+import 'package:contact_mobile_client/common/config.dart';
+import 'package:contact_mobile_client/common/globals.dart';
+import 'package:contact_mobile_client/model/staff.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'dart:convert';
 

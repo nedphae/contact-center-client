@@ -1,4 +1,4 @@
-# contact_moblie_client
+# contact_mobile_client
 
 A new Flutter project.
 

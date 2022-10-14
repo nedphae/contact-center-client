@@ -1,4 +1,4 @@
-import 'package:contact_moblie_client/states/state.dart';
+import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:badges/badges.dart';

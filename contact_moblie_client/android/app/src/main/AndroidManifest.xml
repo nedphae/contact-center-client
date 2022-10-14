@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="top.xbcs.contact_moblie_client">
+    package="top.xbcs.contact_mobile_client">
    <application
         android:label="小白客服"
         android:name="${applicationName}"

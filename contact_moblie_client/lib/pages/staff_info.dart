@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:contact_moblie_client/common/config.dart';
-import 'package:contact_moblie_client/common/token_utils.dart';
-import 'package:contact_moblie_client/model/staff.dart';
-import 'package:contact_moblie_client/states/state.dart';
+import 'package:contact_mobile_client/common/config.dart';
+import 'package:contact_mobile_client/common/token_utils.dart';
+import 'package:contact_mobile_client/model/staff.dart';
+import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:settings_ui/settings_ui.dart';
