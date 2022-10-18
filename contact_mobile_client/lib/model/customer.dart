@@ -67,6 +67,11 @@ class Customer {
   int? userId;
   String uid;
   String name;
+  String? email;
+  String? mobile;
+  String? address;
+  int? vipLevel;
+  String? remarks;
 
   Customer({
     required this.id,
@@ -74,6 +79,11 @@ class Customer {
     this.userId,
     required this.uid,
     required this.name,
+    this.email,
+    this.mobile,
+    this.address,
+    this.vipLevel,
+    this.remarks,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) =>

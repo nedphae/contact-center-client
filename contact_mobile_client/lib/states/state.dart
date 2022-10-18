@@ -82,11 +82,17 @@ class ChatStateState extends StateNotifier<ChatState> {
   void unhideConv(int userId) {
     var sessionMap = state.sessionMap;
     final session = sessionMap[userId];
-    if (session != null && session.hide) {
-      session.hide = false;
+    if (session != null) {
+      _unHideSession(session);
     }
     sessionMap = {...sessionMap};
     state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void _unHideSession(Session session) {
+    if (session.hide) {
+      session.hide = false;
+    }
   }
 
   void addHistoryMessage(Map<int, List<Message>> userMessages) {
@@ -117,6 +123,7 @@ class ChatStateState extends StateNotifier<ChatState> {
         if (state.chattingUserId != session.conversation.userId) {
           session.unread += 1;
         }
+        _unHideSession(session);
         sessionMap[userId] = session.cloneWith();
       }
     }

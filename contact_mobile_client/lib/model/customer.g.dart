@@ -12,6 +12,11 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
       userId: json['userId'] as int?,
       uid: json['uid'] as String,
       name: json['name'] as String,
+      email: json['email'] as String?,
+      mobile: json['mobile'] as String?,
+      address: json['address'] as String?,
+      vipLevel: json['vipLevel'] as int?,
+      remarks: json['remarks'] as String?,
     );
 
 Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
@@ -20,4 +25,9 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
       'userId': instance.userId,
       'uid': instance.uid,
       'name': instance.name,
+      'email': instance.email,
+      'mobile': instance.mobile,
+      'address': instance.address,
+      'vipLevel': instance.vipLevel,
+      'remarks': instance.remarks,
     };

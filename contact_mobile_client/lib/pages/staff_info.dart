@@ -10,16 +10,11 @@ import 'package:settings_ui/settings_ui.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class StaffInfoPage extends StatefulHookConsumerWidget {
-  const StaffInfoPage({Key? key}) : super(key: key);
+class StaffInfoPage extends HookConsumerWidget {
+  const StaffInfoPage({super.key});
 
   @override
-  StaffInfoPageState createState() => StaffInfoPageState();
-}
-
-class StaffInfoPageState extends ConsumerState<StaffInfoPage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final staff = ref.watch(staffProvider);
 
     if (staff != null) {

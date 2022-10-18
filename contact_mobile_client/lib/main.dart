@@ -63,7 +63,6 @@ class MyApp extends HookConsumerWidget {
               '/home': (context) => const XBCSHomeContainer(),
               '/login': (context) => const XBCSLogin(),
               '/chat': (context) => const ChatterScreen(),
-              // '/chats':(context)=>ChatterScreen()
             }
             // home: const MyHomePage(title: 'Flutter Demo Home Page'),
             ));

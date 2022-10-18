@@ -13,6 +13,8 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'customer_info.dart';
+
 class ChatterScreen extends StatefulHookConsumerWidget {
   const ChatterScreen({super.key});
 
@@ -26,6 +28,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
   late Session _currentSession;
   late Customer _customer;
   String? messageText;
+
   // void getMessages()async{
   //   final messages=await _firestore.collection('messages').getDocuments();
   //   for(var message in messages.documents){
@@ -67,11 +70,13 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
   @override
   Widget build(BuildContext context) {
     _currentStaff = ref.watch(staffProvider);
-    final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final selectUserId = args['selectUserId'] as int;
-    final selectSession = ref.watch(
-        chatStateProvider.select((value) => value.sessionMap[selectUserId]));
+    // final args =
+    //     ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    // final selectUserId = args['selectUserId'] as int;
+    final selectUserId =
+        ref.watch(chatStateProvider.select((value) => value.chattingUserId));
+    final selectSession = ref.watch(chatStateProvider
+        .select((value) => value.sessionMap[value.chattingUserId]));
 
     final sessionMsgList = selectSession?.messageList;
     final topMsgId =
@@ -84,7 +89,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 
     List<Message> messageList = [];
 
-    if (selectSession != null) {
+    if (selectUserId != null && selectSession != null) {
       _currentSession = selectSession;
       _customer = selectSession.customer;
 
@@ -209,18 +214,29 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
           ),
           actions: <Widget>[
             GestureDetector(
-              child: PopupMenuButton<Text>(
+              child: PopupMenuButton<String>(
+                onSelected: (select) {
+                  if (select == 'user') {
+                    // Navigator.pop(context);
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => CustomerInfo(selectUserId!),
+                      // builder: (context) => XBCSLogin(),
+                    ));
+                  }
+                },
                 itemBuilder: (context) {
                   return [
-                    PopupMenuItem(
-                      onTap: () {},
-                      child: const Text(
-                        '历史会话',
-                      ),
-                    ),
-                    PopupMenuItem(
-                      onTap: () {},
-                      child: const Text(
+                    // PopupMenuItem(
+                    //   onTap: () {},
+                    //   child: const Text(
+                    //     '历史会话',
+                    //   ),
+                    // ),
+                    const PopupMenuItem(
+                      // 无法使用 onTap 进行 Navigator 跳转
+                      // 因为 PopupMenuButton 的 showMenu 使用 navigator.of
+                      value: 'user',
+                      child: Text(
                         '用户信息',
                       ),
                     ),

@@ -75,13 +75,12 @@ class XBCSHome extends StatefulHookConsumerWidget {
   XBCSHomeState createState() => XBCSHomeState();
 }
 
-class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
+class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, WidgetsBindingObserver {
   Staff? _staffInfo;
   Timer? _timer;
   bool online = false;
-
-  final JPush jpush = JPush();
-
+  bool paused = false;
+  final JPush jPush = JPush();
   final RestorableInt _currentIndex = RestorableInt(0);
 
   @override
@@ -94,6 +93,36 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
         _initWS(staffInfo);
       }
     }();
+
+    jPush.setup(
+      appKey: '5c1dbc4aae1e51031ba51d91',
+      channel: "developer-default",
+      production: false,
+      debug: true, // 设置是否打印 debug 日志
+    );
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // 返回前台
+        paused = false;
+        break;
+      case AppLifecycleState.inactive:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.paused:
+        // 进入后台
+        paused = true;
+        break;
+      case AppLifecycleState.detached:
+        // TODO: Handle this case.
+        break;
+    }
   }
 
   @override
@@ -108,17 +137,25 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
     super.dispose();
   }
 
+  Future<String?> sendNotification(String title, String content) async {
+    if (paused) {
+      var localNotification = LocalNotification(
+        id: 2,
+        title: title,
+        buildId: 1,
+        content: content,
+        fireTime: DateTime.now(),
+      );
+      return await jPush.sendLocalNotification(localNotification);
+    } else {
+      return null;
+    }
+  }
+
   _initWS(Staff staff) async {
     final token = Globals.prefs.getString(Globals.prefsAccessToken);
     if (Globals.socket == null) {
-      jpush.setup(
-        appKey: '5c1dbc4aae1e51031ba51d91',
-        channel: "developer-default",
-        production: false,
-        debug: true, // 设置是否打印 debug 日志
-      );
-      // jpush.setUnShowAtTheForeground(unShow: true);
-      final registrationId = await jpush.getRegistrationID();
+      final registrationId = await jPush.getRegistrationID();
 
       final socket = IO.io(
           "$serverIp/im/staff",
@@ -188,14 +225,10 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
               default:
                 break;
             }
-            var localNotification = LocalNotification(
-              id: 2,
-              title: session?.customer.name ?? session?.conversation.uid ?? '',
-              buildId: 1,
-              content: messageNotificationStr,
-              fireTime: DateTime.now(),
-            );
-            jpush.sendLocalNotification(localNotification).then((res) {});
+
+            sendNotification(
+                session?.customer.name ?? session?.conversation.uid ?? '',
+                messageNotificationStr);
           } else {
             ack(WebSocketResponse(
                 header: request.header, code: 400, body: 'request empty'));
@@ -216,15 +249,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
           _initCustomerInfo(ref, graphQLClient, [conv]);
           ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
 
-          // 推送通知
-          var localNotification = LocalNotification(
-            id: 1,
-            title: conv.uid,
-            buildId: 1,
-            content: '您有新的会话',
-            fireTime: DateTime.now(),
-          );
-          jpush.sendLocalNotification(localNotification).then((res) {});
+          sendNotification(conv.uid, '您有新的会话');
         } else {
           ack(WebSocketResponse(
               header: request.header, code: 400, body: 'request empty'));
@@ -256,6 +281,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin {
     return Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       Navigator.of(context).pushNamed('/login');
+      return null;
     });
   }
 
