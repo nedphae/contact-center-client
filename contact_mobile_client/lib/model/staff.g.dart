@@ -11,7 +11,6 @@ StaffStatus _$StaffStatusFromJson(Map<String, dynamic> json) => StaffStatus(
       onlineStatus:
           $enumDecodeNullable(_$OnlineStatusEnumMap, json['onlineStatus']) ??
               OnlineStatus.online,
-      onlineStatusStr: json['onlineStatusStr'] as String?,
       maxServiceCount: json['maxServiceCount'] as int?,
       currentServiceCount: json['currentServiceCount'] as int?,
       priorityOfShunt: json['priorityOfShunt'],
@@ -26,14 +25,13 @@ Map<String, dynamic> _$StaffStatusToJson(StaffStatus instance) =>
       'currentServiceCount': instance.currentServiceCount,
       'priorityOfShunt': instance.priorityOfShunt,
       'loginTime': instance.loginTime,
-      'onlineStatusStr': instance.onlineStatusStr,
     };
 
 const _$OnlineStatusEnumMap = {
-  OnlineStatus.offline: 0,
-  OnlineStatus.online: 1,
-  OnlineStatus.busy: 2,
-  OnlineStatus.away: 3,
+  OnlineStatus.offline: 'OFFLINE',
+  OnlineStatus.online: 'ONLINE',
+  OnlineStatus.busy: 'BUSY',
+  OnlineStatus.away: 'AWAY',
 };
 
 Staff _$StaffFromJson(Map<String, dynamic> json) => Staff(

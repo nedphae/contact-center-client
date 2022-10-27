@@ -54,7 +54,9 @@ class ChatStateState extends StateNotifier<ChatState> {
       sessionMap = {...sessionMap, session.conversation.userId: session};
     } else {
       tempSession = tempSession.cloneWith(
-          conversation: session.conversation, shouldSync: true);
+          conversation: session.conversation,
+          customer: session.customer,
+          shouldSync: true);
       tempSession.messageList = null;
       sessionMap.remove(session.conversation.userId);
       sessionMap = {

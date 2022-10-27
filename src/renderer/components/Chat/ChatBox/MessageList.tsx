@@ -683,7 +683,7 @@ const MessageList = (props: MessageListProps) => {
                       <Paper
                         onMouseEnter={handleMouseUp(
                           creatorType === 1 &&
-                            Math.abs((createdAt as number) - now.getTime()) >=
+                            now.getTime() - (createdAt as number) * 1000 <=
                               2 * 60 * 1000,
                           { uuid, seqId },
                         )}

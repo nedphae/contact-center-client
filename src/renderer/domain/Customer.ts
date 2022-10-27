@@ -1,5 +1,5 @@
 import { FromType } from './constant/Conversation';
-import { OnlineStatus } from './constant/Staff';
+import { OnlineStatusKey } from './constant/Staff';
 
 /** 客户信息 */
 export interface Customer {
@@ -49,7 +49,7 @@ export interface CustomerStatus {
   loginTime: Date;
 
   // 是否在线
-  onlineStatus: OnlineStatus;
+  onlineStatus: OnlineStatusKey;
 
   // 公司id
   organizationId: number;

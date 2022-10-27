@@ -23,7 +23,7 @@ const useAutoLogin = (authPage = false): AutoLoginResult => {
    * 自动刷新 Token
    */
   const getTokenCall = useCallback(async () => {
-    const onlineStatus = parseInt(getOnlineStatus() ?? '1', 10);
+    const onlineStatus = getOnlineStatus() ?? 'ONLINE';
     let token: AccessToken | undefined;
     try {
       token = await getAccessToken();

@@ -1,4 +1,4 @@
-import { OnlineStatus, OnlineStatusKey } from './constant/Staff';
+import { OnlineStatusKey } from './constant/Staff';
 import { CustomerStatus } from './Customer';
 
 export default interface Staff {
@@ -11,9 +11,8 @@ export default interface Staff {
   /** type of role */
   role: string;
   shunt: number[];
-  prevOnlineStatus?: OnlineStatus;
-  onlineStatus: OnlineStatus;
-  onlineStatusKey: OnlineStatusKey;
+  prevOnlineStatus?: OnlineStatusKey;
+  onlineStatus: OnlineStatusKey;
   maxServiceCount: number;
   currentServiceCount: number;
   priorityOfShunt: string;
@@ -90,12 +89,12 @@ export interface StaffConfig {
 }
 
 export interface StaffConfigData {
-  onlineStatus: OnlineStatus;
+  onlineStatus: OnlineStatusKey;
   groupId: number;
 }
 
 export function configStatus(
-  onlineStatus: OnlineStatus,
+  onlineStatus: OnlineStatusKey,
   groupId: number
 ): StaffConfigData {
   return {

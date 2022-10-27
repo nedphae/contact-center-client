@@ -28,7 +28,6 @@ import {
   stickyCustomer,
   tagCustomer,
 } from 'renderer/state/session/sessionAction';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import { Session, Tag } from 'renderer/domain/Session';
 import { getSelectedSession } from 'renderer/state/chat/chatAction';
 import { Message } from 'renderer/domain/Message';
@@ -327,7 +326,7 @@ function SessionList(props: SessionListProps) {
                         <Grid item md={4}>
                           {tag === 'important' && <StarIcon />}
                           {user.status &&
-                          OnlineStatus.ONLINE === user.status.onlineStatus ? (
+                          user.status.onlineStatus === 'ONLINE' ? (
                             <SyncAltIcon />
                           ) : (
                             <SignalWifiOffIcon />

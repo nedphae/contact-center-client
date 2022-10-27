@@ -39,13 +39,12 @@ import {
   getMyself,
   setOnlineAndInterval,
 } from 'renderer/state/staff/staffAction';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
+import { OnlineStatus, OnlineStatusKey } from 'renderer/domain/constant/Staff';
 import Staff from 'renderer/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
 import { getDownloadS3StaffImgPath } from 'renderer/config/clientConfig';
 import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { ColorModeContext } from 'renderer/HomePage';
-import CustomInput from '../CustomInput/CustomInput';
 import Button from '../CustomButtons/Button';
 
 import styles from '../../assets/jss/material-dashboard-react/components/headerLinksStyle';
@@ -53,22 +52,22 @@ import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 
 const useStyles = makeStyles(styles);
 
-function getOnlineStatusIcon(onlineStatus: OnlineStatus) {
+function getOnlineStatusIcon(onlineStatus: OnlineStatusKey) {
   let icon;
   switch (onlineStatus) {
-    case OnlineStatus.ONLINE: {
+    case 'ONLINE': {
       icon = <LensIcon style={{ color: green.A400 }} />;
       break;
     }
-    case OnlineStatus.OFFLINE: {
+    case 'OFFLINE': {
       icon = <LensIcon style={{ color: grey.A400 }} />;
       break;
     }
-    case OnlineStatus.BUSY: {
+    case 'BUSY': {
       icon = <RemoveCircleIcon style={{ color: red.A400 }} />;
       break;
     }
-    case OnlineStatus.AWAY: {
+    case 'AWAY': {
       icon = <NotInterestedIcon style={{ color: grey.A400 }} />;
       break;
     }
@@ -100,7 +99,6 @@ const MUTATION = gql`
       staffId
       staffType
       userIdList
-      onlineStatusKey: onlineStatus
       onlineStatus
     }
   }
@@ -111,7 +109,7 @@ const MUTATION_ASSIGNMENT = gql`
     assignmentFromQueue(staffStatus: $staffStatus) {
       id: staffId
       organizationId
-      onlineStatusKey: onlineStatus
+      onlineStatus
     }
   }
 `;
@@ -165,20 +163,19 @@ export default function AdminNavbarLinks() {
     navigate('/login');
   };
   const handleChangeOnlineStatus = useCallback(
-    (onlineStatus: OnlineStatus) => () => {
+    (onlineStatus: OnlineStatusKey) => () => {
       updateStaffStatus({
         variables: {
-          updateStaffStatus: { onlineStatus: OnlineStatus[onlineStatus] },
+          updateStaffStatus: { onlineStatus },
         },
       })
         .then((data) => {
           const staffStatus = data.data?.updateStaffStatus;
           if (staffStatus) {
-            const returnOnlineStatus =
-              OnlineStatus[staffStatus.onlineStatusKey];
+            const returnOnlineStatus = staffStatus.onlineStatus;
             if (
               returnOnlineStatus !== onlineStatus &&
-              returnOnlineStatus === OnlineStatus.OFFLINE
+              returnOnlineStatus === 'OFFLINE'
             ) {
               // 在线状态设置失败，返回的状态不是设置的状态，则更新为离线状态
               // 并提示用户设置失败
@@ -191,7 +188,7 @@ export default function AdminNavbarLinks() {
                 }),
               );
             } else if (
-              returnOnlineStatus === OnlineStatus.ONLINE &&
+              returnOnlineStatus === 'ONLINE' &&
               !_.isEmpty(JSON.parse(staffStatus.priorityOfShunt))
             ) {
               assignmentFromQueue({
@@ -211,16 +208,16 @@ export default function AdminNavbarLinks() {
         .catch((error) => console.error(error));
       setOpenProfile(null);
     },
-    [assignmentFromQueue, dispatch, t, updateStaffStatus]
+    [assignmentFromQueue, dispatch, updateStaffStatus]
   );
 
   const memoMap = useMemo(() => {
-    const map = new Map()
+    const map = new Map<OnlineStatus, any>()
       .set(
         OnlineStatus.ONLINE,
       <MenuItem
           key={OnlineStatus.ONLINE}
-          onClick={handleChangeOnlineStatus(OnlineStatus.ONLINE)}
+          onClick={handleChangeOnlineStatus('ONLINE')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Online')}
@@ -230,7 +227,7 @@ export default function AdminNavbarLinks() {
         OnlineStatus.BUSY,
       <MenuItem
           key={OnlineStatus.BUSY}
-          onClick={handleChangeOnlineStatus(OnlineStatus.BUSY)}
+          onClick={handleChangeOnlineStatus('BUSY')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Bussy')}
@@ -240,7 +237,7 @@ export default function AdminNavbarLinks() {
         OnlineStatus.AWAY,
       <MenuItem
           key={OnlineStatus.AWAY}
-          onClick={handleChangeOnlineStatus(OnlineStatus.AWAY)}
+          onClick={handleChangeOnlineStatus('AWAY')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Leave')}
@@ -250,7 +247,7 @@ export default function AdminNavbarLinks() {
         OnlineStatus.OFFLINE,
       <MenuItem
           key={OnlineStatus.OFFLINE}
-          onClick={handleChangeOnlineStatus(OnlineStatus.OFFLINE)}
+          onClick={handleChangeOnlineStatus('OFFLINE')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Offline')}
@@ -259,9 +256,9 @@ export default function AdminNavbarLinks() {
     return map;
   }, [classes.dropdownItem, handleChangeOnlineStatus, t]);
 
-  function getOnlineStatusMenuItem(onlineStatus: OnlineStatus) {
+  function getOnlineStatusMenuItem(onlineStatus: OnlineStatusKey) {
     const map = new Map(memoMap);
-    map.delete(onlineStatus);
+    map.delete(OnlineStatus[onlineStatus]);
     return Array.from(map.values());
   }
 

@@ -22,7 +22,6 @@ import {
 } from 'renderer/state/session/sessionAction';
 import { Session } from 'renderer/domain/Session';
 import { getMyself } from 'renderer/state/staff/staffAction';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { useAppDispatch, useAppSelector } from 'renderer/store';
 import { debounceTime, Subject } from 'rxjs';
@@ -126,7 +125,7 @@ export default function Editor(selected: SelectedProps) {
   }
 
   function handleSendTextMessage() {
-    if (mySelf.onlineStatus !== OnlineStatus.OFFLINE) {
+    if (mySelf.onlineStatus !== 'OFFLINE') {
       if (selectedSession && tempTextMessage !== '') {
         setMessage('');
         dispatch(

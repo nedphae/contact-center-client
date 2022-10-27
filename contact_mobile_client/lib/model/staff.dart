@@ -16,12 +16,10 @@ class StaffStatus {
   dynamic priorityOfShunt;
   // Int64List userIdList;
   double? loginTime;
-  String? onlineStatusStr;
 
   StaffStatus({
     required this.staffId,
     this.onlineStatus = OnlineStatus.online,
-    this.onlineStatusStr,
     this.maxServiceCount,
     this.currentServiceCount,
     this.priorityOfShunt,
@@ -47,7 +45,7 @@ class StaffStatus {
       staffId
       staffType
       userIdList
-      onlineStatusStr: onlineStatus
+      onlineStatus
     }
   }
 """;
@@ -176,13 +174,13 @@ mutation Staff(\$staffChangeStatus: StaffChangeStatusInput!) {
 }
 
 enum OnlineStatus {
-  @JsonValue(0)
+  @JsonValue("OFFLINE")
   offline,
-  @JsonValue(1)
+  @JsonValue("ONLINE")
   online,
-  @JsonValue(2)
+  @JsonValue("BUSY")
   busy,
-  @JsonValue(3)
+  @JsonValue("AWAY")
   away,
 }
 

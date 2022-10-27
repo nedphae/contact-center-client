@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
@@ -26,7 +27,10 @@ _initCustomerInfo(
     final userId = element.userId;
     // 读取 客户信息
     final result = await client.query(QueryOptions(
-        document: gql(Customer.queryCustomer), variables: {'userId': userId}));
+      document: gql(Customer.queryCustomer),
+      variables: {'userId': userId},
+      fetchPolicy: FetchPolicy.noCache,
+    ));
     final customerMap = result.data?['getCustomer'];
     if (customerMap != null) {
       final customer = Customer.fromJson(customerMap);
@@ -75,10 +79,11 @@ class XBCSHome extends StatefulHookConsumerWidget {
   XBCSHomeState createState() => XBCSHomeState();
 }
 
-class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, WidgetsBindingObserver {
+class XBCSHomeState extends ConsumerState<XBCSHome>
+    with RestorationMixin, WidgetsBindingObserver {
   Staff? _staffInfo;
   Timer? _timer;
-  bool online = false;
+  bool connected = false;
   bool paused = false;
   final JPush jPush = JPush();
   final RestorableInt _currentIndex = RestorableInt(0);
@@ -189,7 +194,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, Widge
               Timer.periodic(const Duration(minutes: 5), intervalConfigStaff);
           intervalConfigStaff(_timer);
           setState(() {
-            online = true;
+            connected = true;
           });
         }
       });
@@ -207,9 +212,6 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, Widge
               : message.to;
           if (!message.isSys && userId != null) {
             ref.read(chatStateProvider.notifier).newMessage({userId: message});
-
-            ack(WebSocketResponse(
-                header: request.header, code: 200, body: 'OK'));
 
             final session = ref.read(chatStateProvider).sessionMap[userId];
             // 推送通知
@@ -230,9 +232,21 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, Widge
                 session?.customer.name ?? session?.conversation.uid ?? '',
                 messageNotificationStr);
           } else {
-            ack(WebSocketResponse(
-                header: request.header, code: 400, body: 'request empty'));
+            final content = message.content;
+            final serviceMessage = content.serviceContent;
+            switch (content.sysCode) {
+              case 'CONV_END':
+                if (serviceMessage != null) {
+                  final endedConv = Conversation.fromJson(
+                      jsonDecode(serviceMessage) as Map<String, dynamic>);
+                  _initCustomerInfo(ref, graphQLClient, [endedConv]);
+                }
+                break;
+              default:
+                break;
+            }
           }
+          ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
         } else {
           ack(WebSocketResponse(
               header: request.header, code: 400, body: 'request empty'));
@@ -260,7 +274,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, Widge
         final token = await getAccessToken();
         Globals.socket?.query = 'token=$token';
         setState(() {
-          online = false;
+          connected = false;
         });
       });
 
@@ -312,7 +326,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, Widge
     ];
     var title =
         bottomNavigationBarItems.elementAt(_currentIndex.value).label ?? '';
-    title += online ? "" : " (离线)";
+    title = connected ? title : " 正在连接...";
 
     return Scaffold(
       appBar: AppBar(
@@ -329,7 +343,14 @@ class XBCSHomeState extends ConsumerState<XBCSHome> with RestorationMixin, Widge
             );
           },
           child: widget.isLoading && _currentIndex.value < 2
-              ? const Text('正在加载会话')
+              ? Column(
+                  children: const [
+                    SizedBox(height: 32),
+                    CircularProgressIndicator(),
+                    SizedBox(height: 32),
+                    Text('正在加载会话...')
+                  ],
+                )
               : _widgetOptions.elementAt(_currentIndex.value),
         ),
       ),

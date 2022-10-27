@@ -20,6 +20,7 @@ class StaffInfoPage extends HookConsumerWidget {
     if (staff != null) {
       return Column(
         children: <Widget>[
+          const SizedBox(height: 24),
           ProfileWidget(
             imagePath: "$serverIp${staff.avatar}",
             // onClicked: () {
@@ -40,7 +41,7 @@ class StaffInfoPage extends HookConsumerWidget {
                     SettingsTile.navigation(
                       title: const Text('在线状态'),
                       trailing:
-                          buildOnlineStatus(staff.staffStatus?.onlineStatusStr),
+                          buildOnlineStatus(staff.staffStatus?.onlineStatus),
                       onPressed: (context) async {
                         showModalBottomSheet<void>(
                           context: context,
@@ -107,7 +108,14 @@ class StaffInfoPage extends HookConsumerWidget {
         ],
       );
     } else {
-      return const Text("正在读取个人信息");
+      return Column(
+        children: const [
+          SizedBox(height: 32),
+          CircularProgressIndicator(),
+          SizedBox(height: 32),
+          Text('正在读取个人信息...')
+        ],
+      );
     }
   }
 
@@ -125,16 +133,16 @@ class StaffInfoPage extends HookConsumerWidget {
         ],
       );
 
-  Widget buildOnlineStatus(String? onlineStatus) {
+  Widget buildOnlineStatus(OnlineStatus? onlineStatus) {
     var onlineStatusStr = '在线';
     switch (onlineStatus) {
-      case "OFFLINE":
+      case OnlineStatus.offline:
         onlineStatusStr = "离线";
         break;
-      case "BUSY":
+      case OnlineStatus.busy:
         onlineStatusStr = "忙碌";
         break;
-      case "AWAY":
+      case OnlineStatus.away:
         onlineStatusStr = "离开";
         break;
       default:

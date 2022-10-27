@@ -22,7 +22,6 @@ import {
   getSelectedConv,
   getSelectedSession,
 } from 'renderer/state/chat/chatAction';
-import { CloseReason } from 'renderer/domain/constant/Conversation';
 import { getEvaluation, useEvalProp } from 'renderer/domain/Conversation';
 import { Tooltip } from '@material-ui/core';
 

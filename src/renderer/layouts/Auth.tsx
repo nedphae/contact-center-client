@@ -36,7 +36,7 @@ import { Alert } from '@material-ui/lab';
 import { oauthLogin, LoginParamsType } from 'renderer/service/loginService';
 import { setUserAsync } from 'renderer/state/staff/staffAction';
 import useAutoLogin from 'renderer/hook/autoLogin/useAutoLogin';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
+import { OnlineStatusKey } from 'renderer/domain/constant/Staff';
 import { saveOnlineStatus } from 'renderer/electron/jwtStorage';
 import logo from 'renderer/assets/img/logo.ico';
 import { green } from '@material-ui/core/colors';
@@ -49,7 +49,7 @@ function Copyright() {
       <Link target="_blank" color="inherit" href="https://xbcs.top/">
         小白客服
       </Link>{' '}
-      {new Date().getFullYear()}.
+      {new Date().getFullYear()}
     </Typography>
   );
 }
@@ -118,7 +118,7 @@ type FormValues = {
   org_id: string | number;
   readonly username: string;
   readonly password: string;
-  readonly onlineStatus: OnlineStatus;
+  readonly onlineStatus: OnlineStatusKey;
   readonly remember: boolean;
 };
 
@@ -268,7 +268,7 @@ export default function Auth() {
           <Controller
             control={control}
             name="onlineStatus"
-            defaultValue={1}
+            defaultValue="ONLINE"
             render={({ field: { onChange, value } }) => (
               <FormControl variant="outlined" margin="normal" fullWidth>
                 <InputLabel id="demo-mutiple-chip-label">
@@ -281,10 +281,12 @@ export default function Auth() {
                   value={value}
                   label={t('Online Status')}
                 >
-                  <MenuItem value={1}>{t('onlineStatus.Online')}</MenuItem>
-                  <MenuItem value={0}>{t('onlineStatus.Offline')}</MenuItem>
-                  <MenuItem value={2}>{t('onlineStatus.Bussy')}</MenuItem>
-                  <MenuItem value={3}>{t('onlineStatus.Leave')}</MenuItem>
+                  <MenuItem value="ONLINE">{t('onlineStatus.Online')}</MenuItem>
+                  <MenuItem value="OFFLINE">
+                    {t('onlineStatus.Offline')}
+                  </MenuItem>
+                  <MenuItem value="BUSY">{t('onlineStatus.Bussy')}</MenuItem>
+                  <MenuItem value="AWAY">{t('onlineStatus.Leave')}</MenuItem>
                 </Select>
               </FormControl>
             )}

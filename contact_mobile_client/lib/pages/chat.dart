@@ -262,7 +262,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             ChatStream(
-              messageaList: messageList,
+              messageList: messageList,
               staff: _currentStaff!,
               customer: _currentSession.customer,
               onRefresh: () {
@@ -331,14 +331,14 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 }
 
 class ChatStream extends StatelessWidget {
-  final List<Message> messageaList;
+  final List<Message> messageList;
   final Staff staff;
   final Customer customer;
   final Future<void> Function() onRefresh;
 
   const ChatStream(
       {super.key,
-      required this.messageaList,
+      required this.messageList,
       required this.staff,
       required this.customer,
       required this.onRefresh});
@@ -347,10 +347,10 @@ class ChatStream extends StatelessWidget {
   Widget build(BuildContext context) {
     List<MessageBubble> messageWidgets = [];
 
-    final messageaList = this.messageaList;
+    final messageList = this.messageList;
 
-    if (messageaList.isNotEmpty) {
-      for (var message in messageaList) {
+    if (messageList.isNotEmpty) {
+      for (var message in messageList) {
         final isStaff = message.creatorType == CreatorType.staff;
         final msgBubble = MessageBubble(
           msgSender: isStaff ? staff.nickName : customer.name,

@@ -3,7 +3,7 @@ import { getCurrentStaff } from 'renderer/service/infoService';
 import Staff, { configStatus } from 'renderer/domain/StaffInfo';
 import { AccessToken } from 'renderer/domain/OauthToken';
 import { register } from 'renderer/service/socketService';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
+import { OnlineStatusKey } from 'renderer/domain/constant/Staff';
 import { filter, interval, map, Subscription } from 'rxjs';
 import { AxiosError } from 'axios';
 import { setAuthority } from 'renderer/utils/authority';
@@ -32,10 +32,7 @@ let statueInterval: Subscription | undefined;
 
 // 异步请求
 export const setUserAsync =
-  (
-    token: AccessToken,
-    onlineStatus: OnlineStatus = OnlineStatus.ONLINE,
-  ): AppThunk =>
+  (token: AccessToken, onlineStatus: OnlineStatusKey = 'ONLINE'): AppThunk =>
     async (dispatch, getState) => {
     // substring 用于清除 ROLE_ 前缀
       setAuthority(
@@ -89,7 +86,7 @@ export const configBase = (runAfter?: AppThunk): AppThunk => {
     ).subscribe((staffResponse) => {
       if (staffResponse.body) {
         if (
-          staffResponse.body.onlineStatus === OnlineStatus.OFFLINE &&
+          staffResponse.body.onlineStatus === 'OFFLINE' &&
           getState().staff.onlineStatus !== staffResponse.body.onlineStatus
         ) {
           // 在线人数超过限制
@@ -103,10 +100,7 @@ export const configBase = (runAfter?: AppThunk): AppThunk => {
         }
         // 注册成功, 设置状态同步成功
         dispatch(setOnline(staffResponse.body.onlineStatus));
-        if (
-          runAfter &&
-          staffResponse.body.onlineStatus === OnlineStatus.ONLINE
-        ) {
+        if (runAfter && staffResponse.body.onlineStatus === 'ONLINE') {
           dispatch(runAfter);
         }
       }
@@ -120,11 +114,11 @@ export const intervalConfigStaff = (): AppThunk => {
       statueInterval.unsubscribe();
       statueInterval = undefined;
     }
-    if (getState().staff.onlineStatus !== OnlineStatus.OFFLINE) {
+    if (getState().staff.onlineStatus !== 'OFFLINE') {
       statueInterval = interval(300000)
         .pipe(
           map(() => getState().staff.onlineStatus),
-          filter((onlineStatus) => onlineStatus !== OnlineStatus.OFFLINE),
+          filter((onlineStatus) => onlineStatus !== 'OFFLINE'),
         )
         .subscribe(() => {
           dispatch(configBase());
@@ -137,7 +131,9 @@ export const configStaff = (): AppThunk => {
   return configBase(intervalConfigStaff());
 };
 
-export const setOnlineAndInterval = (onlineStatus: OnlineStatus): AppThunk => {
+export const setOnlineAndInterval = (
+  onlineStatus: OnlineStatusKey
+): AppThunk => {
   return (dispatch) => {
     dispatch(setOnline(onlineStatus));
     dispatch(intervalConfigStaff());

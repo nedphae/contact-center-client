@@ -4,7 +4,7 @@ import verifyToken from 'renderer/utils/jwtUtils';
 import { OauthToken, AccessToken } from 'renderer/domain/OauthToken';
 import clientConfig from 'renderer/config/clientConfig';
 import addParam from 'renderer/utils/url';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
+import { OnlineStatusKey } from 'renderer/domain/constant/Staff';
 
 /**
  * 删除所有cookie
@@ -158,10 +158,10 @@ export async function getTokenSource(): Promise<string | undefined> {
   return acessToken;
 }
 
-export function saveOnlineStatus(onlineStatus: OnlineStatus) {
-  localStorage.setItem('onlineStatus', onlineStatus.toString());
+export function saveOnlineStatus(onlineStatus: OnlineStatusKey) {
+  localStorage.setItem('onlineStatus', onlineStatus);
 }
 
-export function getOnlineStatus() {
-  return localStorage.getItem('onlineStatus');
+export function getOnlineStatus(): OnlineStatusKey {
+  return localStorage.getItem('onlineStatus') as OnlineStatusKey;
 }
