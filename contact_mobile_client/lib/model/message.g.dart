@@ -76,7 +76,7 @@ PhotoContent _$PhotoContentFromJson(Map<String, dynamic> json) => PhotoContent(
       mediaId: json['mediaId'] as String,
       filename: json['filename'] as String,
       picSize: json['picSize'] as int? ?? 0,
-      type: json['type'] as String,
+      type: json['type'] as String?,
     );
 
 Map<String, dynamic> _$PhotoContentToJson(PhotoContent instance) =>

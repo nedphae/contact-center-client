@@ -11,7 +11,7 @@ import { getStaffToken } from 'renderer/state/staff/staffAction';
  * WebSocket Hook, 返回 websocket对象
  * @param jwt
  */
-const useWebSocket = () => {
+const useWebSocket = (onReconnect: () => void) => {
   const dispatch = useDispatch();
   const token = useSelector(getStaffToken);
 
@@ -33,10 +33,14 @@ const useWebSocket = () => {
         config.web.host + config.websocket.namespace,
         options
       );
-      const socketHandler = new SocketHandler(window.socketRef, dispatch);
+      const socketHandler = new SocketHandler(
+        window.socketRef,
+        dispatch,
+        onReconnect
+      );
       socketHandler.init();
     }
-  }, [dispatch, token]);
+  }, [dispatch, onReconnect, token]);
 
   useEffect(() => {
     return () => {

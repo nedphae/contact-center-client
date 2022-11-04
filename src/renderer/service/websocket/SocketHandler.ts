@@ -9,7 +9,6 @@ import {
   assignmentConver,
   setNewMessage,
 } from 'renderer/state/session/sessionAction';
-import { OnlineStatus } from 'renderer/domain/constant/Staff';
 import { AppDispatch } from 'renderer/store';
 import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { getTokenSource } from 'renderer/electron/jwtStorage';
@@ -20,9 +19,16 @@ export default class SocketHandler implements EventInterface {
 
   dispatch: AppDispatch;
 
-  constructor($socket: SocketIOClient.Socket, $dispatch: AppDispatch) {
+  onReconnect: () => void;
+
+  constructor(
+    $socket: SocketIOClient.Socket,
+    $dispatch: AppDispatch,
+    $onReconnect: () => void
+  ) {
     this.socket = $socket;
     this.dispatch = $dispatch;
+    this.onReconnect = $onReconnect;
   }
 
   init(): void {
@@ -40,7 +46,7 @@ export default class SocketHandler implements EventInterface {
       const accessToken = await getTokenSource();
       this.socket.io.opts.query = `token=${accessToken}`;
 
-      this.dispatch(updateOnlineStatusBySocket(OnlineStatus.OFFLINE));
+      this.dispatch(updateOnlineStatusBySocket('OFFLINE'));
       this.dispatch(
         setSnackbarProp({
           open: true,
@@ -51,6 +57,7 @@ export default class SocketHandler implements EventInterface {
       );
     });
     this.socket.on('reconnect', () => {
+      this.onReconnect();
       this.dispatch(
         setSnackbarProp({
           open: true,

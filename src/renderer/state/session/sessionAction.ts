@@ -122,7 +122,7 @@ const setToLastAndFilter =
   (dispatch, getState) => {
     const list = getSessionByHide(getState().session, false).filter(
       (se) => se.conversation.userId !== userId
-      );
+    );
     // 设置为等待时间最长的会话
     const last = list[list.length - 1];
     dispatch(setSelectedSession(last?.conversation?.userId));
@@ -161,6 +161,7 @@ export const getSelectedMessageList = (state: RootState) => {
       (a.seqId ?? Number.MAX_SAFE_INTEGER) -
       (b.seqId ?? Number.MAX_SAFE_INTEGER)
   );
+
 };
 
 /**
@@ -603,8 +604,13 @@ export const setNewMessage =
                   }
                 }
               }
-              if (selectedSession && userId) {
-                if (selectedSession !== userId) {
+
+              const currentPath = window.location.href;
+              if (userId) {
+                  if (
+                    userId !== selectedSession ||
+                  !currentPath.includes('/entertain')
+                  ) {
                   // 设置未读消息数
                   dispatch(addNewMessgeBadge(userId));
                   // 设置未读消息状态
@@ -625,8 +631,6 @@ export const setNewMessage =
                 }
               }
               // 设置提示音
-              const currentPath = window.location.href;
-
               if (!currentPath.includes('/entertain') || document.hidden) {
                 dispatch(setPlayNewMessageSound());
               }
@@ -714,3 +718,11 @@ export function sendFileMessage(
     dispatch(sendMessage(message));
   };
 }
+
+export const getTotalUnreadCount = (state: RootState) => {
+  const sessionList = _.values(state.session);
+  if (sessionList.length > 0) {
+    return sessionList.map((it) => it?.unread ?? 0).reduce((a, b) => a + b);
+  }
+  return 0;
+};

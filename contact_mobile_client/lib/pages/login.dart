@@ -187,7 +187,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                                   gravity: Gravity.bottom,
                                   icon: Icons.error,
                                   duration: 5,
-                                  backgroundColor: Colors.deepPurple[900]);
+                                  backgroundColor: Colors.redAccent);
                             }
                           } catch (e) {
                             setState(() {
@@ -199,7 +199,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                                 gravity: Gravity.bottom,
                                 icon: Icons.error,
                                 duration: 5,
-                                backgroundColor: Colors.deepPurple[900]);
+                                backgroundColor: Colors.redAccent);
                           }
                         } else {
                           edgeAlert(context,
@@ -209,7 +209,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                               gravity: Gravity.bottom,
                               icon: Icons.error,
                               duration: 5,
-                              backgroundColor: Colors.deepPurple[900]);
+                              backgroundColor: Colors.redAccent);
                         }
                         // Navigator.pushReplacementNamed(context, '/chat');
                       },

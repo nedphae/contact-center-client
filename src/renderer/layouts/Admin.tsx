@@ -23,17 +23,16 @@ import {
   getPlayNewMessageSound,
 } from 'renderer/state/chat/chatAction';
 import useAutoLoadConv from 'renderer/hook/init/useAutoLoadConv';
+import useRoutes from 'renderer/useRoutes';
+import styles from 'renderer/assets/jss/material-dashboard-react/layouts/adminStyle';
+
+import bgImage from 'renderer/assets/img/sidebar-4.jpg';
+import logo from 'renderer/assets/img/logo.ico';
+import newMsgSound from 'renderer/assets/sounds/new-msg.wav';
+
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
-
-import useRoutes from '../useRoutes';
-
-import styles from '../assets/jss/material-dashboard-react/layouts/adminStyle';
-
-import bgImage from '../assets/img/sidebar-4.jpg';
-import logo from '../assets/img/logo.ico';
-import newMsgSound from '../assets/sounds/new-msg.wav';
 
 let ps: PerfectScrollbar;
 
@@ -59,9 +58,10 @@ export default function Admin({ ...rest }) {
   const [color, setColor] = React.useState('blue');
   const [fixedClasses, setFixedClasses] = React.useState('dropdown show');
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [webSocket] = useWebSocket();
+  const [refetch] = useAutoLoadConv();
+  // socket 重连后需要同步一下会话
+  const [webSocket] = useWebSocket(refetch);
   useInitData();
-  useAutoLoadConv();
   const [play] = useSound(newMsgSound);
 
   const momeSubject = useMemo(() => {

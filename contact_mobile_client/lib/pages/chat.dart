@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
 import 'package:contact_mobile_client/model/conversation.dart';
@@ -7,12 +10,16 @@ import 'package:contact_mobile_client/model/staff.dart';
 import 'package:contact_mobile_client/model/constants.dart';
 import 'package:contact_mobile_client/model/web_socket_request.dart';
 import 'package:contact_mobile_client/states/state.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
+import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:http/http.dart' as http;
 import 'customer_info.dart';
 
 class ChatterScreen extends StatefulHookConsumerWidget {
@@ -29,7 +36,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
   late Customer _customer;
   String? messageText;
 
-  // void getMessages()async{
+  // void getMessages() async {
   //   final messages=await _firestore.collection('messages').getDocuments();
   //   for(var message in messages.documents){
   //     print(message.data);
@@ -46,25 +53,40 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     if (messageText != null && messageText!.isNotEmpty) {
       final content = Content(
           contentType: "TEXT", textContent: TextContent(text: messageText!));
-      final message = Message(
-          uuid: uuid.v4(),
-          to: _customer.id,
-          type: CreatorType.customer,
-          creatorType: CreatorType.staff,
-          content: content);
-      // 使用 websocket 发送消息
-      final messageMap = message.toJson();
-      messageMap.removeWhere((key, value) => value == null);
-
-      final request = WebSocketRequest.generateRequest(messageMap);
-      ref.read(chatStateProvider.notifier).newMessage({_customer.id: message});
-      Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
-        final response = WebSocketResponse.fromJson(data);
-        final body = response.body as Map<String, dynamic>;
-        ref.read(chatStateProvider.notifier).updateMessageSeqId(
-            _customer.id, message.uuid, body['seqId'], body['createdAt']);
-      });
+      sendMessage(content);
     }
+  }
+
+  sendImageMessage(String imageUrl, XFile file) async {
+    final content = Content(
+        contentType: "IMAGE",
+        photoContent: PhotoContent(
+            mediaId: imageUrl,
+            filename: file.name,
+            picSize: await file.length(),
+            type: 'auto'));
+    sendMessage(content);
+  }
+
+  sendMessage(Content content) {
+    final message = Message(
+        uuid: uuid.v4(),
+        to: _customer.id,
+        type: CreatorType.customer,
+        creatorType: CreatorType.staff,
+        content: content);
+    // 使用 websocket 发送消息
+    final messageMap = message.toJson();
+    messageMap.removeWhere((key, value) => value == null);
+
+    final request = WebSocketRequest.generateRequest(messageMap);
+    ref.read(chatStateProvider.notifier).newMessage({_customer.id: message});
+    Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
+      final response = WebSocketResponse.fromJson(data);
+      final body = response.body as Map<String, dynamic>;
+      ref.read(chatStateProvider.notifier).updateMessageSeqId(
+          _customer.id, message.uuid, body['seqId'], body['createdAt']);
+    });
   }
 
   @override
@@ -92,6 +114,12 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     if (selectUserId != null && selectSession != null) {
       _currentSession = selectSession;
       _customer = selectSession.customer;
+
+      final staffDraft = selectSession.staffDraft;
+      if (staffDraft != null) {
+        // 设置草稿到输入框
+        chatMsgTextController.text = staffDraft;
+      }
 
       if (_currentSession.shouldSync) {
         Future.delayed(const Duration(seconds: 1), () {
@@ -163,8 +191,14 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 
     return WillPopScope(
       onWillPop: () => Future.sync(() {
+        final chatStatePN = ref.read(chatStateProvider.notifier);
         if (!mounted) return false;
-        ref.read(chatStateProvider.notifier).clearChattingUser();
+        if (messageText != null &&
+            messageText!.isNotEmpty &&
+            selectUserId != null) {
+          chatStatePN.setStaffDraft(selectUserId, messageText!);
+        }
+        chatStatePN.clearChattingUser();
         return true;
       }),
       child: Scaffold(
@@ -295,31 +329,75 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                       ),
                     ),
                   ),
-                  MaterialButton(
-                      shape: const CircleBorder(),
-                      color: Colors.blue,
-                      onPressed:
-                          (messageText != null && messageText!.isNotEmpty)
-                              ? () {
-                                  chatMsgTextController.clear();
-                                  sendTextMessage();
-                                  setState(() {
-                                    messageText = null;
-                                  });
-                                }
-                              : null,
-                      child: const Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: Icon(
-                          Icons.send,
-                          color: Colors.white,
-                        ),
-                      )
-                      // Text(
-                      //   'Send',
-                      //   style: kSendButtonTextStyle,
-                      // ),
-                      ),
+                  (messageText != null && messageText!.isNotEmpty)
+                      ? MaterialButton(
+                          shape: const CircleBorder(),
+                          color: Colors.blue,
+                          onPressed: () {
+                            chatMsgTextController.clear();
+                            sendTextMessage();
+                            setState(() {
+                              messageText = null;
+                            });
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: Icon(
+                              Icons.send,
+                              color: Colors.white,
+                            ),
+                          )
+                          // Text(
+                          //   'Send',
+                          //   style: kSendButtonTextStyle,
+                          // ),
+                          )
+                      : MaterialButton(
+                          shape: const CircleBorder(),
+                          color: Colors.grey,
+                          onPressed: () async {
+                            final ImagePicker picker = ImagePicker();
+                            final XFile? image = await picker.pickImage(
+                                source: ImageSource.gallery);
+                            if (image != null) {
+                              String url = "$serverIp/s3/chat/${Globals.orgId}";
+                              final request =
+                                  http.MultipartRequest('POST', Uri.parse(url));
+                              final filePart =
+                                  await http.MultipartFile.fromPath(
+                                      'file', image.path);
+                              request.files.add(filePart);
+                              http.Response response =
+                                  await http.Response.fromStream(
+                                      await request.send());
+                              if (response.statusCode == 200) {
+                                final imageUrl =
+                                    jsonDecode(response.body) as List<dynamic>;
+                                sendImageMessage(imageUrl[0], image);
+                              } else {
+                                if (!mounted) return;
+                                edgeAlert(context,
+                                    title: '上传图片失败',
+                                    description: '远程服务器出现问题，请稍后再试',
+                                    gravity: Gravity.bottom,
+                                    icon: Icons.error,
+                                    duration: 5,
+                                    backgroundColor: Colors.redAccent);
+                              }
+                            }
+                          },
+                          child: const Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: Icon(
+                              Icons.image,
+                              color: Colors.white,
+                            ),
+                          )
+                          // Text(
+                          //   'Send',
+                          //   style: kSendButtonTextStyle,
+                          // ),
+                          ),
                 ],
               ),
             ),
@@ -412,10 +490,9 @@ class MessageBubble extends StatelessWidget {
         break;
       case 'IMAGE':
         final imageUrl = "$serverIp${content.photoContent?.mediaId}";
-        result = Image.network(
-          imageUrl,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
+        result = CachedNetworkImage(
+          imageUrl: imageUrl,
+          progressIndicatorBuilder: (context, url, progress) {
             return Container(
               decoration: const BoxDecoration(
                 color: Color(0xffE8E8E8),
@@ -428,15 +505,19 @@ class MessageBubble extends StatelessWidget {
               child: Center(
                 child: CircularProgressIndicator(
                   color: const Color(0xfff5a623),
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
+                  value: progress.progress,
                 ),
               ),
             );
           },
-          errorBuilder: (context, object, stackTrace) {
+          imageBuilder: (context, imageProvider) {
+            return InkWell(
+                onTap: () {
+                  showImageViewer(context, imageProvider);
+                },
+                child: Image(image: imageProvider));
+          },
+          errorWidget: (context, object, stackTrace) {
             return Material(
               borderRadius: const BorderRadius.all(
                 Radius.circular(8),

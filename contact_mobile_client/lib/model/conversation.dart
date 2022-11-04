@@ -21,6 +21,7 @@ class Conversation {
   FromType fromType;
   int? inQueueTime;
   int? interaction;
+
 // ConversationType? cType;
   int staffId;
   String realName;
@@ -45,6 +46,7 @@ class Conversation {
   String? categoryDetail;
   String? closeReason;
   double? endTime;
+
 // Object? evaluate;
   double? staffFirstReplyTime;
   int? firstReplyCost;
@@ -119,6 +121,7 @@ class Conversation {
 
   factory Conversation.fromJson(Map<String, dynamic> json) =>
       _$ConversationFromJson(json);
+
   Map<String, dynamic> toJson() => _$ConversationToJson(this);
 
   // factory Conversation.fromJson(Map<String, dynamic> json) {
@@ -280,18 +283,24 @@ enum FromType {
 class Session {
   // 会话信息
   Conversation conversation;
+
   // 客户信息
   Customer customer;
+
   // 未读
   int unread;
+
   // 会话消息
   List<Message>? messageList;
+
   // 最新的消息
   Message? lastMessage;
 
   bool hide;
 
   bool shouldSync;
+
+  String? staffDraft;
 
   Session({
     required this.conversation,
@@ -301,6 +310,7 @@ class Session {
     this.lastMessage,
     this.hide = false,
     this.shouldSync = false,
+    this.staffDraft,
   });
 
   Session cloneWith({
@@ -311,6 +321,7 @@ class Session {
     Message? lastMessage,
     bool? hide,
     bool? shouldSync,
+    String? staffDraft,
   }) =>
       Session(
         conversation: conversation ?? this.conversation,
@@ -320,5 +331,6 @@ class Session {
         lastMessage: lastMessage ?? this.lastMessage,
         hide: hide ?? this.hide,
         shouldSync: shouldSync ?? this.shouldSync,
+        staffDraft: staffDraft ?? this.staffDraft,
       );
 }

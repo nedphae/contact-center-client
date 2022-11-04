@@ -55,6 +55,9 @@ dependencies:
   settings_ui: ^2.0.2
   jpush_flutter: ^2.4.0
   chips_input: ^0.1.0
+  cached_network_image: ^3.2.2
+  image_picker: ^0.8.6
+  easy_image_viewer: ^1.1.0
 
 dev_dependencies:
   flutter_test:

@@ -74,6 +74,13 @@ class ChatStateState extends StateNotifier<ChatState> {
     state = state.cloneWith(sessionMap: sessionMap);
   }
 
+  void setStaffDraft(int userId, String staffDraft) {
+    var sessionMap = state.sessionMap;
+    sessionMap[userId]?.staffDraft = staffDraft;
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
   void hideConv(int userId) {
     var sessionMap = state.sessionMap;
     sessionMap[userId]?.hide = true;

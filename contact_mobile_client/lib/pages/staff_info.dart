@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/token_utils.dart';
 import 'package:contact_mobile_client/model/staff.dart';
@@ -183,8 +184,9 @@ class ProfileWidget extends StatelessWidget {
   }
 
   Widget buildImage() {
-    final image =
-        imagePath != null ? NetworkImage(imagePath!) : const AssetImage('');
+    final image = imagePath != null
+        ? CachedNetworkImageProvider(imagePath!)
+        : const AssetImage('');
 
     return ClipOval(
       child: Material(

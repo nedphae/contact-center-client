@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 class XBCSContacts extends StatefulHookConsumerWidget {
   final bool hide;
+
   const XBCSContacts({Key? key, this.hide = false}) : super(key: key);
 
   @override
@@ -32,6 +33,8 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: List.generate(sessionList.length, (index) {
           final customer = sessionList[index].customer;
+
+          var staffDraft = sessionList[index].staffDraft;
           final lastMessage = sessionList[index].lastMessage;
           final lastMsgTime =
               lastMessage != null && lastMessage.createdAt != null
@@ -43,6 +46,16 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
               ? dateFormat.format(lastMsgTime.toLocal())
               : '';
 
+          var lastMsgWidgetList = [
+            Text(staffDraft ?? lastMessage?.content.textContent?.text ?? '',
+                overflow: TextOverflow.ellipsis),
+          ];
+
+          if (staffDraft != null && staffDraft.isNotEmpty) {
+            lastMsgWidgetList.add(
+                const Text('[草稿]', style: TextStyle(color: Colors.redAccent)));
+            lastMsgWidgetList = lastMsgWidgetList.reversed.toList();
+          }
           return ListTile(
               onTap: () {
                 ref
@@ -64,8 +77,9 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
               title: Text(
                 customer.name,
               ),
-              subtitle: Text(lastMessage?.content.textContent?.text ?? '',
-                  overflow: TextOverflow.ellipsis),
+              subtitle: Row(
+                children: lastMsgWidgetList,
+              ),
               trailing: Column(
                 children: [
                   customer.status.onlineStatus == 'ONLINE'

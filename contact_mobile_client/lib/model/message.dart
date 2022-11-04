@@ -183,13 +183,13 @@ class PhotoContent {
   String mediaId;
   String filename;
   int picSize;
-  String type;
+  String? type;
 
   PhotoContent({
     required this.mediaId,
     required this.filename,
     this.picSize = 0,
-    required this.type,
+    this.type,
   });
 
   factory PhotoContent.fromJson(Map<String, dynamic> json) =>

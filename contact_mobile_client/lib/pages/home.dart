@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
 import 'package:contact_mobile_client/common/token_utils.dart';
@@ -65,15 +66,17 @@ class XBCSHomeContainer extends HookConsumerWidget {
     if (convList != null && convList.isNotEmpty) {
       _initCustomerInfo(ref, client, convList);
     }
-    return XBCSHome(isLoading: isLoading);
+
+    return XBCSHome(refetch: convListResult.refetch, isLoading: isLoading);
   }
 }
 
 class XBCSHome extends StatefulHookConsumerWidget {
   final bool isLoading;
+  final Future<QueryResult<Object?>?> Function() refetch;
 
   // const ChatterLogin({super.key});
-  const XBCSHome({this.isLoading = false, Key? key}) : super(key: key);
+  const XBCSHome({required this.refetch, this.isLoading = false, Key? key}) : super(key: key);
 
   @override
   XBCSHomeState createState() => XBCSHomeState();
@@ -95,6 +98,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
       final staffInfo = await _getRemoteData();
       _staffInfo = staffInfo;
       if (staffInfo != null) {
+        Globals.orgId = staffInfo.organizationId;
         _initWS(staffInfo);
       }
     }();
@@ -116,6 +120,8 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
       case AppLifecycleState.resumed:
         // 返回前台
         paused = false;
+        jPush.clearNotification(notificationId: 2);
+        jPush.clearAllNotifications();
         break;
       case AppLifecycleState.inactive:
         // TODO: Handle this case.
@@ -277,6 +283,10 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
           connected = false;
         });
       });
+      socket.on('reconnect', (data) {
+        // 重新连接了，刷新下会话
+        widget.refetch();
+      });
 
       Globals.socket = socket;
     }
@@ -310,9 +320,16 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    final totalUnreadCount = ref.watch(chatStateProvider
+        .select((value) => value.sessionMap.values.map((e) => e.unread).sum));
+
     var bottomNavigationBarItems = <BottomNavigationBarItem>[
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.chat),
+      BottomNavigationBarItem(
+        icon: Badge(
+          showBadge: totalUnreadCount > 0,
+          badgeContent: Text(totalUnreadCount.toString()),
+          child: const Icon(Icons.chat),
+        ),
         label: '聊天',
       ),
       const BottomNavigationBarItem(
