@@ -82,7 +82,7 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
               ),
               trailing: Column(
                 children: [
-                  customer.status.onlineStatus == 'ONLINE'
+                  customer.status?.onlineStatus == 'ONLINE'
                       ? const Icon(Icons.sync_alt)
                       : const Icon(Icons.signal_wifi_off),
                   Text(lastMsgTimeStr),

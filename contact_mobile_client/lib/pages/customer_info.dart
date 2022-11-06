@@ -1,5 +1,6 @@
 import 'package:contact_mobile_client/common/color_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:chips_input/chips_input.dart';
 
@@ -24,6 +25,34 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
   @override
   Widget build(BuildContext context) {
     const sizedBoxSpace = SizedBox(height: 24);
+
+    final tagListResult = useQuery(
+      QueryOptions(
+        document: gql(CustomerTag
+            .queryCustomerTag), // this is the query string you just created
+        // pollInterval: const Duration(seconds: 10),,
+        // fetchPolicy: FetchPolicy.noCache,
+      ),
+    );
+    final tagList = (tagListResult.result.data?['getAllCustomerTag'] as List?)
+        ?.map((e) => CustomerTag.fromJson(e))
+        .toList();
+    final updateCustomer = useMutation(MutationOptions(
+        document: gql(Customer.updateCustomer),
+        onCompleted: (Map<String, dynamic>? resultData) {
+          // If the form is valid, display a snackbar. In the real world,
+          // you'd often call a server or save the information in a database.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('保存成功')),
+          );
+
+          final customerJson = resultData?['updateCustomer'];
+          if (customerJson != null) {
+            final customer = Customer.fromJson(customerJson);
+            ref.read(chatStateProvider.notifier).updateCustomer(customer);
+          }
+        }));
+
     // final args =
     // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     // final selectUserId = args['selectUserId'] as int;
@@ -61,7 +90,6 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'name_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      readOnly: true,
                       decoration: const InputDecoration(
                         filled: true,
                         icon: Icon(Icons.person),
@@ -69,6 +97,9 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         labelText: "姓名",
                       ),
                       initialValue: customer.name,
+                      onChanged: (value) {
+                        customer.name = value;
+                      },
                     ),
                     tags != null && tags.isNotEmpty
                         ? Column(
@@ -81,9 +112,18 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                                   labelText: "客户标签",
                                 ),
                                 initialValue: tags,
-                                readOnly: true,
+                                // readOnly: true,
                                 findSuggestions: (query) {
+                                  if (tagList != null) {
+                                    return tagList
+                                        .where((element) =>
+                                            element.name.startsWith(query))
+                                        .toList();
+                                  }
                                   return List.empty();
+                                },
+                                onChanged: (data) {
+                                  customer.tags = data;
                                 },
                                 chipBuilder: (BuildContext context,
                                     ChipsInputState<dynamic> state, tag) {
@@ -102,6 +142,7 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                                   return ListTile(
                                     key: ObjectKey(profile),
                                     title: Text(profile.name),
+                                    tileColor: ColorUtil.fromHex(profile.color),
                                   );
                                 },
                               )
@@ -113,7 +154,6 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'email_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      readOnly: true,
                       decoration: const InputDecoration(
                         filled: true,
                         icon: Icon(Icons.email),
@@ -121,13 +161,15 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         labelText: "Email",
                       ),
                       initialValue: customer.email,
+                      onChanged: (value) {
+                        customer.email = value;
+                      },
                     ),
                     sizedBoxSpace,
                     TextFormField(
                       restorationId: 'mobile_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      readOnly: true,
                       decoration: const InputDecoration(
                         filled: true,
                         icon: Icon(Icons.phone_android),
@@ -135,13 +177,15 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         labelText: "手机",
                       ),
                       initialValue: customer.mobile,
+                      onChanged: (value) {
+                        customer.mobile = value;
+                      },
                     ),
                     sizedBoxSpace,
                     TextFormField(
                       restorationId: 'address_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      readOnly: true,
                       decoration: const InputDecoration(
                         filled: true,
                         icon: Icon(Icons.home),
@@ -149,13 +193,15 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         labelText: "客户地址",
                       ),
                       initialValue: customer.address,
+                      onChanged: (value) {
+                        customer.address = value;
+                      },
                     ),
                     sizedBoxSpace,
                     TextFormField(
                       restorationId: 'vip_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      readOnly: true,
                       keyboardType: TextInputType.number,
                       maxLength: 2,
                       decoration: const InputDecoration(
@@ -165,13 +211,15 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         labelText: "Vip等级",
                       ),
                       initialValue: customer.vipLevel?.toString(),
+                      onChanged: (value) {
+                        customer.vipLevel = int.parse(value);
+                      },
                     ),
                     sizedBoxSpace,
                     TextFormField(
                       restorationId: 'remarks_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      readOnly: true,
                       decoration: const InputDecoration(
                         filled: true,
                         icon: Icon(Icons.note),
@@ -179,6 +227,20 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         labelText: "备注",
                       ),
                       initialValue: customer.remarks,
+                      onChanged: (value) {
+                        customer.remarks = value;
+                      },
+                    ),
+                    sizedBoxSpace,
+                    ElevatedButton(
+                      onPressed: () {
+                        // Validate returns true if the form is valid, or false otherwise.
+                        if (_formKey.currentState!.validate()) {
+                          updateCustomer.runMutation(
+                              {"customerInput": customer.toJson()});
+                        }
+                      },
+                      child: const Text('提交'),
                     ),
                   ],
                 )),

@@ -4,6 +4,8 @@ import 'package:contact_mobile_client/model/message.dart';
 import 'package:contact_mobile_client/model/staff.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../model/customer.dart';
+
 final staffProvider = StateNotifierProvider<StaffState, Staff?>((ref) {
   return StaffState(null);
 });
@@ -64,6 +66,15 @@ class ChatStateState extends StateNotifier<ChatState> {
         ...sessionMap,
       };
     }
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
+
+  void updateCustomer(Customer customer) {
+    var sessionMap = state.sessionMap;
+    final customerStatus = sessionMap[customer.id]?.customer.status;
+    customer.status = customerStatus;
+    sessionMap[customer.id]?.customer = customer;
+    sessionMap = {...sessionMap};
     state = state.cloneWith(sessionMap: sessionMap);
   }
 

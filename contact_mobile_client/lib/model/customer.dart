@@ -65,7 +65,7 @@ class Customer {
   int id;
   int organizationId;
   int? userId;
-  String uid;
+  final String uid;
   String name;
   String? email;
   String? mobile;
@@ -73,7 +73,7 @@ class Customer {
   int? vipLevel;
   String? remarks;
   List<CustomerTag>? tags;
-  CustomerStatus status;
+  CustomerStatus? status;
 
   Customer({
     required this.id,
@@ -87,13 +87,22 @@ class Customer {
     this.vipLevel,
     this.remarks,
     this.tags,
-    required this.status,
+    this.status,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) =>
       _$CustomerFromJson(json);
 
   Map<String, dynamic> toJson() => _$CustomerToJson(this);
+
+  static const updateCustomer = """
+  $coreCustomerFields
+  mutation Customer(\$customerInput: CustomerInput!) {
+    updateCustomer(customer: \$customerInput) {
+      ...customerFields
+    }
+  }
+""";
 }
 
 @JsonSerializable()
@@ -110,6 +119,16 @@ class CustomerTag {
       _$CustomerTagFromJson(json);
 
   Map<String, dynamic> toJson() => _$CustomerTagToJson(this);
+
+  static const queryCustomerTag = """
+   query CustomerTag {
+    getAllCustomerTag {
+      id
+      name
+      color
+    }
+  }
+  """;
 }
 
 @JsonSerializable()
