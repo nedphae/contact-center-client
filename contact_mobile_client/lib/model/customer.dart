@@ -73,6 +73,7 @@ class Customer {
   int? vipLevel;
   String? remarks;
   List<CustomerTag>? tags;
+  double? createdDate;
   CustomerStatus? status;
 
   Customer({
@@ -87,6 +88,7 @@ class Customer {
     this.vipLevel,
     this.remarks,
     this.tags,
+    this.createdDate,
     this.status,
   });
 
@@ -94,6 +96,37 @@ class Customer {
       _$CustomerFromJson(json);
 
   Map<String, dynamic> toJson() => _$CustomerToJson(this);
+
+  Customer cloneWith({
+    int? id,
+    int? organizationId,
+    int? userId,
+    String? uid,
+    String? name,
+    String? email,
+    String? mobile,
+    String? address,
+    int? vipLevel,
+    String? remarks,
+    List<CustomerTag>? tags,
+    double? createdDate,
+    CustomerStatus? status,
+  }) =>
+      Customer(
+        id: id ?? this.id,
+        organizationId: organizationId ?? this.organizationId,
+        userId: userId ?? this.userId,
+        uid: uid ?? this.uid,
+        name: name ?? this.name,
+        email: email ?? this.email,
+        mobile: mobile ?? this.mobile,
+        address: address ?? this.address,
+        vipLevel: vipLevel ?? this.vipLevel,
+        remarks: remarks ?? this.remarks,
+        tags: tags ?? this.tags,
+        createdDate: createdDate ?? this.createdDate,
+        status: status ?? this.status,
+      );
 
   static const updateCustomer = """
   $coreCustomerFields
@@ -157,7 +190,6 @@ class CustomerStatus {
       this.staffId,
       this.title,
       this.region});
-
 
   factory CustomerStatus.fromJson(Map<String, dynamic> json) =>
       _$CustomerStatusFromJson(json);

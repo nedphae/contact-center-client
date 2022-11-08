@@ -38,27 +38,38 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
         ?.map((e) => CustomerTag.fromJson(e))
         .toList();
     final updateCustomer = useMutation(MutationOptions(
-        document: gql(Customer.updateCustomer),
-        onCompleted: (Map<String, dynamic>? resultData) {
+      document: gql(Customer.updateCustomer),
+      onError: (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('保存失败：${error.toString()}'),
+              backgroundColor: Colors.redAccent),
+        );
+      },
+      update: (GraphQLDataProxy cache, QueryResult? result) {
+        if (result?.data != null) {
           // If the form is valid, display a snackbar. In the real world,
           // you'd often call a server or save the information in a database.
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('保存成功')),
           );
-
-          final customerJson = resultData?['updateCustomer'];
+          final customerJson = result?.data?['updateCustomer'];
           if (customerJson != null) {
             final customer = Customer.fromJson(customerJson);
             ref.read(chatStateProvider.notifier).updateCustomer(customer);
           }
-        }));
+        }
+      },
+    ));
 
     // final args =
     // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     // final selectUserId = args['selectUserId'] as int;
-    final customer = ref.watch(chatStateProvider
-        .select((value) => value.sessionMap[widget.selectUserId]?.customer));
-    final tags = customer?.tags;
+    final customer = ref
+        .watch(chatStateProvider
+            .select((value) => value.sessionMap[widget.selectUserId]?.customer))
+        ?.cloneWith();
+    final tags = customer?.tags ?? List.empty();
 
     if (customer != null) {
       return Scaffold(
@@ -101,54 +112,50 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                         customer.name = value;
                       },
                     ),
-                    tags != null && tags.isNotEmpty
-                        ? Column(
-                            children: [
-                              sizedBoxSpace,
-                              ChipsInput<CustomerTag>(
-                                decoration: const InputDecoration(
-                                  filled: true,
-                                  icon: Icon(Icons.label),
-                                  labelText: "客户标签",
-                                ),
-                                initialValue: tags,
-                                // readOnly: true,
-                                findSuggestions: (query) {
-                                  if (tagList != null) {
-                                    return tagList
-                                        .where((element) =>
-                                            element.name.startsWith(query))
-                                        .toList();
-                                  }
-                                  return List.empty();
-                                },
-                                onChanged: (data) {
-                                  customer.tags = data;
-                                },
-                                chipBuilder: (BuildContext context,
-                                    ChipsInputState<dynamic> state, tag) {
-                                  return InputChip(
-                                    key: ObjectKey(tag),
-                                    label: Text(tag.name),
-                                    backgroundColor:
-                                        ColorUtil.fromHex(tag.color),
-                                    onSelected: (value) {},
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                  );
-                                },
-                                suggestionBuilder:
-                                    (context, CustomerTag profile) {
-                                  return ListTile(
-                                    key: ObjectKey(profile),
-                                    title: Text(profile.name),
-                                    tileColor: ColorUtil.fromHex(profile.color),
-                                  );
-                                },
-                              )
-                            ],
-                          )
-                        : const SizedBox.shrink(),
+                    Column(
+                      children: [
+                        sizedBoxSpace,
+                        ChipsInput<CustomerTag>(
+                          decoration: const InputDecoration(
+                            filled: true,
+                            icon: Icon(Icons.label),
+                            labelText: "客户标签",
+                          ),
+                          initialValue: tags,
+                          // readOnly: true,
+                          findSuggestions: (query) {
+                            if (tagList != null) {
+                              return tagList
+                                  .where((element) =>
+                                      element.name.startsWith(query))
+                                  .toList();
+                            }
+                            return List.empty();
+                          },
+                          onChanged: (data) {
+                            customer.tags = data;
+                          },
+                          chipBuilder: (BuildContext context,
+                              ChipsInputState<dynamic> state, tag) {
+                            return InputChip(
+                              key: ObjectKey(tag),
+                              label: Text(tag.name),
+                              backgroundColor: ColorUtil.fromHex(tag.color),
+                              onSelected: (value) {},
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                            );
+                          },
+                          suggestionBuilder: (context, CustomerTag profile) {
+                            return ListTile(
+                              key: ObjectKey(profile),
+                              title: Text(profile.name),
+                              tileColor: ColorUtil.fromHex(profile.color),
+                            );
+                          },
+                        )
+                      ],
+                    ),
                     sizedBoxSpace,
                     TextFormField(
                       restorationId: 'email_field',
@@ -236,8 +243,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       onPressed: () {
                         // Validate returns true if the form is valid, or false otherwise.
                         if (_formKey.currentState!.validate()) {
-                          updateCustomer.runMutation(
-                              {"customerInput": customer.toJson()});
+                          final customerMap = customer.toJson();
+                          customerMap.remove('userId');
+                          customerMap.remove('status');
+                          updateCustomer
+                              .runMutation({"customerInput": customerMap});
                         }
                       },
                       child: const Text('提交'),

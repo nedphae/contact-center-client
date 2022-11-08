@@ -20,7 +20,10 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
       tags: (json['tags'] as List<dynamic>?)
           ?.map((e) => CustomerTag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: CustomerStatus.fromJson(json['status'] as Map<String, dynamic>),
+      createdDate: (json['createdDate'] as num?)?.toDouble(),
+      status: json['status'] == null
+          ? null
+          : CustomerStatus.fromJson(json['status'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
@@ -35,6 +38,7 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
       'vipLevel': instance.vipLevel,
       'remarks': instance.remarks,
       'tags': instance.tags,
+      'createdDate': instance.createdDate,
       'status': instance.status,
     };
 
