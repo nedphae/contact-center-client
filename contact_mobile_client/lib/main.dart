@@ -4,6 +4,8 @@ import 'package:contact_mobile_client/pages/chat.dart';
 import 'package:contact_mobile_client/pages/home.dart';
 import 'package:contact_mobile_client/pages/login.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,8 +24,19 @@ void main() async {
   );
 }
 
-class MyApp extends HookConsumerWidget {
+class MyApp extends StatefulHookConsumerWidget {
   const MyApp({super.key});
+
+  @override
+  MyAppState createState() => MyAppState();
+
+  static MyAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<MyAppState>();
+}
+
+class MyAppState extends ConsumerState<MyApp> {
+  Locale _locale = Locale.fromSubtags(
+      languageCode: Globals.prefs.getString(Globals.language) ?? 'zh');
 
   String _getLocalData(WidgetRef ref) {
     final token = Globals.prefs.getString(Globals.prefsOauthToken);
@@ -34,38 +47,64 @@ class MyApp extends HookConsumerWidget {
     }
   }
 
+  Locale getLocal() {
+    return _locale;
+  }
+
+  void setLocale(Locale value) {
+    setState(() {
+      _locale = value;
+      Globals.prefs.setString(Globals.language, value.languageCode);
+    });
+  }
+
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     ValueNotifier<GraphQLClient> client = ValueNotifier(
       graphQLClient,
     );
+
+    final localeList = Globals.languageMap.values
+        .map((e) => Locale(e.languageCode, e.countryCode));
 
     final initialRoute = _getLocalData(ref);
     return GraphQLProvider(
         client: client,
         child: MaterialApp(
-            title: '小白客服',
-            theme: ThemeData(
-              // This is the theme of your application.
-              //
-              // Try running your application with "flutter run". You'll see the
-              // application has a blue toolbar. Then, without quitting the app, try
-              // changing the primarySwatch below to Colors.green and then invoke
-              // "hot reload" (press "r" in the console where you ran "flutter run",
-              // or simply save your changes to "hot reload" in a Flutter IDE).
-              // Notice that the counter didn't reset back to zero; the application
-              // is not restarted.
-              primarySwatch: Colors.blue,
-            ),
-            initialRoute: initialRoute,
-            routes: {
-              '/home': (context) => const XBCSHomeContainer(),
-              '/login': (context) => const XBCSLogin(),
-              '/chat': (context) => const ChatterScreen(),
-            }
-            // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-            ));
+          title: '小白客服',
+          theme: ThemeData(
+            // This is the theme of your application.
+            //
+            // Try running your application with "flutter run". You'll see the
+            // application has a blue toolbar. Then, without quitting the app, try
+            // changing the primarySwatch below to Colors.green and then invoke
+            // "hot reload" (press "r" in the console where you ran "flutter run",
+            // or simply save your changes to "hot reload" in a Flutter IDE).
+            // Notice that the counter didn't reset back to zero; the application
+            // is not restarted.
+            primarySwatch: Colors.blue,
+          ),
+          initialRoute: initialRoute,
+          routes: {
+            '/home': (context) => const XBCSHomeContainer(),
+            '/login': (context) => const XBCSLogin(),
+            '/chat': (context) => const ChatterScreen(),
+          },
+          // home: const MyHomePage(title: 'Flutter Demo Home Page'),
+          locale: _locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          // or
+          // localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: localeList,
+          // or
+          // supportedLocales: AppLocalizations.supportedLocales,
+        ));
   }
 }
 

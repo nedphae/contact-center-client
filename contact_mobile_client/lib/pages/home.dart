@@ -15,6 +15,7 @@ import 'package:contact_mobile_client/pages/contacts.dart';
 import 'package:contact_mobile_client/pages/staff_info.dart';
 import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:animations/animations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -76,7 +77,8 @@ class XBCSHome extends StatefulHookConsumerWidget {
   final Future<QueryResult<Object?>?> Function() refetch;
 
   // const ChatterLogin({super.key});
-  const XBCSHome({required this.refetch, this.isLoading = false, Key? key}) : super(key: key);
+  const XBCSHome({required this.refetch, this.isLoading = false, Key? key})
+      : super(key: key);
 
   @override
   XBCSHomeState createState() => XBCSHomeState();
@@ -224,7 +226,8 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
             var messageNotificationStr = "";
             switch (message.content.contentType) {
               case "IMAGE":
-                messageNotificationStr = "[图片]";
+                messageNotificationStr =
+                    "[${AppLocalizations.of(context)!.messageTypeImage}]";
                 break;
               case "TEXT":
                 messageNotificationStr =
@@ -269,7 +272,8 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
           _initCustomerInfo(ref, graphQLClient, [conv]);
           ack(WebSocketResponse(header: request.header, code: 200, body: 'OK'));
 
-          sendNotification(conv.uid, '您有新的会话');
+          sendNotification(
+              conv.uid, AppLocalizations.of(context)!.youHaveANewSession);
         } else {
           ack(WebSocketResponse(
               header: request.header, code: 400, body: 'request empty'));
@@ -330,20 +334,20 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
           badgeContent: Text(totalUnreadCount.toString()),
           child: const Icon(Icons.chat),
         ),
-        label: '聊天',
+        label: AppLocalizations.of(context)!.chat,
       ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.history),
-        label: '历史',
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.history),
+        label: AppLocalizations.of(context)!.history,
       ),
-      const BottomNavigationBarItem(
-        icon: Icon(Icons.account_circle),
-        label: '我',
+      BottomNavigationBarItem(
+        icon: const Icon(Icons.account_circle),
+        label: AppLocalizations.of(context)!.me,
       ),
     ];
     var title =
         bottomNavigationBarItems.elementAt(_currentIndex.value).label ?? '';
-    title = connected ? title : " 正在连接...";
+    title = connected ? title : " ${AppLocalizations.of(context)!.connecting}";
 
     return Scaffold(
       appBar: AppBar(
@@ -361,11 +365,11 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
           },
           child: widget.isLoading && _currentIndex.value < 2
               ? Column(
-                  children: const [
-                    SizedBox(height: 32),
-                    CircularProgressIndicator(),
-                    SizedBox(height: 32),
-                    Text('正在加载会话...')
+                  children: [
+                    const SizedBox(height: 32),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 32),
+                    Text(AppLocalizations.of(context)!.loadingSession)
                   ],
                 )
               : _widgetOptions.elementAt(_currentIndex.value),

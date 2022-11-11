@@ -6,10 +6,14 @@ import 'package:contact_mobile_client/common/token_utils.dart';
 import 'package:contact_mobile_client/model/staff.dart';
 import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:settings_ui/settings_ui.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../common/globals.dart';
+import '../main.dart';
 
 class StaffInfoPage extends HookConsumerWidget {
   const StaffInfoPage({super.key});
@@ -17,6 +21,9 @@ class StaffInfoPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final staff = ref.watch(staffProvider);
+    final languageCode = MyApp.of(context)?.getLocal().languageCode;
+    final language =
+        Globals.languageMap[languageCode] ?? Globals.languageMap['zh']!;
 
     if (staff != null) {
       return Column(
@@ -40,9 +47,9 @@ class StaffInfoPage extends HookConsumerWidget {
                 SettingsSection(
                   tiles: <SettingsTile>[
                     SettingsTile.navigation(
-                      title: const Text('在线状态'),
-                      trailing:
-                          buildOnlineStatus(staff.staffStatus?.onlineStatus),
+                      title: Text(AppLocalizations.of(context)!.onlineStatus),
+                      value: buildOnlineStatus(
+                          context, staff.staffStatus?.onlineStatus),
                       onPressed: (context) async {
                         showModalBottomSheet<void>(
                           context: context,
@@ -53,7 +60,21 @@ class StaffInfoPage extends HookConsumerWidget {
                       },
                     ),
                     SettingsTile.navigation(
-                      title: const Text('不再接受离线通知'),
+                      leading: const Icon(Icons.language),
+                      title: Text(AppLocalizations.of(context)!.language),
+                      value: Text(language.displayName),
+                      onPressed: (context) async {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          builder: (context) {
+                            return const LanguageChangeBottomSheet();
+                          },
+                        );
+                      },
+                    ),
+                    SettingsTile.navigation(
+                      title: Text(AppLocalizations.of(context)!
+                          .noMoreOfflineNotifications),
                       onPressed: (context) async {
                         await graphQLClient.mutate(MutationOptions(
                             document: gql(Staff.offlineClientMutation),
@@ -63,19 +84,21 @@ class StaffInfoPage extends HookConsumerWidget {
                         showDialog<String>(
                           context: context,
                           builder: (BuildContext context) => AlertDialog(
-                            content: const Text('关闭离线通知成功，是否退出应用'),
+                            content: Text(AppLocalizations.of(context)!
+                                .theOfflineNotificationIsSuccessfulExitTheApp),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pop(context, 'Cancel'),
-                                child: const Text('取消'),
+                                child:
+                                    Text(AppLocalizations.of(context)!.cancel),
                               ),
                               TextButton(
                                 onPressed: () {
                                   Navigator.pop(context, 'OK');
                                   exit(0);
                                 },
-                                child: const Text('退出'),
+                                child: Text(AppLocalizations.of(context)!.exit),
                               ),
                             ],
                           ),
@@ -84,7 +107,7 @@ class StaffInfoPage extends HookConsumerWidget {
                     ),
                     SettingsTile.navigation(
                       leading: const Icon(Icons.logout),
-                      title: const Text('退出登录'),
+                      title: Text(AppLocalizations.of(context)!.signOut),
                       onPressed: (context) async {
                         clearToken();
                         Navigator.of(context).pushNamedAndRemoveUntil(
@@ -98,7 +121,7 @@ class StaffInfoPage extends HookConsumerWidget {
                     ),
                     SettingsTile.navigation(
                       leading: const Icon(Icons.exit_to_app),
-                      title: const Text('退出应用'),
+                      title: Text(AppLocalizations.of(context)!.exitTheApp),
                       onPressed: (context) => exit(0),
                     ),
                   ],
@@ -110,11 +133,11 @@ class StaffInfoPage extends HookConsumerWidget {
       );
     } else {
       return Column(
-        children: const [
-          SizedBox(height: 32),
-          CircularProgressIndicator(),
-          SizedBox(height: 32),
-          Text('正在读取个人信息...')
+        children: [
+          const SizedBox(height: 32),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 32),
+          Text(AppLocalizations.of(context)!.readingPersonalInformation)
         ],
       );
     }
@@ -134,17 +157,17 @@ class StaffInfoPage extends HookConsumerWidget {
         ],
       );
 
-  Widget buildOnlineStatus(OnlineStatus? onlineStatus) {
-    var onlineStatusStr = '在线';
+  Widget buildOnlineStatus(BuildContext context, OnlineStatus? onlineStatus) {
+    var onlineStatusStr = AppLocalizations.of(context)!.online;
     switch (onlineStatus) {
       case OnlineStatus.offline:
-        onlineStatusStr = "离线";
+        onlineStatusStr = AppLocalizations.of(context)!.offline;
         break;
       case OnlineStatus.busy:
-        onlineStatusStr = "忙碌";
+        onlineStatusStr = AppLocalizations.of(context)!.busy;
         break;
       case OnlineStatus.away:
-        onlineStatusStr = "离开";
+        onlineStatusStr = AppLocalizations.of(context)!.away;
         break;
       default:
         break;
@@ -230,6 +253,40 @@ class ProfileWidget extends StatelessWidget {
       );
 }
 
+class LanguageChangeBottomSheet extends HookConsumerWidget {
+  const LanguageChangeBottomSheet({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsTileList = Globals.languageMap.entries.map((e) {
+      return SettingsTile.navigation(
+        title: Text(e.value.displayName),
+        onPressed: (context) async {
+          final navigator = Navigator.of(context);
+          MyApp.of(context)?.setLocale(Locale.fromSubtags(languageCode: e.key));
+          navigator.pop();
+        },
+      );
+    }).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("在线状态"),
+        toolbarHeight: 40,
+      ),
+      body: SettingsList(
+        platform: DevicePlatform.iOS,
+        sections: [
+          SettingsSection(
+            tiles: settingsTileList,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class OnlineStatusBottomSheet extends HookConsumerWidget {
   const OnlineStatusBottomSheet({super.key});
 
@@ -261,7 +318,7 @@ class OnlineStatusBottomSheet extends HookConsumerWidget {
           SettingsSection(
             tiles: <SettingsTile>[
               SettingsTile.navigation(
-                title: const Text('在线'),
+                title: Text(AppLocalizations.of(context)!.online),
                 onPressed: (context) async {
                   final navigator = Navigator.of(context);
                   await updateOnlineStatus("ONLINE");
@@ -269,7 +326,7 @@ class OnlineStatusBottomSheet extends HookConsumerWidget {
                 },
               ),
               SettingsTile.navigation(
-                title: const Text('离线'),
+                title: Text(AppLocalizations.of(context)!.offline),
                 onPressed: (context) async {
                   final navigator = Navigator.of(context);
                   await updateOnlineStatus("OFFLINE");
@@ -277,7 +334,7 @@ class OnlineStatusBottomSheet extends HookConsumerWidget {
                 },
               ),
               SettingsTile.navigation(
-                title: const Text('忙碌'),
+                title: Text(AppLocalizations.of(context)!.busy),
                 onPressed: (context) async {
                   final navigator = Navigator.of(context);
                   await updateOnlineStatus("BUSY");
@@ -285,7 +342,7 @@ class OnlineStatusBottomSheet extends HookConsumerWidget {
                 },
               ),
               SettingsTile.navigation(
-                title: const Text('离开'),
+                title: Text(AppLocalizations.of(context)!.away),
                 onPressed: (context) async {
                   final navigator = Navigator.of(context);
                   await updateOnlineStatus("AWAY");

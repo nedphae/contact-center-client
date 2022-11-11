@@ -515,7 +515,17 @@
     "Sessions count": "当前咨询量",
     "Number of sessions currently in progress": "当前进行中的会话数量",
     "Number of queues": "排队数量",
-    "Number of customers in queue": "正在排队的客户数量"
+    "Number of customers in queue": "正在排队的客户数量",
+    "message-type": {
+      "SYS": "系统",
+      "TEXT": "文本",
+      "IMAGE": "图片",
+      "VOICE": "语音",
+      "FILE": "文件",
+      "LINK": "链接",
+      "RICH_TEXT": "富文本",
+      "CUSTOMER": "自定义消息"
+    }
   },
   "home": {
     "hot_recommended": "爆款推荐",

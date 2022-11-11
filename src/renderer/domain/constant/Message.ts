@@ -1,20 +1,20 @@
 export enum MessageType {
   /** 系统消息 */
-  SYS = '系统',
+  SYS,
   /** 文本消息 */
-  TEXT = '文本',
+  TEXT,
   /** 图片消息 */
-  IMAGE = '图片表情',
+  IMAGE,
   /** 语音消息 */
-  VOICE = '语音',
+  VOICE,
   /** 文件消息 */
-  FILE = '文件',
+  FILE,
   /** 链接消息 */
-  LINK = '链接',
+  LINK,
   // 富文本消息
-  RICH_TEXT = '富文本',
+  RICH_TEXT,
   /** 自定义消息 */
-  CUSTOMER = '自定义消息',
+  CUSTOMER,
 }
 // enum 作为 js 的 object，typeof 会返回 'object' 定义
 export type MessageTypeKey = keyof typeof MessageType;

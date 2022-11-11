@@ -515,7 +515,17 @@
     "Sessions count": "Sessions count",
     "Number of sessions currently in progress": "Number of sessions currently in progress",
     "Number of queues": "Number of queues",
-    "Number of customers in queue": "Number of customers in queue"
+    "Number of customers in queue": "Number of customers in queue",
+    "message-type": {
+      "SYS": "System",
+      "TEXT": "Text",
+      "IMAGE": "Image",
+      "VOICE": "Voice",
+      "FILE": "File",
+      "LINK": "Link",
+      "RICH_TEXT": "Rich Text",
+      "CUSTOMER": "Customer"
+    }
   },
   "home": {
     "hot_recommended": "",

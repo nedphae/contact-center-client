@@ -203,7 +203,8 @@ function SessionList(props: SessionListProps) {
       case 'SYS':
         break;
       default:
-        previewText = MessageType[message.content.contentType];
+        previewText = t(`message-type.${message.content.contentType}`);
+        previewText = `[${previewText}]`;
         break;
     }
     return previewText;

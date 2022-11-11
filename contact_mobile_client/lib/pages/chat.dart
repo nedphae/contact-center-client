@@ -13,6 +13,7 @@ import 'package:contact_mobile_client/states/state.dart';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -266,12 +267,12 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                     //     '历史会话',
                     //   ),
                     // ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       // 无法使用 onTap 进行 Navigator 跳转
                       // 因为 PopupMenuButton 的 showMenu 使用 navigator.of
                       value: 'user',
                       child: Text(
-                        '用户信息',
+                        AppLocalizations.of(context)!.userInformation,
                       ),
                     ),
                     PopupMenuItem(
@@ -281,8 +282,8 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                             .hideConv(_customer.id);
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        '关闭会话',
+                      child: Text(
+                        AppLocalizations.of(context)!.closeTheSession,
                       ),
                     ),
                   ];
@@ -377,8 +378,10 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                               } else {
                                 if (!mounted) return;
                                 edgeAlert(context,
-                                    title: '上传图片失败',
-                                    description: '远程服务器出现问题，请稍后再试',
+                                    title: AppLocalizations.of(context)!
+                                        .failedToUploadImage,
+                                    description: AppLocalizations.of(context)!
+                                        .thereIsAProblemWithTheRemoteServerPleaseTryAgainLater,
                                     gravity: Gravity.bottom,
                                     icon: Icons.error,
                                     duration: 5,
@@ -467,9 +470,9 @@ class MessageBubble extends StatelessWidget {
       required this.staff,
       required this.message});
 
-  Widget createBubble(Message message) {
+  Widget createBubble(BuildContext context, Message message) {
     Widget result = Text(
-      '不支持的消息类型',
+      AppLocalizations.of(context)!.unsupportedMessageType,
       style: TextStyle(
         color: staff ? Colors.white : Colors.blue,
         fontFamily: 'Poppins',
@@ -587,7 +590,7 @@ class MessageBubble extends StatelessWidget {
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: createBubble(message),
+              child: createBubble(context, message),
             ),
           ),
         ],

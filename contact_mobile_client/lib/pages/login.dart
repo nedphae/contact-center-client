@@ -6,6 +6,7 @@ import 'package:contact_mobile_client/widgets/customtextinput.dart';
 import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -49,7 +50,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
   int? orgId;
   String? username;
   String? password;
-  bool loggingin = false;
+  bool login = false;
 
   @override
   void initState() {
@@ -68,7 +69,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
-      inAsyncCall: loggingin,
+      inAsyncCall: login,
       child: Scaffold(
         // backgroundColor: Colors.transparent,
         body: SingleChildScrollView(
@@ -113,7 +114,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                   //       color: Colors.deepPurple),
                   // ),
                   CustomTextInput(
-                    hintText: '机构ID',
+                    hintText: AppLocalizations.of(context)!.orgId,
                     leading: Icons.numbers,
                     obscure: false,
                     keyboard: TextInputType.number,
@@ -125,7 +126,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                     height: 0,
                   ),
                   CustomTextInput(
-                    hintText: '用户名',
+                    hintText: AppLocalizations.of(context)!.username,
                     leading: Icons.person,
                     obscure: false,
                     keyboard: TextInputType.text,
@@ -137,7 +138,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                     height: 0,
                   ),
                   CustomTextInput(
-                    hintText: '密码',
+                    hintText: AppLocalizations.of(context)!.password,
                     leading: Icons.lock,
                     obscure: true,
                     userTyped: (val) {
@@ -148,9 +149,9 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                     height: 30,
                   ),
                   Hero(
-                    tag: 'loginbutton',
+                    tag: 'login-button',
                     child: CustomButton(
-                      text: '登录',
+                      text: AppLocalizations.of(context)!.login,
                       accentColor: Colors.white,
                       mainColor: Colors.deepPurple,
                       onpress: () async {
@@ -158,7 +159,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                             username != null &&
                             orgId != null) {
                           setState(() {
-                            loggingin = true;
+                            login = true;
                           });
                           try {
                             final loggedUser = await attemptLogIn(
@@ -170,7 +171,7 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                               _saveJwt(oauth: loggedUser);
 
                               setState(() {
-                                loggingin = false;
+                                login = false;
                               });
 
                               if (!mounted) return;
@@ -178,12 +179,14 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                                   '/home', ModalRoute.withName('/'));
                             } else {
                               setState(() {
-                                loggingin = false;
+                                login = false;
                               });
                               if (!mounted) return;
                               edgeAlert(context,
-                                  title: '登录失败',
-                                  description: '请检查您的用户名和密码',
+                                  title:
+                                      AppLocalizations.of(context)!.loginFailed,
+                                  description: AppLocalizations.of(context)!
+                                      .pleaseCheckYourUsernameAndPassword,
                                   gravity: Gravity.bottom,
                                   icon: Icons.error,
                                   duration: 5,
@@ -191,10 +194,11 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                             }
                           } catch (e) {
                             setState(() {
-                              loggingin = false;
+                              login = false;
                             });
                             edgeAlert(context,
-                                title: '登录失败',
+                                title:
+                                    AppLocalizations.of(context)!.loginFailed,
                                 description: e.toString(),
                                 gravity: Gravity.bottom,
                                 icon: Icons.error,
@@ -203,9 +207,9 @@ class XBCSLoginState extends ConsumerState<XBCSLogin> {
                           }
                         } else {
                           edgeAlert(context,
-                              title: 'Uh oh!',
-                              description:
-                                  'Please enter the username and password.',
+                              title: AppLocalizations.of(context)!.error,
+                              description: AppLocalizations.of(context)!
+                                  .pleaseEnterTheUsernameAndPassword,
                               gravity: Gravity.bottom,
                               icon: Icons.error,
                               duration: 5,

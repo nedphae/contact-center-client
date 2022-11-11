@@ -1,5 +1,6 @@
 import 'package:contact_mobile_client/common/color_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:chips_input/chips_input.dart';
@@ -42,7 +43,8 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
       onError: (error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('保存失败：${error.toString()}'),
+              content: Text(
+                  '${AppLocalizations.of(context)!.saveFailed}：${error.toString()}'),
               backgroundColor: Colors.redAccent),
         );
       },
@@ -51,7 +53,8 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
           // If the form is valid, display a snackbar. In the real world,
           // you'd often call a server or save the information in a database.
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('保存成功')),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.saveSuccessful)),
           );
           final customerJson = result?.data?['updateCustomer'];
           if (customerJson != null) {
@@ -74,7 +77,7 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
     if (customer != null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text("客户信息"),
+          title: Text(AppLocalizations.of(context)!.customerInformation),
         ),
         body: Form(
           key: _formKey,
@@ -89,10 +92,10 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
                       readOnly: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.person),
-                        labelText: "客户UID",
+                        icon: const Icon(Icons.person),
+                        labelText: "${AppLocalizations.of(context)!.customer}UID",
                       ),
                       initialValue: customer.uid,
                     ),
@@ -101,11 +104,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'name_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.person),
-                        hintText: "请输入姓名",
-                        labelText: "姓名",
+                        icon: const Icon(Icons.person),
+                        hintText: AppLocalizations.of(context)!.pleaseEnterYourName,
+                        labelText: AppLocalizations.of(context)!.name,
                       ),
                       initialValue: customer.name,
                       onChanged: (value) {
@@ -116,10 +119,10 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       children: [
                         sizedBoxSpace,
                         ChipsInput<CustomerTag>(
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             filled: true,
-                            icon: Icon(Icons.label),
-                            labelText: "客户标签",
+                            icon: const Icon(Icons.label),
+                            labelText: AppLocalizations.of(context)!.customerTag,
                           ),
                           initialValue: tags,
                           // readOnly: true,
@@ -161,11 +164,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'email_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.email),
-                        hintText: "请输入Email",
-                        labelText: "Email",
+                        icon: const Icon(Icons.email),
+                        hintText: AppLocalizations.of(context)!.pleaseEnterEmail,
+                        labelText: AppLocalizations.of(context)!.email,
                       ),
                       initialValue: customer.email,
                       onChanged: (value) {
@@ -177,11 +180,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'mobile_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.phone_android),
-                        hintText: "请输入手机号码",
-                        labelText: "手机",
+                        icon: const Icon(Icons.phone_android),
+                        hintText: AppLocalizations.of(context)!.pleaseEnterYourMobilePhoneNumber,
+                        labelText: AppLocalizations.of(context)!.mobile,
                       ),
                       initialValue: customer.mobile,
                       onChanged: (value) {
@@ -193,11 +196,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'address_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.home),
-                        hintText: "请输入客户地址",
-                        labelText: "客户地址",
+                        icon: const Icon(Icons.home),
+                        hintText: AppLocalizations.of(context)!.pleaseEnterTheCustomerAddress,
+                        labelText: AppLocalizations.of(context)!.customerAddress,
                       ),
                       initialValue: customer.address,
                       onChanged: (value) {
@@ -211,11 +214,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       textCapitalization: TextCapitalization.words,
                       keyboardType: TextInputType.number,
                       maxLength: 2,
-                      decoration: const InputDecoration(
+                      decoration:  InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.star),
-                        hintText: "请输入Vip等级",
-                        labelText: "Vip等级",
+                        icon: const Icon(Icons.star),
+                        hintText: AppLocalizations.of(context)!.pleaseEnterTheVipLevel,
+                        labelText: AppLocalizations.of(context)!.vipLevel,
                       ),
                       initialValue: customer.vipLevel?.toString(),
                       onChanged: (value) {
@@ -227,11 +230,11 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                       restorationId: 'remarks_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         filled: true,
-                        icon: Icon(Icons.note),
-                        hintText: "请输入备注",
-                        labelText: "备注",
+                        icon: const Icon(Icons.note),
+                        hintText: AppLocalizations.of(context)!.pleaseEnterARemark,
+                        labelText: AppLocalizations.of(context)!.remark,
                       ),
                       initialValue: customer.remarks,
                       onChanged: (value) {
@@ -250,7 +253,7 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
                               .runMutation({"customerInput": customerMap});
                         }
                       },
-                      child: const Text('提交'),
+                      child: Text(AppLocalizations.of(context)!.submit),
                     ),
                   ],
                 )),
@@ -258,7 +261,7 @@ class CustomerInfoState extends ConsumerState<CustomerInfo> {
         ),
       );
     } else {
-      return const Text('没有获取到客户信息');
+      return Text(AppLocalizations.of(context)!.noCustomerInformationWasObtained);
     }
   }
 }

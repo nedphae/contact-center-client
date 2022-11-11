@@ -1,5 +1,6 @@
 import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:badges/badges.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +26,7 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
         .toList();
 
     if (sessionList.isEmpty) {
-      return const Text('没有会话');
+      return Text(AppLocalizations.of(context)!.thereIsNoSession);
     } else {
       return Scrollbar(
           child: ListView(
@@ -52,8 +53,9 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
           ];
 
           if (staffDraft != null && staffDraft.isNotEmpty) {
-            lastMsgWidgetList.add(
-                const Text('[草稿]', style: TextStyle(color: Colors.redAccent)));
+            lastMsgWidgetList.add(Text(
+                '[${AppLocalizations.of(context)!.draft}]',
+                style: const TextStyle(color: Colors.redAccent)));
             lastMsgWidgetList = lastMsgWidgetList.reversed.toList();
           }
           return ListTile(
