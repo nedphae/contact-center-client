@@ -166,4 +166,14 @@ class ChatStateState extends StateNotifier<ChatState> {
       state = state.cloneWith(sessionMap: sessionMap);
     }
   }
+
+  void deleteMessage(int userId, String uuid) {
+    var sessionMap = state.sessionMap;
+    final session = sessionMap[userId];
+    if (session != null && session.messageList != null) {
+      session.messageList?.removeWhere((element) => element.uuid == uuid);
+      sessionMap = {...sessionMap};
+      state = state.cloneWith(sessionMap: sessionMap);
+    }
+  }
 }

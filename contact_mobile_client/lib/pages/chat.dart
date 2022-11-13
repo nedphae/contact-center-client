@@ -459,7 +459,7 @@ class ChatStream extends StatelessWidget {
   }
 }
 
-class MessageBubble extends StatelessWidget {
+class MessageBubble extends StatefulHookConsumerWidget {
   final String msgSender;
   final bool staff;
   final Message message;
@@ -470,11 +470,65 @@ class MessageBubble extends StatelessWidget {
       required this.staff,
       required this.message});
 
+  @override
+  MessageBubbleState createState() => MessageBubbleState();
+}
+
+class MessageBubbleState extends ConsumerState<MessageBubble> {
+  Offset? _tapPosition;
+
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+
+  void _showCustomMenu() async {
+    final RenderBox overlay =
+        Overlay.of(context)?.context.findRenderObject() as RenderBox;
+    String? select = await showMenu(
+        context: context,
+        items: <PopupMenuEntry<String>>[const MessageOptionEntry()],
+        position: RelativeRect.fromRect(
+            _tapPosition! & const Size(40, 40), // smaller rect, the touch area
+            Offset.zero & overlay.size // Bigger rect, the entire screen
+            ));
+    if (select != null) {
+      switch (select) {
+        case 'withdrawMsg':
+          // 撤回消息
+          final content = Content(
+              contentType: 'SYS',
+              sysCode: 'WITHDRAW',
+              serviceContent: const JsonEncoder().convert({
+                'uuid': widget.message.uuid,
+                'seqId': widget.message.seqId,
+              }));
+          final message = Message(
+            uuid: uuid.v4(),
+            to: widget.message.to,
+            type: CreatorType.customer,
+            creatorType: CreatorType.sys,
+            content: content,
+          );
+          final messageMap = message.toJson();
+          messageMap.removeWhere((key, value) => value == null);
+          final request = WebSocketRequest.generateRequest(messageMap);
+          Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
+            ref
+                .read(chatStateProvider.notifier)
+                .deleteMessage(widget.message.to!, message.uuid);
+          });
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
   Widget createBubble(BuildContext context, Message message) {
     Widget result = Text(
       AppLocalizations.of(context)!.unsupportedMessageType,
       style: TextStyle(
-        color: staff ? Colors.white : Colors.blue,
+        color: widget.staff ? Colors.white : Colors.blue,
         fontFamily: 'Poppins',
         fontSize: 15,
       ),
@@ -485,7 +539,7 @@ class MessageBubble extends StatelessWidget {
         result = Text(
           content.textContent?.text ?? '',
           style: TextStyle(
-            color: staff ? Colors.white : Colors.blue,
+            color: widget.staff ? Colors.white : Colors.blue,
             fontFamily: 'Poppins',
             fontSize: 15,
           ),
@@ -567,12 +621,12 @@ class MessageBubble extends StatelessWidget {
       padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment:
-            staff ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            widget.staff ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              msgSender,
+              widget.msgSender,
               style: const TextStyle(
                   fontSize: 13, fontFamily: 'Poppins', color: Colors.black87),
             ),
@@ -580,21 +634,65 @@ class MessageBubble extends StatelessWidget {
           Material(
             borderRadius: BorderRadius.only(
               bottomLeft: const Radius.circular(50),
-              topLeft:
-                  staff ? const Radius.circular(50) : const Radius.circular(0),
+              topLeft: widget.staff
+                  ? const Radius.circular(50)
+                  : const Radius.circular(0),
               bottomRight: const Radius.circular(50),
-              topRight:
-                  staff ? const Radius.circular(0) : const Radius.circular(50),
+              topRight: widget.staff
+                  ? const Radius.circular(0)
+                  : const Radius.circular(50),
             ),
-            color: staff ? Colors.green : Colors.white,
+            color: widget.staff ? Colors.green : Colors.white,
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: createBubble(context, message),
+              child: GestureDetector(
+                onTapDown: _storePosition,
+                onLongPress: widget.staff &&
+                        DateTime.now().microsecondsSinceEpoch -
+                                (widget.message.createdAt ?? 0) * 1000 <=
+                            2 * 60 * 1000
+                    ? _showCustomMenu
+                    : null,
+                child: createBubble(context, widget.message),
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class MessageOptionEntry extends PopupMenuEntry<String> {
+  @override
+  final double height = 100;
+
+  const MessageOptionEntry({super.key});
+
+  // height doesn't matter, as long as we are not giving
+  // initialValue to showMenu().
+
+  @override
+  bool represents(String? value) => value == 'withdrawMsg';
+
+  @override
+  MessageOptionEntryState createState() => MessageOptionEntryState();
+}
+
+class MessageOptionEntryState extends State<MessageOptionEntry> {
+  void withdrawMsg() {
+    // This is how you close the popup menu and return user selection.
+    Navigator.pop<String>(context, 'withdrawMsg');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+            child: TextButton(onPressed: withdrawMsg, child: const Text('撤回'))),
+      ],
     );
   }
 }
