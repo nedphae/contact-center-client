@@ -59,5 +59,8 @@
   "saveSuccessful": "保存成功",
   "customerInformation": "客户信息",
   "error": "错误",
-  "language": "语言"
+  "language": "语言",
+  "withdraw": "撤回",
+  "withdrawShowStr": "你撤回了一条消息",
+  "checkYourInternet": "未连接到网络，请检查网络设置。"
 }

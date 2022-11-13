@@ -272,7 +272,7 @@ class LanguageChangeBottomSheet extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("在线状态"),
+        title: Text(AppLocalizations.of(context)!.language),
         toolbarHeight: 40,
       ),
       body: SettingsList(
@@ -309,7 +309,7 @@ class OnlineStatusBottomSheet extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("在线状态"),
+        title: Text(AppLocalizations.of(context)!.onlineStatus),
         toolbarHeight: 40,
       ),
       body: SettingsList(

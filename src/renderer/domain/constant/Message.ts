@@ -1,6 +1,8 @@
 export enum MessageType {
   /** 系统消息 */
   SYS,
+  // 需要展示的系统消息，只在本地有效
+  SYS_TEXT,
   /** 文本消息 */
   TEXT,
   /** 图片消息 */

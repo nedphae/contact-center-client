@@ -5,6 +5,7 @@ import Viewer from 'react-viewer';
 import clsx from 'clsx';
 import PerfectScrollbar from 'perfect-scrollbar';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
 
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -38,8 +39,10 @@ import {
 } from 'renderer/config/clientConfig';
 import {
   addHistoryMessage,
+  newMessage,
   sendWithdrawMsg,
   setHasMore,
+  setNewMessage,
   updateSync,
 } from 'renderer/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
@@ -547,6 +550,23 @@ const MessageList = (props: MessageListProps) => {
   const withdrawMsg = () => {
     if (user?.userId && withdrawUUID) {
       dispatch(sendWithdrawMsg(user?.userId, withdrawUUID));
+      // 展示系统消息
+      const content: Content = {
+        contentType: 'SYS_TEXT',
+        textContent: {
+          text: t('withdrawShowStr'),
+        },
+      };
+      const message: Message = {
+        uuid: uuidv4(),
+        seqId: withdrawUUID.seqId,
+        to: user.userId,
+        type: CreatorType.CUSTOMER,
+        creatorType: CreatorType.STAFF,
+        content,
+        nickName: staff.nickName,
+      };
+      dispatch(newMessage({ [message.uuid]: message }));
     }
     setWithdrawUUID(undefined);
   };
@@ -635,82 +655,91 @@ const MessageList = (props: MessageListProps) => {
                 msgs
               ) => (
                 <React.Fragment key={uuid}>
-                  <ListItem alignItems="flex-start">
-                    {/* 接受到的消息的头像 */}
-                    {creatorType !== 1 && (
-                      <ListItemAvatar className={classes.listItemAvatar}>
-                        <Avatar alt="Profile Picture" />
-                      </ListItemAvatar>
-                    )}
-                    {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
-                    <Grid
-                      container
-                      justifyContent={
-                        creatorType !== 1 ? 'flex-start' : 'flex-end'
-                      }
-                    >
-                      <Grid item xs={12}>
-                        <ListItemText
-                          primary={(
-                            <Grid
-                              container
-                              alignItems="center"
-                              justifyContent={
-                                creatorType !== 1 ? 'flex-start' : 'flex-end'
-                              }
-                            >
-                              {/* justifyContent="flex-end" */}
-                              <Typography
-                                variant="subtitle1"
-                                gutterBottom
-                                className={classes.inline}
-                              >
-                                {creatorType !== 1
-                                  ? user.name
-                                  : nickName ?? staff.nickName}
-                              </Typography>
-                              <Typography
-                                variant="body2"
-                                gutterBottom
-                                className={classes.inline}
-                              >
-                                {createdAt && javaInstant2DateStr(createdAt)}
-                              </Typography>
-                            </Grid>
-                          )}
-                        />
-                      </Grid>
-                      <Paper
-                        onMouseEnter={handleMouseUp(
-                          creatorType === 1 &&
-                            now.getTime() - (createdAt as number) * 1000 <=
-                              2 * 60 * 1000,
-                          { uuid, seqId },
-                        )}
-                        onMouseLeave={handleClose}
-                        elevation={4}
-                        className={clsx(
-                          creatorType !== 1
-                            ? classes.fromMessagePaper
-                            : classes.toMessagePaper,
-                          classes.baseMessagePaper,
-                        )}
-                      >
-                        {createContent(content, classes, openImageViewer)}
-                      </Paper>
+                  {content.contentType === 'SYS_TEXT' ? (
+                    <Grid container justifyContent="center">
+                      {/* 展示系统消息 */}
+                      <Typography variant="caption" align="center">
+                        {content.textContent?.text}
+                      </Typography>
                     </Grid>
-                    {/* 发送的消息的头像 */}
-                    {creatorType === CreatorType.STAFF && (
-                      <ListItemAvatar className={classes.listItemAvatar}>
-                        <Avatar
-                          src={
-                            staff.avatar &&
-                            `${getDownloadS3StaffImgPath()}${staff.avatar}`
-                          }
-                        />
-                      </ListItemAvatar>
-                    )}
-                  </ListItem>
+                  ) : (
+                    <ListItem alignItems="flex-start">
+                      {/* 接受到的消息的头像 */}
+                      {creatorType !== 1 && (
+                        <ListItemAvatar className={classes.listItemAvatar}>
+                          <Avatar alt="Profile Picture" />
+                        </ListItemAvatar>
+                      )}
+                      {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
+                      <Grid
+                        container
+                        justifyContent={
+                          creatorType !== 1 ? 'flex-start' : 'flex-end'
+                        }
+                      >
+                        <Grid item xs={12}>
+                          <ListItemText
+                            primary={(
+                              <Grid
+                                container
+                                alignItems="center"
+                                justifyContent={
+                                  creatorType !== 1 ? 'flex-start' : 'flex-end'
+                                }
+                              >
+                                {/* justifyContent="flex-end" */}
+                                <Typography
+                                  variant="subtitle1"
+                                  gutterBottom
+                                  className={classes.inline}
+                                >
+                                  {creatorType !== 1
+                                    ? user.name
+                                    : nickName ?? staff.nickName}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  gutterBottom
+                                  className={classes.inline}
+                                >
+                                  {createdAt && javaInstant2DateStr(createdAt)}
+                                </Typography>
+                              </Grid>
+                            )}
+                          />
+                        </Grid>
+                        <Paper
+                          onMouseEnter={handleMouseUp(
+                            creatorType === 1 &&
+                              now.getTime() - (createdAt as number) * 1000 <=
+                                2 * 60 * 1000,
+                            { uuid, seqId },
+                          )}
+                          onMouseLeave={handleClose}
+                          elevation={4}
+                          className={clsx(
+                            creatorType !== 1
+                              ? classes.fromMessagePaper
+                              : classes.toMessagePaper,
+                            classes.baseMessagePaper,
+                          )}
+                        >
+                          {createContent(content, classes, openImageViewer)}
+                        </Paper>
+                      </Grid>
+                      {/* 发送的消息的头像 */}
+                      {creatorType === CreatorType.STAFF && (
+                        <ListItemAvatar className={classes.listItemAvatar}>
+                          <Avatar
+                            src={
+                              staff.avatar &&
+                              `${getDownloadS3StaffImgPath()}${staff.avatar}`
+                            }
+                          />
+                        </ListItemAvatar>
+                      )}
+                    </ListItem>
+                  )}
                 </React.Fragment>
               ),
             )}

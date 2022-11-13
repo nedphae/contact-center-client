@@ -203,6 +203,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
           intervalConfigStaff(_timer);
           setState(() {
             connected = true;
+            ref.read(staffProvider.notifier).updateConnectedStatus(true);
           });
         }
       });
@@ -285,6 +286,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
         Globals.socket?.query = 'token=$token';
         setState(() {
           connected = false;
+          ref.read(staffProvider.notifier).updateConnectedStatus(false);
         });
       });
       socket.on('reconnect', (data) {

@@ -335,11 +335,21 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                           shape: const CircleBorder(),
                           color: Colors.blue,
                           onPressed: () {
-                            chatMsgTextController.clear();
-                            sendTextMessage();
-                            setState(() {
-                              messageText = null;
-                            });
+                            if (_currentStaff?.connected == true) {
+                              chatMsgTextController.clear();
+                              sendTextMessage();
+                              setState(() {
+                                messageText = null;
+                              });
+                            } else {
+                              edgeAlert(context,
+                                  title: AppLocalizations.of(context)!
+                                      .checkYourInternet,
+                                  gravity: Gravity.top,
+                                  icon: Icons.error,
+                                  duration: 5,
+                                  backgroundColor: Colors.redAccent);
+                            }
                           },
                           child: const Padding(
                             padding: EdgeInsets.all(10.0),
@@ -507,15 +517,26 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
             to: widget.message.to,
             type: CreatorType.customer,
             creatorType: CreatorType.sys,
+            createdAt: widget.message.createdAt,
             content: content,
           );
           final messageMap = message.toJson();
           messageMap.removeWhere((key, value) => value == null);
           final request = WebSocketRequest.generateRequest(messageMap);
           Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
-            ref
-                .read(chatStateProvider.notifier)
-                .deleteMessage(widget.message.to!, message.uuid);
+            final content = Content(
+                contentType: "SYS_TEXT",
+                textContent: TextContent(
+                    text: AppLocalizations.of(context)!.withdrawShowStr));
+            final Message showMessage = Message(
+                uuid: uuid.v4(),
+                seqId: widget.message.seqId,
+                to: widget.message.to!,
+                type: CreatorType.customer,
+                creatorType: CreatorType.staff,
+                content: content);
+            ref.read(chatStateProvider.notifier).deleteMessage(
+                widget.message.to!, widget.message.uuid, showMessage);
           });
           break;
         default:
@@ -617,6 +638,29 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final createdAt = widget.message.createdAt ?? 0;
+    final showWithdraw =
+        DateTime.now().millisecondsSinceEpoch - createdAt * 1000 <=
+            2 * 60 * 1000;
+    if (widget.message.content.contentType == 'SYS_TEXT') {
+      // 展示系统消息
+      return Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Text(
+                widget.message.content.textContent?.text ?? '',
+                style: const TextStyle(
+                    fontSize: 13, fontFamily: 'Poppins', color: Colors.black54),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
@@ -648,12 +692,8 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: GestureDetector(
                 onTapDown: _storePosition,
-                onLongPress: widget.staff &&
-                        DateTime.now().microsecondsSinceEpoch -
-                                (widget.message.createdAt ?? 0) * 1000 <=
-                            2 * 60 * 1000
-                    ? _showCustomMenu
-                    : null,
+                onLongPress:
+                    widget.staff && showWithdraw ? _showCustomMenu : null,
                 child: createBubble(context, widget.message),
               ),
             ),
@@ -691,7 +731,9 @@ class MessageOptionEntryState extends State<MessageOptionEntry> {
     return Row(
       children: <Widget>[
         Expanded(
-            child: TextButton(onPressed: withdrawMsg, child: const Text('撤回'))),
+            child: TextButton(
+                onPressed: withdrawMsg,
+                child: Text(AppLocalizations.of(context)!.withdraw))),
       ],
     );
   }

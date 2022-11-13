@@ -73,6 +73,7 @@ class Staff {
   bool enabled;
   // customerList?: CustomerStatus[];
   StaffStatus? staffStatus;
+  bool connected;
 
   Staff({
     required this.organizationId,
@@ -92,6 +93,7 @@ class Staff {
     this.mobilePhone,
     required this.enabled,
     this.staffStatus,
+    this.connected = false,
   });
 
   factory Staff.fromJson(Map<String, dynamic> json) => _$StaffFromJson(json);
@@ -115,6 +117,7 @@ class Staff {
     String? mobilePhone,
     bool? enabled,
     StaffStatus? staffStatus,
+    bool? connected,
   }) =>
       Staff(
         organizationId: organizationId ?? this.organizationId,
@@ -135,6 +138,7 @@ class Staff {
         mobilePhone: mobilePhone ?? this.mobilePhone,
         enabled: enabled ?? this.enabled,
         staffStatus: staffStatus ?? this.staffStatus,
+        connected: connected ?? this.connected,
       );
 
   static const queryMyInfo = """

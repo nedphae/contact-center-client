@@ -58,13 +58,13 @@ import { getMyself } from '../staff/staffAction';
 
 const {
   newConver,
-  newMessage,
   unhideSession,
   addNewMessgeBadge,
   hideSelectedSession,
   removeMessageByUUID,
 } = slice.actions;
 export const {
+  newMessage,
   updateConverAndCustomer,
   updateConver,
   updateCustomerStatus,

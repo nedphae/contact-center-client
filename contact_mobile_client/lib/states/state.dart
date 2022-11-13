@@ -21,6 +21,11 @@ class StaffState extends StateNotifier<Staff?> {
     final newState = state?.cloneWith(staffStatus: staffStatus);
     state = newState;
   }
+
+  void updateConnectedStatus(bool connected) {
+    final newState = state?.cloneWith(connected: connected);
+    state = newState;
+  }
 }
 
 final chatStateProvider =
@@ -104,6 +109,8 @@ class ChatStateState extends StateNotifier<ChatState> {
     final session = sessionMap[userId];
     if (session != null) {
       _unHideSession(session);
+
+      sessionMap[userId] = session.cloneWith();
     }
     sessionMap = {...sessionMap};
     state = state.cloneWith(sessionMap: sessionMap);
@@ -123,8 +130,8 @@ class ChatStateState extends StateNotifier<ChatState> {
       var session = sessionMap[userId];
       if (session != null) {
         session.messageList = [...?session.messageList, ...messageList];
-        session = session.cloneWith();
-        sessionMap[userId] = session;
+
+        sessionMap[userId] = session.cloneWith();
       }
     }
     sessionMap = {...sessionMap};
@@ -144,6 +151,7 @@ class ChatStateState extends StateNotifier<ChatState> {
           session.unread += 1;
         }
         _unHideSession(session);
+
         sessionMap[userId] = session.cloneWith();
       }
     }
@@ -154,7 +162,7 @@ class ChatStateState extends StateNotifier<ChatState> {
   void updateMessageSeqId(
       int userId, String uuid, int seqId, double createdAt) {
     var sessionMap = state.sessionMap;
-    final session = sessionMap[userId];
+    var session = sessionMap[userId];
     if (session != null && session.messageList != null) {
       final msg =
           session.messageList?.firstWhere((element) => element.uuid == uuid);
@@ -162,16 +170,22 @@ class ChatStateState extends StateNotifier<ChatState> {
         msg.seqId = seqId;
         msg.createdAt = createdAt;
       }
+
+      sessionMap[userId] = session.cloneWith();
       sessionMap = {...sessionMap};
       state = state.cloneWith(sessionMap: sessionMap);
     }
   }
 
-  void deleteMessage(int userId, String uuid) {
+  void deleteMessage(int userId, String uuid, Message showMessage) {
     var sessionMap = state.sessionMap;
     final session = sessionMap[userId];
     if (session != null && session.messageList != null) {
       session.messageList?.removeWhere((element) => element.uuid == uuid);
+      session.messageList = [...?session.messageList, showMessage];
+      session.lastMessage = showMessage;
+
+      sessionMap[userId] = session.cloneWith();
       sessionMap = {...sessionMap};
       state = state.cloneWith(sessionMap: sessionMap);
     }

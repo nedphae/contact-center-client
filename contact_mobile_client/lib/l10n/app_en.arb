@@ -62,5 +62,8 @@
   "saveSuccessful": "Save successful",
   "customerInformation": "Customer Information",
   "error": "Error",
-  "language": "Language"
+  "language": "Language",
+  "withdraw": "Withdraw",
+  "withdrawShowStr": "You withdrew a message",
+  "checkYourInternet": "Not connected to network, check your network settings."
 }

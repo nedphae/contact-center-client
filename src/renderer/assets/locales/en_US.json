@@ -525,7 +525,8 @@
       "LINK": "Link",
       "RICH_TEXT": "Rich Text",
       "CUSTOMER": "Customer"
-    }
+    },
+    "withdrawShowStr": "You withdrew a message"
   },
   "home": {
     "hot_recommended": "",

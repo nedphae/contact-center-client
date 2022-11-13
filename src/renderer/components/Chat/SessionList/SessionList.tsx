@@ -195,6 +195,7 @@ function SessionList(props: SessionListProps) {
   function getMessagePreview(message: Message): string {
     let previewText = ' ';
     switch (message.content.contentType) {
+      case 'SYS_TEXT':
       case 'TEXT':
         previewText = message.content.textContent
           ? message.content.textContent.text
