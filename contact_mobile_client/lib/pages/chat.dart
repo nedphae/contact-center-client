@@ -10,6 +10,7 @@ import 'package:contact_mobile_client/model/staff.dart';
 import 'package:contact_mobile_client/model/constants.dart';
 import 'package:contact_mobile_client/model/web_socket_request.dart';
 import 'package:contact_mobile_client/states/state.dart';
+import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
+import '../model/item.dart';
 import 'customer_info.dart';
 
 class ChatterScreen extends StatefulHookConsumerWidget {
@@ -485,64 +487,61 @@ class MessageBubble extends StatefulHookConsumerWidget {
 }
 
 class MessageBubbleState extends ConsumerState<MessageBubble> {
-  Offset? _tapPosition;
+  List<ItemModel>? menuItems;
+  final CustomPopupMenuController _controller = CustomPopupMenuController();
 
-  void _storePosition(TapDownDetails details) {
-    _tapPosition = details.globalPosition;
-  }
-
-  void _showCustomMenu() async {
-    final RenderBox overlay =
-        Overlay.of(context)?.context.findRenderObject() as RenderBox;
-    String? select = await showMenu(
-        context: context,
-        items: <PopupMenuEntry<String>>[const MessageOptionEntry()],
-        position: RelativeRect.fromRect(
-            _tapPosition! & const Size(40, 40), // smaller rect, the touch area
-            Offset.zero & overlay.size // Bigger rect, the entire screen
-            ));
-    if (select != null) {
-      switch (select) {
-        case 'withdrawMsg':
-          // 撤回消息
-          final content = Content(
-              contentType: 'SYS',
-              sysCode: 'WITHDRAW',
-              serviceContent: const JsonEncoder().convert({
-                'uuid': widget.message.uuid,
-                'seqId': widget.message.seqId,
-              }));
-          final message = Message(
-            uuid: uuid.v4(),
-            to: widget.message.to,
-            type: CreatorType.customer,
-            creatorType: CreatorType.sys,
-            createdAt: widget.message.createdAt,
-            content: content,
-          );
-          final messageMap = message.toJson();
-          messageMap.removeWhere((key, value) => value == null);
-          final request = WebSocketRequest.generateRequest(messageMap);
-          Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
+  @override
+  void initState() {
+    menuItems = [
+      // ItemModel(title: '复制', icon: Icons.content_copy),
+      // ItemModel(title: '转发', icon: Icons.send),
+      // ItemModel(title: '收藏', icon: Icons.collections),
+      // ItemModel(title: '删除', icon: Icons.delete),
+      ItemModel(
+          title: '撤回',
+          icon: Icons.undo,
+          onTap: () {
+            // 撤回消息
             final content = Content(
-                contentType: "SYS_TEXT",
-                textContent: TextContent(
-                    text: AppLocalizations.of(context)!.withdrawShowStr));
-            final Message showMessage = Message(
-                uuid: uuid.v4(),
-                seqId: widget.message.seqId,
-                to: widget.message.to!,
-                type: CreatorType.customer,
-                creatorType: CreatorType.staff,
-                content: content);
-            ref.read(chatStateProvider.notifier).deleteMessage(
-                widget.message.to!, widget.message.uuid, showMessage);
-          });
-          break;
-        default:
-          break;
-      }
-    }
+                contentType: 'SYS',
+                sysCode: 'WITHDRAW',
+                serviceContent: const JsonEncoder().convert({
+                  'uuid': widget.message.uuid,
+                  'seqId': widget.message.seqId,
+                }));
+            final message = Message(
+              uuid: uuid.v4(),
+              to: widget.message.to,
+              type: CreatorType.customer,
+              creatorType: CreatorType.sys,
+              createdAt: widget.message.createdAt,
+              content: content,
+            );
+            final messageMap = message.toJson();
+            messageMap.removeWhere((key, value) => value == null);
+            final request = WebSocketRequest.generateRequest(messageMap);
+            Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
+              final content = Content(
+                  contentType: "SYS_TEXT",
+                  textContent: TextContent(
+                      text: AppLocalizations.of(context)!.withdrawShowStr));
+              final Message showMessage = Message(
+                  uuid: uuid.v4(),
+                  seqId: widget.message.seqId,
+                  to: widget.message.to!,
+                  type: CreatorType.customer,
+                  creatorType: CreatorType.staff,
+                  content: content);
+              ref.read(chatStateProvider.notifier).deleteMessage(
+                  widget.message.to!, widget.message.uuid, showMessage);
+            });
+          }),
+      // ItemModel(title: '多选', icon: Icons.playlist_add_check),
+      // ItemModel(title: '引用', icon: Icons.format_quote),
+      // ItemModel(title: '提醒', icon: Icons.add_alert),
+      // ItemModel(title: '搜一搜',icon:  Icons.search),
+    ];
+    super.initState();
   }
 
   Widget createBubble(BuildContext context, Message message) {
@@ -636,6 +635,56 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
     return result;
   }
 
+  Widget _buildLongPressMenu() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(5),
+      child: Container(
+        width: 60, // width: 220, for 5
+        color: const Color(0xFF4C4C4C),
+        child: GridView.count(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          crossAxisCount: 1,
+          // crossAxisCount: 5,
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 10,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: menuItems!
+              .map(
+                (item) => GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    if (item.onTap != null) {
+                      item.onTap!();
+                    }
+                    _controller.hideMenu();
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(
+                        item.icon,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          item.title,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final createdAt = widget.message.createdAt ?? 0;
@@ -690,51 +739,17 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: GestureDetector(
-                onTapDown: _storePosition,
-                onLongPress:
-                    widget.staff && showWithdraw ? _showCustomMenu : null,
-                child: createBubble(context, widget.message),
-              ),
+              child: widget.staff && showWithdraw && menuItems != null
+                  ? CustomPopupMenu(
+                      menuBuilder: _buildLongPressMenu,
+                      pressType: PressType.longPress,
+                      controller: _controller,
+                      child: createBubble(context, widget.message))
+                  : createBubble(context, widget.message),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class MessageOptionEntry extends PopupMenuEntry<String> {
-  @override
-  final double height = 100;
-
-  const MessageOptionEntry({super.key});
-
-  // height doesn't matter, as long as we are not giving
-  // initialValue to showMenu().
-
-  @override
-  bool represents(String? value) => value == 'withdrawMsg';
-
-  @override
-  MessageOptionEntryState createState() => MessageOptionEntryState();
-}
-
-class MessageOptionEntryState extends State<MessageOptionEntry> {
-  void withdrawMsg() {
-    // This is how you close the popup menu and return user selection.
-    Navigator.pop<String>(context, 'withdrawMsg');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-            child: TextButton(
-                onPressed: withdrawMsg,
-                child: Text(AppLocalizations.of(context)!.withdraw))),
-      ],
     );
   }
 }
