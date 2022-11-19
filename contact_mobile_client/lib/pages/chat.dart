@@ -119,9 +119,15 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       _customer = selectSession.customer;
 
       final staffDraft = selectSession.staffDraft;
-      if (staffDraft != null) {
+      if (staffDraft != null && messageText == null) {
         // 设置草稿到输入框
         chatMsgTextController.text = staffDraft;
+        messageText = staffDraft;
+        Future.delayed(const Duration(milliseconds: 200), () {
+          ref
+              .read(chatStateProvider.notifier)
+              .setStaffDraft(selectUserId, null);
+        });
       }
 
       if (_currentSession.shouldSync) {
@@ -195,7 +201,6 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     return WillPopScope(
       onWillPop: () => Future.sync(() {
         final chatStatePN = ref.read(chatStateProvider.notifier);
-        if (!mounted) return false;
         if (messageText != null &&
             messageText!.isNotEmpty &&
             selectUserId != null) {
@@ -446,6 +451,7 @@ class ChatStream extends StatelessWidget {
       for (var message in messageList) {
         final isStaff = message.creatorType == CreatorType.staff;
         final msgBubble = MessageBubble(
+          staffId: staff.id,
           msgSender: isStaff ? staff.nickName : customer.name,
           staff: isStaff,
           message: message,
@@ -472,12 +478,14 @@ class ChatStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatefulHookConsumerWidget {
+  final int staffId;
   final String msgSender;
   final bool staff;
   final Message message;
 
   const MessageBubble(
       {super.key,
+      required this.staffId,
       required this.msgSender,
       required this.staff,
       required this.message});
@@ -487,7 +495,7 @@ class MessageBubble extends StatefulHookConsumerWidget {
 }
 
 class MessageBubbleState extends ConsumerState<MessageBubble> {
-  List<ItemModel>? menuItems;
+  late List<ItemModel> menuItems;
   final CustomPopupMenuController _controller = CustomPopupMenuController();
 
   @override
@@ -649,7 +657,7 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
           mainAxisSpacing: 10,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          children: menuItems!
+          children: menuItems
               .map(
                 (item) => GestureDetector(
                   behavior: HitTestBehavior.translucent,
@@ -739,7 +747,10 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: widget.staff && showWithdraw && menuItems != null
+              child: widget.staff &&
+                      showWithdraw &&
+                      (widget.staffId == widget.message.from ||
+                          widget.message.from == null)
                   ? CustomPopupMenu(
                       menuBuilder: _buildLongPressMenu,
                       pressType: PressType.longPress,

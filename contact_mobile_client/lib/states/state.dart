@@ -90,7 +90,7 @@ class ChatStateState extends StateNotifier<ChatState> {
     state = state.cloneWith(sessionMap: sessionMap);
   }
 
-  void setStaffDraft(int userId, String staffDraft) {
+  void setStaffDraft(int userId, String? staffDraft) {
     var sessionMap = state.sessionMap;
     sessionMap[userId]?.staffDraft = staffDraft;
     sessionMap = {...sessionMap};

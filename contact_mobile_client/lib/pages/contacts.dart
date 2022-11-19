@@ -5,6 +5,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:badges/badges.dart';
 import 'package:intl/intl.dart';
 
+import '../model/message.dart';
+
 class XBCSContacts extends StatefulHookConsumerWidget {
   final bool hide;
 
@@ -12,6 +14,51 @@ class XBCSContacts extends StatefulHookConsumerWidget {
 
   @override
   XBCSContactsState createState() => XBCSContactsState();
+}
+
+String getMessagePreview(BuildContext context, Message? message) {
+  if (message == null) {
+    return ' ';
+  }
+  String previewText = ' ';
+  switch (message.content.contentType) {
+    case 'SYS_TEXT':
+    case 'TEXT':
+      previewText = message.content.textContent?.text ?? '';
+      break;
+    case 'SYS':
+      previewText = AppLocalizations.of(context)?.messageTypeSys ?? '';
+      previewText = "[$previewText]";
+      break;
+    case 'IMAGE':
+      previewText = AppLocalizations.of(context)?.messageTypeImage ?? '';
+      previewText = "[$previewText]";
+      break;
+    case 'VOICE':
+      previewText = AppLocalizations.of(context)?.messageTypeVoice ?? '';
+      previewText = "[$previewText]";
+      break;
+    case 'FILE':
+      previewText = AppLocalizations.of(context)?.messageTypeFile ?? '';
+      previewText = "[$previewText]";
+      break;
+    case 'LINK':
+      previewText = AppLocalizations.of(context)?.messageTypeLink ?? '';
+      previewText = "[$previewText]";
+      break;
+    case 'RICH_TEXT':
+      previewText = AppLocalizations.of(context)?.messageTypeRichText ?? '';
+      previewText = "[$previewText]";
+      break;
+    case 'CUSTOMER':
+      previewText = AppLocalizations.of(context)?.messageTypeCustomer ?? '';
+      previewText = "[$previewText]";
+      break;
+    default:
+      previewText = "[$previewText]";
+      break;
+  }
+  return previewText;
 }
 
 class XBCSContactsState extends ConsumerState<XBCSContacts> {
@@ -47,9 +94,22 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
               ? dateFormat.format(lastMsgTime.toLocal())
               : '';
 
-          var lastMsgWidgetList = [
-            Text(staffDraft ?? lastMessage?.content.textContent?.text ?? '',
-                overflow: TextOverflow.ellipsis),
+          List<Widget> lastMsgWidgetList = [
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.only(right: 13.0),
+                child: Text(
+                  staffDraft ?? getMessagePreview(context, lastMessage),
+                  overflow: TextOverflow.fade,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: const TextStyle(
+                    fontSize: 13.0,
+                    color: Color(0xFF212121),
+                  ),
+                ),
+              ),
+            ),
           ];
 
           if (staffDraft != null && staffDraft.isNotEmpty) {

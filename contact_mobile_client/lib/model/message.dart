@@ -146,6 +146,7 @@ enum CreatorType {
 
 @JsonSerializable()
 class Content {
+  // "SYS" | "SYS_TEXT" | "TEXT" | "IMAGE" | "VOICE" | "FILE" | "LINK" | "RICH_TEXT" | "CUSTOMER"
   String contentType;
   String? sysCode;
   String? serviceContent;

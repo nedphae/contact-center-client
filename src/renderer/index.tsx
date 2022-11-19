@@ -1,12 +1,9 @@
 import { createRoot } from 'react-dom/client';
 
 import './i18n/i18n'; // 引用多语言配置文件
-
 // import App from './App';
 import HomePage from './HomePage';
-
 import { history, configuredStore } from './store';
-
 import './app.global.css';
 import './assets/css/material-dashboard-react.global.css';
 import './assets/css/normalize.less';
