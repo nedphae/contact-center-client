@@ -243,11 +243,12 @@ export default function Setting() {
               label={t('Customer Tags')}
               onClick={() => setPageName('org.CustomerTag')}
             />
-            <StyledTreeItem
+            {/* 先不开放自定义评价和留言配置 */}
+            {/* <StyledTreeItem
               nodeId="org.CommentAndEvaluate"
               label={t('Message & Rate Config')}
               onClick={() => setPageName('org.CommentAndEvaluate')}
-            />
+            /> */}
             {properties &&
               _.keys(properties).map((k) => {
                 const propertiesFilter = _.keys(properties[k]).filter(

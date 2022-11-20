@@ -836,6 +836,7 @@ initXiaobaiChat(params);
             });
           }}
         />
+{/*
         <TextField
           variant="outlined"
           margin="normal"
@@ -843,7 +844,7 @@ initXiaobaiChat(params);
           id="agentJoinTitle"
           name="agentJoinTitle"
           label={t('Transfer to human customer service button text')}
-          value={chatUIConfigObj?.agent.quickReply.name ?? '召唤人工客服'}
+          value={chatUIConfigObj?.agent.quickReply.name ?? '人工客服'}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -942,6 +943,7 @@ initXiaobaiChat(params);
             });
           }}
         />
+*/}
         <TextField
           variant="outlined"
           margin="normal"
@@ -963,6 +965,7 @@ initXiaobaiChat(params);
             });
           }}
         />
+{/* 
         <TextField
           variant="outlined"
           margin="normal"
@@ -1051,7 +1054,8 @@ initXiaobaiChat(params);
               historyReminderText: event.target.value,
             });
           }}
-        />
+        /> */}
+
         <Grid container>
           <Grid item xs={7}>
             <Upload {...avatarUploadProps}>
