@@ -25,7 +25,7 @@ export default class AppUpdater {
     autoUpdater.logger = log;
     // autoUpdater.signals.progress((info) => this.sendStatusToWindow(info));
     autoUpdater.checkForUpdatesAndNotify({
-      title: 'A new update is ready to install(新更新已准备好安装)',
+      title: 'A new update is ready to install',
       body: '{appName} version {version} has been downloaded and will be automatically installed on exit',
     });
   }
