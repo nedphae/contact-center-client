@@ -57,6 +57,7 @@ import { Autocomplete } from '@material-ui/lab';
 import { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
 import RichText from './RichText';
+import { IDomEditor } from '@wangeditor/editor';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -232,12 +233,16 @@ export default function TopicForm(props: FormProps) {
     appendRef({ question: '' });
   }
 
-  const { fields, update } = useFieldArray({ name: 'answer', control });
+  const { fields, update, remove } = useFieldArray({ name: 'answer', control });
   const picSrc = fields[1]?.content;
   const html = fields[2]?.content;
 
-  const setHtml: Dispatch<string> = (currentHtml: string) => {
-    update(2, { type: 'html', content: currentHtml });
+  const setHtml: Dispatch<IDomEditor> = (currentHtml: IDomEditor) => {
+    if (!currentHtml.isEmpty()) {
+      update(2, { type: 'html', content: currentHtml.getHtml() });
+    } else {
+      remove(2);
+    }
   };
 
   const imgUploadProps = {
@@ -493,7 +498,10 @@ export default function TopicForm(props: FormProps) {
                   variant="fullWidth"
                   aria-label="full width tabs example"
                 >
-                  <Tab label={t('Graphical answer')} {...a11yProps(0)} />
+                  <Tab
+                    label={t('Graphical and text answer')}
+                    {...a11yProps(0)}
+                  />
                   <Tab label={t('Rich text answer')} {...a11yProps(1)} />
                 </Tabs>
               </AppBar>

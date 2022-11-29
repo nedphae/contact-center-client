@@ -30,6 +30,7 @@ type FormType = Object.Omit<KnowledgeBase, 'categoryList'>;
 
 interface FormProps {
   defaultValues: FormType | undefined;
+  refetch: () => void;
 }
 
 interface Graphql {
@@ -47,7 +48,7 @@ const MUTATION = gql`
 `;
 
 export default function KnowledgeBaseForm(props: FormProps) {
-  const { defaultValues } = props;
+  const { defaultValues, refetch } = props;
   const classes = useStyles();
   const { t } = useTranslation();
 
@@ -72,8 +73,9 @@ export default function KnowledgeBaseForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<FormType> = (form) => {
-    saveKnowledgeBase({ variables: { knowledgeBaseInput: form } });
+  const onSubmit: SubmitHandler<FormType> = async (form) => {
+    await saveKnowledgeBase({ variables: { knowledgeBaseInput: form } });
+    refetch();
   };
 
   return (

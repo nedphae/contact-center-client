@@ -14,7 +14,7 @@ import useAlert from 'renderer/hook/alert/useAlert';
 
 interface RichTextProps {
   html: string;
-  setHtml: React.Dispatch<string>;
+  setHtml: React.Dispatch<IDomEditor>;
 }
 
 type InsertFnType = (url: string, alt: string, href: string) => void;
@@ -129,7 +129,7 @@ export default function RichText(props: RichTextProps) {
         defaultConfig={editorConfig}
         value={html}
         onCreated={setEditor}
-        onChange={(e) => setHtml(e.getHtml())}
+        onChange={(e) => setHtml(e)}
         mode="default"
         style={{ height: '500px', overflowY: 'hidden' }}
       />

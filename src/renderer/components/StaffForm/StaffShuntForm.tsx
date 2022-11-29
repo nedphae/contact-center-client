@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
   useCallback,
+  ChangeEvent,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -14,7 +15,12 @@ import _ from 'lodash';
 
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import JSONEditor, { JSONEditorOptions } from 'jsoneditor';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import {
+  createStyles,
+  makeStyles,
+  Theme,
+  useTheme,
+} from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import GroupIcon from '@material-ui/icons/Group';
@@ -39,9 +45,16 @@ import {
   CircularProgress,
   Snackbar,
   Button,
+  AppBar,
+  Tabs,
+  Tab,
+  Divider,
+  Box,
 } from '@material-ui/core';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+import SwipeableViews from 'react-swipeable-views';
 import Upload from 'rc-upload';
+import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 
 import config, {
   getDownloadS3ChatImgPath,
@@ -56,7 +69,9 @@ import { ShuntUIConfig } from 'renderer/domain/Config';
 
 import './Jsoneditor.global.css';
 import useAlert from 'renderer/hook/alert/useAlert';
+import { IDomEditor } from '@wangeditor/editor';
 import SubmitButton from '../Form/SubmitButton';
+import RichText from '../Bot/RichText';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -105,8 +120,44 @@ const useStyles = makeStyles((theme: Theme) =>
     chip: {
       margin: 2,
     },
-  }),
+    alert: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+    },
+  })
 );
+
+interface TabPanelProps {
+  children: React.ReactNode;
+  dir: string | undefined;
+  index: any;
+  value: any;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+    >
+      {/* 全部渲染，防止造成表单未注册 */}
+      {value === index && <Box p={1}>{children}</Box>}
+      {/* <Box p={1}>{children}</Box> */}
+    </div>
+  );
+}
+
+function a11yProps(index: any) {
+  return {
+    id: `full-width-tab-${index}`,
+    'aria-controls': `full-width-tabpanel-${index}`,
+  };
+}
 
 // 去除掉没用的循环属性
 type FormType = Object.Omit<StaffShunt, 'staffList'>;
@@ -190,13 +241,14 @@ const MUTATION_STAFF_CONFIG = gql`
   }
 `;
 
-function Alert(props: AlertProps) {
+function CustomerAlert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
 export default function StaffShuntForm(props: FormProps) {
   const { defaultValues, shuntClassList, staffList } = props;
   const classes = useStyles();
+  const theme = useTheme();
   const { t } = useTranslation();
 
   const jsoneditorRef = useRef<HTMLDivElement>(null);
@@ -212,7 +264,7 @@ export default function StaffShuntForm(props: FormProps) {
       jsoneditor?.update(newChatUIConfigObj);
       setChatUIConfigObj(newChatUIConfigObj);
     },
-    [jsoneditor],
+    [jsoneditor]
   );
 
   const imgUploadProps = useMemo(() => {
@@ -231,7 +283,7 @@ export default function StaffShuntForm(props: FormProps) {
               logo: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
-          jsoneditor?.get(),
+          jsoneditor?.get()
         );
         updateChatUIConfig(newChatUIConfigObj);
         setUploading(false);
@@ -259,7 +311,7 @@ export default function StaffShuntForm(props: FormProps) {
               avatar: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
-          jsoneditor?.get(),
+          jsoneditor?.get()
         );
         updateChatUIConfig(newChatUIConfigObj);
         setUploading(false);
@@ -271,17 +323,17 @@ export default function StaffShuntForm(props: FormProps) {
     };
   }, [jsoneditor, updateChatUIConfig]);
 
-  function onDeleteLogoClick() {
+  const onDeleteLogoClick = () => {
     let newChatUIConfigObj = jsoneditor?.get();
     newChatUIConfigObj = _.omit(newChatUIConfigObj, 'navbar.logo');
     updateChatUIConfig(newChatUIConfigObj);
-  }
+  };
 
-  function onDeleteAvatarClick() {
+  const onDeleteAvatarClick = () => {
     let newChatUIConfigObj = jsoneditor?.get();
     newChatUIConfigObj = _.omit(newChatUIConfigObj, 'robot.avatar');
     updateChatUIConfig(newChatUIConfigObj);
-  }
+  };
 
   const { handleSubmit, register, control, watch } = useForm<FormType>({
     defaultValues,
@@ -382,7 +434,7 @@ initXiaobaiChat(params);
     {
       onCompleted,
       onError,
-    },
+    }
   );
   const [saveChatUIConfig, { loading: uiLoading, data: savedChatUIConfig }] =
     useMutation<ChatUIConfigGraphql>(MUTATION_UICONFIG, {
@@ -413,7 +465,7 @@ initXiaobaiChat(params);
     const staffConfigMap = _.groupBy(
       savedStaffConfigList?.saveStaffConfig ??
         staffConfigList?.staffConfigByShuntId,
-      'staffId',
+      'staffId'
     );
     // 根据获取的 StaffConfig list 创建一个临时列
     const scl = staffList.map((staff) => {
@@ -425,7 +477,7 @@ initXiaobaiChat(params);
             staffType: staff.staffType,
             enabled: true,
           },
-          sc[0],
+          sc[0]
         );
       }
       return {
@@ -450,7 +502,7 @@ initXiaobaiChat(params);
       };
       const editor = new JSONEditor(jsoneditorRef.current, options);
       editor.setText(
-        '{"navbar":{"title":"智能助理"},"toolbar":[{"type":"image","icon":"image","title":"图片"}],"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}',
+        '{"navbar":{"title":"智能助理"},"toolbar":[{"type":"image","icon":"image","title":"图片"}],"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}'
       );
       setJsoneditor(editor);
     }
@@ -514,8 +566,8 @@ initXiaobaiChat(params);
           .map((sc) =>
             _.pick(
               _.defaults({ shuntId: shuntResult?.data?.saveShunt?.id }, sc),
-              ['shuntId', 'priority', 'staffId'],
-            ),
+              ['shuntId', 'priority', 'staffId']
+            )
           );
         saveStaffConfig({
           variables: { staffConfigList: forSave },
@@ -536,15 +588,15 @@ initXiaobaiChat(params);
 
   const handleSliderChange =
     (staffId?: number) =>
-      (_event: React.ChangeEvent<unknown>, value: number | number[]) => {
-        const changed = tempStaffConfig?.map((sc) => {
-          if (sc.staffId === staffId) {
-            return _.assign(sc, { priority: value });
-          }
-          return sc;
-        });
-        setTempStaffConfig(changed);
-      };
+    (_event: React.ChangeEvent<unknown>, value: number | number[]) => {
+      const changed = tempStaffConfig?.map((sc) => {
+        if (sc.staffId === staffId) {
+          return _.assign(sc, { priority: value });
+        }
+        return sc;
+      });
+      setTempStaffConfig(changed);
+    };
 
   const handleClose = (_event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
@@ -554,9 +606,85 @@ initXiaobaiChat(params);
   };
 
   function handleChatUIConfigChange(sliceConfig: Record<string, unknown>) {
-    const newChatUIConfigObj = _.defaultsDeep(sliceConfig, jsoneditor?.get());
+    const newChatUIConfigObj = _.defaults(sliceConfig, jsoneditor?.get());
     updateChatUIConfig(newChatUIConfigObj);
   }
+
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const handleChange = (_event: ChangeEvent<unknown>, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  const handleChangeIndex = (index: number) => {
+    setTabIndex(index);
+  };
+
+  const chatImgUploadProps = {
+    action: getUploadS3ChatPath(),
+    multiple: false,
+    accept: 'image/png,image/gif,image/jpeg',
+    onStart() {
+      setUploading(true);
+    },
+    onSuccess(response: unknown) {
+      const imgId = (response as string[])[0];
+      let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
+      tempMsg = tempMsg.filter((it: any) => it.type !== 'image');
+      tempMsg.splice(1, 0, {
+        type: 'image',
+        content: {
+          picUrl: imgId,
+        },
+      });
+      handleChatUIConfigChange({
+        messages: tempMsg,
+      });
+    },
+    onError(e: Error) {
+      setUploading(false);
+      setError(e.message);
+    },
+  };
+
+  let picSrc;
+  let html = '';
+  let welcomeText;
+  (chatUIConfigObj?.messages as [])?.forEach((it: any) => {
+    switch (it.type) {
+      case 'image':
+        picSrc = it.content.picUrl;
+        break;
+      case 'card':
+        html = it.content?.data?.text;
+        break;
+      case 'text':
+        welcomeText = it.content?.text;
+        break;
+      default:
+        break;
+    }
+  });
+
+  const setHtml = (currentHtml: IDomEditor) => {
+    let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
+    tempMsg = tempMsg.filter((it: any) => it.type !== 'card');
+    tempMsg.push({
+      type: 'card',
+      content: {
+        code: 'knowledge',
+        data: {
+          text: currentHtml.getHtml(),
+        },
+      },
+    });
+    if (currentHtml.isEmpty()) {
+      tempMsg.pop();
+    }
+    handleChatUIConfigChange({
+      messages: tempMsg,
+    });
+  };
 
   function createStaffConfigList(sc: StaffConfig) {
     return (
@@ -592,6 +720,7 @@ initXiaobaiChat(params);
       </Grid>
     );
   }
+
   return (
     <div className={classes.paper}>
       {uploading && <CircularProgress />}
@@ -600,10 +729,10 @@ initXiaobaiChat(params);
         autoHideDuration={6000}
         onClose={handleClose}
       >
-        <Alert onClose={handleClose} severity="error">
+        <CustomerAlert onClose={handleClose} severity="error">
           {`${t('Upload failed')}:`}
           {error}
-        </Alert>
+        </CustomerAlert>
       </Snackbar>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
         <TextField
@@ -762,7 +891,7 @@ initXiaobaiChat(params);
             <Upload {...imgUploadProps}>
               <Typography variant="body1">
                 {t(
-                  'Customize the navigation bar Logo (click on the avatar or upload to add/modify)',
+                  'Customize the navigation bar Logo (click on the avatar or upload to add/modify)'
                 )}
               </Typography>
               {chatUIConfigObj && chatUIConfigObj.navbar.logo ? (
@@ -807,6 +936,8 @@ initXiaobaiChat(params);
             });
           }}
         />
+
+        {/*
         <TextField
           variant="outlined"
           margin="normal"
@@ -824,19 +955,137 @@ initXiaobaiChat(params);
             ),
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
+            tempMsg = tempMsg.filter((it: any) => it.type !== 'text');
+            tempMsg.unshift({
+              type: 'text',
+              content: {
+                text: event.target.value,
+              },
+            });
             handleChatUIConfigChange({
-              messages: [
-                {
+              messages: tempMsg,
+            });
+          }}
+        />
+         */}
+
+        <MuiAlert severity="info" className={classes.alert}>
+          {t('Welcome setting')}
+          <br />
+          {t(
+            'Graphical and rich text answers can exist at the same time, the order is text first, then pictures, and finally rich text. If the corresponding answer is empty, it will not be displayed.'
+          )}
+        </MuiAlert>
+        <AppBar position="static" color="default">
+          <Tabs
+            value={tabIndex}
+            onChange={handleChange}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+            aria-label="full width tabs example"
+          >
+            <Tab label={t('Graphical and text')} {...a11yProps(0)} />
+            <Tab label={t('Rich text')} {...a11yProps(1)} />
+          </Tabs>
+        </AppBar>
+        <SwipeableViews
+          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+          index={tabIndex}
+          onChangeIndex={handleChangeIndex}
+        >
+          <TabPanel value={tabIndex} index={0} dir={theme.direction}>
+            {/* 图文答案 */}
+            <TextField
+              variant="outlined"
+              margin="normal"
+              fullWidth
+              multiline
+              label={t('Welcome setting')}
+              value={welcomeText ?? ''}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <QuestionAnswerIcon />
+                  </InputAdornment>
+                ),
+              }}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
+                tempMsg = tempMsg.filter((it: any) => it.type !== 'text');
+                tempMsg.unshift({
                   type: 'text',
                   content: {
                     text: event.target.value,
                   },
-                },
-              ],
-            });
-          }}
-        />
-{/*
+                });
+                if (!event.target.value) {
+                  tempMsg.shift();
+                }
+                handleChatUIConfigChange({
+                  messages: tempMsg,
+                });
+              }}
+            />
+            {picSrc && (
+              <img
+                src={`${getDownloadS3ChatImgPath()}${picSrc}`}
+                style={{ maxWidth: '400px' }}
+                alt="Message"
+              />
+            )}
+
+            <Grid container alignItems="center">
+              <Upload {...chatImgUploadProps}>
+                <Button variant="contained" color="primary">
+                  {t('Add picture')}
+                </Button>
+              </Upload>
+              <Divider orientation="vertical" />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
+                  tempMsg = tempMsg.filter((it: any) => it.type !== 'image');
+                  handleChatUIConfigChange({
+                    messages: tempMsg,
+                  });
+                }}
+              >
+                {t('Delete picture')}
+              </Button>
+            </Grid>
+          </TabPanel>
+          <TabPanel value={tabIndex} index={1} dir={theme.direction}>
+            <RichText
+              html={html}
+              setHtml={setHtml}
+              // setHtml={(currentHtml: IDomEditor) => {
+              //   let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
+              //   tempMsg = tempMsg.filter((it: any) => it.type !== 'card');
+              //   tempMsg.push({
+              //     type: 'card',
+              //     content: {
+              //       code: 'knowledge',
+              //       data: {
+              //         text: currentHtml.getHtml(),
+              //       },
+              //     },
+              //   });
+
+              //   if (currentHtml.isEmpty()) {
+              //     tempMsg.pop();
+              //   }
+              //   handleChatUIConfigChange({
+              //     messages: tempMsg,
+              //   });
+              // }}
+            />
+          </TabPanel>
+        </SwipeableViews>
+        {/*
         <TextField
           variant="outlined"
           margin="normal"
@@ -965,7 +1214,7 @@ initXiaobaiChat(params);
             });
           }}
         />
-{/* 
+        {/*
         <TextField
           variant="outlined"
           margin="normal"

@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(1),
       position: 'relative',
     },
-  }),
+  })
 );
 
 interface FormProps {
@@ -46,7 +46,7 @@ const MUTATION_STAFF_PASSWORD = gql`
 
 type PasswordChangerWithRepeat = Object.Merge<
   PasswordChanger,
-{ password_repeat?: string }
+  { password_repeat?: string }
 >;
 
 export default function ChangePasswordForm(props: FormProps) {
@@ -72,7 +72,7 @@ export default function ChangePasswordForm(props: FormProps) {
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (loading) {
     onLoadding(loading);
@@ -161,7 +161,8 @@ export default function ChangePasswordForm(props: FormProps) {
           error={errors.password_repeat && true}
           helperText={errors.password_repeat?.message}
           {...register('password_repeat', {
-            validate: (value) => value === password || t('Password does not match'),
+            validate: (value) =>
+              value === password || t('Password does not match'),
           })}
         />
         <div className={classes.wrapper}>

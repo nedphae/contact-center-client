@@ -81,7 +81,7 @@ export default function StaffAttendance() {
                 'Content-Type': 'application/json',
                 'kbn-version': '7.16.1',
               },
-            },
+            }
           );
           if (result.status !== 200) {
             onErrorMsg(

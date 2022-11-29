@@ -63,7 +63,7 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-  }),
+  })
 );
 
 interface FormProps {
@@ -85,8 +85,8 @@ const MUTATION_STAFF = gql`
 `;
 
 type StaffWithPassword = Object.Merge<
-Object.Omit<Staff, 'staffGroup'>,
-{ password?: string; password_repeat?: string }
+  Object.Omit<Staff, 'staffGroup'>,
+  { password?: string; password_repeat?: string }
 >;
 
 export default function StaffForm(props: FormProps) {
@@ -215,7 +215,7 @@ export default function StaffForm(props: FormProps) {
             maxLength: {
               value: 50,
               message: t(
-                'Username length cannot be greater than 50 characters',
+                'Username length cannot be greater than 50 characters'
               ),
             },
             minLength: {
@@ -332,7 +332,7 @@ export default function StaffForm(props: FormProps) {
 
               <Authorized
                 authority={['admin']}
-                noMatch={(
+                noMatch={
                   <Select
                     labelId="role-simple-select-outlined-label"
                     id="role"
@@ -341,7 +341,7 @@ export default function StaffForm(props: FormProps) {
                   >
                     <MenuItem value="ROLE_STAFF">{t('Staff')}</MenuItem>
                   </Select>
-                )}
+                }
               >
                 <Select
                   labelId="role-simple-select-outlined-label"
@@ -513,7 +513,7 @@ export default function StaffForm(props: FormProps) {
         /> */}
         <Controller
           control={control}
-          defaultValue="0"
+          defaultValue={0}
           name="gender"
           render={({ field: { onChange, value } }) => (
             <FormControl variant="outlined" margin="normal" fullWidth>
@@ -567,7 +567,7 @@ export default function StaffForm(props: FormProps) {
           {...register('personalizedSignature', { maxLength: 250 })}
         />
         <FormControlLabel
-          control={(
+          control={
             <Controller
               control={control}
               defaultValue
@@ -580,7 +580,7 @@ export default function StaffForm(props: FormProps) {
                 />
               )}
             />
-          )}
+          }
           label={t('Enable?')}
         />
         <SubmitButton />

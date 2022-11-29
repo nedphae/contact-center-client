@@ -34,10 +34,6 @@ import Staff from 'renderer/domain/StaffInfo';
 import BotConfigForm, {
   MUTATION_BOT_CONFIG,
 } from 'renderer/components/Bot/BotConfigForm';
-import TopicAndKnowladgeContainer, {
-  TopicOrKnowladgeKey,
-  TopicOrKnowladge,
-} from 'renderer/components/Bot/TopicAndKnowladgeContainer';
 import unimplemented from 'renderer/utils/Error';
 import { MousePoint, initialMousePoint } from 'renderer/domain/Client';
 import useAlert from 'renderer/hook/alert/useAlert';
@@ -50,6 +46,15 @@ import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
 import TreeToolbar from '../Header/TreeToolbar';
 import BotTreeView from './BotTreeView';
 import BotTopicUploadForm from './BotTopicUploadForm';
+import TopicCategoryForm from './TopicCategoryForm';
+import KnowledgeBaseForm from './KnowledgeBaseForm';
+
+export interface TopicOrKnowladge {
+  Topic?: TopicCategory | undefined;
+  Knowladge?: KnowledgeBase | undefined;
+}
+
+export type TopicOrKnowladgeKey = keyof TopicOrKnowladge;
 
 type Graphql = AllStaffList;
 
@@ -398,7 +403,7 @@ export default function BotSidecar(props: BotProps) {
             <MenuItem key="openBotConfig" onClick={openBotConfig}>
               {t('Bot configuration')}
             </MenuItem>,
-            <Divider />,
+            <Divider key="divider1"/>,
             <MenuItem
               key="editTopicOrKnowladge"
               onClick={() => {
@@ -424,7 +429,7 @@ export default function BotSidecar(props: BotProps) {
             >
               {t('Delete knowledge base')}
             </MenuItem>,
-            <Divider />,
+            <Divider key="divider2"/>,
             <MenuItem
               key="exportTopic"
               onClick={async () => {
@@ -545,29 +550,25 @@ export default function BotSidecar(props: BotProps) {
         title={
           (topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' &&
             t('Configure the knowledge base') ||
-          t('Configure knowledge base categories'))
+          t('Configure knowledge base category'))
         }
         ref={refOfKnowladgeDialog}
       >
         {topicOrKnowladge.topicOrKnowladgeKey === 'Topic' && (
-          <TopicAndKnowladgeContainer
-            showWhat="Topic"
-            defaultValue={topicOrKnowladge.Topic}
+          <TopicCategoryForm
+            defaultValues={topicOrKnowladge.Topic}
             allTopicCategoryList={allTopicCategory ?? []}
+            refetch={refetch}
           />
         )}
         {topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' && (
-          <TopicAndKnowladgeContainer
-            showWhat="Knowladge"
-            defaultValue={topicOrKnowladge.Knowladge}
-            allTopicCategoryList={allTopicCategory ?? []}
+          <KnowledgeBaseForm
+            defaultValues={topicOrKnowladge.Knowladge}
+            refetch={refetch}
           />
         )}
       </DraggableDialog>
-      <DraggableDialog
-        title={t('Import knowledge base')}
-        ref={refOfUploadForm}
-      >
+      <DraggableDialog title={t('Import knowledge base')} ref={refOfUploadForm}>
         {topicOrKnowladge.Knowladge && topicOrKnowladge.Knowladge.id && (
           <BotTopicUploadForm
             knowledgeBaseId={topicOrKnowladge.Knowladge.id}

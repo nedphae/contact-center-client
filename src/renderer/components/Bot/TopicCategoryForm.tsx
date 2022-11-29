@@ -34,6 +34,7 @@ type FormType = Object.Omit<TopicCategory, 'children'>;
 interface FormProps {
   defaultValues: FormType | undefined;
   allTopicCategoryList: FormType[];
+  refetch: () => void;
 }
 
 interface Graphql {
@@ -52,7 +53,7 @@ const MUTATION = gql`
 `;
 
 export default function TopicCategoryForm(props: FormProps) {
-  const { defaultValues, allTopicCategoryList } = props;
+  const { defaultValues, allTopicCategoryList, refetch } = props;
   const classes = useStyles();
   const { t } = useTranslation();
 
@@ -78,8 +79,9 @@ export default function TopicCategoryForm(props: FormProps) {
     onLoadding(loading);
   }
 
-  const onSubmit: SubmitHandler<TopicCategory> = (form) => {
-    saveTopicCategory({ variables: { topicCategoryInput: form } });
+  const onSubmit: SubmitHandler<TopicCategory> = async (form) => {
+    await saveTopicCategory({ variables: { topicCategoryInput: form } });
+    refetch();
   };
 
   const treeData = useMemo(

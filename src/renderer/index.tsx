@@ -1,3 +1,4 @@
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import './i18n/i18n'; // 引用多语言配置文件
@@ -16,7 +17,12 @@ if (container) {
   // eslint-disable-next-line global-require
   // const HomePage = require('./HomePage').default;
   const root = createRoot(container);
-  root.render(<HomePage store={store} history={history} />);
+  root.render(
+    // react-hotkeys 原因无法使用严格模式
+    // <React.StrictMode>
+    <HomePage store={store} history={history} />
+    // </React.StrictMode>
+  );
   // root.render(<App />);
 }
 
