@@ -150,7 +150,7 @@
     "react": "^18.1.0",
     "react-chartist": "^0.14.2",
     "react-color": "^2.19.3",
-    "react-copy-to-clipboard": "^5.0.2",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-cropper": "^2.1.8",
     "react-dom": "^18.1.0",
     "react-draggable": "^4.4.3",

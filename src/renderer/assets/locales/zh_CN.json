@@ -392,7 +392,8 @@
     "Shunt group name cannot exceed 50 characters": "接待组名称不能大于50位",
     "Web link access (parameters such as uid can be added to the url parameter)": "Web 链接接入 (uid 等参数可以添加到 url 参数后)",
     "Test Shunt group link": "测试接待组链接",
-    "web-js popup access": "web-js 弹窗接入",
+    "web-js popup access": "Web-js 弹窗接入",
+    "Web-js popup": "Web-js 弹窗",
     "Customize the navigation bar Logo (click on the avatar or upload to add/modify)": "自定义导航栏Logo (点击头像或上传添加/修改)",
     "Upload image": "上传图片",
     "Custom chat title": "自定义聊天标题",
@@ -527,7 +528,9 @@
       "RICH_TEXT": "富文本",
       "CUSTOMER": "自定义消息"
     },
-    "withdrawShowStr": "你撤回了一条消息"
+    "withdrawShowStr": "你撤回了一条消息",
+    "Copy to clipboard": "复制到剪贴板",
+    "Copied": "已经复制!"
   },
   "home": {
     "hot_recommended": "爆款推荐",

@@ -38,7 +38,7 @@ const useStyles = makeStyles(() =>
     root: {
       flexGrow: 1,
     },
-  }),
+  })
 );
 
 interface BotGraphql {
@@ -145,7 +145,7 @@ export default function Bot() {
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (deleteLoading) {
     onLoadding(deleteLoading);
@@ -195,7 +195,7 @@ export default function Bot() {
       const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
       const topicCategoryGroup = _.groupBy(
         topicData?.searchTopic,
-        'categoryId',
+        'categoryId'
       );
 
       const pTopicCategory = allTopicCategory
@@ -208,7 +208,7 @@ export default function Bot() {
 
       const topicCategoryKnowledgeBaseGroup = _.groupBy(
         pTopicCategory,
-        'knowledgeBaseId',
+        'knowledgeBaseId'
       );
       const memoAllKnowledgeBase = allKnowledgeBase.map((it) => {
         const [botConfig] = it.id ? botConfigMap[it.id] ?? [] : [];
@@ -247,7 +247,7 @@ export default function Bot() {
   const onTopicCategoryClick = useCallback(
     (clickTopicCategory?: TopicCategory) => {
       function getAllTopicCategoryIds(
-        topicCategory?: TopicCategory,
+        topicCategory?: TopicCategory
       ): number[] | undefined {
         if (topicCategory) {
           const ids: number[] = [];
@@ -273,21 +273,21 @@ export default function Bot() {
       // TOOD: 更新数据，实现远程过滤
       // setTopicFilterInput({ ...topicFilterInput, categoryIds: ids });
     },
-    [],
+    []
   );
 
   const rows =
     memoData?.memoAllTopic?.filter(
       (it) =>
         selectTopicCategory === undefined ||
-        selectTopicCategory.includes(it.categoryId ?? -1),
+        selectTopicCategory.includes(it.categoryId ?? -1)
     ) ?? [];
 
   const allTopicData =
     allTopicCache?.filter(
       (it) =>
         selectTopicCategory === undefined ||
-        selectTopicCategory.includes(it.categoryId ?? -1),
+        selectTopicCategory.includes(it.categoryId ?? -1)
     ) ?? [];
 
   const columns: GridColDef[] = [
@@ -390,7 +390,7 @@ export default function Bot() {
       {/* 显示 DataGrid Topic */}
       <DraggableDialog
         maxWidth="lg"
-        title="配置知识库问题"
+        title={t('Configuring Knowledge Base Qestion')}
         ref={refOfTopicDialog}
       >
         <TopicForm

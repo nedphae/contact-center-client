@@ -393,6 +393,7 @@
     "Web link access (parameters such as uid can be added to the url parameter)": "Web link access (parameters such as uid can be added to the url parameter)",
     "Test Shunt group link": "Test Shunt group link",
     "web-js popup access": "web-js popup access",
+    "Web-js popup": "Web-js popup",
     "Customize the navigation bar Logo (click on the avatar or upload to add/modify)": "Customize the navigation bar Logo (click on the avatar or upload to add/modify)",
     "Upload image": "Upload image",
     "Custom chat title": "Custom chat title",
@@ -527,7 +528,9 @@
       "RICH_TEXT": "Rich Text",
       "CUSTOMER": "Customer"
     },
-    "withdrawShowStr": "You withdrew a message"
+    "withdrawShowStr": "You withdrew a message",
+    "Copy to clipboard": "Copy to clipboard",
+    "Copied": "Copied!"
   },
   "home": {
     "hot_recommended": "",

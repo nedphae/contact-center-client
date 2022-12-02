@@ -55,6 +55,8 @@ import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import SwipeableViews from 'react-swipeable-views';
 import Upload from 'rc-upload';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import { IDomEditor } from '@wangeditor/editor';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 import config, {
   getDownloadS3ChatImgPath,
@@ -69,7 +71,6 @@ import { ShuntUIConfig } from 'renderer/domain/Config';
 
 import './Jsoneditor.global.css';
 import useAlert from 'renderer/hook/alert/useAlert';
-import { IDomEditor } from '@wangeditor/editor';
 import SubmitButton from '../Form/SubmitButton';
 import RichText from '../Bot/RichText';
 
@@ -83,6 +84,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     root: {
       width: '100%',
+      marginBottom: theme.spacing(2),
     },
     heading: {
       fontSize: theme.typography.pxToRem(15),
@@ -428,7 +430,7 @@ initXiaobaiChat(params);
     initXiaobaiChat(params, styleDIY);
 </script>`;
 
-  const { onLoadding, onCompleted, onError } = useAlert();
+  const { onLoadding, onCompleted, onError, onCompletedMsg } = useAlert();
   const [saveStaffShunt, { loading, data }] = useMutation<Graphql>(
     MUTATION_STAFF_SHUNT,
     {
@@ -843,18 +845,48 @@ initXiaobaiChat(params);
           </Link>
         )}
         {shuntCode && (
-          <TextField
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            multiline
-            id="webJs"
-            label={t('web-js popup')}
-            value={webEmbedded}
-            InputProps={{
-              readOnly: true,
-            }}
-          />
+          <div className={classes.root}>
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1c-content"
+                id="panel1c-header"
+              >
+                <div className={classes.column}>
+                  <Typography className={classes.heading}>
+                    {t('Web-js popup')}
+                  </Typography>
+                </div>
+              </AccordionSummary>
+              <AccordionDetails className={classes.details}>
+                <Grid
+                  container
+                  direction="column"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <TextField
+                    variant="outlined"
+                    margin="normal"
+                    fullWidth
+                    multiline
+                    id="webJs"
+                    label={t('Web-js popup')}
+                    value={webEmbedded}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                  <CopyToClipboard
+                    text={webEmbedded}
+                    onCopy={() => onCompletedMsg(t('Copied'))}
+                  >
+                    <Button color="primary">{t('Copy to clipboard')}</Button>
+                  </CopyToClipboard>
+                </Grid>
+              </AccordionDetails>
+            </Accordion>
+          </div>
         )}
         {/* <TextField
           variant="outlined"

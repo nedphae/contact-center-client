@@ -108,22 +108,22 @@ const Root = ({ store, history }: Props) => {
       return (
         <Route
           path={prop.layout + prop.path}
-          element={(
+          element={
             <Authorized
               authority={['admin', 'staff', 'leader', 'qa']}
               noMatch={<Navigate to="/login" />}
             >
               <Suspense
-                fallback={(
+                fallback={
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <CircularProgress size={50} thickness={4} value={100} />
                   </div>
-                )}
+                }
               >
                 <prop.component />
               </Suspense>
             </Authorized>
-          )}
+          }
           key={prop.layout + prop.path}
         />
       );

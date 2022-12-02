@@ -54,10 +54,10 @@ import {
 import { RcFile } from 'rc-upload/lib/interface';
 import SwipeableViews from 'react-swipeable-views';
 import { Autocomplete } from '@material-ui/lab';
+import { IDomEditor } from '@wangeditor/editor';
 import { SelectKeyValue } from '../Form/ChipSelect';
 import SubmitButton from '../Form/SubmitButton';
 import RichText from './RichText';
-import { IDomEditor } from '@wangeditor/editor';
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -105,6 +105,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     alert: {
       marginTop: theme.spacing(2),
+      width: '800px',
     },
   })
 );

@@ -170,7 +170,7 @@ export default function ChatHistory() {
       newSearchParams = _.omit(
         newSearchParams,
         'evaluation',
-        'evaluationRange',
+        'evaluationRange'
       );
     }
     newSearchParams.page = conversationFilterInput.page;
@@ -196,7 +196,7 @@ export default function ChatHistory() {
       name: 'staffIdList',
       selectList: _.zipObject(
         staffList.map((value) => value.id),
-        staffList.map((value) => value.nickName),
+        staffList.map((value) => value.nickName)
       ),
       defaultValue: [],
     },
@@ -205,7 +205,7 @@ export default function ChatHistory() {
       name: 'groupIdList',
       selectList: _.zipObject(
         staffGroupList.map((value) => value.id),
-        staffGroupList.map((value) => value.groupName),
+        staffGroupList.map((value) => value.groupName)
       ),
       defaultValue: [],
     },
@@ -214,7 +214,7 @@ export default function ChatHistory() {
       name: 'shuntIdList',
       selectList: _.zipObject(
         staffShuntList.map((value) => value.id),
-        staffShuntList.map((value) => value.name),
+        staffShuntList.map((value) => value.name)
       ),
       defaultValue: [],
     },
@@ -226,7 +226,7 @@ export default function ChatHistory() {
 
   const handleDialogClose = (
     _event: unknown,
-    reason: 'backdropClick' | 'escapeKeyDown',
+    reason: 'backdropClick' | 'escapeKeyDown'
   ) => {
     if (reason !== 'backdropClick') {
       handleClose();
@@ -769,13 +769,13 @@ export default function ChatHistory() {
                 name="evaluation"
                 render={({ field: { onChange, value } }) => (
                   <FormControlLabel
-                    control={(
+                    control={
                       <Checkbox
                         checked={value}
                         onChange={(e) => onChange(e.target.checked)}
                         inputProps={{ 'aria-label': 'primary checkbox' }}
                       />
-                    )}
+                    }
                     label={t('Filter satisfaction range')}
                   />
                 )}

@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import Backend from 'i18next-http-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { i18nChangeLanguage } from '@wangeditor/editor';
 
 import resources from 'renderer/assets/locales/resource';
 // don't want to use this?
@@ -32,6 +33,7 @@ i18n
 
 i18n.on('languageChanged', (lng: string) => {
   localStorage.setItem('lng', lng);
+  i18nChangeLanguage(lng);
 });
 
 export default i18n;
