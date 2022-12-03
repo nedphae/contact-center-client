@@ -31,7 +31,6 @@ import {
 import { Session, Tag } from 'renderer/domain/Session';
 import { getSelectedSession } from 'renderer/state/chat/chatAction';
 import { Message } from 'renderer/domain/Message';
-import { MessageType } from 'renderer/domain/constant/Message';
 import UserHeader from 'renderer/components/Header/UserHeader';
 import { InteractionLogo } from 'renderer/domain/constant/Conversation';
 import { Box, Chip, ListItemSecondaryAction } from '@material-ui/core';

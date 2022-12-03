@@ -72,7 +72,7 @@ function settingPage(
   allProperties4Set: string[] | undefined,
   refetch: () => void,
   customerProps: Pick<RootProperties, 'cae'>,
-  properties?: RootProperties,
+  properties?: RootProperties
 ) {
   let result: JSX.Element;
   switch (pageName) {
@@ -270,7 +270,7 @@ export default function Setting() {
                           key={fk}
                           nodeId={`properties.${k}.${fk}`}
                           label={t(childProp.label)}
-                          onClick={ () => {
+                          onClick={() => {
                             setPageName('org.Properties');
                             setProperties4Set(`${k}.${fk}`);
                             setAllProperties4Set(allProperties4SetTemp);

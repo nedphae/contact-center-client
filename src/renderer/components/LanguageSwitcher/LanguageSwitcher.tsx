@@ -54,8 +54,8 @@ export default function LanguageSwitcher() {
             {i18n.language === 'aa'
               ? 'Translating'
               : LANGUAGES_LABEL.filter(
-                (language) => language.code === i18n.language
-              )[0].text}
+                  (language) => language.code === i18n.language
+                )[0].text}
           </span>
           <ExpandMoreIcon fontSize="small" />
         </Button>

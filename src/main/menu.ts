@@ -250,6 +250,13 @@ export default class MenuBuilder {
                     );
                   },
                 },
+                {
+                  label: '切换开发人员工具',
+                  accelerator: 'Alt+Ctrl+I',
+                  click: () => {
+                    this.mainWindow.webContents.toggleDevTools();
+                  },
+                },
               ],
       },
       {

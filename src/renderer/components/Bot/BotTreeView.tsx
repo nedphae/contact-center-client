@@ -13,7 +13,6 @@ import StyledTreeItem, {
   MinusSquare,
   PlusSquare,
 } from 'renderer/components/TreeView/StyledTreeItem';
-import { TopicOrKnowladgeKey } from 'renderer/components/Bot/TopicAndKnowladgeContainer';
 import {
   Box,
   Divider,
@@ -21,9 +20,17 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 import Staff from 'renderer/domain/StaffInfo';
+
+export interface TopicOrKnowladge {
+  Topic?: TopicCategory | undefined;
+  Knowladge?: KnowledgeBase | undefined;
+}
+
+export type TopicOrKnowladgeKey = keyof TopicOrKnowladge;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -140,50 +147,63 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
             <StyledTreeItem
               key={base.id?.toString()}
               nodeId={`knowledgeBase-${base.id}`}
-              label={(
+              label={
                 <ListItem component="ul">
                   <ListItemIcon>
                     <LibraryBooksIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={(
-                      <Typography variant="body1" display="inline">
-                        {base.name}
-                      </Typography>
-                    )}
-                    disableTypography
-                    secondary={(
+                    primary={
                       <Grid container alignItems="center">
-                        <Typography
-                          variant="body2"
-                          color="primary"
-                          display="inline"
-                        >
-                          {base.id &&
-                          botConfigMap &&
-                          staffMap &&
-                          botConfigMap[base.id]
-                            ? staffMap[botConfigMap[base.id][0]?.botId ?? -2]
-                                ?.realName
-                            : t('Not associate to robot account')}
-                        </Typography>
-                        <Divider
-                          orientation="vertical"
-                          flexItem
-                          style={{ marginLeft: '5px', marginRight: '5px' }}
-                        />
-                        <Typography
-                          variant="body2"
-                          color="textSecondary"
-                          display="inline"
-                        >
-                          {base.description}
-                        </Typography>
+                        <Grid item xl={7} lg={10} sm={10} xs={7}>
+                          <Tooltip title={base.name} aria-label="name">
+                            <Typography variant="body1" display="block" noWrap>
+                              {base.name}
+                            </Typography>
+                          </Tooltip>
+                        </Grid>
+                        <Grid item xl={5} lg={2} sm={2} xs={5}>
+                          <Divider
+                            orientation="vertical"
+                            flexItem
+                            style={{ marginLeft: '5px', marginRight: '5px' }}
+                          />
+                          <Tooltip
+                            title={base.description || ''}
+                            aria-label="description"
+                          >
+                            <Typography
+                              variant="body2"
+                              color="textSecondary"
+                              display="block"
+                              noWrap
+                            >
+                              {base.description}
+                            </Typography>
+                          </Tooltip>
+                        </Grid>
                       </Grid>
-                    )}
+                    }
+                    disableTypography
+                    secondary={
+                      <Typography
+                        variant="body2"
+                        color="primary"
+                        display="block"
+                        noWrap
+                      >
+                        {base.id &&
+                        botConfigMap &&
+                        staffMap &&
+                        botConfigMap[base.id]
+                          ? staffMap[botConfigMap[base.id][0]?.botId ?? -2]
+                              ?.realName
+                          : t('Not associate to robot account')}
+                      </Typography>
+                    }
                   />
                 </ListItem>
-              )}
+              }
               onContextMenu={(event) =>
                 handleContextMenuOpen(event, 'Knowladge', base)
               }

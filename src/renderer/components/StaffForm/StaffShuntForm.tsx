@@ -126,6 +126,9 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(2),
       marginBottom: theme.spacing(2),
     },
+    button: {
+      marginRight: theme.spacing(2),
+    },
   })
 );
 
@@ -918,14 +921,14 @@ initXiaobaiChat(params);
           }}
           {...register('authorizationToken')}
         /> */}
+        <Typography variant="body1" className={classes.alert}>
+          {t(
+            'Customize the navigation bar Logo (click on the avatar or upload to add/modify)'
+          )}
+        </Typography>
         <Grid container>
-          <Grid item xs={7}>
+          <Grid item className={classes.button}>
             <Upload {...imgUploadProps}>
-              <Typography variant="body1">
-                {t(
-                  'Customize the navigation bar Logo (click on the avatar or upload to add/modify)'
-                )}
-              </Typography>
               {chatUIConfigObj && chatUIConfigObj.navbar.logo ? (
                 <img
                   src={chatUIConfigObj.navbar.logo}
@@ -939,7 +942,7 @@ initXiaobaiChat(params);
               )}
             </Upload>
           </Grid>
-          <Grid item xs={5}>
+          <Grid item className={classes.button}>
             <Button color="secondary" onClick={onDeleteLogoClick}>
               {t('Delete image')}
             </Button>
@@ -1070,14 +1073,18 @@ initXiaobaiChat(params);
 
             <Grid container alignItems="center">
               <Upload {...chatImgUploadProps}>
-                <Button variant="contained" color="primary">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.button}
+                >
                   {t('Add picture')}
                 </Button>
               </Upload>
               <Divider orientation="vertical" />
               <Button
-                variant="contained"
-                color="primary"
+                color="secondary"
+                className={classes.button}
                 onClick={() => {
                   let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
                   tempMsg = tempMsg.filter((it: any) => it.type !== 'image');
@@ -1337,14 +1344,14 @@ initXiaobaiChat(params);
           }}
         /> */}
 
+        <Typography variant="body1" className={classes.alert}>
+          {t(
+            'Customer service avatar settings (maximum 108 * 108, click on the avatar or upload to add/modify)'
+          )}
+        </Typography>
         <Grid container>
-          <Grid item xs={7}>
+          <Grid item className={classes.button}>
             <Upload {...avatarUploadProps}>
-              <Typography variant="body1">
-                {t(
-                  'Customer service avatar settings (maximum 108 * 108, click on the avatar or upload to add/modify)'
-                )}
-              </Typography>
               {chatUIConfigObj && chatUIConfigObj.robot?.avatar ? (
                 <img
                   src={chatUIConfigObj.robot.avatar}
@@ -1358,7 +1365,7 @@ initXiaobaiChat(params);
               )}
             </Upload>
           </Grid>
-          <Grid item xs={5}>
+          <Grid item className={classes.button}>
             <Button color="secondary" onClick={onDeleteAvatarClick}>
               {t('Delete image')}
             </Button>

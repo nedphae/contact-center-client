@@ -21,9 +21,9 @@ class Globals {
   static const prefsAccessToken = 'jwt.token.accessToken';
   static const language = 'language';
   static final Map<String, LanguageInfo> languageMap = {
-    'zh':
-        LanguageInfo(languageCode: 'zh', countryCode: '', displayName: '简体中文'),
-    'en': LanguageInfo(
-        languageCode: 'en', countryCode: '', displayName: 'English'),
+    'zh-CN': LanguageInfo(
+        languageCode: 'zh-CN', countryCode: '', displayName: '简体中文'),
+    'en-US': LanguageInfo(
+        languageCode: 'en-US', countryCode: '', displayName: 'English'),
   };
 }

@@ -109,6 +109,6 @@ const GRID_DEFAULT_LOCALE_TEXT: Partial<GridLocaleText> = {
 
 const gridLocaleTextMap = new Map<string, Partial<GridLocaleText>>();
 
-gridLocaleTextMap.set('zh', GRID_DEFAULT_LOCALE_TEXT);
+gridLocaleTextMap.set('zh-CN', GRID_DEFAULT_LOCALE_TEXT);
 
 export default gridLocaleTextMap;

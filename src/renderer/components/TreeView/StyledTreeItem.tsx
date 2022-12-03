@@ -68,6 +68,9 @@ const StyledTreeItem = withStyles((theme: Theme) =>
         opacity: 0.3,
       },
     },
+    label: {
+      width: 'calc(100% - 19px)',
+    },
     group: {
       marginLeft: 7,
       paddingLeft: 18,

@@ -133,13 +133,13 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       wordWrap: 'break-word',
       wordBreak: 'break-word',
     },
-  }),
+  })
 );
 
 export function createContent(
   content: Content,
   classes: ClassNameMap<'message'>,
-  openImageViewer: (src: string, alt: string) => void,
+  openImageViewer: (src: string, alt: string) => void
 ) {
   let element;
   switch (content.contentType) {
@@ -153,7 +153,7 @@ export function createContent(
           default: {
             element = (
               <ListItemText
-                primary={(
+                primary={
                   <Typography
                     variant="body1"
                     gutterBottom
@@ -161,7 +161,7 @@ export function createContent(
                   >
                     {text}
                   </Typography>
-                )}
+                }
               />
             );
             break;
@@ -170,7 +170,7 @@ export function createContent(
       } else {
         element = (
           <ListItemText
-            primary={(
+            primary={
               <Typography
                 variant="body1"
                 gutterBottom
@@ -178,7 +178,7 @@ export function createContent(
               >
                 {text}
               </Typography>
-            )}
+            }
           />
         );
       }
@@ -288,7 +288,7 @@ const CONTENT_QUERY = gql`
 const PAGE_QUERY = getPageQuery(
   'MessagePage',
   CONTENT_QUERY,
-  'myMessageContent',
+  'myMessageContent'
 );
 
 const QUERY = gql`
@@ -337,7 +337,7 @@ const MessageList = (props: MessageListProps) => {
     QUERY,
     {
       fetchPolicy: 'no-cache',
-    },
+    }
   );
   const [syncMessageByUser, { data: syncMsg, variables: syncVariables }] =
     useLazyQuery<SyncMessageByUserGraphql>(QUERY_SYNC_USER_MESSAGE, {
@@ -406,7 +406,7 @@ const MessageList = (props: MessageListProps) => {
               setMonitoredHasMore({
                 userId: user.userId,
                 hasMore: !data.loadHistoryMessage.last,
-              }),
+              })
             );
           } else {
             // 客服聊天历史消息
@@ -415,7 +415,7 @@ const MessageList = (props: MessageListProps) => {
               setHasMore({
                 userId: user.userId,
                 hasMore: !data.loadHistoryMessage.last,
-              }),
+              })
             );
           }
         } else if (monitorSession) {
@@ -423,7 +423,7 @@ const MessageList = (props: MessageListProps) => {
             setMonitoredHasMore({
               userId: user.userId,
               hasMore: false,
-            }),
+            })
           );
         } else {
           // 没有更多消息
@@ -431,7 +431,7 @@ const MessageList = (props: MessageListProps) => {
             setHasMore({
               userId: user.userId,
               hasMore: false,
-            }),
+            })
           );
         }
       }
@@ -531,7 +531,7 @@ const MessageList = (props: MessageListProps) => {
 
   function getImages() {
     const imageMessages = messages.filter(
-      (message) => message.content.contentType === 'IMAGE',
+      (message) => message.content.contentType === 'IMAGE'
     );
     const images = imageMessages.map((message) => {
       const url = `${getDownloadS3ChatImgPath}${message.content.photoContent?.mediaId}`;
@@ -679,7 +679,7 @@ const MessageList = (props: MessageListProps) => {
                       >
                         <Grid item xs={12}>
                           <ListItemText
-                            primary={(
+                            primary={
                               <Grid
                                 container
                                 alignItems="center"
@@ -705,7 +705,7 @@ const MessageList = (props: MessageListProps) => {
                                   {createdAt && javaInstant2DateStr(createdAt)}
                                 </Typography>
                               </Grid>
-                            )}
+                            }
                           />
                         </Grid>
                         <Paper
@@ -713,7 +713,7 @@ const MessageList = (props: MessageListProps) => {
                             creatorType === 1 &&
                               now.getTime() - (createdAt as number) * 1000 <=
                                 2 * 60 * 1000,
-                            { uuid, seqId },
+                            { uuid, seqId }
                           )}
                           onMouseLeave={handleClose}
                           elevation={4}
@@ -721,7 +721,7 @@ const MessageList = (props: MessageListProps) => {
                             creatorType !== 1
                               ? classes.fromMessagePaper
                               : classes.toMessagePaper,
-                            classes.baseMessagePaper,
+                            classes.baseMessagePaper
                           )}
                         >
                           {createContent(content, classes, openImageViewer)}
@@ -741,7 +741,7 @@ const MessageList = (props: MessageListProps) => {
                     </ListItem>
                   )}
                 </React.Fragment>
-              ),
+              )
             )}
         </List>
       )}

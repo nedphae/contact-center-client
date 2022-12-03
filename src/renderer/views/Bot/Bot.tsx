@@ -390,7 +390,7 @@ export default function Bot() {
       {/* 显示 DataGrid Topic */}
       <DraggableDialog
         maxWidth="lg"
-        title={t('Configuring Knowledge Base Qestion')}
+        title={t('Configuring Knowledge Base Question')}
         ref={refOfTopicDialog}
       >
         <TopicForm

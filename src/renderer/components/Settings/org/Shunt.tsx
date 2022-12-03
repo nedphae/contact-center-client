@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '80vh',
       backgroundColor: theme.palette.background.paper,
     },
-  }),
+  })
 );
 
 const QUERY_SHUNT = gql`
@@ -89,7 +89,7 @@ export default function Shunt() {
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
-    { field: 'name', headerName: t('Shunt Name'), width: 150 },
+    { field: 'name', headerName: t('Shunt Name'), width: 250 },
     {
       field: 'shuntClassName',
       headerName: t('Shunt Classification'),
@@ -123,7 +123,7 @@ export default function Shunt() {
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (deleteLoading) {
     onLoadding(deleteLoading);
@@ -150,7 +150,7 @@ export default function Shunt() {
 
   const handleContextMenuOpen = (
     event: React.MouseEvent<HTMLLIElement>,
-    selectStaffShuntClass: ShuntClass,
+    selectStaffShuntClass: ShuntClass
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -191,11 +191,11 @@ export default function Shunt() {
     const allShuntClass = _.cloneDeep(data?.allShuntClass ?? []);
     const allShuntClassMap = _.groupBy(
       _.cloneDeep(data?.allShuntClass),
-      (it) => it.catalogue,
+      (it) => it.catalogue
     );
     const allShuntClassIdMap = _.groupBy(
       _.cloneDeep(data?.allShuntClass),
-      (it) => it.id,
+      (it) => it.id
     );
     const pShuntClass = allShuntClass
       .map((it) => {
@@ -206,8 +206,8 @@ export default function Shunt() {
     const tempRows = (data?.allStaffShunt ?? []).map((item) =>
       _.defaults(
         { shuntClassName: allShuntClassIdMap[item.shuntClassId][0].className },
-        item,
-      ),
+        item
+      )
     );
     return [buildTreeView(pShuntClass), tempRows];
   }, [buildTreeView, data]);

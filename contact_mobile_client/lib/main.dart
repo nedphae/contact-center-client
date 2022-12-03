@@ -36,7 +36,7 @@ class MyApp extends StatefulHookConsumerWidget {
 
 class MyAppState extends ConsumerState<MyApp> {
   Locale _locale = Locale.fromSubtags(
-      languageCode: Globals.prefs.getString(Globals.language) ?? 'zh');
+      languageCode: Globals.prefs.getString(Globals.language) ?? 'zh-CN');
 
   String _getLocalData(WidgetRef ref) {
     final token = Globals.prefs.getString(Globals.prefsOauthToken);

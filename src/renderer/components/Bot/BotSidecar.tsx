@@ -2,7 +2,7 @@ import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import _ from 'lodash';
-import { Object, T } from 'ts-toolbelt';
+import { Object } from 'ts-toolbelt';
 import { FetchResult, gql, useMutation, useQuery } from '@apollo/client';
 
 import Grid from '@material-ui/core/Grid';
@@ -15,6 +15,7 @@ import {
   TopicCategory,
   botConfigNoAnswerReply,
   botConfigSimilarQuestionNotice,
+  Topic,
 } from 'renderer/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -44,17 +45,13 @@ import {
 } from 'renderer/domain/graphql/Staff';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
 import TreeToolbar from '../Header/TreeToolbar';
-import BotTreeView from './BotTreeView';
+import BotTreeView, {
+  TopicOrKnowladge,
+  TopicOrKnowladgeKey,
+} from './BotTreeView';
 import BotTopicUploadForm from './BotTopicUploadForm';
 import TopicCategoryForm from './TopicCategoryForm';
 import KnowledgeBaseForm from './KnowledgeBaseForm';
-
-export interface TopicOrKnowladge {
-  Topic?: TopicCategory | undefined;
-  Knowladge?: KnowledgeBase | undefined;
-}
-
-export type TopicOrKnowladgeKey = keyof TopicOrKnowladge;
 
 type Graphql = AllStaffList;
 
@@ -180,7 +177,7 @@ export default function BotSidecar(props: BotProps) {
       event: React.MouseEvent<HTMLLIElement>,
       topicOrKnowladgeKey: TopicOrKnowladgeKey,
       Knowladge?: KnowledgeBase,
-      Topic?: TopicCategory
+      TopicStr?: TopicCategory
     ) => {
       event.preventDefault();
       event.stopPropagation();
@@ -190,7 +187,7 @@ export default function BotSidecar(props: BotProps) {
       });
       setTopicOrKnowladge({
         Knowladge,
-        Topic,
+        Topic: TopicStr,
         topicOrKnowladgeKey,
       });
     },
@@ -403,7 +400,7 @@ export default function BotSidecar(props: BotProps) {
             <MenuItem key="openBotConfig" onClick={openBotConfig}>
               {t('Bot configuration')}
             </MenuItem>,
-            <Divider key="divider1"/>,
+            <Divider key="divider1" />,
             <MenuItem
               key="editTopicOrKnowladge"
               onClick={() => {
@@ -429,7 +426,7 @@ export default function BotSidecar(props: BotProps) {
             >
               {t('Delete knowledge base')}
             </MenuItem>,
-            <Divider key="divider2"/>,
+            <Divider key="divider2" />,
             <MenuItem
               key="exportTopic"
               onClick={async () => {
@@ -544,13 +541,13 @@ export default function BotSidecar(props: BotProps) {
             <Typography>
               {t('Please associate a robot account first')}
             </Typography>
-        )}
+          )}
       </DraggableDialog>
       <DraggableDialog
         title={
           (topicOrKnowladge.topicOrKnowladgeKey === 'Knowladge' &&
-            t('Configure the knowledge base') ||
-          t('Configure knowledge base category'))
+            t('Configure the knowledge base')) ||
+          t('Configure knowledge base category')
         }
         ref={refOfKnowladgeDialog}
       >

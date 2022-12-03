@@ -22,8 +22,8 @@ i18n
   // for all options read: https://www.i18next.com/overview/configuration-options
   .init({
     resources,
-    fallbackLng: 'zh',
-    lng: localStorage.getItem('lng') ?? 'zh',
+    fallbackLng: 'en-US',
+    // lng: 'zh-CN',
     debug: true,
     defaultNS: 'app',
     interpolation: {
@@ -32,8 +32,10 @@ i18n
   });
 
 i18n.on('languageChanged', (lng: string) => {
-  localStorage.setItem('lng', lng);
+  // localStorage.setItem('lng', lng);
   i18nChangeLanguage(lng);
 });
+
+i18nChangeLanguage(i18n.language);
 
 export default i18n;
