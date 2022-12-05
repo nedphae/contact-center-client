@@ -72,39 +72,39 @@ class StaffInfoPage extends HookConsumerWidget {
                         );
                       },
                     ),
-                    SettingsTile.navigation(
-                      title: Text(AppLocalizations.of(context)!
-                          .noMoreOfflineNotifications),
-                      onPressed: (context) async {
-                        await graphQLClient.mutate(MutationOptions(
-                            document: gql(Staff.offlineClientMutation),
-                            variables: const {
-                              'staffChangeStatus': {'clientId': 'ANDROID'}
-                            }));
-                        showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                            content: Text(AppLocalizations.of(context)!
-                                .theOfflineNotificationIsSuccessfulExitTheApp),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context, 'Cancel'),
-                                child:
-                                    Text(AppLocalizations.of(context)!.cancel),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context, 'OK');
-                                  exit(0);
-                                },
-                                child: Text(AppLocalizations.of(context)!.exit),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                    // SettingsTile.navigation(
+                    //   title: Text(AppLocalizations.of(context)!
+                    //       .noMoreOfflineNotifications),
+                    //   onPressed: (context) async {
+                    //     await graphQLClient.mutate(MutationOptions(
+                    //         document: gql(Staff.offlineClientMutation),
+                    //         variables: const {
+                    //           'staffChangeStatus': {'clientId': 'ANDROID'}
+                    //         }));
+                    //     showDialog<String>(
+                    //       context: context,
+                    //       builder: (BuildContext context) => AlertDialog(
+                    //         content: Text(AppLocalizations.of(context)!
+                    //             .theOfflineNotificationIsSuccessfulExitTheApp),
+                    //         actions: <Widget>[
+                    //           TextButton(
+                    //             onPressed: () =>
+                    //                 Navigator.pop(context, 'Cancel'),
+                    //             child:
+                    //                 Text(AppLocalizations.of(context)!.cancel),
+                    //           ),
+                    //           TextButton(
+                    //             onPressed: () {
+                    //               Navigator.pop(context, 'OK');
+                    //               exit(0);
+                    //             },
+                    //             child: Text(AppLocalizations.of(context)!.exit),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
                     SettingsTile.navigation(
                       leading: const Icon(Icons.logout),
                       title: Text(AppLocalizations.of(context)!.signOut),
