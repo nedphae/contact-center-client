@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Object } from 'ts-toolbelt';
@@ -112,7 +112,7 @@ export default function StaffForm(props: FormProps) {
   const [error, setError] = useState<string>();
 
   const { onLoadding, onCompleted, onError } = useAlert();
-  const [saveStaff, { loading, data }] = useMutation<Graphql>(MUTATION_STAFF, {
+  const [saveStaff, { loading }] = useMutation<Graphql>(MUTATION_STAFF, {
     onCompleted,
     onError,
   });
@@ -146,12 +146,15 @@ export default function StaffForm(props: FormProps) {
     };
   }, [setUploading, setError, setValue]);
 
-  const onSubmit: SubmitHandler<StaffWithPassword> = (form) => {
-    saveStaff({
+  const onSubmit: SubmitHandler<StaffWithPassword> = async (form) => {
+    const saveResult = await saveStaff({
       variables: {
         staff: _.omit(form, 'password_repeat', 'groupName', '__typename'),
       },
     });
+    if (mutationCallback && saveResult.data?.saveStaff) {
+      mutationCallback(saveResult.data?.saveStaff);
+    }
   };
 
   const handleClose = (_event?: React.SyntheticEvent, reason?: string) => {
@@ -160,12 +163,6 @@ export default function StaffForm(props: FormProps) {
     }
     setError(undefined);
   };
-
-  useEffect(() => {
-    if (mutationCallback && data?.saveStaff) {
-      mutationCallback(data.saveStaff);
-    }
-  }, [data, mutationCallback]);
 
   return (
     <div className={classes.paper}>

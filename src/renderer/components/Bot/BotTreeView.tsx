@@ -39,6 +39,9 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '80vh',
       backgroundColor: theme.palette.background.paper,
     },
+    listItemIcon: {
+      minWidth: '25px',
+    },
     media: {
       marginTop: 10,
     },
@@ -149,7 +152,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
               nodeId={`knowledgeBase-${base.id}`}
               label={
                 <ListItem component="ul">
-                  <ListItemIcon>
+                  <ListItemIcon className={classes.listItemIcon}>
                     <LibraryBooksIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
