@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
 import 'package:contact_mobile_client/pages/chat.dart';
@@ -36,7 +38,7 @@ class MyApp extends StatefulHookConsumerWidget {
 
 class MyAppState extends ConsumerState<MyApp> {
   Locale _locale = Locale.fromSubtags(
-      languageCode: Globals.prefs.getString(Globals.language) ?? 'zh-CN');
+      languageCode: Globals.prefs.getString(Globals.language) ?? Platform.localeName.split('_')[0]);
 
   String _getLocalData(WidgetRef ref) {
     final token = Globals.prefs.getString(Globals.prefsOauthToken);

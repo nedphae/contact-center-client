@@ -23,7 +23,7 @@ class StaffInfoPage extends HookConsumerWidget {
     final staff = ref.watch(staffProvider);
     final languageCode = MyApp.of(context)?.getLocal().languageCode;
     final language =
-        Globals.languageMap[languageCode] ?? Globals.languageMap['zh-CN']!;
+        Globals.languageMap[languageCode] ?? Globals.languageMap['zh']!;
 
     if (staff != null) {
       return Column(
