@@ -77,7 +77,6 @@ export default class SocketHandler implements EventInterface {
      * 发送客服注册信息(在线状态等)
      * 系统初始化信息，个人设置 等
      */
-    this.dispatch(setSnackbarProp(undefined));
     this.dispatch(configStaff());
   };
 

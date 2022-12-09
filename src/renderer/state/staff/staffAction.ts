@@ -33,46 +33,46 @@ let statueInterval: Subscription | undefined;
 // 异步请求
 export const setUserAsync =
   (token: AccessToken, onlineStatus: OnlineStatusKey = 'ONLINE'): AppThunk =>
-    async (dispatch, getState) => {
+  async (dispatch, getState) => {
     // substring 用于清除 ROLE_ 前缀
-      setAuthority(
+    setAuthority(
       token.authorities.map((role) => role.substring(5).toLowerCase())
     );
-      try {
+    try {
       // dispatch() dispatch 等待动画
-        const staff = await getCurrentStaff();
-        // 获取当前聊天会话列表，刷新页面后
-        staff.token = token.source;
-        staff.onlineStatus = onlineStatus;
-        window.orgId = staff.organizationId;
-        if (getMyself(getState()).id !== staff.id) {
+      const staff = await getCurrentStaff();
+      // 获取当前聊天会话列表，刷新页面后
+      staff.token = token.source;
+      staff.onlineStatus = onlineStatus;
+      window.orgId = staff.organizationId;
+      if (getMyself(getState()).id !== staff.id) {
         // 不是同一个用户登录就清空所有缓存
-          dispatch({ type: 'CLEAR_ALL' });
-        }
-        dispatch(setStaff(staff));
-      } catch (error: unknown) {
-        if ((error as AxiosError<Staff>)?.response?.status === 402) {
-        // console.info('response: %o', error.response);
-          dispatch(
-            setSnackbarProp({
-              open: true,
-              message: '您的账户已到期，请续费后使用',
-              severity: 'error',
-              autoHideDuration: undefined,
-            }),
-        );
-        } else {
-          dispatch(
-            setSnackbarProp({
-              open: true,
-              message: '获取用户信息失败',
-              severity: 'error',
-              autoHideDuration: undefined,
-            }),
-        );
-        }
+        dispatch({ type: 'CLEAR_ALL' });
       }
-    };
+      dispatch(setStaff(staff));
+    } catch (error: unknown) {
+      if ((error as AxiosError<Staff>)?.response?.status === 402) {
+        // console.info('response: %o', error.response);
+        dispatch(
+          setSnackbarProp({
+            open: true,
+            message: '您的账户已到期，请续费后使用',
+            severity: 'error',
+            autoHideDuration: undefined,
+          })
+        );
+      } else {
+        dispatch(
+          setSnackbarProp({
+            open: true,
+            message: '获取用户信息失败',
+            severity: 'error',
+            autoHideDuration: undefined,
+          })
+        );
+      }
+    }
+  };
 
 export const configBase = (runAfter?: AppThunk): AppThunk => {
   return (dispatch, getState) => {
@@ -81,8 +81,8 @@ export const configBase = (runAfter?: AppThunk): AppThunk => {
     register<Staff>(
       configStatus(
         getState().staff.prevOnlineStatus ?? getState().staff.onlineStatus,
-        getState().staff.groupId,
-      ),
+        getState().staff.groupId
+      )
     ).subscribe((staffResponse) => {
       if (staffResponse.body) {
         if (
@@ -95,7 +95,7 @@ export const configBase = (runAfter?: AppThunk): AppThunk => {
               open: true,
               message: '在线客服人数已达上限，请稍后再试',
               severity: 'warning',
-            }),
+            })
           );
         }
         // 注册成功, 设置状态同步成功
@@ -118,7 +118,7 @@ export const intervalConfigStaff = (): AppThunk => {
       statueInterval = interval(300000)
         .pipe(
           map(() => getState().staff.onlineStatus),
-          filter((onlineStatus) => onlineStatus !== 'OFFLINE'),
+          filter((onlineStatus) => onlineStatus !== 'OFFLINE')
         )
         .subscribe(() => {
           dispatch(configBase());

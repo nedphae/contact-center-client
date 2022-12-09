@@ -2,7 +2,7 @@
 import React from 'react';
 import { TFunction, useTranslation } from 'react-i18next';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Snackbar, { SnackbarCloseReason } from '@material-ui/core/Snackbar';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
@@ -12,6 +12,7 @@ import {
 } from 'renderer/state/chat/chatAction';
 import { CircularProgress } from '@material-ui/core';
 import { SnackbarProp } from 'renderer/domain/Chat';
+import { useAppDispatch } from 'renderer/store';
 
 export function Alert(props: JSX.IntrinsicAttributes & AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -44,7 +45,7 @@ function getBySnackbarProp(
 export default function DefaultSnackbar() {
   const classes = useStyles();
   const snackbarProp = useSelector(getSnackbarProp);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
   const handleClose = (

@@ -1,4 +1,5 @@
-import { RootState } from 'renderer/store';
+import { SnackbarProp } from 'renderer/domain/Chat';
+import { AppThunk, RootState } from 'renderer/store';
 
 import slice from './chatSlice';
 
@@ -8,7 +9,7 @@ export const {
   setMonitoredHasMore,
   setMonitorSelectedSession,
   setSelectedSessionNumber,
-  setSnackbarProp,
+  setSnackbarProp: oldSetSnackbarProp,
   setTransferMessageRecive,
   setTransferMessageToSend,
   removeTransferMessageToSend,
@@ -32,6 +33,16 @@ export const getSelectedSession = (state: RootState) => {
   }
   return undefined;
 };
+
+export function setSnackbarProp(
+  snackbarProp: SnackbarProp | undefined
+): AppThunk {
+  return (dispatch, getState) => {
+    if (getState().staff.token) {
+      dispatch(oldSetSnackbarProp(snackbarProp));
+    }
+  };
+}
 
 export const getMonitor = (state: RootState) => state.chat.monitored;
 

@@ -1,5 +1,5 @@
 import { AppDispatch, AppThunk, RootState } from 'renderer/store';
-import { createSelector, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSelector } from '@reduxjs/toolkit';
 import { of } from 'rxjs';
 import { map, filter, tap, catchError } from 'rxjs/operators';
 import _ from 'lodash';
@@ -111,7 +111,7 @@ export const setSelectedSession =
             userId,
             interactionLogo: InteractionLogo.READ_UNREPLIE,
           })
-          );
+        );
       }
     }
     dispatch(setSelectedSessionNumber(userId));
@@ -161,7 +161,6 @@ export const getSelectedMessageList = (state: RootState) => {
       (a.seqId ?? Number.MAX_SAFE_INTEGER) -
       (b.seqId ?? Number.MAX_SAFE_INTEGER)
   );
-
 };
 
 /**
@@ -187,7 +186,7 @@ export const updateOrCreateConv =
         // 更新 newSession
         dispatch(
           updateConverAndCustomer({ conversation: conver, user: customer })
-          );
+        );
         // 非新会话，要同步
         dispatch(updateSync({ userId: conver.userId, shouldSync: true }));
         if (session.hide) {
@@ -199,7 +198,7 @@ export const updateOrCreateConv =
               userId,
               interactionLogo: InteractionLogo.RECONNECTED,
             })
-            );
+          );
         }
       } else {
         dispatch(newConver(createSession(conver, customer)));
@@ -607,10 +606,10 @@ export const setNewMessage =
 
               const currentPath = window.location.href;
               if (userId) {
-                  if (
-                    userId !== selectedSession ||
+                if (
+                  userId !== selectedSession ||
                   !currentPath.includes('/entertain')
-                  ) {
+                ) {
                   // 设置未读消息数
                   dispatch(addNewMessgeBadge(userId));
                   // 设置未读消息状态
@@ -619,7 +618,7 @@ export const setNewMessage =
                       userId,
                       interactionLogo: InteractionLogo.UNREAD,
                     })
-                    );
+                  );
                 } else {
                   // 设置已读未回消息状态
                   dispatch(
@@ -627,7 +626,7 @@ export const setNewMessage =
                       userId,
                       interactionLogo: InteractionLogo.READ_UNREPLIE,
                     })
-                    );
+                  );
                 }
               }
               // 设置提示音
@@ -647,7 +646,7 @@ export const setNewMessage =
           });
           dispatch(setPts(update?.message?.seqId));
         })
-        )
+      )
       .subscribe();
   };
 

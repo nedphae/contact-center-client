@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useCallback, useContext, useMemo } from 'react';
 import _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
@@ -28,9 +28,7 @@ import NotInterestedIcon from '@material-ui/icons/NotInterested';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 
-import Notifications from '@material-ui/icons/Notifications';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import Search from '@material-ui/icons/Search';
 // core components
 import { logout } from 'renderer/service/loginService';
 import { Badge, Avatar, CssBaseline, IconButton } from '@material-ui/core';
@@ -45,6 +43,7 @@ import { gql, useMutation } from '@apollo/client';
 import { getDownloadS3StaffImgPath } from 'renderer/config/clientConfig';
 import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { ColorModeContext } from 'renderer/HomePage';
+import { useAppDispatch } from 'renderer/store';
 import Button from '../CustomButtons/Button';
 
 import styles from '../../assets/jss/material-dashboard-react/components/headerLinksStyle';
@@ -118,7 +117,7 @@ export default function AdminNavbarLinks() {
   const classes = useStyles();
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -185,7 +184,7 @@ export default function AdminNavbarLinks() {
                   message:
                     'The number of online customer service has reached the upper limit, please try again later',
                   severity: 'warning',
-                }),
+                })
               );
             } else if (
               returnOnlineStatus === 'ONLINE' &&
@@ -196,7 +195,7 @@ export default function AdminNavbarLinks() {
                   staffStatus: _.omit(
                     staffStatus,
                     'onlineStatusKey',
-                    '__typename',
+                    '__typename'
                   ),
                 },
               });
@@ -215,43 +214,43 @@ export default function AdminNavbarLinks() {
     const map = new Map<OnlineStatus, any>()
       .set(
         OnlineStatus.ONLINE,
-      <MenuItem
+        <MenuItem
           key={OnlineStatus.ONLINE}
           onClick={handleChangeOnlineStatus('ONLINE')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Online')}
-        </MenuItem>,
+        </MenuItem>
       )
       .set(
         OnlineStatus.BUSY,
-      <MenuItem
+        <MenuItem
           key={OnlineStatus.BUSY}
           onClick={handleChangeOnlineStatus('BUSY')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Bussy')}
-        </MenuItem>,
+        </MenuItem>
       )
       .set(
         OnlineStatus.AWAY,
-      <MenuItem
+        <MenuItem
           key={OnlineStatus.AWAY}
           onClick={handleChangeOnlineStatus('AWAY')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Leave')}
-        </MenuItem>,
+        </MenuItem>
       )
       .set(
         OnlineStatus.OFFLINE,
-      <MenuItem
+        <MenuItem
           key={OnlineStatus.OFFLINE}
           onClick={handleChangeOnlineStatus('OFFLINE')}
           className={classes.dropdownItem}
         >
           {t('onlineStatus.Offline')}
-        </MenuItem>,
+        </MenuItem>
       );
     return map;
   }, [classes.dropdownItem, handleChangeOnlineStatus, t]);
