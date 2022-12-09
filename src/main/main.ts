@@ -12,12 +12,12 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import {
-  setupTitlebar,
-  attachTitlebarToWindow,
-} from 'custom-electron-titlebar/main';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+
+// const customElectronTitlebar = require('custom-electron-titlebar/main');
+
+// const { setupTitlebar, attachTitlebarToWindow } = customElectronTitlebar;
 
 export default class AppUpdater {
   constructor() {
@@ -141,6 +141,8 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+app.commandLine.appendSwitch('--no-proxy-server');
 
 app
   .whenReady()
