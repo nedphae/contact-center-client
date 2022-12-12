@@ -268,12 +268,21 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                 },
                 itemBuilder: (context) {
                   return [
-                    // PopupMenuItem(
-                    //   onTap: () {},
-                    //   child: const Text(
-                    //     '历史会话',
-                    //   ),
-                    // ),
+                    // 拉黑客户
+                    PopupMenuItem(
+                      onTap: () {},
+                      child: Text(
+                        AppLocalizations.of(context)!.blockUser,
+                      ),
+                    ),
+                    // 转接客户
+                    PopupMenuItem(
+                      onTap: () {},
+                      child: Text(
+                        AppLocalizations.of(context)!.transfer,
+                      ),
+                    ),
+                    // 客户信息
                     PopupMenuItem(
                       // 无法使用 onTap 进行 Navigator 跳转
                       // 因为 PopupMenuButton 的 showMenu 使用 navigator.of
@@ -282,6 +291,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                         AppLocalizations.of(context)!.userInformation,
                       ),
                     ),
+                    // 关闭会话
                     PopupMenuItem(
                       onTap: () {
                         ref

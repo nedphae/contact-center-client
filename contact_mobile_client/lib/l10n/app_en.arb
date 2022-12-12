@@ -65,5 +65,7 @@
   "language": "Language",
   "withdraw": "Withdraw",
   "withdrawShowStr": "You withdrew a message",
-  "checkYourInternet": "Not connected to network, check your network settings."
+  "checkYourInternet": "Not connected to network, check your network settings.",
+  "blockUser": "Block",
+  "transfer": "Transfer"
 }

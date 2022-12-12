@@ -62,5 +62,7 @@
   "language": "语言",
   "withdraw": "撤回",
   "withdrawShowStr": "你撤回了一条消息",
-  "checkYourInternet": "未连接到网络，请检查网络设置。"
+  "checkYourInternet": "未连接到网络，请检查网络设置。",
+  "blockUser": "拉黑",
+  "transfer": "转接"
 }
