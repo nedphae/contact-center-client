@@ -43,6 +43,7 @@ import {
   SyncMsgByStaffGraphql,
   SYNC_MSG_BY_STAFF,
 } from 'renderer/domain/graphql/Message';
+import i18n from 'renderer/i18n/i18n'; // 引用多语言配置文件
 import slice from './sessionSlice';
 import {
   getSelectedSession,
@@ -303,7 +304,7 @@ export function transferTo(transferQuery: TransferQuery): AppThunk {
       dispatch(
         setSnackbarProp({
           open: true,
-          message: '转接成功',
+          message: i18n.t('Transfer succeed'),
           severity: 'success',
         })
       );
@@ -413,6 +414,7 @@ export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
         setSnackbarProp({
           open: true,
           loadding: true,
+          autoHideDuration: 15000,
         })
       );
       dispatch(setTransferMessageToSend(transferQuery));
@@ -509,7 +511,7 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
             dispatch(
               setSnackbarProp({
                 open: true,
-                message: `转接被拒绝: ${sysMsg.reason}`,
+                message: `${i18n.t('Transfer refuse')}: ${sysMsg.reason}`,
                 severity: 'error',
               })
             );

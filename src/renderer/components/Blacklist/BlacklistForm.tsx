@@ -106,12 +106,12 @@ export default function BlacklistForm(props: BlacklistFormProps) {
         />
         <FormControl variant="outlined" margin="normal" fullWidth>
           <InputLabel id="role-simple-select-outlined-label">
-            {t('Block time')}
+            {t('Block duration')}
           </InputLabel>
           <Select
             labelId="role-simple-select-outlined-label"
             id="role"
-            label={t('Block type')}
+            label={t('Block duration')}
             defaultValue={0}
             onChange={(event) => {
               if (event.target.value !== 0) {

@@ -111,7 +111,7 @@ function createDetailByParent(sessionCategory: SessionCategory): string {
 
 export function createConversationCategory(
   conversationId: number,
-  sessionCategory: SessionCategory,
+  sessionCategory: SessionCategory
 ) {
   const conversationCategory: ConversationCategory = {
     id: conversationId,
@@ -142,7 +142,7 @@ export interface ConversationView {
   staffId?: number;
   userId: number;
   shuntId: number;
-  nickName?: number;
+  nickName?: string;
   /** 0=机器人会话 1=客服正常会话 */
   interaction?: number;
   /** 会话结束时间 */
@@ -186,7 +186,7 @@ export function getEvaluationPropety(propertyStr: string): EvalPropType {
 
 export function getEvaluation(
   evalMap: EvalPropType,
-  evaluation: number,
+  evaluation: number
 ): string | undefined {
   const anyEvalMap = evalMap as any;
   return anyEvalMap[`eval_${evaluation}`];

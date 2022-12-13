@@ -180,8 +180,7 @@
     "Staff info": "Staff info",
     "Block list type": "Block list type",
     "IP Address": "IP Address",
-    "Block time": "Block time",
-    "Block type": "Block type",
+    "Block duration": "Block duration",
     "Forever": "Forever",
     "Half an hour": "Half an hour",
     "1 hour": "1 hour",
@@ -530,7 +529,16 @@
     },
     "withdrawShowStr": "You withdrew a message",
     "Copy to clipboard": "Copy to clipboard",
-    "Copied": "Copied!"
+    "Copied": "Copied!",
+    "Transfer": "Transfer",
+    "Transfer customer": "Transfer customer",
+    "View in groups": "View in groups",
+    "View in shunts": "View in shunts",
+    "Transfer reason": "Transfer reason",
+    "Transfer reason is required": "Transfer reason is required",
+    "Transfer reason cannot be greater than 500 characters": "Transfer reason cannot be greater than 500 characters",
+    "Transfer refuse": "Transfer refuse",
+    "Transfer succeed": "Transfer succeed"
   },
   "home": {
     "hot_recommended": "",

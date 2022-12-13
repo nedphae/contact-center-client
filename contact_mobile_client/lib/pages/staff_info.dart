@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -51,7 +52,7 @@ class StaffInfoPage extends HookConsumerWidget {
                       value: buildOnlineStatus(
                           context, staff.staffStatus?.onlineStatus),
                       onPressed: (context) async {
-                        showModalBottomSheet<void>(
+                        showCupertinoModalBottomSheet<void>(
                           context: context,
                           builder: (context) {
                             return const OnlineStatusBottomSheet();
@@ -64,8 +65,10 @@ class StaffInfoPage extends HookConsumerWidget {
                       title: Text(AppLocalizations.of(context)!.language),
                       value: Text(language.displayName),
                       onPressed: (context) async {
-                        showModalBottomSheet<void>(
+                        showCupertinoModalBottomSheet<void>(
+                          expand: false,
                           context: context,
+                          backgroundColor: Colors.transparent,
                           builder: (context) {
                             return const LanguageChangeBottomSheet();
                           },
@@ -259,9 +262,9 @@ class LanguageChangeBottomSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsTileList = Globals.languageMap.entries.map((e) {
-      return SettingsTile.navigation(
+      return ListTile(
         title: Text(e.value.displayName),
-        onPressed: (context) async {
+        onTap: () async {
           final navigator = Navigator.of(context);
           MyApp.of(context)?.setLocale(Locale.fromSubtags(languageCode: e.key));
           navigator.pop();
@@ -269,19 +272,13 @@ class LanguageChangeBottomSheet extends HookConsumerWidget {
       );
     }).toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(AppLocalizations.of(context)!.language),
-        toolbarHeight: 40,
-      ),
-      body: SettingsList(
-        platform: DevicePlatform.iOS,
-        sections: [
-          SettingsSection(
-            tiles: settingsTileList,
-          ),
-        ],
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: settingsTileList,
+        ),
       ),
     );
   }
@@ -306,52 +303,46 @@ class OnlineStatusBottomSheet extends HookConsumerWidget {
           .addStaffStatus(staffStatus: staffStatusReslut);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(AppLocalizations.of(context)!.onlineStatus),
-        toolbarHeight: 40,
-      ),
-      body: SettingsList(
-        platform: DevicePlatform.iOS,
-        sections: [
-          SettingsSection(
-            tiles: <SettingsTile>[
-              SettingsTile.navigation(
-                title: Text(AppLocalizations.of(context)!.online),
-                onPressed: (context) async {
-                  final navigator = Navigator.of(context);
-                  await updateOnlineStatus("ONLINE");
-                  navigator.pop();
-                },
-              ),
-              SettingsTile.navigation(
-                title: Text(AppLocalizations.of(context)!.offline),
-                onPressed: (context) async {
-                  final navigator = Navigator.of(context);
-                  await updateOnlineStatus("OFFLINE");
-                  navigator.pop();
-                },
-              ),
-              SettingsTile.navigation(
-                title: Text(AppLocalizations.of(context)!.busy),
-                onPressed: (context) async {
-                  final navigator = Navigator.of(context);
-                  await updateOnlineStatus("BUSY");
-                  navigator.pop();
-                },
-              ),
-              SettingsTile.navigation(
-                title: Text(AppLocalizations.of(context)!.away),
-                onPressed: (context) async {
-                  final navigator = Navigator.of(context);
-                  await updateOnlineStatus("AWAY");
-                  navigator.pop();
-                },
-              ),
-            ],
-          ),
-        ],
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.online),
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                await updateOnlineStatus("ONLINE");
+                navigator.pop();
+              },
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.offline),
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                await updateOnlineStatus("OFFLINE");
+                navigator.pop();
+              },
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.busy),
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                await updateOnlineStatus("BUSY");
+                navigator.pop();
+              },
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.away),
+              onTap: () async {
+                final navigator = Navigator.of(context);
+                await updateOnlineStatus("AWAY");
+                navigator.pop();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

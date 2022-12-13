@@ -180,7 +180,7 @@
     "Staff info": "客服信息",
     "Block list type": "黑名单类型",
     "IP Address": "IP地址",
-    "Block time": "拉黑时间",
+    "Block duration": "拉黑时长",
     "Block type": "拉黑类型",
     "Forever": "永久屏蔽",
     "Half an hour": "半小时",
@@ -530,7 +530,16 @@
     },
     "withdrawShowStr": "你撤回了一条消息",
     "Copy to clipboard": "复制到剪贴板",
-    "Copied": "已经复制!"
+    "Copied": "已经复制!",
+    "Transfer": "转接",
+    "Transfer customer": "转接客户",
+    "View in groups": "按接待组",
+    "View in shunts": "按客服组",
+    "Transfer reason": "转接原因",
+    "Transfer reason is required": "转接原因必填",
+    "Transfer reason cannot be greater than 500 characters": "转接原因不能大于500个字符",
+    "Transfer refuse": "转接被拒绝",
+    "Transfer succeed": "转接成功"
   },
   "home": {
     "hot_recommended": "爆款推荐",

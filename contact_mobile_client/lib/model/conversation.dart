@@ -248,6 +248,15 @@ query Conversation {
     }
   }
 """;
+
+  static const queryConvById = """
+$conversationFields
+ query Conversation(\$id: Long!) {
+   getConversationById(id: \$id) {
+     ...conversationFields
+   }
+ }
+""";
 }
 
 enum FromType {
@@ -333,4 +342,46 @@ class Session {
         shouldSync: shouldSync ?? this.shouldSync,
         staffDraft: staffDraft ?? this.staffDraft,
       );
+}
+
+@JsonSerializable()
+class ConversationView {
+  int? id;
+
+  /// 公司id */
+  int? organizationId;
+
+  /// 客服id */
+  int? staffId;
+  int? userId;
+  int? shuntId;
+  String? nickName;
+
+  /// 0=机器人会话 1=客服正常会话 */
+  int? interaction;
+
+  /// 会话结束时间 */
+  int? endTime;
+
+  /// 当前排队信息 */
+  int? queue;
+  int? blockOnStaff;
+
+  ConversationView({
+    this.id,
+    this.organizationId,
+    this.staffId,
+    this.userId,
+    this.shuntId,
+    this.nickName,
+    this.interaction,
+    this.endTime,
+    this.queue,
+    this.blockOnStaff,
+  });
+
+  factory ConversationView.fromJson(Map<String, dynamic> json) =>
+      _$ConversationViewFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ConversationViewToJson(this);
 }

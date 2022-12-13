@@ -2,9 +2,12 @@ import 'package:contact_mobile_client/model/chatstate.dart';
 import 'package:contact_mobile_client/model/conversation.dart';
 import 'package:contact_mobile_client/model/message.dart';
 import 'package:contact_mobile_client/model/staff.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../common/config.dart';
 import '../model/customer.dart';
+import '../model/transfer_message.dart';
 
 final staffProvider = StateNotifierProvider<StaffState, Staff?>((ref) {
   return StaffState(null);
@@ -190,4 +193,36 @@ class ChatStateState extends StateNotifier<ChatState> {
       state = state.cloneWith(sessionMap: sessionMap);
     }
   }
+
+  void addTransferQuery(TransferQuery transferQuery) {
+    state.transferQueryList.add(transferQuery);
+    state = state.cloneWith(transferQueryList: state.transferQueryList);
+  }
+
+  void updateConv(Conversation conv) {
+    var sessionMap = state.sessionMap;
+    sessionMap[conv.userId]?.conversation = conv;
+    sessionMap = {...sessionMap};
+    state = state.cloneWith(sessionMap: sessionMap);
+  }
 }
+
+final mutationConvTransferProvider =
+    FutureProvider.family<ConversationView?, TransferQuery>(
+        (ref, transferQuery) async {
+  final response = await graphQLClient.mutate(MutationOptions(
+      document: gql(TransferQuery.mutationConvTransfer),
+      variables: {"transferQuery": transferQuery}));
+  final result = response.data?["transferTo"] as ConversationView?;
+  if (result != null) {
+    final updateResult = await graphQLClient.query(QueryOptions(
+        document: gql(Conversation.queryConvById),
+        variables: {"id": result.id}));
+    final updateConv =
+        updateResult.data?["getConversationById"] as Conversation?;
+    if (updateConv != null) {
+      ref.watch(chatStateProvider.notifier).updateConv(updateConv);
+    }
+  }
+  return result;
+});

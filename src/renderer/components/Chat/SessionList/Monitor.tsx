@@ -30,7 +30,7 @@ import {
   StoredMonitorGraphql,
 } from 'renderer/domain/graphql/Monitor';
 import { ConversationUserIdGraphql } from 'renderer/domain/graphql/Conversation';
-import { CustomerGraphql } from 'renderer/domain/graphql/Customer';
+import { CustomerGraphql } from 'renderer/domain/graphql/customer';
 import { Monitored } from 'renderer/domain/Chat';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -136,8 +136,7 @@ function Monitor(props: MonitorProps) {
   let resultList: StaffGroup[] | undefined;
   if (data && storeMonitorData) {
     const { staffStatusList, customerList } = data;
-    const { allStaff, allStaffGroup } = storeMonitorData;
-    const mapOfStaffStatus = _.groupBy(allStaff, 'id');
+    const { allStaffGroup } = storeMonitorData;
     const mapOfCustomer = _.groupBy(customerList, 'userId');
 
     from(staffStatusList)
@@ -149,11 +148,7 @@ function Monitor(props: MonitorProps) {
             .map((id) => id[0]);
 
           // 合并 staff 和 status 对象
-          return _.defaults(
-            { customerList: tempCustomerList },
-            s,
-            mapOfStaffStatus[s.id.toString()][0]
-          );
+          return _.defaults({ customerList: tempCustomerList }, s, s.staff);
         }),
         groupBy((s) => s.groupId),
         mergeMap((group) => zip(of(group.key), group.pipe(toArray())))

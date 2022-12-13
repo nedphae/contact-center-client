@@ -54,6 +54,7 @@ Staff _$StaffFromJson(Map<String, dynamic> json) => Staff(
       staffStatus: json['staffStatus'] == null
           ? null
           : StaffStatus.fromJson(json['staffStatus'] as Map<String, dynamic>),
+      connected: json['connected'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
@@ -74,6 +75,7 @@ Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
       'mobilePhone': instance.mobilePhone,
       'enabled': instance.enabled,
       'staffStatus': instance.staffStatus,
+      'connected': instance.connected,
     };
 
 OauthToken _$OauthTokenFromJson(Map<String, dynamic> json) => OauthToken(

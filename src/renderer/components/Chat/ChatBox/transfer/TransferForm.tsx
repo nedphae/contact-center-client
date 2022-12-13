@@ -2,6 +2,7 @@
 import React, { forwardRef, useState } from 'react';
 import _ from 'lodash';
 
+import { useTranslation } from 'react-i18next';
 import SwipeableViews from 'react-swipeable-views';
 import { useQuery } from '@apollo/client';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -31,13 +32,13 @@ import StyledTreeItem, {
   CloseSquare,
 } from 'renderer/components/TreeView/StyledTreeItem';
 import { StaffGroup, StaffShunt } from 'renderer/domain/StaffInfo';
-import { useDispatch } from 'react-redux';
 import { sendTransferMsg } from 'renderer/state/session/sessionAction';
 import noteLine from '@iconify-icons/clarity/note-line';
 import { InlineIcon } from '@iconify/react';
 import DraggableDialog, {
   DraggableDialogRef,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
+import { useAppDispatch } from 'renderer/store';
 import TabPanel from '../../Base/TabPanel';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -75,8 +76,9 @@ function TransferForm(
 
   const classes = useStyles();
   const theme = useTheme();
+  const { t } = useTranslation();
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [tab, setTab] = useState(0);
   const { data: storeMonitorData, refetch: refetchStaff } =
     useQuery<StoredMonitorGraphql>(QUERY_STORED_MONITOR);
@@ -109,13 +111,11 @@ function TransferForm(
   let shuntListWithStaff: StaffShunt[] | undefined;
   if (data && storeMonitorData) {
     const { staffStatusList } = _.cloneDeep(data);
-    const { allStaff, allStaffGroup, allStaffShunt } =
-      _.cloneDeep(storeMonitorData);
-    const mapOfStaffStatus = _.groupBy(allStaff, 'id');
+    const { allStaffGroup, allStaffShunt } = _.cloneDeep(storeMonitorData);
 
     const staffStatusListWithStaff = staffStatusList
       .filter((it) => it.staffType === 1 && it.id !== defaultValues.fromStaffId)
-      .map((it) => _.defaults(it, mapOfStaffStatus[it.id.toString()][0]));
+      .map((it) => _.defaults(it, it.staff));
 
     const staffStatusListMap = _.groupBy(
       staffStatusListWithStaff,
@@ -147,7 +147,7 @@ function TransferForm(
     <DraggableDialog
       title={
         <Grid container justifyContent="flex-end">
-          转接客户
+          转接客户{t('Transfer customer')}
           <Button
             color="primary"
             className={classes.titleButton}
@@ -156,7 +156,7 @@ function TransferForm(
               refetchStaff();
             }}
           >
-            刷新
+            刷新{t('Refresh')}
           </Button>
         </Grid>
       }
@@ -171,8 +171,16 @@ function TransferForm(
             scrollButtons="off"
             aria-label="scrollable prevent tabs example"
           >
-            <Tab label="按接待组" aria-label="SHUNT" {...a11yProps(0)} />
-            <Tab label="按客服组" aria-label="GROUP" {...a11yProps(1)} />
+            <Tab
+              label={t('View in shunts')}
+              aria-label="SHUNT"
+              {...a11yProps(0)}
+            />
+            <Tab
+              label={t('View in groups')}
+              aria-label="GROUP"
+              {...a11yProps(1)}
+            />
           </Tabs>
           <SwipeableViews
             axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
@@ -256,7 +264,7 @@ function TransferForm(
             fullWidth
             multiline
             id="remarks"
-            label="转接原因"
+            label={t('Transfer reason')}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -267,15 +275,17 @@ function TransferForm(
             error={errors.remarks && true}
             helperText={errors.remarks?.message}
             {...register('remarks', {
-              required: '转接原因必填',
+              required: t('Transfer reason is required'),
               maxLength: {
                 value: 500,
-                message: '转接原因不能大于500个字符',
+                message: t(
+                  'Transfer reason cannot be greater than 500 characters'
+                ),
               },
             })}
           />
           <Button type="submit" fullWidth variant="contained" color="primary">
-            转接
+            {t('Transfer')}
           </Button>
         </form>
       </div>

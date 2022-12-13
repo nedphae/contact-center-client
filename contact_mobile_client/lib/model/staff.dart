@@ -141,8 +141,8 @@ class Staff {
         connected: connected ?? this.connected,
       );
 
-  static const queryMyInfo = """
-fragment staffFields on Staff {
+  static const staffFields = """
+  fragment staffFields on Staff {
     avatar
     enabled
     gender
@@ -161,12 +161,50 @@ fragment staffFields on Staff {
     staffType
     username
 }
+  """;
+
+  static const queryMyInfo = """
+$staffFields
 query Staff {
     getMyInfo {
       ...staffFields
     }
   }
 """;
+
+  static const queryAllStaff = """
+$staffFields
+query AllStaff {
+    allStaff {
+      ...staffFields
+    }
+  }
+""";
+
+  static const queryAllStaffStatus = """
+$staffFields
+query AllStaffStatus {
+    staffStatusList {
+      autoBusy
+      currentServiceCount
+      groupId
+      loginTime
+      maxServiceCount
+      onlineStatus
+      organizationId
+      priorityOfShunt
+      role
+      shunt
+      id: staffId
+      staffType
+      userIdList
+      staff {
+        ...staffFields
+      }
+    }
+  }
+""";
+
 
   static const offlineClientMutation = """
 mutation Staff(\$staffChangeStatus: StaffChangeStatusInput!) {

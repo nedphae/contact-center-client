@@ -14,17 +14,12 @@ export interface MonitorGraphql {
 }
 
 export interface StoredMonitorGraphql {
-  allStaff: Staff[];
   allStaffGroup: StaffGroup[];
   allStaffShunt: StaffShunt[];
 }
 
 export const QUERY_STORED_MONITOR = gql`
-  ${STAFF_FIELD}
   query StoredMonitor {
-    allStaff {
-      ...staffFields
-    }
     allStaffGroup {
       groupName
       id
@@ -41,6 +36,7 @@ export const QUERY_STORED_MONITOR = gql`
 `;
 
 export const QUERY_MONITOR_WITHOUT_CUSTOMER = gql`
+  ${STAFF_FIELD}
   query Monitor {
     staffStatusList {
       autoBusy
@@ -56,11 +52,15 @@ export const QUERY_MONITOR_WITHOUT_CUSTOMER = gql`
       id: staffId
       staffType
       userIdList
+      staff {
+        ...staffFields
+      }
     }
   }
 `;
 
 export const QUERY_MONITOR = gql`
+  ${STAFF_FIELD}
   query Monitor {
     staffStatusList {
       autoBusy
@@ -76,6 +76,9 @@ export const QUERY_MONITOR = gql`
       id: staffId
       staffType
       userIdList
+      staff {
+        ...staffFields
+      }
     }
     customerList {
       fromType

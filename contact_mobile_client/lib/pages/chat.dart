@@ -19,10 +19,13 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
 import '../model/item.dart';
+import '../widgets/blockuser.dart';
+import '../widgets/transfer.dart';
 import 'customer_info.dart';
 
 class ChatterScreen extends StatefulHookConsumerWidget {
@@ -270,14 +273,24 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                   return [
                     // 拉黑客户
                     PopupMenuItem(
-                      onTap: () {},
+                      value: 'blockUser',
+                      onTap: () => showBarModalBottomSheet(
+                        expand: true,
+                        context: context,
+                        builder: (context) => const BlockUserBottomSheet(),
+                      ),
                       child: Text(
                         AppLocalizations.of(context)!.blockUser,
                       ),
                     ),
                     // 转接客户
                     PopupMenuItem(
-                      onTap: () {},
+                      value: 'transfer',
+                      onTap: () => showBarModalBottomSheet(
+                        expand: true,
+                        context: context,
+                        builder: (context) => const TransferModalWithPageView(),
+                      ),
                       child: Text(
                         AppLocalizations.of(context)!.transfer,
                       ),

@@ -14,6 +14,7 @@ import 'package:contact_mobile_client/hook/graphql_client.dart';
 import 'package:contact_mobile_client/pages/contacts.dart';
 import 'package:contact_mobile_client/pages/staff_info.dart';
 import 'package:contact_mobile_client/states/state.dart';
+import 'package:edge_alerts/edge_alerts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:animations/animations.dart';
@@ -22,6 +23,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:jpush_flutter/jpush_flutter.dart';
+
+import '../model/transfer_message.dart';
 
 _initCustomerInfo(
     WidgetRef ref, GraphQLClient client, List<Conversation> convList) async {
@@ -237,7 +240,6 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
               default:
                 break;
             }
-
             sendNotification(
                 session?.customer.name ?? session?.conversation.uid ?? '',
                 messageNotificationStr);
@@ -250,6 +252,37 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
                   final endedConv = Conversation.fromJson(
                       jsonDecode(serviceMessage) as Map<String, dynamic>);
                   _initCustomerInfo(ref, graphQLClient, [endedConv]);
+                }
+                break;
+              case 'TRANSFER_RESPONSE':
+                if (serviceMessage != null) {
+                  final transferMessageResponse =
+                      TransferMessageResponse.fromJson(
+                          jsonDecode(serviceMessage) as Map<String, dynamic>);
+                  if (transferMessageResponse.accept) {
+                    edgeAlert(context,
+                        title: AppLocalizations.of(context)!.transferSucceed,
+                        gravity: Gravity.top,
+                        icon: Icons.check,
+                        duration: 5,
+                        backgroundColor: Colors.greenAccent);
+                    final transferQuery = ref.watch(chatStateProvider.select(
+                        (value) => value.transferQueryList
+                            .where((element) =>
+                                element.userId ==
+                                transferMessageResponse.userId)
+                            .firstOrNull));
+                    if (transferQuery != null) {
+                      ref.watch(mutationConvTransferProvider(transferQuery));
+                    }
+                  } else {
+                    edgeAlert(context,
+                        title: AppLocalizations.of(context)!.transferRefuse,
+                        gravity: Gravity.top,
+                        icon: Icons.error,
+                        duration: 5,
+                        backgroundColor: Colors.redAccent);
+                  }
                 }
                 break;
               default:

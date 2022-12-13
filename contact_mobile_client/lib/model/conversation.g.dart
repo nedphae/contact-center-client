@@ -121,3 +121,31 @@ const _$FromTypeEnumMap = {
   FromType.wb: 'WB',
   FromType.open: 'OPEN',
 };
+
+ConversationView _$ConversationViewFromJson(Map<String, dynamic> json) =>
+    ConversationView(
+      id: json['id'] as int?,
+      organizationId: json['organizationId'] as int?,
+      staffId: json['staffId'] as int?,
+      userId: json['userId'] as int?,
+      shuntId: json['shuntId'] as int?,
+      nickName: json['nickName'] as String?,
+      interaction: json['interaction'] as int?,
+      endTime: json['endTime'] as int?,
+      queue: json['queue'] as int?,
+      blockOnStaff: json['blockOnStaff'] as int?,
+    );
+
+Map<String, dynamic> _$ConversationViewToJson(ConversationView instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'organizationId': instance.organizationId,
+      'staffId': instance.staffId,
+      'userId': instance.userId,
+      'shuntId': instance.shuntId,
+      'nickName': instance.nickName,
+      'interaction': instance.interaction,
+      'endTime': instance.endTime,
+      'queue': instance.queue,
+      'blockOnStaff': instance.blockOnStaff,
+    };

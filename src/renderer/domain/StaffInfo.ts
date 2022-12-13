@@ -36,6 +36,7 @@ export default interface Staff {
   mobilePhone: string;
   enabled: boolean;
   customerList?: CustomerStatus[];
+  staff?: Staff;
 }
 
 export interface PasswordChanger {
