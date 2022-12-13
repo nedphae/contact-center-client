@@ -195,7 +195,7 @@ query AllStaffStatus {
       priorityOfShunt
       role
       shunt
-      id: staffId
+      staffId
       staffType
       userIdList
       staff {

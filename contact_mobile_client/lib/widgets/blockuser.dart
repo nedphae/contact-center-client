@@ -30,13 +30,13 @@ class BlockUserBottomSheetState extends ConsumerState<BlockUserBottomSheet> {
   }
 
   @override
-  void initState() {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _customer = ref
         .watch(chatStateProvider.select(
             (value) => value.sessionMap[value.chattingUserId]?.customer))
         ?.cloneWith();
     blackList.preventSource ??= _customer?.uid;
-    super.initState();
   }
 
   @override
@@ -126,7 +126,7 @@ class BlockUserBottomSheetState extends ConsumerState<BlockUserBottomSheet> {
                               if (newValue != 0) {
                                 blackList.effectiveTime = now;
                                 blackList.failureTime =
-                                    now + (newValue * 3600000) as int;
+                                    (now + newValue * 3600000).toInt();
                               } else {
                                 blackList.effectiveTime = null;
                                 blackList.failureTime = null;

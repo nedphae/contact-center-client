@@ -261,12 +261,32 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
             GestureDetector(
               child: PopupMenuButton<String>(
                 onSelected: (select) {
-                  if (select == 'user') {
-                    // Navigator.pop(context);
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => CustomerInfo(selectUserId!),
-                      // builder: (context) => XBCSLogin(),
-                    ));
+                  switch (select) {
+                    case 'user':
+                      // Navigator.pop(context);
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => CustomerInfo(selectUserId!),
+                        // builder: (context) => XBCSLogin(),
+                      ));
+                      break;
+                    case 'blockUser':
+                      showCupertinoModalBottomSheet(
+                        expand: true,
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => const BlockUserBottomSheet(),
+                      );
+                      break;
+                    case 'transfer':
+                      showCupertinoModalBottomSheet(
+                        expand: true,
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => const TransferModalWithPageView(),
+                      );
+                      break;
+                    default:
+                      break;
                   }
                 },
                 itemBuilder: (context) {
@@ -274,11 +294,6 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                     // 拉黑客户
                     PopupMenuItem(
                       value: 'blockUser',
-                      onTap: () => showBarModalBottomSheet(
-                        expand: true,
-                        context: context,
-                        builder: (context) => const BlockUserBottomSheet(),
-                      ),
                       child: Text(
                         AppLocalizations.of(context)!.blockUser,
                       ),
@@ -286,11 +301,6 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                     // 转接客户
                     PopupMenuItem(
                       value: 'transfer',
-                      onTap: () => showBarModalBottomSheet(
-                        expand: true,
-                        context: context,
-                        builder: (context) => const TransferModalWithPageView(),
-                      ),
                       child: Text(
                         AppLocalizations.of(context)!.transfer,
                       ),
