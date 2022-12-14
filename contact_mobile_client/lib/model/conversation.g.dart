@@ -29,7 +29,7 @@ Conversation _$ConversationFromJson(Map<String, dynamic> json) => Conversation(
       transferType: json['transferType'],
       humanTransferSessionId: json['humanTransferSessionId'] as int?,
       transferFromStaffName: json['transferFromStaffName'] as String?,
-      transferFromShunt: json['transferFromShunt'] as int?,
+      transferFromShunt: json['transferFromShunt'] as String?,
       transferRemarks: json['transferRemarks'] as String?,
       isStaffInvited: json['isStaffInvited'] as bool,
       relatedId: json['relatedId'] as int?,

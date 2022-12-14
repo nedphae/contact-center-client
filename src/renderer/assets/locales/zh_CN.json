@@ -539,7 +539,8 @@
     "Transfer reason is required": "转接原因必填",
     "Transfer reason cannot be greater than 500 characters": "转接原因不能大于500个字符",
     "Transfer refuse": "转接被拒绝",
-    "Transfer succeed": "转接成功"
+    "Transfer succeed": "转接成功",
+    "Transfer failed, no staff online or idle": "转接失败，无客服在线或空闲"
   },
   "home": {
     "hot_recommended": "爆款推荐",

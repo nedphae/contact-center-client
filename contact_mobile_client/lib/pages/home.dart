@@ -210,7 +210,7 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
           });
         }
       });
-      socket.on('msg/sync', (data) {
+      socket.on('msg/sync', (data) async {
         // 新消息
         final dataList = data as List;
         final ack = dataList.last as Function;
@@ -260,12 +260,6 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
                       TransferMessageResponse.fromJson(
                           jsonDecode(serviceMessage) as Map<String, dynamic>);
                   if (transferMessageResponse.accept) {
-                    edgeAlert(context,
-                        title: AppLocalizations.of(context)!.transferSucceed,
-                        gravity: Gravity.top,
-                        icon: Icons.check,
-                        duration: 5,
-                        backgroundColor: Colors.greenAccent);
                     final transferQuery = ref.watch(chatStateProvider.select(
                         (value) => value.transferQueryList
                             .where((element) =>
@@ -273,16 +267,28 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
                                 transferMessageResponse.userId)
                             .firstOrNull));
                     if (transferQuery != null) {
-                      ref.watch(mutationConvTransferProvider(transferQuery));
+                      final conView = await ref
+                          .watch(mutationConvTransferProvider(transferQuery).future);
+                      if (conView?.id != null) {
+                        if (!mounted) return;
+                        edgeAlert(context,
+                            title:
+                            AppLocalizations.of(context)!.transferSucceed,
+                            gravity: Gravity.top,
+                            icon: Icons.check,
+                            duration: 5,
+                            backgroundColor: Colors.greenAccent);
+                      }
+                      break;
                     }
-                  } else {
-                    edgeAlert(context,
-                        title: AppLocalizations.of(context)!.transferRefuse,
-                        gravity: Gravity.top,
-                        icon: Icons.error,
-                        duration: 5,
-                        backgroundColor: Colors.redAccent);
                   }
+                  if (!mounted) return;
+                  edgeAlert(context,
+                      title: AppLocalizations.of(context)!.transferRefuse,
+                      gravity: Gravity.top,
+                      icon: Icons.error,
+                      duration: 5,
+                      backgroundColor: Colors.redAccent);
                 }
                 break;
               default:

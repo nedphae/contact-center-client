@@ -195,8 +195,15 @@ class ChatStateState extends StateNotifier<ChatState> {
   }
 
   void addTransferQuery(TransferQuery transferQuery) {
-    state.transferQueryList.add(transferQuery);
-    state = state.cloneWith(transferQueryList: state.transferQueryList);
+    final newTransferQueryList = [transferQuery, ...state.transferQueryList];
+    state = state.cloneWith(transferQueryList: newTransferQueryList);
+  }
+
+  void removeTransferQuery(TransferQuery transferQuery) {
+    final newTransferQueryList = state.transferQueryList.where((element) =>
+        element.toStaffId != transferQuery.toStaffId &&
+        element.userId != transferQuery.userId);
+    state = state.cloneWith(transferQueryList: newTransferQueryList.toList());
   }
 
   void updateConv(Conversation conv) {
@@ -213,14 +220,17 @@ final mutationConvTransferProvider =
   final response = await graphQLClient.mutate(MutationOptions(
       document: gql(TransferQuery.mutationConvTransfer),
       variables: {"transferQuery": transferQuery}));
-  final result = response.data?["transferTo"] as ConversationView?;
-  if (result != null) {
+  final result = ConversationView.fromJson(response.data?["transferTo"]);
+  final oldConv = ref.watch(chatStateProvider
+      .select((value) => value.sessionMap[transferQuery.userId]?.conversation));
+  if (result.id != null && oldConv != null) {
     final updateResult = await graphQLClient.query(QueryOptions(
         document: gql(Conversation.queryConvById),
-        variables: {"id": result.id}));
-    final updateConv =
-        updateResult.data?["getConversationById"] as Conversation?;
+        variables: {"id": oldConv.id}));
+    var updateConv = updateResult.data?["getConversationById"];
     if (updateConv != null) {
+      updateConv =
+          Conversation.fromJson(updateResult.data?["getConversationById"]);
       ref.watch(chatStateProvider.notifier).updateConv(updateConv);
     }
   }

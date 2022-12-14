@@ -37,7 +37,7 @@ class Conversation {
   dynamic transferType;
   int? humanTransferSessionId;
   String? transferFromStaffName;
-  int? transferFromShunt;
+  String? transferFromShunt;
   String? transferRemarks;
   bool isStaffInvited;
   int? relatedId;

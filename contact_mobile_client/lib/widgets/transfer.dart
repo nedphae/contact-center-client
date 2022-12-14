@@ -52,10 +52,12 @@ class TransferModalWithPageViewState
   TransferMessageRequest? transferMessage;
   final remarksTextController = TextEditingController();
   final GlobalKey<FormFieldState> _formFieldKey = GlobalKey<FormFieldState>();
+  int selectedIndex = -1;
 
   @override
   Widget build(BuildContext context) {
     const sizedBoxSpace = SizedBox(height: 24);
+    final mySelf = ref.watch(staffProvider);
     if (transferMessage == null) {
       Customer? customer = ref
           .watch(chatStateProvider.select(
@@ -71,17 +73,23 @@ class TransferModalWithPageViewState
       QueryOptions(
         document: gql(Staff.queryAllStaffStatus),
         // this is the query string you just created
-        // pollInterval: const Duration(seconds: 10),
+        pollInterval: const Duration(seconds: 10),
+        fetchPolicy: FetchPolicy.noCache,
       ),
     );
     // final staffList = staffListResult.result.data?["staffStatusList"];
-    final staffList =
-        (staffListResult.result.data?["staffStatusList"] as List?)?.map((e) {
-      final staffStatus = StaffStatus.fromJson(e);
-      final staff = Staff.fromJson(e["staff"]);
-      staff.staffStatus = staffStatus;
-      return staff;
-    }).toList();
+    final staffList = (staffListResult.result.data?["staffStatusList"] as List?)
+        ?.map((e) {
+          final staffStatus = StaffStatus.fromJson(e);
+          final staff = Staff.fromJson(e["staff"]);
+          staff.staffStatus = staffStatus;
+          return staff;
+        })
+        .where((element) =>
+            element.id != mySelf?.id &&
+            element.staffType == 1 &&
+            OnlineStatus.online == element.staffStatus?.onlineStatus)
+        .toList();
 
     final listView = ListView(
       shrinkWrap: true,
@@ -92,23 +100,13 @@ class TransferModalWithPageViewState
             staffList?.length ?? 0,
             (index) => ListTile(
                   title: Text(staffList![index].realName),
+                  tileColor: selectedIndex == index ? Colors.blue : null,
                   subtitle: Text(
                       "${staffList[index].staffStatus?.currentServiceCount}/${staffList[index].staffStatus?.maxServiceCount}"),
                   onTap: () {
-                    // 发送转接消息
-                    if (_formFieldKey.currentState!.validate()) {
-                      transferMessage!.toStaffId = staffList[index].id;
-                      sendTransferMsg(transferMessage!);
-                      final transferQuery = TransferQuery(
-                        type: "STAFF",
-                        userId: transferMessage!.userId,
-                        toStaffId: transferMessage!.toStaffId,
-                        remarks: transferMessage!.remarks!,
-                      );
-                      ref
-                          .read(chatStateProvider.notifier)
-                          .addTransferQuery(transferQuery);
-                    }
+                    setState(() {
+                      selectedIndex = index;
+                    });
                   },
                 )),
       ).toList(),
@@ -148,7 +146,30 @@ class TransferModalWithPageViewState
             sizedBoxSpace,
             Expanded(
               child: listView,
-            )
+            ),
+            sizedBoxSpace,
+            ElevatedButton(
+              onPressed: () {
+                // 发送转接消息
+                if (_formFieldKey.currentState!.validate() &&
+                    selectedIndex != -1 &&
+                    staffList != null) {
+                  transferMessage!.toStaffId = staffList[selectedIndex].id;
+                  sendTransferMsg(transferMessage!);
+                  final transferQuery = TransferQuery(
+                    type: "STAFF",
+                    userId: transferMessage!.userId,
+                    toStaffId: transferMessage!.toStaffId,
+                    remarks: transferMessage!.remarks!,
+                  );
+                  ref
+                      .read(chatStateProvider.notifier)
+                      .addTransferQuery(transferQuery);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.submit),
+            ),
           ],
         ),
       ),

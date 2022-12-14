@@ -538,7 +538,8 @@
     "Transfer reason is required": "Transfer reason is required",
     "Transfer reason cannot be greater than 500 characters": "Transfer reason cannot be greater than 500 characters",
     "Transfer refuse": "Transfer refuse",
-    "Transfer succeed": "Transfer succeed"
+    "Transfer succeed": "Transfer succeed",
+    "Transfer failed, no staff online or idle": "Transfer failed, no staff online or idle"
   },
   "home": {
     "hot_recommended": "",

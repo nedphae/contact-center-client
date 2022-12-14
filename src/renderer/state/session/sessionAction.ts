@@ -336,7 +336,7 @@ export function transferTo(transferQuery: TransferQuery): AppThunk {
       dispatch(
         setSnackbarProp({
           open: true,
-          message: '转接失败，无客服在线或空闲',
+          message: i18n.t('Transfer failed, no staff online or idle'),
           severity: 'error',
         })
       );

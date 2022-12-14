@@ -80,6 +80,7 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
         restorationId: 'list_demo_list_view',
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: List.generate(sessionList.length, (index) {
+          final conv = sessionList[index].conversation;
           final customer = sessionList[index].customer;
 
           var staffDraft = sessionList[index].staffDraft;
@@ -144,7 +145,8 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
               ),
               trailing: Column(
                 children: [
-                  customer.status?.onlineStatus == 'ONLINE'
+                  customer.status?.onlineStatus == 'ONLINE' &&
+                          conv.endTime == null
                       ? const Icon(Icons.sync_alt)
                       : const Icon(Icons.signal_wifi_off),
                   Text(lastMsgTimeStr),
