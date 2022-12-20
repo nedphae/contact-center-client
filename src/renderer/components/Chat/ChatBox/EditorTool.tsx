@@ -52,38 +52,7 @@ import {
   sendImageMessage,
   updateOrCreateConv,
 } from 'renderer/state/session/sessionAction';
-import { upload } from 'upload';
 import TransferForm from './transfer/TransferForm';
-
-// const pasteHandler = (event: ClipboardEvent) => {
-//   const items = event.clipboardData && event.clipboardData.items;
-//   if (items && items.length) {
-//     // 检索剪切板items
-//     for (let i = 0; i < items.length; i += 1) {
-//       if (items[i].type.indexOf('image') !== -1) {
-//         const file = items[i].getAsFile();
-//         if (file?.type?.startsWith('image')) {
-//           upload(getUploadS3ChatPath(), {
-//             file,
-//           })
-//             .then((response) => {
-//               if (response.data) {
-//                 window.handleSendImageMessage({
-//                   mediaId: (JSON.parse(response.data as string) as string[])[0],
-//                   filename: file.name,
-//                   picSize: file.size,
-//                   type: file.type,
-//                 });
-//               }
-//               return null;
-//             })
-//             .catch((e) => {});
-//         }
-//       }
-//     }
-//   }
-// };
-// document.addEventListener('paste', pasteHandler);
 
 const useStyles = makeStyles(() =>
   createStyles({
