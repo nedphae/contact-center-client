@@ -46,7 +46,7 @@ export const GridToolbarExportButton = forwardRef<
         startIcon={<GridSaveAltIcon />}
         onClick={handleMenuOpen}
         aria-expanded={anchorEl ? 'true' : undefined}
-        aria-label="数据"
+        aria-label="Data"
         aria-haspopup="menu"
       >
         {t('Export')}

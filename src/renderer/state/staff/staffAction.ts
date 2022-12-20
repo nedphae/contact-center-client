@@ -56,7 +56,7 @@ export const setUserAsync =
         dispatch(
           setSnackbarProp({
             open: true,
-            message: '您的账户已到期，请续费后使用',
+            message: 'Your account has expired, please use it after renewal',
             severity: 'error',
             autoHideDuration: undefined,
           })
@@ -65,7 +65,7 @@ export const setUserAsync =
         dispatch(
           setSnackbarProp({
             open: true,
-            message: '获取用户信息失败',
+            message: 'Failed to get user information',
             severity: 'error',
             autoHideDuration: undefined,
           })
@@ -93,7 +93,8 @@ export const configBase = (runAfter?: AppThunk): AppThunk => {
           dispatch(
             setSnackbarProp({
               open: true,
-              message: '在线客服人数已达上限，请稍后再试',
+              message:
+                'The number of online customer service has reached the upper limit, please try again later',
               severity: 'warning',
             })
           );

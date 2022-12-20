@@ -35,7 +35,7 @@ const useStyles = makeStyles(() =>
     toolBar: {
       height: 50,
     },
-  }),
+  })
 );
 
 export default function ChatHeader() {
@@ -113,8 +113,7 @@ export default function ChatHeader() {
                 {/** 获取会话时长 */}
                 {t('header.Chat Duration')}
                 {': '}
-                {getDuration(sessionDuration)}
-{' '}
+                {getDuration(sessionDuration)}{' '}
                 {conv?.closeReason === 'TRANSFER'
                   ? t('header.Conversation Transferred')
                   : ''}
@@ -143,8 +142,8 @@ export default function ChatHeader() {
                     ? `${t('header.Rated Result')}: ${getEvaluation(
                         evalProp,
                         conv.evaluate.evaluation
-                    )}, ${t('header.Rated Content')}: ${
-                      conv.evaluate.evaluationRemark
+                      )}, ${t('header.Rated Content')}: ${
+                        conv.evaluate.evaluationRemark
                       }`
                     : t('header.Unrated')}
                 </Typography>

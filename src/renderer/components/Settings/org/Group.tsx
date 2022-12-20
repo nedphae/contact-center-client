@@ -23,11 +23,6 @@ const MUTATION_GROUP = gql`
 
 type Graphql = StaffGroupList;
 
-const columns: GridColDef[] = [
-  // { field: 'id', headerName: 'ID', width: 90 },
-  { field: 'groupName', headerName: '组名', width: 150 },
-];
-
 export default function Group() {
   const [staffGroup, setStaffGroup] = useState<StaffGroup | undefined>(
     undefined
@@ -67,6 +62,11 @@ export default function Group() {
       refetch();
     }
   }
+
+  const columns: GridColDef[] = [
+    // { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'groupName', headerName: t('Group Name'), width: 150 },
+  ];
 
   return (
     <>

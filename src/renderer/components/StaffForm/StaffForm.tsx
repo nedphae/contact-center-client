@@ -131,7 +131,7 @@ export default function StaffForm(props: FormProps) {
     return {
       action: getUploadS3StaffPath(),
       multiple: false,
-      accept: 'image/png,image/gif,image/jpeg',
+      accept: 'image/*',
       onStart() {
         setUploading(true);
       },
@@ -343,7 +343,7 @@ export default function StaffForm(props: FormProps) {
                 <Select
                   labelId="role-simple-select-outlined-label"
                   id="role"
-                  label="角色"
+                  label={t('Role')}
                   {...field}
                 >
                   <MenuItem value="ROLE_ADMIN">{t('Administrator')}</MenuItem>

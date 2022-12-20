@@ -1,6 +1,7 @@
 /** 会话管理 */
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CloseReasonTypeKey,
   ConversationType,
@@ -10,7 +11,6 @@ import {
   TransferType,
 } from './constant/Conversation';
 import { CreatorType } from './constant/Message';
-import usePropetyByKey from './graphql/Properties';
 import { Message } from './Message';
 import { SessionCategory } from './SessionCategory';
 
@@ -167,21 +167,12 @@ export interface TransferMessageResponse {
   reason?: string;
 }
 
-export const defaultEvalProp = {
-  eval_100: '非常满意',
-  eval_75: '满意',
-  eval_50: '一般',
-  eval_25: '不满意',
-  eval_1: '非常不满意',
-};
-
-export type EvalPropType = typeof defaultEvalProp;
-
-export function getEvaluationPropety(propertyStr: string): EvalPropType {
-  const evalPropObj = propertyStr
-    ? JSON.parse(propertyStr).evaluationOptions
-    : {};
-  return _.defaults(evalPropObj, defaultEvalProp);
+export interface EvalPropType {
+  eval_100: string;
+  eval_75: string;
+  eval_50: string;
+  eval_25: string;
+  eval_1: string;
 }
 
 export function getEvaluation(
@@ -193,13 +184,23 @@ export function getEvaluation(
 }
 
 export function useEvalProp(): EvalPropType {
-  const property = usePropetyByKey('cae.configJson.evaluate');
-  const [evalProp, setEvalProp] = useState<EvalPropType>(defaultEvalProp);
+  const { t } = useTranslation();
+
+  const [evalProp, setEvalProp] = useState<EvalPropType>({
+    eval_100: 'Very satisfied',
+    eval_75: 'Satisfied',
+    eval_50: 'Neutral',
+    eval_25: 'Unsatisfied',
+    eval_1: 'Very Unsatisfied',
+  });
   useEffect(() => {
-    if (property?.value) {
-      const propObj = getEvaluationPropety(property?.value);
-      setEvalProp(propObj);
-    }
-  }, [property]);
+    setEvalProp({
+      eval_100: t('Very satisfied'),
+      eval_75: t('Satisfied'),
+      eval_50: t('Neutral'),
+      eval_25: t('Unsatisfied'),
+      eval_1: t('Very Unsatisfied'),
+    });
+  }, [t]);
   return evalProp;
 }

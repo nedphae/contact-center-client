@@ -20,10 +20,14 @@ import {
 } from '@material-ui/core';
 import { TransferMessageResponse } from 'renderer/domain/Conversation';
 import { useLazyQuery } from '@apollo/client';
-import { CustomerGraphql, QUERY_CUSTOMER } from 'renderer/domain/graphql/Customer';
+import {
+  CustomerGraphql,
+  QUERY_CUSTOMER,
+} from 'renderer/domain/graphql/Customer';
 import { StaffGraphql, QUERY_STAFF_BY_ID } from 'renderer/domain/graphql/Staff';
 import { getDownloadS3StaffImgPath } from 'renderer/config/clientConfig';
 import { sendTransferResponseMsg } from 'renderer/state/session/sessionAction';
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,6 +43,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TransferSnackbar() {
   const classes = useStyles();
+  const { t } = useTranslation();
+
   const dispatch = useDispatch();
   const [reason, setReason] = useState<string>();
   const lastRequest = useSelector(getFirstTransferMessageRecive);
@@ -109,7 +115,11 @@ export default function TransferSnackbar() {
                       />
                     </ListItemAvatar>
                     <ListItemText
-                      primary={`客服: ${staff.getStaffById.realName} 请求转接用户: ${customer.getCustomer.name}`}
+                      primary={`${t('Staff')}: ${
+                        staff.getStaffById.realName
+                      } ${t('request transfer user')}: ${
+                        customer.getCustomer.name
+                      }`}
                       secondary={
                         <Typography
                           component="span"
@@ -117,7 +127,7 @@ export default function TransferSnackbar() {
                           className={classes.inline}
                           color="secondary"
                         >
-                          {`备注: ${lastRequest.remarks}`}
+                          {`${t('Remarks')}: ${lastRequest.remarks}`}
                         </Typography>
                       }
                     />
@@ -125,7 +135,7 @@ export default function TransferSnackbar() {
                   <ListItem alignItems="flex-start">
                     <TextField
                       id="outlined-basic"
-                      label="拒绝理由"
+                      label={t('Reason for refusal')}
                       variant="outlined"
                       fullWidth
                       value={reason}
@@ -139,14 +149,14 @@ export default function TransferSnackbar() {
                     color="secondary"
                     onClick={refuseTransfer}
                   >
-                    拒绝
+                    {t('Refuse')}
                   </Button>
                   <Button
                     variant="contained"
                     color="primary"
                     onClick={acceptTransfer}
                   >
-                    同意
+                    {t('Approve')}
                   </Button>
                 </DialogActions>
               </Paper>

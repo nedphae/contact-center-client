@@ -1,7 +1,6 @@
 /**
  * 聊天窗口头，显示用户信息，和基本统计
  */
-import React from 'react';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,7 +8,8 @@ import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import { Conversation } from 'renderer/domain/Conversation';
+import { Conversation, getEvaluation, useEvalProp } from 'renderer/domain/Conversation';
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -31,6 +31,9 @@ interface DetailTitleProps {
 export default function DetailTitle(props: DetailTitleProps) {
   const { conv } = props;
   const classes = useStyles();
+  const { t } = useTranslation();
+  const evalProp = useEvalProp();
+
   return (
     <AppBar position="static" className={classes.appBar}>
       <Toolbar className={classes.toolBar}>
@@ -62,14 +65,21 @@ export default function DetailTitle(props: DetailTitleProps) {
             <>
               <Grid item xs={5} zeroMinWidth>
                 <Typography noWrap style={{ paddingLeft: 10 }} variant="body2">
-                  {conv.evaluate
-                    ? `评价结果: ${conv.evaluate.evaluation} 分，内容：${conv.evaluate.evaluationRemark}`
-                    : `未评价`}
+                  {conv.evaluate && evalProp
+                    ? `${t('header.Rated Result')}: ${getEvaluation(
+                        evalProp,
+                        conv.evaluate.evaluation
+                      )}, ${t('header.Rated Content')}: ${
+                        conv.evaluate.evaluationRemark
+                      }`
+                    : t('header.Unrated')}
                 </Typography>
               </Grid>
               <Grid item xs={4} zeroMinWidth>
                 <Typography noWrap variant="body2">
-                  {conv.category ? `已总结: ${conv.category}` : `未总结`}
+                  {conv.category
+                    ? `${t('header.Category')}: ${conv.category}`
+                    : t('header.No Category')}
                 </Typography>
               </Grid>
             </>

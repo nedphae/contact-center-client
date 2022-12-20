@@ -126,7 +126,7 @@ export default function StaffAttendance() {
       >
         {kibanaUrl && (
           <iframe
-            title="考勤"
+            title={t('Attendance')}
             style={{
               flexGrow: 1,
               border: 'none',

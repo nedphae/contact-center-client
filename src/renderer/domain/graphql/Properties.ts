@@ -2,12 +2,12 @@ import { gql, useQuery } from '@apollo/client';
 import { Properties } from '../Properties';
 
 interface PropertyGraphql {
-  findPropertiesByKey?: Properties;
+  findPersonPropertiesByKey?: Properties;
 }
 
 const QUERY_PROPERTY_BY_KEY = gql`
   query property($key: String!) {
-    findPropertiesByKey(key: $key) {
+    findPersonPropertiesByKey(key: $key) {
       id
       key
       value
@@ -18,9 +18,9 @@ const QUERY_PROPERTY_BY_KEY = gql`
   }
 `;
 
-export default function usePropetyByKey(key: string): Properties | undefined {
-  const { data } = useQuery<PropertyGraphql>(QUERY_PROPERTY_BY_KEY, {
+export default function usePropetyByKey(key: string) {
+  const { data, refetch } = useQuery<PropertyGraphql>(QUERY_PROPERTY_BY_KEY, {
     variables: { key },
   });
-  return data?.findPropertiesByKey;
+  return { prop: data?.findPersonPropertiesByKey, refetch };
 }

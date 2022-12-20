@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
     resetContainer: {
       padding: theme.spacing(3),
     },
-  }),
+  })
 );
 
 const fakeUserTrack = {
@@ -94,7 +94,7 @@ export default function UserTrack() {
     {
       variables: { userId: status?.userId },
       fetchPolicy: 'no-cache',
-    },
+    }
   );
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function UserTrack() {
               const time = userTrack.awayTime
                 ? `${t('Duration')}: ${Math.trunc(
                     userTrack.awayTime - userTrack.enterTime
-                )} ${t('Second')}`
+                  )} ${t('Second')}`
                 : t('Being visiting');
               return (
                 <Step key={`${userTrack.enterTime}-${userTrack.url}`}>

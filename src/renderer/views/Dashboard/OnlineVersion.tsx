@@ -1,15 +1,18 @@
 import { CssBaseline, Link, Typography } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 export default function OnlineVersion() {
+  const { t } = useTranslation();
+
   return (
     <>
       <CssBaseline />
       <Typography variant="h6" gutterBottom>
-        Web在线版本不支持查看监控，请
+        {t('Web version does not support viewing monitoring, please')}
         <Link href="https://xbcs.top/download/" target="_blank">
-          下载客户端
+          {t('download client')}
         </Link>
-        查看
+        {t('to view')}
       </Typography>
     </>
   );

@@ -249,7 +249,7 @@ export default function TopicForm(props: FormProps) {
   const imgUploadProps = {
     action: `${getUploadS3ChatPath()}`,
     multiple: false,
-    accept: 'image/png,image/gif,image/jpeg',
+    accept: 'image/*',
     onSuccess(response: unknown) {
       // 设置图片地址
       update(1, { type: 'image', content: (response as string[])[0] });

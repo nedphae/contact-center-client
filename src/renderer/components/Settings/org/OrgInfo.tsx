@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import PhoneIcon from '@material-ui/icons/Phone';
@@ -22,8 +22,9 @@ import {
   OrganizationInput,
   UpdateOrganizationGraphql,
 } from 'renderer/domain/graphql/Organization';
+import { Typography } from '@material-ui/core';
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       // marginTop: theme.spacing(8),
@@ -31,7 +32,11 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
       alignItems: 'center',
     },
-  }),
+    alert: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+    },
+  })
 );
 
 export default function OrgInfo() {
@@ -71,6 +76,9 @@ export default function OrgInfo() {
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
+        <Typography variant="body1" className={classes.alert}>
+          {t('Organization ID')} : {defaultOrganization?.getOrganization.id}
+        </Typography>
         <TextField
           variant="outlined"
           margin="normal"

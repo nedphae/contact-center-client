@@ -6,7 +6,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { debounceTime, Subject } from 'rxjs';
 // creates a beautiful scrollbar
 import PerfectScrollbar from 'perfect-scrollbar';
-import useSound from 'use-sound';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,10 +13,8 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import useWebSocket from 'renderer/hook/websocket/useWebSocket';
 // core components
 import useInitData from 'renderer/hook/init/useInitData';
-import { RootState } from 'renderer/store';
 import DefaultSnackbar from 'renderer/components/Snackbar/DefaultSnackbar';
 import TransferSnackbar from 'renderer/components/Snackbar/TransferSnackbar';
-import Authorized from 'renderer/components/Authorized/Authorized';
 import {
   clearPlayNewMessageSound,
   getPlayNewMessageSound,
@@ -30,6 +27,7 @@ import bgImage from 'renderer/assets/img/sidebar-4.jpg';
 import logo from 'renderer/assets/img/logo.ico';
 import newMsgSound from 'renderer/assets/sounds/new-msg.wav';
 
+import { getDownloadS3ChatImgPath } from 'renderer/config/clientConfig';
 import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -61,13 +59,16 @@ export default function Admin({ ...rest }) {
   const [refetch] = useAutoLoadConv();
   // socket 重连后需要同步一下会话
   const [webSocket] = useWebSocket(refetch);
-  useInitData();
-  const [play] = useSound(newMsgSound);
+  const { prop } = useInitData();
+  // const [play] = useSound(newMsgSound);
+  window.audio = new Audio(
+    prop?.value ? `${getDownloadS3ChatImgPath()}${prop?.value}` : newMsgSound
+  );
 
   const momeSubject = useMemo(() => {
     return subjectSearchText.pipe(debounceTime(1500)).subscribe({
       next: () => {
-        play();
+        window.audio.play();
         if (document.hidden) {
           const notification = new Notification(t('New Message'), {
             body: t('View Message'),
@@ -84,7 +85,7 @@ export default function Admin({ ...rest }) {
         dispatch(clearPlayNewMessageSound());
       },
     });
-  }, [dispatch, play, t]);
+  }, [dispatch, t]);
 
   const currentPath = useLocation().pathname;
   const playNewMessageSound = useSelector(getPlayNewMessageSound);
@@ -97,7 +98,7 @@ export default function Admin({ ...rest }) {
       // 延迟设置提示音，防止太多提示音
       subjectSearchText.next();
     }
-  }, [currentPath, dispatch, play, playNewMessageSound]);
+  }, [currentPath, dispatch, playNewMessageSound]);
 
   useEffect(() => {
     return () => {

@@ -26,7 +26,7 @@ import SessionCategoryView from 'renderer/components/Settings/org/SessionCategor
 import CustomerTagTable from 'renderer/components/Settings/CustomerTag/CustomerTagTable';
 import OrgInfo from 'renderer/components/Settings/org/OrgInfo';
 import WeChatOpenInfoView from 'renderer/components/Settings/org/WeChatOpenInfoView';
-import CommentAndEvaluateConfig from 'renderer/components/Settings/org/CommentAndEvaluateConfig';
+import Client from 'renderer/components/Settings/personal/Client';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,7 +71,6 @@ function settingPage(
   properties4Set: string | undefined,
   allProperties4Set: string[] | undefined,
   refetch: () => void,
-  customerProps: Pick<RootProperties, 'cae'>,
   properties?: RootProperties
 ) {
   let result: JSX.Element;
@@ -81,7 +80,7 @@ function settingPage(
       break;
     }
     case 'personal.Client': {
-      result = <ComingSoon />;
+      result = <Client />;
       break;
     }
     case 'org.Info': {
@@ -114,12 +113,6 @@ function settingPage(
     }
     case 'org.CustomerTag': {
       result = <CustomerTagTable />;
-      break;
-    }
-    case 'org.CommentAndEvaluate': {
-      result = (
-        <CommentAndEvaluateConfig props={customerProps.cae} refetch={refetch} />
-      );
       break;
     }
     case 'org.Properties': {
@@ -163,9 +156,7 @@ export default function Setting() {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { data, refetch } = useQuery<Graphql>(QUERY, {
-    fetchPolicy: 'no-cache',
-  });
+  const { data, refetch } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
   const [properties4Set, setProperties4Set] = useState<string>();
   const [allProperties4Set, setAllProperties4Set] = useState<string[]>();
@@ -195,11 +186,11 @@ export default function Setting() {
             label={t('Account Settings')}
             onClick={() => setPageName('personal.Account')}
           />
-          {/* <StyledTreeItem
-              nodeId=""
-              label="客户端设置"
-                            onClick={() => setPageName('personal.Client')}
-            /> */}
+          <StyledTreeItem
+            nodeId="personal.Client"
+            label={t('Client setting')}
+            onClick={() => setPageName('personal.Client')}
+          />
         </StyledTreeItem>
         <Authorized authority={['admin']} noMatch={<></>}>
           <StyledTreeItem nodeId="org" label={t('Enterprise settings')}>
@@ -302,7 +293,6 @@ export default function Setting() {
             () => {
               refetch();
             },
-            customerProps,
             properties
           )}
       </Grid>

@@ -11,7 +11,6 @@ import InsertEmoticonOutlinedIcon from '@material-ui/icons/InsertEmoticonOutline
 import AttachmentOutlinedIcon from '@material-ui/icons/AttachmentOutlined';
 import ImageOutlinedIcon from '@material-ui/icons/ImageOutlined';
 import LaunchOutlinedIcon from '@material-ui/icons/LaunchOutlined';
-import PersonAddOutlinedIcon from '@material-ui/icons/PersonAddOutlined';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import SpeakerNotesOffIcon from '@material-ui/icons/SpeakerNotesOff';
 import StarIcon from '@material-ui/icons/Star';
@@ -53,7 +52,38 @@ import {
   sendImageMessage,
   updateOrCreateConv,
 } from 'renderer/state/session/sessionAction';
+import { upload } from 'upload';
 import TransferForm from './transfer/TransferForm';
+
+// const pasteHandler = (event: ClipboardEvent) => {
+//   const items = event.clipboardData && event.clipboardData.items;
+//   if (items && items.length) {
+//     // 检索剪切板items
+//     for (let i = 0; i < items.length; i += 1) {
+//       if (items[i].type.indexOf('image') !== -1) {
+//         const file = items[i].getAsFile();
+//         if (file?.type?.startsWith('image')) {
+//           upload(getUploadS3ChatPath(), {
+//             file,
+//           })
+//             .then((response) => {
+//               if (response.data) {
+//                 window.handleSendImageMessage({
+//                   mediaId: (JSON.parse(response.data as string) as string[])[0],
+//                   filename: file.name,
+//                   picSize: file.size,
+//                   type: file.type,
+//                 });
+//               }
+//               return null;
+//             })
+//             .catch((e) => {});
+//         }
+//       }
+//     }
+//   }
+// };
+// document.addEventListener('paste', pasteHandler);
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -126,6 +156,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
+  const refOfHandler = useRef<(ev: ClipboardEvent) => any>();
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfTransferDialog = useRef<DraggableDialogRef>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
@@ -166,6 +197,8 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     }
   }
 
+  window.handleSendImageMessage = handleSendImageMessage;
+
   function handleSendFileMessage(attachments: Attachments) {
     if (selectedSession) {
       dispatch(
@@ -193,7 +226,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const imgUploadProps = {
     action: `${getUploadS3ChatPath()}`,
     multiple: false,
-    accept: 'image/png,image/gif,image/jpeg',
+    accept: 'image/*',
     onStart(file: RcFile) {
       // console.log('onStart', file, file.name);
     },

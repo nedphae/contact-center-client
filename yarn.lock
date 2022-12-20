@@ -15519,6 +15519,13 @@ update-notifier@^5.1.0:
     semver-diff "^3.1.1"
     xdg-basedir "^4.0.0"
 
+upload@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/upload/-/upload-1.3.1.tgz#e82b34677dd2a4d4f943c3f8317930b4c4d0439f"
+  integrity sha512-mDG4/vZRlUFzKScx5LzyIDUDfU3eOOdO+mSfTPKSJr9xGdrsqLf5wuj18ICrahBJJzSwVuGbxZWt3TwynULESg==
+  dependencies:
+    form-data "^4.0.0"
+
 uri-js@^4.2.2:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/uri-js/-/uri-js-4.4.1.tgz#9b1a52595225859e55f669d928f88c6c57f2a77e"

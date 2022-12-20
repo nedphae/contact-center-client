@@ -246,7 +246,7 @@ const MUTATION_STAFF_CONFIG = gql`
   }
 `;
 
-function CustomerAlert(props: AlertProps) {
+export function CustomerAlert(props: AlertProps) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
@@ -254,7 +254,7 @@ export default function StaffShuntForm(props: FormProps) {
   const { defaultValues, shuntClassList, staffList } = props;
   const classes = useStyles();
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const jsoneditorRef = useRef<HTMLDivElement>(null);
   const [jsoneditor, setJsoneditor] = useState<JSONEditor>();
@@ -276,7 +276,7 @@ export default function StaffShuntForm(props: FormProps) {
     return {
       action: getUploadS3ChatPath(),
       multiple: false,
-      accept: 'image/png,image/gif,image/jpeg',
+      accept: 'image/*',
       onStart() {
         setUploading(true);
       },
@@ -284,7 +284,7 @@ export default function StaffShuntForm(props: FormProps) {
         const logoId = (response as string[])[0];
         const newChatUIConfigObj = _.defaultsDeep(
           {
-            navbar: {
+            document: {
               logo: `${getDownloadS3ChatImgPath()}${logoId}`,
             },
           },
@@ -304,7 +304,7 @@ export default function StaffShuntForm(props: FormProps) {
     return {
       action: getUploadS3ChatPath(),
       multiple: false,
-      accept: 'image/png,image/gif,image/jpeg',
+      accept: 'image/*',
       onStart() {
         setUploading(true);
       },
@@ -328,9 +328,41 @@ export default function StaffShuntForm(props: FormProps) {
     };
   }, [jsoneditor, updateChatUIConfig]);
 
+  const ringtonesUploadProps = {
+    action: getUploadS3ChatPath(),
+    multiple: false,
+    accept: 'audio/*',
+    onStart() {
+      setUploading(true);
+    },
+    onSuccess(response: unknown) {
+      const logoId = (response as string[])[0];
+      const newChatUIConfigObj = _.defaultsDeep(
+        {
+          document: {
+            ringtones: `${getDownloadS3ChatImgPath()}${logoId}`,
+          },
+        },
+        jsoneditor?.get()
+      );
+      updateChatUIConfig(newChatUIConfigObj);
+      setUploading(false);
+    },
+    onError(e: Error) {
+      setUploading(false);
+      setError(e.message);
+    },
+  };
+
+  const onDeleteRingtonesClick = () => {
+    let newChatUIConfigObj = jsoneditor?.get();
+    newChatUIConfigObj = _.omit(newChatUIConfigObj, 'document.ringtones');
+    updateChatUIConfig(newChatUIConfigObj);
+  };
+
   const onDeleteLogoClick = () => {
     let newChatUIConfigObj = jsoneditor?.get();
-    newChatUIConfigObj = _.omit(newChatUIConfigObj, 'navbar.logo');
+    newChatUIConfigObj = _.omit(newChatUIConfigObj, 'document.logo');
     updateChatUIConfig(newChatUIConfigObj);
   };
 
@@ -507,7 +539,9 @@ initXiaobaiChat(params);
       };
       const editor = new JSONEditor(jsoneditorRef.current, options);
       editor.setText(
-        '{"navbar":{"title":"智能助理"},"toolbar":[{"type":"image","icon":"image","title":"图片"}],"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}'
+        i18n.language === ''
+          ? '{"navbar":{"title":"智能助理"},"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}'
+          : '{"navbar":{"title":"Smart Assistant"},"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"Call human service","isHighlight":true}},"messages":[{"type":"text","content":{"text":"The smart assistant is at your service, how can I help you?"}}],"placeholder":"Enter any of your questions","loadMoreText":"Click to load history message"}'
       );
       setJsoneditor(editor);
     }
@@ -525,7 +559,13 @@ initXiaobaiChat(params);
         setJsoneditor(undefined);
       }
     };
-  }, [defaultValues, getChatUIConfig, getStaffConfigList, jsoneditor]);
+  }, [
+    defaultValues,
+    getChatUIConfig,
+    getStaffConfigList,
+    i18n.language,
+    jsoneditor,
+  ]);
 
   useEffect(() => {
     if (jsoneditorRef.current && jsoneditor) {
@@ -628,7 +668,7 @@ initXiaobaiChat(params);
   const chatImgUploadProps = {
     action: getUploadS3ChatPath(),
     multiple: false,
-    accept: 'image/png,image/gif,image/jpeg',
+    accept: 'image/*',
     onStart() {
       setUploading(true);
     },
@@ -805,24 +845,26 @@ initXiaobaiChat(params);
             },
           })}
         />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          fullWidth
-          id="code"
-          label={t('Shunt Code')}
-          value={defaultValues?.code || data?.saveShunt?.code || ''}
-          InputProps={{
-            readOnly: true,
-            startAdornment: (
-              <InputAdornment position="start">
-                <LinkIcon />
-              </InputAdornment>
-            ),
-          }}
-          {...register('code')}
-        />
-        {shuntCode && webLink && (
+        {shuntCode && (
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            id="code"
+            label={t('Shunt Code')}
+            value={defaultValues?.code || data?.saveShunt?.code || ''}
+            InputProps={{
+              readOnly: true,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LinkIcon />
+                </InputAdornment>
+              ),
+            }}
+            {...register('code')}
+          />
+        )}
+        {shuntCode && (
           <TextField
             variant="outlined"
             margin="normal"
@@ -842,7 +884,7 @@ initXiaobaiChat(params);
             }}
           />
         )}
-        {shuntCode && webLink && (
+        {shuntCode && (
           <Link target="_blank" href={webLink}>
             {t('Test Shunt group link')}
           </Link>
@@ -923,15 +965,15 @@ initXiaobaiChat(params);
         /> */}
         <Typography variant="body1" className={classes.alert}>
           {t(
-            'Customize the navigation bar Logo (click on the avatar or upload to add/modify)'
+            'Customize the web icon (click on the avatar or upload to add/modify)'
           )}
         </Typography>
         <Grid container>
           <Grid item className={classes.button}>
             <Upload {...imgUploadProps}>
-              {chatUIConfigObj && chatUIConfigObj.navbar.logo ? (
+              {chatUIConfigObj && chatUIConfigObj.document?.logo ? (
                 <img
-                  src={chatUIConfigObj.navbar.logo}
+                  src={chatUIConfigObj.document?.logo}
                   alt="logo"
                   style={{ maxHeight: '40px' }}
                 />
@@ -948,6 +990,29 @@ initXiaobaiChat(params);
             </Button>
           </Grid>
         </Grid>
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="chatTitle"
+          name="chatTitle"
+          label={t('Custom page title')}
+          value={chatUIConfigObj?.document?.title || ''}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <TitleIcon />
+              </InputAdornment>
+            ),
+          }}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            handleChatUIConfigChange({
+              document: {
+                title: event.target.value,
+              },
+            });
+          }}
+        />
         <TextField
           variant="outlined"
           margin="normal"
@@ -971,6 +1036,36 @@ initXiaobaiChat(params);
             });
           }}
         />
+        <Typography variant="body1" className={classes.alert}>
+          {t('Custom ringtones')}
+        </Typography>
+        <Grid container>
+          <Grid item className={classes.button}>
+            {chatUIConfigObj && chatUIConfigObj.document?.ringtones ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                  const audio = new Audio(chatUIConfigObj.document.ringtones);
+                  audio.play();
+                }}
+              >
+                {t('Play')}
+              </Button>
+            ) : (
+              <Upload {...ringtonesUploadProps}>
+                <Button variant="contained" color="primary">
+                  {t('Upload')}
+                </Button>
+              </Upload>
+            )}
+          </Grid>
+          <Grid item className={classes.button}>
+            <Button color="secondary" onClick={onDeleteRingtonesClick}>
+              {t('Delete')}
+            </Button>
+          </Grid>
+        </Grid>
 
         {/*
         <TextField
@@ -1239,7 +1334,9 @@ initXiaobaiChat(params);
           id="placeholder"
           name="placeholder"
           label={t('Input box placeholder')}
-          value={chatUIConfigObj?.placeholder ?? '输入任何您的问题'}
+          value={
+            chatUIConfigObj?.placeholder ?? t('Enter any of your questions')
+          }
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

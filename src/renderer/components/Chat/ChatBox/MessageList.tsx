@@ -152,34 +152,22 @@ export function createContent(
         switch (content.sysCode) {
           default: {
             element = (
-              <ListItemText
-                primary={
-                  <Typography
-                    variant="body1"
-                    gutterBottom
-                    className={classes.message}
-                  >
-                    {text}
-                  </Typography>
-                }
-              />
+              <Typography
+                variant="body2"
+                gutterBottom
+                className={classes.message}
+              >
+                {text}
+              </Typography>
             );
             break;
           }
         }
       } else {
         element = (
-          <ListItemText
-            primary={
-              <Typography
-                variant="body1"
-                gutterBottom
-                className={classes.message}
-              >
-                {text}
-              </Typography>
-            }
-          />
+          <Typography variant="body2" gutterBottom className={classes.message}>
+            {text}
+          </Typography>
         );
       }
       break;

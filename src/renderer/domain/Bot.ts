@@ -1,4 +1,5 @@
 import { TreeNodeProps } from 'react-dropdown-tree-select';
+import i18n from 'renderer/i18n/i18n'; // 引用多语言配置文件
 
 export interface KnowledgeBase {
   id: number | undefined;
@@ -75,10 +76,6 @@ export interface BotConfig {
   hotQuestion?: string;
 }
 
-export const botConfigNoAnswerReply = '抱歉，没有找到您想要的答案';
-export const botConfigSimilarQuestionNotice =
-  '抱歉，没有找到您想要的答案。您可能想问';
-
 export function makeTreeNode(
   topicCategory: TopicCategory[],
   selectValue?: number,
@@ -89,7 +86,7 @@ export function makeTreeNode(
 ): TreeNodeProps[] {
   return topicCategory.map((it) => {
     const node: TreeNodeProps = {
-      label: it.name || '未命名',
+      label: it.name || i18n.t('Unnamed'),
       value: it.id?.toString() ?? '',
     };
     if (selectValue && it.id === selectValue) {

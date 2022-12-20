@@ -264,7 +264,7 @@ export default function Dashboard() {
         >
           {kibanaUrl && (
             <iframe
-              title="监控"
+              title={t('Monitoring')}
               style={{
                 flexGrow: 1,
                 border: 'none',

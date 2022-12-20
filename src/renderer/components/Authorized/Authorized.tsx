@@ -5,11 +5,13 @@
  */
 import React from 'react';
 
+import i18n from 'renderer/i18n/i18n'; // 引用多语言配置文件
 import Snackbar from '../Snackbar/Snackbar';
 import check, { IAuthorityType } from './CheckPermissions';
 
 import AuthorizedRoute from './AuthorizedRoute';
 import Secured from './Secured';
+
 
 interface AuthorizedProps {
   authority: IAuthorityType;
@@ -30,7 +32,9 @@ const Authorized: React.FunctionComponent<AuthorizedProps> = ({
     <Snackbar
       place="tc"
       color="warning"
-      message="403 WARNING - 您没有权限访问此页面"
+      message={`403 WARNING - ${i18n.t(
+        'You do not have permission to access this page'
+      )}`}
       open
       close
     />

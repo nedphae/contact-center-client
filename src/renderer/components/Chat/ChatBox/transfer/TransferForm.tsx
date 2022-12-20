@@ -147,7 +147,7 @@ function TransferForm(
     <DraggableDialog
       title={
         <Grid container justifyContent="flex-end">
-          转接客户{t('Transfer customer')}
+          {t('Transfer customer')}
           <Button
             color="primary"
             className={classes.titleButton}
@@ -156,7 +156,7 @@ function TransferForm(
               refetchStaff();
             }}
           >
-            刷新{t('Refresh')}
+            {t('Refresh')}
           </Button>
         </Grid>
       }
@@ -205,7 +205,11 @@ function TransferForm(
                           <StyledTreeItem
                             key={staff.id.toString()}
                             nodeId={`staff-${staff.id}`}
-                            label={`${staff.realName}[${staff.nickName}] 接待量: ${staff.currentServiceCount}/${staff.maxServiceCount}`}
+                            label={`${staff.realName}[${staff.nickName}] ${t(
+                              'Count of reception'
+                            )}: ${staff.currentServiceCount}/${
+                              staff.maxServiceCount
+                            }`}
                             onClick={() => {
                               setStaffId(staff.id);
                             }}
@@ -233,7 +237,11 @@ function TransferForm(
                           <StyledTreeItem
                             key={staff.id.toString()}
                             nodeId={`staff-${staff.id}`}
-                            label={`${staff.realName}[${staff.nickName}] 接待量: ${staff.currentServiceCount}/${staff.maxServiceCount}`}
+                            label={`${staff.realName}[${staff.nickName}] ${t(
+                              'Count of reception'
+                            )}: ${staff.currentServiceCount}/${
+                              staff.maxServiceCount
+                            }`}
                             onClick={() => {
                               setStaffId(staff.id);
                             }}

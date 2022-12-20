@@ -13,8 +13,6 @@ import {
   BotConfig,
   KnowledgeBase,
   TopicCategory,
-  botConfigNoAnswerReply,
-  botConfigSimilarQuestionNotice,
   Topic,
 } from 'renderer/domain/Bot';
 import DraggableDialog, {
@@ -340,10 +338,12 @@ export default function BotSidecar(props: BotProps) {
             botConfigInput: {
               botId: staff.id,
               knowledgeBaseId: topicOrKnowladge?.Knowladge?.id,
-              noAnswerReply: botConfigNoAnswerReply,
+              noAnswerReply: t('Sorry, did not find the answer you want'),
               questionPrecision: 0.9,
               similarQuestionEnable: true,
-              similarQuestionNotice: botConfigSimilarQuestionNotice,
+              similarQuestionNotice: t(
+                'Sorry, the answer you were looking for was not found. you may want to ask'
+              ),
               similarQuestionCount: 5,
             },
           },
@@ -526,10 +526,12 @@ export default function BotSidecar(props: BotProps) {
               defaultValues={{
                 botId: configStaff.id,
                 knowledgeBaseId: topicOrKnowladge.Knowladge.id,
-                noAnswerReply: botConfigNoAnswerReply,
+                noAnswerReply: t('Sorry, did not find the answer you want'),
                 questionPrecision: 0.9,
                 similarQuestionEnable: true,
-                similarQuestionNotice: botConfigSimilarQuestionNotice,
+                similarQuestionNotice: t(
+                  'Sorry, the answer you were looking for was not found. you may want to ask'
+                ),
                 similarQuestionCount: 5,
               }}
               afterMutationCallback={() => {

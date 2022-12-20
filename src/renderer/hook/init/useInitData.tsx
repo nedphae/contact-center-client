@@ -15,6 +15,8 @@ import {
   QUERY_SESSION_CATEGORY,
 } from 'renderer/domain/graphql/SessionCategory';
 import { SessionCategory } from 'renderer/domain/SessionCategory';
+import usePropetyByKey from 'renderer/domain/graphql/Properties';
+import { Properties } from 'renderer/domain/Properties';
 
 interface Result {
   refetchQuickReply(
@@ -25,6 +27,7 @@ interface Result {
   refetchSessionCategory(
     variables?: Partial<OperationVariables> | undefined
   ): Promise<ApolloQueryResult<SessionCategoryGraphql>>;
+  prop: Properties | undefined;
 }
 /**
  * 用于初始化数据，载入：
@@ -39,6 +42,7 @@ const useInitData = (redispatch = true): Result => {
   const [redispatchState, setRedispatchState] = useState(redispatch);
   const { data, refetch } =
     useQuery<QuickReplyAllDtoGraphql>(QUERY_QUICK_REPLY);
+  const { prop } = usePropetyByKey('client.setting.ringtones');
 
   const {
     data: sessionCategoryGraphqlResult,
@@ -95,6 +99,7 @@ const useInitData = (redispatch = true): Result => {
     sessionCategoryList: sessionCategoryGraphqlResult?.getAllSessionCategory,
     sessionCategoryTreeList,
     refetchSessionCategory,
+    prop,
   };
 };
 

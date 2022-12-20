@@ -56,7 +56,7 @@ export default function TreeToolbar(props: BotToolbarProps) {
       >
         <MenuIcon />
       </IconButton>
-      <Typography variant="h6">{title}</Typography>
+      <Typography variant="subtitle2">{title}</Typography>
       <Menu
         id="simple-menu"
         anchorEl={anchorEl}
