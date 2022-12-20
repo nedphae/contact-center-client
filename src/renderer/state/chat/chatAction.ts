@@ -17,6 +17,8 @@ export const {
   setPts,
   setPlayNewMessageSound,
   clearPlayNewMessageSound,
+  addImageToSend,
+  clearImageToSend,
 } = slice.actions;
 
 export const getSelectedSession = (state: RootState) => {
@@ -63,3 +65,6 @@ export const getFirstTransferMessageRecive = (state: RootState) =>
 
 export const getPlayNewMessageSound = (state: RootState) =>
   state.chat.playNewMessageSound;
+
+export const getImageListToSend = (state: RootState) =>
+  state.chat.imageListToSend;

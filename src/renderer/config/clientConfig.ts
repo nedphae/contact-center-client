@@ -3,7 +3,7 @@ class ClientConfig {
     // gateway 配置地址
     // 后端接口地址，仅修改此地址即可
     host:
-      process.env.NODE_ENV === 'production'
+      process.env.NODE_ENV !== 'production'
         ? 'https://im.xbcs.top'
         : 'http://localhost:8080',
   };

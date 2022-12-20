@@ -32,7 +32,7 @@ const styles = (theme: Theme) =>
     },
   });
 
-function PaperComponent(props: PaperProps) {
+export function PaperComponent(props: PaperProps) {
   return (
     <Draggable
       handle="#draggable-dialog-title"

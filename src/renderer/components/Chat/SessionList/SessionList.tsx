@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 
@@ -36,6 +35,7 @@ import { InteractionLogo } from 'renderer/domain/constant/Conversation';
 import { Box, Chip, ListItemSecondaryAction } from '@material-ui/core';
 import { getDuration, javaInstant2Num } from 'renderer/utils/timeUtils';
 import useInterval from 'renderer/hook/useInterval';
+import { useAppDispatch, useAppSelector } from 'renderer/store';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -63,12 +63,12 @@ const initialState = {
 function SessionList(props: SessionListProps) {
   const { history } = props;
   const classes = useStyles();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
   // 默认不选取
-  const selectedSession = useSelector(getSelectedSession);
-  const sessions = useSelector(getSession(history));
+  const selectedSession = useAppSelector(getSelectedSession);
+  const sessions = useAppSelector(getSession(history));
   const [sessionDuration, setSessionDuration] = useState<{
     [sessionId: number]: number;
   }>();

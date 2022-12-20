@@ -89,7 +89,7 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
     toMessagePaper: {
       // 如果是收到的消息就是 borderTopLeftRadius
       borderTopRightRadius: 0,
-      backgroundColor: theme.palette.type === 'light' ? '#8ae549' : '#508828',
+      backgroundColor: theme.palette.type === 'light' ? '#ffe48c' : '#8b6305',
     },
     fromMessagePaper: {
       // 如果是收到的消息就是 borderTopLeftRadius

@@ -2,8 +2,9 @@
  * 聊天窗口设计
  */
 import { useSelector } from 'react-redux';
-
+import { v4 as uuidv4 } from 'uuid';
 import Uploady, { FileFilterMethod } from '@rpldy/uploady';
+import createUploader from '@rpldy/uploader';
 import UploadDropZone from '@rpldy/upload-drop-zone';
 import withPasteUpload from '@rpldy/upload-paste';
 
@@ -18,8 +19,11 @@ import { Resizable } from 're-resizable';
 
 import Grid from '@material-ui/core/Grid';
 
-import { getSelectedSession } from 'renderer/state/chat/chatAction';
+import axios from 'renderer/utils/request';
+import { addImageToSend, getSelectedSession } from 'renderer/state/chat/chatAction';
 import { getUploadS3ChatPath } from 'renderer/config/clientConfig';
+import { useEffect, useRef } from 'react';
+import { useAppDispatch } from 'renderer/store';
 import ChatHeader from './ChatHeader';
 import MesageList from './MessagePanel';
 import Editor from './Editor';
@@ -55,13 +59,56 @@ const StyledDropZone = styled(UploadDropZone)({
 });
 const PasteUploadDropZone = withPasteUpload(StyledDropZone);
 
+export const uploader = createUploader({
+  destination: { url: getUploadS3ChatPath() },
+});
+
 export default function Chat() {
   const classes = useStyles();
   const selectedSession = useSelector(getSelectedSession);
+  const dispatch = useAppDispatch();
+  const handlerRef = useRef<() => void>();
 
   const fileFilter: FileFilterMethod = (file) => {
     return selectedSession != null && (file as File).size < 10485760;
   };
+
+  useEffect(() => {
+    if (!handlerRef.current) {
+      console.info('注册事件');
+      handlerRef.current = window.electron.ipcRenderer.on(
+        'screenshots-ok',
+        (buffer) => {
+          const file = new Blob(
+            [(buffer as Uint8Array).buffer],
+            { type: 'image/png' } /* (1) */
+          );
+          const formData = new FormData();
+          formData.append('file', file, `${uuidv4().substring(0, 8)}.png`);
+          console.info(formData);
+          axios
+            .post(getUploadS3ChatPath(), formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            })
+            .then((res) => {
+              const mediaId = (res.data as string[])[0];
+              console.info(res);
+              dispatch(addImageToSend([mediaId]));
+              return undefined;
+            })
+            .catch(() => {});
+        }
+      );
+    }
+    return () => {
+      if (handlerRef.current) {
+        console.info('清楚事件');
+        handlerRef.current();
+      }
+    };
+  }, []);
 
   return (
     <Uploady

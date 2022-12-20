@@ -9,9 +9,17 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain, session } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  session,
+  globalShortcut,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import Screenshots from 'electron-screenshots';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -32,6 +40,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let screenshots: Screenshots | null = null;
 
 // setup the titlebar main process
 // setupTitlebar();
@@ -110,6 +119,7 @@ const createWindow = async () => {
   });
 
   mainWindow.on('closed', () => {
+    screenshots?.$win?.close();
     mainWindow = null;
   });
 
@@ -147,6 +157,38 @@ app.commandLine.appendSwitch('--no-proxy-server');
 app
   .whenReady()
   .then(() => {
+    screenshots = new Screenshots({
+      singleWindow: true,
+    });
+
+    globalShortcut.register('ctrl+shift+a', () => {
+      screenshots?.startCapture();
+      // screenshots.$view.webContents.openDevTools();
+    });
+    // 点击确定按钮回调事件
+    screenshots.on('ok', (e, buffer, bounds) => {
+      console.log('capture', buffer, bounds);
+      // screenshots.endCapture();
+      if (mainWindow !== null) {
+        mainWindow.webContents.send('screenshots-ok', buffer);
+      }
+    });
+    screenshots.on('cancel', (e) => {
+      // 执行了preventDefault
+      // 点击取消不会关闭截图窗口
+      // e.preventDefault();
+      console.log('capture', 'cancel2');
+    });
+    // 点击保存按钮回调事件
+    screenshots.on('save', (e, buffer, bounds) => {
+      console.log('capture', buffer, bounds);
+    });
+    globalShortcut.register('esc', () => {
+      if (screenshots?.$win?.isFocused()) {
+        screenshots.endCapture();
+      }
+    });
+
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

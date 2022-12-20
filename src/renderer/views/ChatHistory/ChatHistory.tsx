@@ -49,20 +49,8 @@ import { LazyCustomerInfo } from 'renderer/components/Chat/DetailCard/panel/Cust
 import { CustomerExportGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
-import { DialogTitle } from 'renderer/components/DraggableDialog/DraggableDialog';
+import { DialogTitle, PaperComponent } from 'renderer/components/DraggableDialog/DraggableDialog';
 import DetailTitle from './DetailTitle';
-
-function PaperComponent(props: PaperProps) {
-  return (
-    <Draggable
-      handle="#draggable-dialog-title"
-      cancel={'[class*="MuiDialogContent-root"]'}
-    >
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Paper {...props} />
-    </Draggable>
-  );
-}
 
 const dateFnsUtils = new DateFnsUtils();
 

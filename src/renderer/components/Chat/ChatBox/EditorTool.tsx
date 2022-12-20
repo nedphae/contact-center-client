@@ -2,6 +2,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { v4 as uuidv4 } from 'uuid';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,7 +16,7 @@ import StarIcon from '@material-ui/icons/Star';
 import Tooltip from '@material-ui/core/Tooltip';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { Menu, MenuItem } from '@material-ui/core';
+import { Dialog, Menu, MenuItem } from '@material-ui/core';
 import NestedMenuItem from 'material-ui-nested-menu-item';
 
 import './emoji-mart.global.css';
@@ -27,7 +28,9 @@ import { getUploadS3ChatPath } from 'renderer/config/clientConfig';
 import { Attachments, PhotoContent } from 'renderer/domain/Message';
 import BlacklistForm from 'renderer/components/Blacklist/BlacklistForm';
 import DraggableDialog, {
+  DialogTitle,
   DraggableDialogRef,
+  PaperComponent,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
 import { BlacklistFormProp } from 'renderer/domain/Blacklist';
 import useInitData from 'renderer/hook/init/useInitData';
@@ -51,7 +54,13 @@ import {
   updateOrCreateConv,
 } from 'renderer/state/session/sessionAction';
 import { BatchItem, useItemFinalizeListener } from '@rpldy/uploady';
-import { useAppDispatch } from 'renderer/store';
+import { useAppDispatch, useAppSelector } from 'renderer/store';
+import {
+  addImageToSend,
+  clearImageToSend,
+  getImageListToSend,
+} from 'renderer/state/chat/chatAction';
+import SendImageForm from 'renderer/components/Form/SendImageForm';
 import TransferForm from './transfer/TransferForm';
 
 const useStyles = makeStyles(() =>
@@ -108,6 +117,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const { textMessage, setMessage, selectedSession } = props;
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const imageListToSend = useAppSelector(getImageListToSend);
 
   const blacklistInfo: BlacklistFormProp = {
     preventStrategy: 'UID',
@@ -124,6 +134,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
+  const [openImageDialog, setOpenImageDialog] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfTransferDialog = useRef<DraggableDialogRef>(null);
@@ -166,16 +177,12 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   }
 
   useItemFinalizeListener((item: BatchItem) => {
+    const mediaId = (item.uploadResponse.data as string[])[0];
     if (item.file.type.startsWith('image')) {
-      handleSendImageMessage({
-        mediaId: (item.uploadResponse.data as string[])[0],
-        filename: item.file.name,
-        picSize: item.file.size,
-        type: item.file.type,
-      });
+      dispatch(addImageToSend([mediaId]));
     } else {
       handleSendFileMessage({
-        mediaId: (item.uploadResponse.data as string[])[0],
+        mediaId,
         filename: item.file.name,
         size: item.file.size,
         type: item.file.type,
@@ -283,6 +290,36 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     onCompletedMsg(t('chat.editor.tool.Rate invitation has been sent'));
   }
 
+  if (imageListToSend && !openImageDialog) {
+    setOpenImageDialog(true);
+  }
+
+  const handleImageClose = () => {
+    setOpenImageDialog(false);
+    dispatch(clearImageToSend());
+  };
+
+  const sendImageList = (imgUrls: string[]) => {
+    handleImageClose();
+    imgUrls.forEach((url) => {
+      handleSendImageMessage({
+        mediaId: url,
+        filename: uuidv4().substring(0, 8),
+        picSize: 0,
+        type: 'unknown',
+      });
+    });
+  };
+
+  const handleImageDialogClose = (
+    _event: unknown,
+    reason: 'backdropClick' | 'escapeKeyDown'
+  ) => {
+    if (reason !== 'backdropClick') {
+      handleImageClose();
+    }
+  };
+
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
       <DraggableDialog
@@ -291,6 +328,26 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       >
         <BlacklistForm defaultValues={blacklistInfo} />
       </DraggableDialog>
+      <Dialog
+        disableEnforceFocus
+        fullWidth
+        maxWidth="md"
+        open={openImageDialog}
+        onClose={handleImageDialogClose}
+        PaperComponent={PaperComponent}
+        aria-labelledby="draggable-dialog-title"
+      >
+        <DialogTitle
+          style={{ cursor: 'move' }}
+          id="draggable-dialog-title"
+          onClose={handleImageClose}
+        >
+          {t('Detailed chat message')}
+        </DialogTitle>
+        {imageListToSend && (
+          <SendImageForm urls={imageListToSend} send={sendImageList} />
+        )}
+      </Dialog>
       <TransferForm defaultValues={transferQuery} ref={refOfTransferDialog} />
       <Menu
         keepMounted

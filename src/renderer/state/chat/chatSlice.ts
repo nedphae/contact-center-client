@@ -176,6 +176,15 @@ const chatSlice = createSlice({
         chat.monitored.monitoredSession.hasMore = action.payload.hasMore;
       }
     },
+    addImageToSend: (chat, action: PayloadAction<string[]>) => {
+      const oldList = chat.imageListToSend ?? [];
+      chat.imageListToSend = [...oldList, ...action.payload];
+    },
+    clearImageToSend: (chat) => {
+      if (chat.imageListToSend) {
+        chat.imageListToSend = undefined;
+      }
+    },
   },
 });
 

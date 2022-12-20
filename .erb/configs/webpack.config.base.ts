@@ -65,6 +65,13 @@ const configuration: webpack.Configuration = {
           name: '[name].[hash:8].[ext]',
         },
       },
+      {
+        test: /\.(html|node)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 4096,
+        },
+      },
     ],
   },
 
