@@ -42,7 +42,6 @@ import {
   newMessage,
   sendWithdrawMsg,
   setHasMore,
-  setNewMessage,
   updateSync,
 } from 'renderer/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
@@ -70,7 +69,6 @@ import {
   SyncMessageByUserGraphql,
   QUERY_SYNC_USER_MESSAGE,
 } from 'renderer/domain/graphql/Monitor';
-import { getMyself } from 'renderer/state/staff/staffAction';
 import FileCard from './FileCard';
 import RichTextStyle from './RichText.less';
 
@@ -85,8 +83,7 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       width: '100%',
     },
     baseMessagePaper: {
-      padding: 7,
-      maxWidth: '70%',
+      maxWidth: '90%',
       borderRadius: 10,
     },
     toMessagePaper: {
@@ -132,6 +129,11 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       whiteSpace: 'pre-wrap',
       wordWrap: 'break-word',
       wordBreak: 'break-word',
+      margin: 7,
+    },
+    sysMsg: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
     },
   })
 );
@@ -216,6 +218,7 @@ export function createContent(
               maxWidth: '600px',
               wordWrap: 'break-word',
               overflowWrap: 'break-word',
+              margin: 7,
             }}
             className={classNames(RichTextStyle['Knowledge-content'])}
             dangerouslySetInnerHTML={html}
@@ -646,7 +649,11 @@ const MessageList = (props: MessageListProps) => {
                   {content.contentType === 'SYS_TEXT' ? (
                     <Grid container justifyContent="center">
                       {/* 展示系统消息 */}
-                      <Typography variant="caption" align="center">
+                      <Typography
+                        variant="caption"
+                        align="center"
+                        className={classes.sysMsg}
+                      >
                         {content.textContent?.text}
                       </Typography>
                     </Grid>

@@ -1,6 +1,5 @@
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 import {
   alpha,

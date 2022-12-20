@@ -1,7 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
@@ -52,6 +50,8 @@ import {
   sendImageMessage,
   updateOrCreateConv,
 } from 'renderer/state/session/sessionAction';
+import { BatchItem, useItemFinalizeListener } from '@rpldy/uploady';
+import { useAppDispatch } from 'renderer/store';
 import TransferForm from './transfer/TransferForm';
 
 const useStyles = makeStyles(() =>
@@ -106,7 +106,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
   const theme = useTheme();
   const { textMessage, setMessage, selectedSession } = props;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
   const blacklistInfo: BlacklistFormProp = {
@@ -125,7 +125,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
-  const refOfHandler = useRef<(ev: ClipboardEvent) => any>();
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfTransferDialog = useRef<DraggableDialogRef>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
@@ -150,14 +149,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
 
   const { sessionCategoryTreeList } = useInitData(false);
 
-  function handleClickBlacklist() {
-    refOfDialog.current?.setOpen(true);
-  }
-
-  function handleClickTransfer() {
-    refOfTransferDialog.current?.setOpen(true);
-  }
-
   function handleSendImageMessage(photoContent: PhotoContent) {
     if (selectedSession) {
       dispatch(
@@ -166,14 +157,38 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     }
   }
 
-  window.handleSendImageMessage = handleSendImageMessage;
-
   function handleSendFileMessage(attachments: Attachments) {
     if (selectedSession) {
       dispatch(
         sendFileMessage(selectedSession.conversation.userId, attachments)
       );
     }
+  }
+
+  useItemFinalizeListener((item: BatchItem) => {
+    if (item.file.type.startsWith('image')) {
+      handleSendImageMessage({
+        mediaId: (item.uploadResponse.data as string[])[0],
+        filename: item.file.name,
+        picSize: item.file.size,
+        type: item.file.type,
+      });
+    } else {
+      handleSendFileMessage({
+        mediaId: (item.uploadResponse.data as string[])[0],
+        filename: item.file.name,
+        size: item.file.size,
+        type: item.file.type,
+      });
+    }
+  });
+
+  function handleClickBlacklist() {
+    refOfDialog.current?.setOpen(true);
+  }
+
+  function handleClickTransfer() {
+    refOfTransferDialog.current?.setOpen(true);
   }
 
   const handleClick =

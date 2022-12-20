@@ -1,16 +1,25 @@
 /**
  * 聊天窗口设计
  */
-import React from 'react';
 import { useSelector } from 'react-redux';
 
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import Uploady, { FileFilterMethod } from '@rpldy/uploady';
+import UploadDropZone from '@rpldy/upload-drop-zone';
+import withPasteUpload from '@rpldy/upload-paste';
+
+import {
+  createStyles,
+  Theme,
+  makeStyles,
+  styled,
+} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { Resizable } from 're-resizable';
 
 import Grid from '@material-ui/core/Grid';
 
 import { getSelectedSession } from 'renderer/state/chat/chatAction';
+import { getUploadS3ChatPath } from 'renderer/config/clientConfig';
 import ChatHeader from './ChatHeader';
 import MesageList from './MessagePanel';
 import Editor from './Editor';
@@ -41,48 +50,64 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const StyledDropZone = styled(UploadDropZone)({
+  height: '100%',
+});
+const PasteUploadDropZone = withPasteUpload(StyledDropZone);
+
 export default function Chat() {
   const classes = useStyles();
   const selectedSession = useSelector(getSelectedSession);
 
+  const fileFilter: FileFilterMethod = (file) => {
+    return selectedSession != null && (file as File).size < 10485760;
+  };
+
   return (
-    <Grid container className={classes.root}>
-      <CssBaseline />
-      <ChatHeader />
-      <div
-        style={{
-          width: 'auto',
-          height: '80vh',
-          // 预留出 header 的位置, header 修改为 sticky，不用再预留位置
-          paddingTop: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'auto',
-        }}
-      >
-        <Resizable
-          style={style}
-          defaultSize={{
-            width: 'auto',
-            height: '65vh',
-          }}
-          maxHeight="70vh"
-          minHeight="30vh"
-          enable={{
-            top: false,
-            right: false,
-            bottom: true,
-            left: false,
-            topRight: false,
-            bottomRight: false,
-            bottomLeft: false,
-            topLeft: false,
-          }}
-        >
-          <MesageList />
-        </Resizable>
-        <Editor selectedSession={selectedSession} />
-      </div>
-    </Grid>
+    <Uploady
+      destination={{ url: getUploadS3ChatPath() }}
+      fileFilter={fileFilter}
+    >
+      <PasteUploadDropZone>
+        <Grid container className={classes.root}>
+          <CssBaseline />
+          <ChatHeader />
+          <div
+            style={{
+              width: 'auto',
+              height: '80vh',
+              // 预留出 header 的位置, header 修改为 sticky，不用再预留位置
+              paddingTop: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'auto',
+            }}
+          >
+            <Resizable
+              style={style}
+              defaultSize={{
+                width: 'auto',
+                height: '65vh',
+              }}
+              maxHeight="70vh"
+              minHeight="30vh"
+              enable={{
+                top: false,
+                right: false,
+                bottom: true,
+                left: false,
+                topRight: false,
+                bottomRight: false,
+                bottomLeft: false,
+                topLeft: false,
+              }}
+            >
+              <MesageList />
+            </Resizable>
+            <Editor selectedSession={selectedSession} />
+          </div>
+        </Grid>
+      </PasteUploadDropZone>
+    </Uploady>
   );
 }

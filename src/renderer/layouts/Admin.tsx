@@ -158,7 +158,7 @@ export default function Admin({ ...rest }) {
         {/** 侧边选项卡 */}
         <Sidebar
           routes={routes}
-          logoText="小白客服系统" // 客服
+          // logoText="小白客服系统" // 客服
           logo={logo}
           image={image}
           handleDrawerToggle={handleDrawerToggle}

@@ -1814,6 +1814,97 @@
     redux-thunk "^2.4.1"
     reselect "^4.1.5"
 
+"@rpldy/abort@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/abort/-/abort-1.3.0.tgz#ba417ff66e5be9df4e01acce4647a3e5caf1a86a"
+  integrity sha512-A+JYhjTXva6YoRlVSWr0yKyf3JBPpuoAKYaMuW/iuL8jERXIHxnIKHtKoFKOWoxldB0VL+DS5NAEYWX/nkYSbg==
+  dependencies:
+    "@rpldy/raw-uploader" "^1.3.0"
+    "@rpldy/shared" "^1.3.0"
+    "@rpldy/simple-state" "^1.3.0"
+
+"@rpldy/life-events@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/life-events/-/life-events-1.3.0.tgz#a0ff27a47e504942473f4bb82312c8a61a91ed0f"
+  integrity sha512-m4UA1UoNpuf19Ro2Vla44OuHEGptwMTUZ03z/lKH4rQv0SM172nCHqTnMhD4nRWZsQHxBZntRGa95V2SHDjJyg==
+  dependencies:
+    "@rpldy/shared" "^1.3.0"
+
+"@rpldy/raw-uploader@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/raw-uploader/-/raw-uploader-1.3.0.tgz#bd25dab565afa71da4a114223df4e2ff6138c14a"
+  integrity sha512-ED6cELZ/cuZTEAXBMVkjJkZD+PhzIVaXRIjfjC2tA12Tuw10JtT1OQU6RsZKQNPd3EmyZz/XmYVO7BbNigpkwA==
+  dependencies:
+    "@rpldy/life-events" "^1.3.0"
+    "@rpldy/shared" "^1.3.0"
+
+"@rpldy/sender@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/sender/-/sender-1.3.0.tgz#f2da991d0b987ad1a30a06befe417909bf48b43a"
+  integrity sha512-GjHcU3hCyJMRS9wYJkcXrVHdV3wqrGwq/tewl8fl7CzrzMUrk7oJgK8aoAGy8fAzdjrwfmorL+dFIDXXLY1LHw==
+  dependencies:
+    "@rpldy/shared" "^1.3.0"
+
+"@rpldy/shared-ui@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/shared-ui/-/shared-ui-1.3.0.tgz#45e1acfd34dd9998ef3e87a8c45266d957a1ad62"
+  integrity sha512-z/N2PZlfI/K7Zh2rtJawK0tPaRNGqRgbPbDHDvrsz01OcBQZjUcwY1itZdp0wz9psVRV5MzjR73roSsOsheD+A==
+  dependencies:
+    "@rpldy/shared" "^1.3.0"
+    "@rpldy/uploader" "^1.3.0"
+
+"@rpldy/shared@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/shared/-/shared-1.3.0.tgz#fea863e816d759c4f3fa716f1b10f11ddb1402d8"
+  integrity sha512-d0Prng9JMino9VjVrSvRph0DdanTSv6+DYnupk1ipvmX5BBAz9LqCKn0XsdMfo7OQfK9/InApWcP9/yvR6qx8A==
+  dependencies:
+    invariant "^2.2.4"
+    just-throttle "^1.1.0"
+
+"@rpldy/simple-state@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/simple-state/-/simple-state-1.3.0.tgz#e3cde1c3564ea9507a8c43e29f8db5a622cbf784"
+  integrity sha512-71cjumPT18RG4XwbwNR61FxTE61v50wRNar5XEDfxI0Og2/3HFJqFlXZHIAzLphyB6/LT3kzwShcw/ka4LqXJQ==
+  dependencies:
+    "@rpldy/shared" "^1.3.0"
+
+"@rpldy/upload-drop-zone@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/upload-drop-zone/-/upload-drop-zone-1.3.0.tgz#e84f2f4fcfb7008f68b3f25bd4db9d7e4220085f"
+  integrity sha512-h8McX6/tjX3WoELjUEJNG9wp5k+eHPgNmaQaTkkYGeircAtza34boxD5NLiEyue7QeUXb8ek7GPFfuMZFOii2g==
+  dependencies:
+    "@rpldy/shared-ui" "^1.3.0"
+    html-dir-content "^0.3.2"
+
+"@rpldy/upload-paste@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/upload-paste/-/upload-paste-1.3.0.tgz#69af7b40037e81c3d1f3a9e2e439b58e41737a36"
+  integrity sha512-s7aLq2azyiSQx1SDTcIDoERU6/1qO5mxOMaRtxN6uSMOswH4n12hXo370h2pzLGd6dV4SuNw6Pi0vdxTF8LcEQ==
+  dependencies:
+    "@rpldy/shared-ui" "^1.3.0"
+
+"@rpldy/uploader@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/uploader/-/uploader-1.3.0.tgz#2b07bbcb4505cba4124562d77941767f3af2026d"
+  integrity sha512-YR8fwLmXTu0jFog5/tnn4qKo/BfonDcvojwsuEx/0S0vAT0+ctBzRqeDLkVTQ3QY0a6WAltoYtxDCLjgtEpsCw==
+  dependencies:
+    "@rpldy/abort" "^1.3.0"
+    "@rpldy/life-events" "^1.3.0"
+    "@rpldy/raw-uploader" "^1.3.0"
+    "@rpldy/sender" "^1.3.0"
+    "@rpldy/shared" "^1.3.0"
+    "@rpldy/simple-state" "^1.3.0"
+
+"@rpldy/uploady@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.npmmirror.com/@rpldy/uploady/-/uploady-1.3.0.tgz#82e06d181f1bd5dfbd14dedd13223cd2f3215689"
+  integrity sha512-gNn1nEWyHcyAK9zUViyK283E/WQTRGUUL9dwMcWD3m7PWqxwlZxTcE0rOh8GEZXTe15kwhrOVwIOWhT5W/3fIA==
+  dependencies:
+    "@rpldy/life-events" "^1.3.0"
+    "@rpldy/shared" "^1.3.0"
+    "@rpldy/shared-ui" "^1.3.0"
+    "@rpldy/uploader" "^1.3.0"
+
 "@sinclair/typebox@^0.23.3":
   version "0.23.5"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.23.5.tgz#93f7b9f4e3285a7a9ade7557d9a8d36809cbc47d"
@@ -8006,6 +8097,11 @@ hsla-regex@^1.0.0:
   resolved "https://registry.yarnpkg.com/hsla-regex/-/hsla-regex-1.0.0.tgz#c1ce7a3168c8c6614033a4b5f7877f3b225f9c38"
   integrity sha512-7Wn5GMLuHBjZCb2bTmnDOycho0p/7UVaAeqXZGbHrBCl6Yd/xDhQJAXe6Ga9AXJH2I5zY1dEdYw2u1UptnSBJA==
 
+html-dir-content@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.npmmirror.com/html-dir-content/-/html-dir-content-0.3.2.tgz#3fed73cf7b6c11e882fcfda38b32a2e9c58d1339"
+  integrity sha512-a1EJZbvBGmmFwk9VxFhEgaHkyXUXKTkw0jr0FCvXKCqgzO1H0wbFQbbzRA6FhR3twxAyjqVc80bzGHEmKrYsSw==
+
 html-element-map@^1.2.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/html-element-map/-/html-element-map-1.3.1.tgz#44b2cbcfa7be7aa4ff59779e47e51012e1c73c08"
@@ -8480,7 +8576,7 @@ interpret@^2.2.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-2.2.0.tgz#1a78a0b5965c40a5416d007ad6f50ad27c417df9"
   integrity sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==
 
-invariant@^2.2.1:
+invariant@^2.2.1, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -9791,6 +9887,11 @@ jszip@^3.1.0:
     pako "~1.0.2"
     readable-stream "~2.3.6"
     setimmediate "^1.0.5"
+
+just-throttle@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npmmirror.com/just-throttle/-/just-throttle-1.1.0.tgz#178d305ece9876a8a0759abd8d403aafcc6e4849"
+  integrity sha512-iePC/13XYX1Tyn9C6jY+DG3UEejkDvrKsw5xxgGhtGUwYWmoJm4CoKexscBKELOu3FTyCDzjr21ZJ67AXnz+bg==
 
 jwa@^1.4.1:
   version "1.4.1"

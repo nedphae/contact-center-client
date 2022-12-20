@@ -295,7 +295,7 @@ const sidebarStyle: any = (theme: Theme) => ({
     // 自定义标题栏时设置为 height: 'calc(100vh - 105px)',
     height: 'calc(100vh - 75px)',
     overflow: 'auto',
-    width: '200px',
+    width: `${drawerWidth}px`,
     zIndex: '4',
     overflowScrolling: 'touch',
   },

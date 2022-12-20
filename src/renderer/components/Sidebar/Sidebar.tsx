@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { NavLink, useLocation } from 'react-router-dom';
 // @material-ui/core components
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import List from '@material-ui/core/List';
@@ -20,11 +20,17 @@ import styles from '../../assets/jss/material-dashboard-react/components/sidebar
 import { RouteType } from 'renderer/useRoutes';
 import { checkPermissions } from '../Authorized/CheckPermissions';
 import { CURRENT } from '../Authorized/renderAuthorize';
-import { Badge } from '@material-ui/core';
+import { Badge, Tooltip } from '@material-ui/core';
 import { useAppSelector } from 'renderer/store';
 import { getTotalUnreadCount } from 'renderer/state/session/sessionAction';
 
 const useStyles = makeStyles(styles);
+
+const BiggerTooltip = withStyles((theme) => ({
+  tooltip: {
+    fontSize: 15,
+  },
+}))(Tooltip);
 
 export default function Sidebar(props: {
   rtlActive?: any;
@@ -58,8 +64,8 @@ export default function Sidebar(props: {
                 path: string;
                 layout: any;
                 icon: any | null | undefined;
-                rtlName: React.ReactNode;
-                name: React.ReactNode;
+                rtlName: string;
+                name: string;
               },
               key: string | number | undefined
             ) => {
@@ -103,6 +109,7 @@ export default function Sidebar(props: {
                   }
                   key={key}
                 >
+                  <BiggerTooltip title={props.rtlActive ? prop.rtlName : prop.name} placement="right">
                   <ListItem
                     button
                     className={classes.itemLink + listItemClasses}
@@ -120,7 +127,8 @@ export default function Sidebar(props: {
                       menuIcon
                     )}
                     <ListItemText
-                      primary={props.rtlActive ? prop.rtlName : prop.name}
+                      // primary={props.rtlActive ? prop.rtlName : prop.name}
+                      primary="&nbsp;"
                       className={classNames(
                         classes.itemText,
                         whiteFontClasses,
@@ -132,6 +140,7 @@ export default function Sidebar(props: {
                       disableTypography={true}
                     />
                   </ListItem>
+                  </BiggerTooltip>
                 </NavLink>
               );
             }
@@ -150,7 +159,7 @@ export default function Sidebar(props: {
         <div className={classes.logoImage}>
           <img src={logo} alt="logo" className={classes.img} />
         </div>
-        {logoText}
+        {/* {logoText} */}
       </a>
     </div>
   );

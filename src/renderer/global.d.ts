@@ -5,7 +5,6 @@ declare module '*.css';
 type QuickReply = import('./domain/Chat').QuickReply;
 type Fuse<T> = import('fuse.js').default<T>;
 type FuseIndex<T> = import('fuse.js').default.FuseIndex<T>;
-type PhotoContent = import('./domain/Message').PhotoContent;
 
 declare interface Window {
   socketRef: SocketIOClient.Socket | undefined;
@@ -14,5 +13,4 @@ declare interface Window {
   noGroupFuse: Fuse<QuickReply>;
   noGroupIndex: FuseIndex<QuickReply>;
   audio: HTMLAudioElement;
-  handleSendImageMessage: (photoContent: PhotoContent) => void;
 }

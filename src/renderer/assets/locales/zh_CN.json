@@ -79,7 +79,7 @@
     "editor": {
       "The current customer service is not online, and the message cannot be sent": "当前客服不在线，无法发送消息",
       "Press the up key twice to select, press the tab to cancel the selection": "按两次上键选择, 按 tab 取消选择",
-      "Placeholder": "请输入消息...",
+      "Placeholder": "请输入消息或者粘贴、拖动图片|文件到窗口发送",
       "Send": "发送",
       "Close": "关闭",
       "tool": {
