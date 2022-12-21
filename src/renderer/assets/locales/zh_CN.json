@@ -83,12 +83,16 @@
       "Send": "发送",
       "Close": "关闭",
       "tool": {
-        "Evaluation invitation has been sent": "已发送评价邀请",
+        "Emoji": "表情",
+        "File": "文件",
+        "Image": "图片",
+        "Rate invitation has been sent": "已发送评价邀请",
         "Add to blacklist": "添加黑名单",
         "Transfer": "转接",
         "Invite to rate": "邀请评价",
         "Conversation Category": "咨询分类",
-        "Block": "拉黑"
+        "Block": "拉黑",
+        "Capture": "截图\t(Ctrl+Shift+A)\r按住 Shift 点击可隐藏窗口"
       }
     },
     "The number of online customer service has reached the upper limit, please try again later": "在线客服人数已达上限，请稍后再试",

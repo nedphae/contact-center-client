@@ -77,7 +77,7 @@ export default function ChatHeader() {
   }, [conv]);
 
   return (
-    <AppBar position="sticky" className={classes.appBar}>
+    <AppBar position="sticky" color="default" className={classes.appBar}>
       <Toolbar className={classes.toolBar}>
         {user && user.status && <UserHeader status={user.status} />}
         {/* 宽度减去头像宽度，防止溢出 */}

@@ -18,6 +18,8 @@ import Popper, { PopperPlacementType } from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { Dialog, Menu, MenuItem } from '@material-ui/core';
 import NestedMenuItem from 'material-ui-nested-menu-item';
+import { Icon } from '@iconify/react';
+import scissors2Line from '@iconify-icons/ri/scissors-2-line';
 
 import './emoji-mart.global.css';
 import { Picker, BaseEmoji } from 'emoji-mart';
@@ -320,6 +322,17 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     }
   };
 
+  const capture = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (e.shiftKey) {
+      window.electron.ipcRenderer.sendMessage('hide-main-window');
+      setTimeout(() => {
+        window.electron.ipcRenderer.sendMessage('start-capture');
+      }, 200);
+    } else {
+      window.electron.ipcRenderer.sendMessage('start-capture');
+    }
+  };
+
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
       <DraggableDialog
@@ -388,27 +401,34 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           // </Fade>
         )}
       </Popper>
-      <IconButton
-        onClick={handleClick('top-start')}
-        aria-label="emoji"
-        disabled={false}
-        size="small"
-      >
-        <InsertEmoticonOutlinedIcon />
-      </IconButton>
-      <Upload {...fileUploadProps}>
-        <IconButton aria-label="upload file" size="small">
-          <AttachmentOutlinedIcon />
-        </IconButton>
-      </Upload>
-      <Upload {...imgUploadProps}>
-        <IconButton color="secondary" aria-label="upload image" size="small">
-          <ImageOutlinedIcon />
-        </IconButton>
-      </Upload>
-      <Tooltip title={t('editor.tool.Transfer')}>
+
+      <Tooltip title={t('editor.tool.Emoji')} placement="top" arrow>
         <IconButton
-          color="primary"
+          onClick={handleClick('top-start')}
+          aria-label="emoji"
+          disabled={false}
+          size="small"
+        >
+          <InsertEmoticonOutlinedIcon />
+        </IconButton>
+      </Tooltip>
+      <Upload {...fileUploadProps}>
+        <Tooltip title={t('editor.tool.File')} placement="top" arrow>
+          <IconButton aria-label="upload file" size="small">
+            <AttachmentOutlinedIcon />
+          </IconButton>
+        </Tooltip>
+      </Upload>
+
+      <Upload {...imgUploadProps}>
+        <Tooltip title={t('editor.tool.Image')} placement="top" arrow>
+          <IconButton aria-label="upload image" size="small">
+            <ImageOutlinedIcon />
+          </IconButton>
+        </Tooltip>
+      </Upload>
+      <Tooltip title={t('editor.tool.Transfer')} placement="top" arrow>
+        <IconButton
           aria-label="transfer"
           size="small"
           onClick={handleClickTransfer}
@@ -421,9 +441,8 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <PersonAddOutlinedIcon />
         </IconButton>
       </Tooltip> */}
-      <Tooltip title={t('editor.tool.Invite to rate')}>
+      <Tooltip title={t('editor.tool.Invite to rate')} placement="top" arrow>
         <IconButton
-          color="primary"
           aria-label="evaluate"
           size="small"
           onClick={sendEvaluationInvited}
@@ -431,7 +450,11 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <StarIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title={t('editor.tool.Conversation Category')}>
+      <Tooltip
+        title={t('editor.tool.Conversation Category')}
+        placement="top"
+        arrow
+      >
         <IconButton
           aria-label="Conversation Category"
           size="small"
@@ -440,9 +463,8 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <AssignmentTurnedInIcon />
         </IconButton>
       </Tooltip>
-      <Tooltip title={t('editor.tool.Block')}>
+      <Tooltip title={t('editor.tool.Block')} placement="top" arrow>
         <IconButton
-          color="secondary"
           aria-label="evaluate"
           size="small"
           onClick={handleClickBlacklist}
@@ -450,6 +472,14 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <SpeakerNotesOffIcon />
         </IconButton>
       </Tooltip>
+
+      {window.electron && (
+        <Tooltip title={t('editor.tool.Capture')} placement="top" arrow>
+          <IconButton aria-label="evaluate" size="small" onClick={capture}>
+            <Icon icon={scissors2Line} width="24" />
+          </IconButton>
+        </Tooltip>
+      )}
     </Toolbar>
   );
 }

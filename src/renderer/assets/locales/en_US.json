@@ -83,12 +83,16 @@
       "Send": "Send",
       "Close": "Close",
       "tool": {
+        "Emoji": "Emoji",
+        "File": "File",
+        "Image": "Image",
         "Rate invitation has been sent": "Rate invitation has been sent",
         "Add to blacklist": "Add to blacklist",
         "Transfer": "Transfer",
         "Invite to rate": "Invite to rate",
         "Conversation Category": "Conversation Category",
-        "Block": "Block"
+        "Block": "Block",
+        "Capture": "Capture"
       }
     },
     "The number of online customer service has reached the upper limit, please try again later": "The number of online customer service has reached the upper limit, please try again later",

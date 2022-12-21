@@ -293,7 +293,7 @@ function SessionList(props: SessionListProps) {
                   </ListItemAvatar>
                   <ListItemText
                     primary={
-                      <Typography noWrap display="block">
+                      <Typography noWrap variant="body2" display="block">
                         {user.name === undefined ? user.uid : user.name}
                       </Typography>
                     }

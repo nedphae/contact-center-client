@@ -95,6 +95,7 @@ const createWindow = async () => {
     height: 900,
     icon: getAssetPath('icon.png'),
     // titleBarStyle: 'hidden',
+    // transparent: true,
     webPreferences: {
       webSecurity: !isDebug,
       preload: app.isPackaged
@@ -168,6 +169,7 @@ app
     // 点击确定按钮回调事件
     screenshots.on('ok', (e, buffer, bounds) => {
       console.log('capture', buffer, bounds);
+      mainWindow?.show();
       // screenshots.endCapture();
       if (mainWindow !== null) {
         mainWindow.webContents.send('screenshots-ok', buffer);
@@ -178,14 +180,17 @@ app
       // 点击取消不会关闭截图窗口
       // e.preventDefault();
       console.log('capture', 'cancel2');
+      mainWindow?.show();
     });
     // 点击保存按钮回调事件
     screenshots.on('save', (e, buffer, bounds) => {
       console.log('capture', buffer, bounds);
+      mainWindow?.show();
     });
     globalShortcut.register('esc', () => {
       if (screenshots?.$win?.isFocused()) {
         screenshots.endCapture();
+        mainWindow?.show();
       }
     });
 
@@ -211,4 +216,19 @@ ipcMain.on('show-main-window', () => {
 
 ipcMain.on('clear-all-cookies', async () => {
   await session.defaultSession.clearStorageData({ storages: ['cookies'] });
+});
+
+ipcMain.on('start-capture', () => {
+  screenshots?.startCapture();
+});
+
+ipcMain.on('minimize-main-window', () => {
+  if (mainWindow) {
+    mainWindow.minimize();
+  }
+});
+ipcMain.on('hide-main-window', () => {
+  if (mainWindow) {
+    mainWindow.hide();
+  }
 });
