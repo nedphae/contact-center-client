@@ -539,7 +539,7 @@ initXiaobaiChat(params);
       };
       const editor = new JSONEditor(jsoneditorRef.current, options);
       editor.setText(
-        i18n.language === ''
+        i18n.language === 'zh-CN'
           ? '{"navbar":{"title":"智能助理"},"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"召唤人工客服","isHighlight":true}},"messages":[{"type":"text","content":{"text":"智能助理为您服务，请问有什么可以帮您？:"}}],"placeholder":"输入任何您的问题","loadMoreText":"点击加载历史消息"}'
           : '{"navbar":{"title":"Smart Assistant"},"robot":{"avatar":"https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg"},"agent":{"quickReply":{"icon":"message","name":"Call human service","isHighlight":true}},"messages":[{"type":"text","content":{"text":"The smart assistant is at your service, how can I help you?"}}],"placeholder":"Enter any of your questions","loadMoreText":"Click to load history message"}'
       );

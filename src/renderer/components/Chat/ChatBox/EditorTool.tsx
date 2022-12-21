@@ -63,6 +63,7 @@ import {
   getImageListToSend,
 } from 'renderer/state/chat/chatAction';
 import SendImageForm from 'renderer/components/Form/SendImageForm';
+import { emojiZh } from 'renderer/i18n/emojiI18n';
 import TransferForm from './transfer/TransferForm';
 
 const useStyles = makeStyles(() =>
@@ -82,8 +83,7 @@ const useStyles = makeStyles(() =>
 );
 
 interface EditorProps {
-  textMessage: string;
-  setMessage(msg: string): void;
+  setEmoji(msg: string): void;
   selectedSession: Session;
 }
 
@@ -116,9 +116,9 @@ function createSessionCategory(
 function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
   const theme = useTheme();
-  const { textMessage, setMessage, selectedSession } = props;
+  const { setEmoji, selectedSession } = props;
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const imageListToSend = useAppSelector(getImageListToSend);
 
   const blacklistInfo: BlacklistFormProp = {
@@ -212,7 +212,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
 
   const addEmoji = (emojiData: BaseEmoji) => {
     const emoji = emojiData.native;
-    setMessage(textMessage + emoji);
+    setEmoji(emoji);
     onClose();
   };
 
@@ -333,6 +333,8 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     }
   };
 
+  const emojiI18n = i18n.language === 'zh-CN' ? emojiZh : undefined;
+
   return (
     <Toolbar className={classes.toolBar} ref={ref}>
       <DraggableDialog
@@ -396,6 +398,9 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
               onSelect={addEmoji}
               title="emoji"
               theme={theme.palette.type}
+              i18n={emojiI18n}
+              native
+              exclude={['flags']}
             />
           </ClickAwayListener>
           // </Fade>

@@ -111,6 +111,27 @@ export default function Editor(selected: SelectedProps) {
     setTempTextMessage(message);
   }
 
+  const setEmoji = (emoji: string) => {
+    const cur = textFieldRef.current?.selectionEnd ?? 0;
+    const startText = tempTextMessage.slice(0, cur);
+    const endText = tempTextMessage.slice(cur);
+    setMessage(startText + emoji + endText);
+    // console.info(
+    //   '选择的表情: %s \t 位置: %s 长度: %s \t startText: %s \t endText: %s \t 合并: %s',
+    //   emoji,
+    //   cur,
+    //   tempTextMessage.length,
+    //   startText,
+    //   endText,
+    //   startText + emoji + endText
+    // );
+    setTimeout(() => {
+      // 每个 emoji 占两个字符
+      const newCur = cur + 2;
+      textFieldRef.current?.setSelectionRange(newCur, newCur);
+    });
+  };
+
   const filterQuickReplyList = quickReplyList?.filter(
     (it) => it.content !== tempTextMessage
   );
@@ -248,8 +269,7 @@ export default function Editor(selected: SelectedProps) {
       {selectedSession && (
         <EditorTool
           ref={anchorRef}
-          textMessage={tempTextMessage}
-          setMessage={setMessage}
+          setEmoji={setEmoji}
           selectedSession={selectedSession}
         />
       )}

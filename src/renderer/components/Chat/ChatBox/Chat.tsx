@@ -20,10 +20,14 @@ import { Resizable } from 're-resizable';
 import Grid from '@material-ui/core/Grid';
 
 import axios from 'renderer/utils/request';
-import { addImageToSend, getSelectedSession } from 'renderer/state/chat/chatAction';
+import {
+  addImageToSend,
+  getSelectedSession,
+} from 'renderer/state/chat/chatAction';
 import { getUploadS3ChatPath } from 'renderer/config/clientConfig';
 import { useEffect, useRef } from 'react';
 import { useAppDispatch } from 'renderer/store';
+import { Session } from 'renderer/domain/Session';
 import ChatHeader from './ChatHeader';
 import MesageList from './MessagePanel';
 import Editor from './Editor';
@@ -68,47 +72,50 @@ export default function Chat() {
   const selectedSession = useSelector(getSelectedSession);
   const dispatch = useAppDispatch();
   const handlerRef = useRef<() => void>();
+  const selectedSessionRef = useRef<Session>();
 
   const fileFilter: FileFilterMethod = (file) => {
-    return selectedSession != null && (file as File).size < 10485760;
+    return selectedSession && (file as File).size < 10485760;
   };
 
   useEffect(() => {
-    if (!handlerRef.current) {
-      console.info('注册事件');
+    selectedSessionRef.current = selectedSession;
+  }, [selectedSession]);
+
+  useEffect(() => {
+    if (!handlerRef.current && window.electron) {
       handlerRef.current = window.electron.ipcRenderer.on(
         'screenshots-ok',
         (buffer) => {
-          const file = new Blob(
-            [(buffer as Uint8Array).buffer],
-            { type: 'image/png' } /* (1) */
-          );
-          const formData = new FormData();
-          formData.append('file', file, `${uuidv4().substring(0, 8)}.png`);
-          console.info(formData);
-          axios
-            .post(getUploadS3ChatPath(), formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-            })
-            .then((res) => {
-              const mediaId = (res.data as string[])[0];
-              console.info(res);
-              dispatch(addImageToSend([mediaId]));
-              return undefined;
-            })
-            .catch(() => {});
+          if (selectedSessionRef.current) {
+            const file = new Blob(
+              [(buffer as Uint8Array).buffer],
+              { type: 'image/png' } /* (1) */
+            );
+            const formData = new FormData();
+            formData.append('file', file, `${uuidv4().substring(0, 8)}.png`);
+            axios
+              .post(getUploadS3ChatPath(), formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              })
+              .then((res) => {
+                const mediaId = (res.data as string[])[0];
+                dispatch(addImageToSend([mediaId]));
+                return undefined;
+              })
+              .catch(() => {});
+          }
         }
       );
     }
     return () => {
       if (handlerRef.current) {
-        console.info('清楚事件');
         handlerRef.current();
       }
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <Uploady

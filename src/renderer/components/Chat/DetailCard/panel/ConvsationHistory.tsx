@@ -102,7 +102,7 @@ export default function ConvsationHistory() {
 
   return (
     <Box>
-      <AppBar position="sticky" color="primary" className={classes.appBar}>
+      <AppBar position="sticky" className={classes.appBar}>
         <Toolbar>
           <div className={classes.grow} />
           <FormControl variant="outlined" margin="normal" fullWidth>
