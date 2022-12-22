@@ -35,7 +35,7 @@ export default function DetailTitle(props: DetailTitleProps) {
   const evalProp = useEvalProp();
 
   return (
-    <AppBar position="static" className={classes.appBar}>
+    <AppBar position="static" color="default" className={classes.appBar}>
       <Toolbar className={classes.toolBar}>
         <Grid container spacing={0}>
           <Grid item xs={4} zeroMinWidth>

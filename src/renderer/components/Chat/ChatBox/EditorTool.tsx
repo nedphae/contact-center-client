@@ -357,7 +357,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           id="draggable-dialog-title"
           onClose={handleImageClose}
         >
-          {t('Detailed chat message')}
+          {`${t('Send image to')}: ${selectedSession.user.name}`}
         </DialogTitle>
         {imageListToSend && (
           <SendImageForm urls={imageListToSend} send={sendImageList} />
