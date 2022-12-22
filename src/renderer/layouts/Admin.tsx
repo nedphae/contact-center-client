@@ -40,7 +40,7 @@ export const WebSocketContext = createContext<
   SocketIOClient.Socket | undefined
 >(undefined);
 
-const subjectSearchText = new Subject<void>();
+const subjectMessage = new Subject<void>();
 
 export default function Admin({ ...rest }) {
   // styles
@@ -66,7 +66,7 @@ export default function Admin({ ...rest }) {
   );
 
   const momeSubject = useMemo(() => {
-    return subjectSearchText.pipe(debounceTime(1500)).subscribe({
+    return subjectMessage.pipe(debounceTime(1500)).subscribe({
       next: () => {
         window.audio.play();
         if (document.hidden) {
@@ -96,7 +96,7 @@ export default function Admin({ ...rest }) {
       (!currentPath.includes('/entertain') || document.hidden)
     ) {
       // 延迟设置提示音，防止太多提示音
-      subjectSearchText.next();
+      subjectMessage.next();
     }
   }, [currentPath, dispatch, playNewMessageSound]);
 

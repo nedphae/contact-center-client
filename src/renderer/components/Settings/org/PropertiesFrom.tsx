@@ -1,31 +1,39 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import { Box, Collapse } from '@material-ui/core';
+import { Divider, InputAdornment, Typography } from '@material-ui/core';
+import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
 
-import { Properties, RootProperties } from 'renderer/domain/Properties';
-import SubmitButton from 'renderer/components/Form/SubmitButton';
-import useAlert from 'renderer/hook/alert/useAlert';
+import { Properties } from 'renderer/domain/Properties';
+import { useEffect, useMemo } from 'react';
+import { debounceTime, Subject } from 'rxjs';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
+      maxWidth: '500px',
       margin: theme.spacing(0, 5, 0),
+    },
+    title: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
     },
   })
 );
 
-interface FormProps {
-  defaultValues: RootProperties;
-  properties4Set: string;
-  allProperties4Set: string[];
-  refetch: () => void;
+interface Graphql {
+  getAllProperties: string;
 }
+
+const QUERY = gql`
+  query Properties {
+    getAllProperties
+  }
+`;
 
 export interface PropertiesUpdateGraphql {
   updateProperties: Properties;
@@ -45,92 +53,250 @@ export const MUTATION_PROPERTIES = gql`
   }
 `;
 
-type FormResult = {
-  props: {
-    id: number;
-    value: string;
-    p4s: string;
-  }[];
+type PropUpdateDto = {
+  id: number;
+  value: string;
 };
 
-export default function PropertiesFrom(props: FormProps) {
-  const { defaultValues, properties4Set, allProperties4Set, refetch } = props;
+const subjectSubmit = new Subject<PropUpdateDto>();
+
+export default function PropertiesFrom() {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const allDefaultProperties = allProperties4Set.map((p4s) => {
-    const properties = _.at(defaultValues, p4s)[0];
-    const defaultProperties = _.keys(properties)
-      .filter((pk) => !['id', 'label', 'available', 'value'].includes(pk))
-      .map((fk) => {
-        const childProp = properties[fk] as Properties;
-        return _.defaults({ p4s }, childProp);
-      });
-    return defaultProperties;
-  });
-  const flatAllDefaultProperties = _.flatMap(allDefaultProperties);
-  const { handleSubmit, register } = useForm<FormResult>({
-    defaultValues: { props: flatAllDefaultProperties },
-    shouldUnregister: true,
+  const { data } = useQuery<Graphql>(QUERY, {
+    fetchPolicy: 'no-cache',
   });
 
-  const { onLoadding, onCompleted, onError } = useAlert();
-  const [updateProperties, { loading }] = useMutation<PropertiesUpdateGraphql>(
-    MUTATION_PROPERTIES,
-    {
-      onCompleted,
-      onError,
-    }
+  let properties: Properties | undefined = useMemo(
+    () =>
+      data?.getAllProperties ? JSON.parse(data?.getAllProperties) : undefined,
+    [data]
   );
-  if (loading) {
-    onLoadding(loading);
-  }
 
-  const onSubmit: SubmitHandler<FormResult> = async (form) => {
-    const properties = form.props
-      .filter((p) => p.p4s === properties4Set)
-      .map((it) => _.omit(it, ['p4s']));
-    await updateProperties({ variables: { properties } });
-    refetch();
-  };
+  properties = properties?.sys as Properties;
+
+  const [updateProperties] =
+    useMutation<PropertiesUpdateGraphql>(MUTATION_PROPERTIES);
+
+  const momeSubject = useMemo(() => {
+    return subjectSubmit.pipe(debounceTime(2000)).subscribe({
+      next: (it) => {
+        updateProperties({ variables: { properties: it } });
+      },
+    });
+  }, [updateProperties]);
+
+  useEffect(() => {
+    return () => {
+      momeSubject.unsubscribe();
+    };
+  }, [momeSubject]);
 
   return (
     <div className={classes.paper}>
-      <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-        {flatAllDefaultProperties &&
-          flatAllDefaultProperties.map((childProp, index) => {
-            return (
-              <Collapse
-                key={`${properties4Set}.${childProp.id}`}
-                in={properties4Set === childProp.p4s}
-              >
-                <Box>
-                  <TextField
-                    value={childProp.id}
-                    type="hidden"
-                    {...register(`props.${index}.id`, { valueAsNumber: true })}
-                  />
-                  <TextField
-                    value={childProp.p4s}
-                    type="hidden"
-                    {...register(`props.${index}.p4s`)}
-                  />
-                  <TextField
-                    key={childProp.value}
-                    variant="outlined"
-                    margin="normal"
-                    fullWidth
-                    multiline
-                    label={t(childProp.label)}
-                    id={`${properties4Set}.${childProp.id}.value`}
-                    {...register(`props.${index}.value`)}
-                  />
-                </Box>
-              </Collapse>
-            );
-          })}
-        <SubmitButton />
-      </form>
+      {properties && (
+        <>
+          <Typography variant="body1" className={classes.title}>
+            {t('Automatic Reply')}
+          </Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            type="number"
+            defaultValue={properties.autoReply?.timeout?.value}
+            label={t('Timeout (Minutes)')}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              inputProps: { min: 0, max: 30 },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccessAlarmIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const { value } = event.target;
+              const number = parseInt(value, 10);
+              const id = properties?.autoReply?.timeout?.id;
+              if (number && id) {
+                subjectSubmit.next({
+                  id,
+                  value,
+                });
+              }
+            }}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            multiline
+            defaultValue={properties.autoReply?.content?.value}
+            label={t('Reply Content')}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccessAlarmIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const { value } = event.target;
+              const id = properties?.clientTimeout?.timeout?.id;
+              if (value && id) {
+                subjectSubmit.next({
+                  id,
+                  value,
+                });
+              }
+            }}
+          />
+          <Divider />
+          <Typography variant="body1" className={classes.title}>
+            {t('Turn to Manual Reminder')}
+          </Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            multiline
+            defaultValue={properties.transfer.content?.value}
+            label={t(
+              'Switch to manual reminder (${name} is customer service nickname)'
+            )}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccessAlarmIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const { value } = event.target;
+              const id = properties?.clientTimeout?.timeout?.id;
+              if (value && id) {
+                subjectSubmit.next({
+                  id,
+                  value,
+                });
+              }
+            }}
+          />
+          <Divider />
+          <Typography variant="body1" className={classes.title}>
+            {t('Client Timed Out')}
+          </Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            type="number"
+            defaultValue={properties.clientTimeout?.timeout?.value}
+            label={t('Timeout (minutes) up to 40 minutes')}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              inputProps: { min: 0, max: 30 },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccessAlarmIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const { value } = event.target;
+              const number = parseInt(value, 10);
+              const id = properties?.clientTimeout?.timeout?.id;
+              if (number && id) {
+                subjectSubmit.next({
+                  id,
+                  value,
+                });
+              }
+            }}
+          />
+          <Divider />
+          <Typography variant="body1" className={classes.title}>
+            {t('ERP Setting')}
+          </Typography>
+          <Typography variant="body2" className={classes.title}>
+            {t(
+              'ERP url address (GET https://example.com/api?uid=${uid} , uid is the transmitted user uid variable, which will automatically replace by the system)'
+            )}
+          </Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            multiline
+            defaultValue={properties?.erp?.url?.value}
+            label={t('ERP url address')}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccessAlarmIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const { value } = event.target;
+              const id = properties?.erp?.url?.id;
+              if (value && id) {
+                subjectSubmit.next({
+                  id,
+                  value,
+                });
+              }
+            }}
+          />
+          <Divider />
+          <Typography variant="body1" className={classes.title}>
+            {t('Queue reminder')}
+          </Typography>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            multiline
+            defaultValue={properties?.queue?.content?.value}
+            label={t('Queue reminder (${queue} is the queue number)')}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccessAlarmIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const { value } = event.target;
+              const id = properties?.queue?.content?.id;
+              if (value && id) {
+                subjectSubmit.next({
+                  id,
+                  value,
+                });
+              }
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

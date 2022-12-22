@@ -23,29 +23,29 @@ const useAlert = (): Result => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  const subjectSearchText = useMemo(() => {
+  const subjectAlert = useMemo(() => {
     // 提供一定的延迟，防止同时刷新不同 UI 组件
     // see https://stackoverflow.com/questions/62336340/cannot-update-a-component-while-rendering-a-different-component-warning
     return new Subject<SnackbarProp>();
   }, []);
 
   const momeSubject = useMemo(() => {
-    return subjectSearchText.pipe(debounceTime(200)).subscribe({
+    return subjectAlert.pipe(debounceTime(200)).subscribe({
       next: (it) => {
         dispatch(setSnackbarProp(it));
       },
     });
-  }, [dispatch, subjectSearchText]);
+  }, [dispatch, subjectAlert]);
 
   const onLoadding = (loadding?: boolean) => {
-    subjectSearchText.next({
+    subjectAlert.next({
       open: Boolean(loadding),
       loadding,
       autoHideDuration: undefined,
     });
   };
   const onCompletedMsg = (message?: string) => {
-    subjectSearchText.next({
+    subjectAlert.next({
       open: true,
       message: message ?? 'Success',
       severity: 'success',
@@ -54,7 +54,7 @@ const useAlert = (): Result => {
   };
   const onCompleted = () => onCompletedMsg();
   const onErrorMsg = (message?: string) => {
-    subjectSearchText.next({
+    subjectAlert.next({
       open: true,
       message: message ?? 'Fail',
       severity: 'error',

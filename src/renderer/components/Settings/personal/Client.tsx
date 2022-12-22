@@ -82,6 +82,7 @@ export default function Client() {
     if (form.ringtones) {
       form.ringtones.id =
         form.ringtones.id === 0 ? undefined : form.ringtones.id;
+      form.ringtones.personal = true;
     }
     const properties = [form.ringtones];
     await updateProperties({ variables: { properties } });

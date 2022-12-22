@@ -1,9 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import _ from 'lodash';
-import { gql, useQuery } from '@apollo/client';
-
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import Grid from '@material-ui/core/Grid';
@@ -18,7 +15,6 @@ import Account from 'renderer/components/Settings/personal/Account';
 import Group from 'renderer/components/Settings/org/Group';
 import AccountList from 'renderer/components/Settings/org/AccountList';
 import Shunt from 'renderer/components/Settings/org/Shunt';
-import { Properties, RootProperties } from 'renderer/domain/Properties';
 import PropertiesFrom from 'renderer/components/Settings/org/PropertiesFrom';
 import ComingSoon from 'renderer/components/ComingSoon/ComingSoon';
 import BlacklistView from 'renderer/components/Settings/org/BlacklistView';
@@ -56,23 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface Graphql {
-  getAllProperties: string;
-}
-
-const QUERY = gql`
-  query Properties {
-    getAllProperties
-  }
-`;
-
-function settingPage(
-  pageName: PageName,
-  properties4Set: string | undefined,
-  allProperties4Set: string[] | undefined,
-  refetch: () => void,
-  properties?: RootProperties
-) {
+function settingPage(pageName: PageName) {
   let result: JSX.Element;
   switch (pageName) {
     case 'personal.Account': {
@@ -116,18 +96,7 @@ function settingPage(
       break;
     }
     case 'org.Properties': {
-      if (properties && properties4Set && allProperties4Set) {
-        result = (
-          <PropertiesFrom
-            defaultValues={properties}
-            properties4Set={properties4Set}
-            allProperties4Set={allProperties4Set}
-            refetch={refetch}
-          />
-        );
-      } else {
-        result = <ComingSoon />;
-      }
+      result = <PropertiesFrom />;
       break;
     }
     default: {
@@ -156,19 +125,7 @@ export default function Setting() {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { data, refetch } = useQuery<Graphql>(QUERY);
   const [pageName, setPageName] = useState<PageName>('personal.Account');
-  const [properties4Set, setProperties4Set] = useState<string>();
-  const [allProperties4Set, setAllProperties4Set] = useState<string[]>();
-
-  let properties: RootProperties = useMemo(
-    () =>
-      data?.getAllProperties ? JSON.parse(data?.getAllProperties) : undefined,
-    [data]
-  );
-
-  const customerProps = _.pick(properties, 'cae');
-  properties = _.omit(properties, _.keys(customerProps));
 
   const memoTreeView = useMemo(() => {
     return (
@@ -240,43 +197,16 @@ export default function Setting() {
               label={t('Message & Rate Config')}
               onClick={() => setPageName('org.CommentAndEvaluate')}
             /> */}
-            {properties &&
-              _.keys(properties).map((k) => {
-                const propertiesFilter = _.keys(properties[k]).filter(
-                  (pk) => !['id', 'label', 'available', 'value'].includes(pk)
-                );
-                const allProperties4SetTemp = propertiesFilter.map(
-                  (fk) => `${k}.${fk}`
-                );
-                return (
-                  <StyledTreeItem
-                    key={k}
-                    nodeId={`properties.${k}`}
-                    label={t(properties[k].label)}
-                  >
-                    {propertiesFilter.map((fk) => {
-                      const childProp = properties[k][fk] as Properties;
-                      return (
-                        <StyledTreeItem
-                          key={fk}
-                          nodeId={`properties.${k}.${fk}`}
-                          label={t(childProp.label)}
-                          onClick={() => {
-                            setPageName('org.Properties');
-                            setProperties4Set(`${k}.${fk}`);
-                            setAllProperties4Set(allProperties4SetTemp);
-                          }}
-                        />
-                      );
-                    })}
-                  </StyledTreeItem>
-                );
-              })}
+            <StyledTreeItem
+              nodeId="org.Properties"
+              label={t('System Setting')}
+              onClick={() => setPageName('org.Properties')}
+            />
           </StyledTreeItem>
         </Authorized>
       </TreeView>
     );
-  }, [classes.list, properties, t]);
+  }, [classes.list, t]);
 
   return (
     <Grid container className={classes.root}>
@@ -285,16 +215,7 @@ export default function Setting() {
       </Grid>
       <Grid item xs={12} sm={10}>
         {/* 显示 配置页面 */}
-        {pageName &&
-          settingPage(
-            pageName,
-            properties4Set,
-            allProperties4Set,
-            () => {
-              refetch();
-            },
-            properties
-          )}
+        {pageName && settingPage(pageName)}
       </Grid>
     </Grid>
   );
