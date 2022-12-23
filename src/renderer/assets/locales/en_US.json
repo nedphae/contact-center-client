@@ -80,7 +80,7 @@
     "editor": {
       "The current customer service is not online, and the message cannot be sent": "The current customer service is not online, and the message cannot be sent",
       "Press the up key twice to select, press the tab to cancel the selection": "Press the up key twice to select, press the tab to cancel the selection",
-      "Placeholder": "Writer a message...",
+      "Placeholder": "Please enter the message or paste, drag the picture | file to the window to send",
       "Send": "Send",
       "Close": "Close",
       "tool": {

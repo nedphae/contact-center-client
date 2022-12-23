@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
       // backgroundColor: '#424242',
       borderLeft: 'solid 1px #ddd',
       borderRight: 'solid 1px #ddd',
-      height: '100%',
+      height: 'calc(100vh - 70px)',
     },
     paper: {
       height: 140,
@@ -129,7 +129,7 @@ export default function Chat() {
           <div
             style={{
               width: 'auto',
-              height: '80vh',
+              height: 'calc(100vh - 120px)',
               // 预留出 header 的位置, header 修改为 sticky，不用再预留位置
               paddingTop: 0,
               display: 'flex',
@@ -141,10 +141,10 @@ export default function Chat() {
               style={style}
               defaultSize={{
                 width: 'auto',
-                height: '65vh',
+                height: '80%',
               }}
-              maxHeight="70vh"
-              minHeight="30vh"
+              maxHeight="90%"
+              minHeight="60%"
               enable={{
                 top: false,
                 right: false,

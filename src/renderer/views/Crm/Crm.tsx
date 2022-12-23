@@ -223,7 +223,7 @@ export default function Crm() {
   ];
 
   return (
-    <div style={{ height: '80vh', width: '100%' }}>
+    <div style={{ height: 'calc(100vh - 158px)', width: '100%' }}>
       <DraggableDialog title={t('Detailed Customer Info')} ref={refOfDialog}>
         <CustomerForm defaultValues={selectCustomer} shouldDispatch={false} />
       </DraggableDialog>

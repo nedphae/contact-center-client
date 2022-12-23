@@ -368,7 +368,7 @@ export default function StaffAttendanceDataGrid() {
   ];
 
   return (
-    <div style={{ height: '80vh', width: '100%' }}>
+    <div style={{ height: 'calc(100vh - 158px)', width: '100%' }}>
       <MuiPickersUtilsProvider utils={DateFnsUtils} locale={zhCN}>
         <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
           {/* 老式的折叠写法，新的参考 StaffShuntForm */}

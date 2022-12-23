@@ -179,7 +179,7 @@ export default function WeChatOpenInfoView() {
   }, [refetch, t, updateWeChatOpenInfo]);
 
   return (
-    <>
+    <div style={{ height: 'calc(100vh - 106.5px)' }}>
       <DraggableDialog title={t('Associate to shunt')} ref={refOfDialog}>
         <WeChatOpenInfoForm
           defaultValues={weChatOpenInfo}
@@ -223,6 +223,6 @@ export default function WeChatOpenInfoView() {
         }}
         selectionModel={selectionModel}
       />
-    </>
+    </div>
   );
 }

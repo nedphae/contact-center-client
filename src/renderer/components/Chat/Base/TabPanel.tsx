@@ -13,7 +13,7 @@ const useStyles = makeStyles(() =>
   createStyles({
     list: {
       overflow: 'auto',
-      height: '80vh',
+      height: 'calc(100vh - 118px)',
     },
   })
 );

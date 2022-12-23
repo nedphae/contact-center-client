@@ -28,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
+      height: 'calc(100vh - 70px)',
     },
     toolBar: {
       minHeight: 30,
@@ -43,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     list: {
       width: '100%',
-      height: '80vh',
+      height: 'calc(100vh - 70px)',
       backgroundColor: theme.palette.background.paper,
     },
     nested: {
@@ -214,8 +215,10 @@ export default function Setting() {
         {memoTreeView}
       </Grid>
       <Grid item xs={12} sm={10}>
-        {/* 显示 配置页面 */}
-        {pageName && settingPage(pageName)}
+        <div style={{ height: 'calc(100vh - 70px)', overflow: 'auto' }}>
+          {/* 显示 配置页面 */}
+          {pageName && settingPage(pageName)}
+        </div>
       </Grid>
     </Grid>
   );

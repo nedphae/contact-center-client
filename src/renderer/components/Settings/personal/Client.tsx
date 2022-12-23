@@ -34,7 +34,8 @@ import {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      padding: theme.spacing(2),
+      maxWidth: '500px',
+      margin: theme.spacing(0, 5, 0),
     },
     alert: {
       marginTop: theme.spacing(2),

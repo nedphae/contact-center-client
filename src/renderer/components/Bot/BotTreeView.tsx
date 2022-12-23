@@ -36,7 +36,8 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     list: {
       width: '100%',
-      height: '80vh',
+      height: 'calc(100vh - 118px)',
+      overflow: 'auto',
       backgroundColor: theme.palette.background.paper,
     },
     listItemIcon: {

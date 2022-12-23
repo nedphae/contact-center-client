@@ -193,7 +193,7 @@ export default function CommentManagement() {
   ];
 
   return (
-    <div style={{ height: '80vh', width: '100%' }}>
+    <div style={{ height: 'calc(100vh - 164px)', width: '100%' }}>
       <DraggableDialog title={t('Detailed message')} ref={refOfDialog}>
         <CommentForm defaultValues={selectCommentPojo} />
       </DraggableDialog>

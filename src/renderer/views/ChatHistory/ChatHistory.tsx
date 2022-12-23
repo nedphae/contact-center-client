@@ -49,7 +49,10 @@ import { LazyCustomerInfo } from 'renderer/components/Chat/DetailCard/panel/Cust
 import { CustomerExportGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
-import { DialogTitle, PaperComponent } from 'renderer/components/DraggableDialog/DraggableDialog';
+import {
+  DialogTitle,
+  PaperComponent,
+} from 'renderer/components/DraggableDialog/DraggableDialog';
 import DetailTitle from './DetailTitle';
 
 const dateFnsUtils = new DateFnsUtils();
@@ -706,13 +709,14 @@ export default function ChatHistory() {
   ];
 
   return (
-    <div style={{ height: '80vh', width: '100%' }}>
+    <div style={{ height: 'calc(100vh - 158px)', width: '100%' }}>
       <Dialog
         disableEnforceFocus
         fullWidth
         maxWidth="lg"
         open={open}
         onClose={handleDialogClose}
+        scroll="paper"
         PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
@@ -723,20 +727,24 @@ export default function ChatHistory() {
         >
           {t('Detailed chat message')}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           {selectConversation && (
             <>
-              <DetailTitle conv={selectConversation} />
               <Grid container alignItems="flex-start" justifyContent="center">
                 <Grid item xs={8}>
+                  <DetailTitle conv={selectConversation} />
                   <MessageList conversation={selectConversation} />
                 </Grid>
                 <Grid item xs={4}>
-                  <Typography variant="h6" gutterBottom align="center">
-                    {t('Information')}
-                  </Typography>
-                  <Divider />
-                  <LazyCustomerInfo userId={selectConversation.userId} />
+                  <div
+                    style={{ overflowY: 'auto', height: 'calc(100vh - 180px)' }}
+                  >
+                    <Typography variant="h6" gutterBottom align="center">
+                      {t('Information')}
+                    </Typography>
+                    <Divider />
+                    <LazyCustomerInfo userId={selectConversation.userId} />
+                  </div>
                 </Grid>
               </Grid>
             </>

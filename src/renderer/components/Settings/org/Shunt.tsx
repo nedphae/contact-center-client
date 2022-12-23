@@ -40,11 +40,11 @@ import useAlert from 'renderer/hook/alert/useAlert';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
+      height: 'calc(100vh - 70px)',
       flexGrow: 1,
     },
     list: {
       width: '100%',
-      height: '80vh',
       backgroundColor: theme.palette.background.paper,
     },
   })

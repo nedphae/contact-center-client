@@ -11,6 +11,8 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import PhoneIcon from '@material-ui/icons/Phone';
 import EmailIcon from '@material-ui/icons/Email';
 import BusinessIcon from '@material-ui/icons/Business';
+import PublicIcon from '@material-ui/icons/Public';
+import HomeIcon from '@material-ui/icons/Home';
 
 import { useMutation, useQuery } from '@apollo/client';
 import useAlert from 'renderer/hook/alert/useAlert';
@@ -27,10 +29,8 @@ import { Typography } from '@material-ui/core';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
-      // marginTop: theme.spacing(8),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
+      maxWidth: '500px',
+      margin: theme.spacing(0, 5, 0),
     },
     alert: {
       marginTop: theme.spacing(2),
@@ -76,7 +76,7 @@ export default function OrgInfo() {
   return (
     <div className={classes.paper}>
       <form noValidate autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
-        <Typography variant="body1" className={classes.alert}>
+        <Typography variant="body1" className={classes.alert} align="center">
           {t('Organization ID')} : {defaultOrganization?.getOrganization.id}
         </Typography>
         <TextField
@@ -130,7 +130,7 @@ export default function OrgInfo() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <BusinessIcon />
+                <HomeIcon />
               </InputAdornment>
             ),
           }}
@@ -144,7 +144,7 @@ export default function OrgInfo() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <BusinessIcon />
+                <PublicIcon />
               </InputAdornment>
             ),
           }}

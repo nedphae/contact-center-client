@@ -52,6 +52,7 @@ const useStyles = makeStyles(() =>
     list: {
       display: 'flex',
       overflow: 'auto',
+      height: 'calc(100vh - 198px)',
     },
   })
 );

@@ -1,12 +1,14 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useTranslation } from 'react-i18next';
-import _ from 'lodash';
 import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import { Divider, InputAdornment, Typography } from '@material-ui/core';
 import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
+import ReplyIcon from '@material-ui/icons/Reply';
+import InfoIcon from '@material-ui/icons/Info';
+import PublicIcon from '@material-ui/icons/Public';
 
 import { Properties } from 'renderer/domain/Properties';
 import { useEffect, useMemo } from 'react';
@@ -143,7 +145,7 @@ export default function PropertiesFrom() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <AccessAlarmIcon />
+                  <ReplyIcon />
                 </InputAdornment>
               ),
             }}
@@ -177,7 +179,7 @@ export default function PropertiesFrom() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <AccessAlarmIcon />
+                  <InfoIcon />
                 </InputAdornment>
               ),
             }}
@@ -248,7 +250,7 @@ export default function PropertiesFrom() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <AccessAlarmIcon />
+                  <PublicIcon />
                 </InputAdornment>
               ),
             }}
@@ -280,7 +282,7 @@ export default function PropertiesFrom() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <AccessAlarmIcon />
+                  <InfoIcon />
                 </InputAdornment>
               ),
             }}

@@ -36,6 +36,7 @@ import TopicSearchFrom from 'renderer/components/Bot/TopicSearchForm';
 const useStyles = makeStyles(() =>
   createStyles({
     root: {
+      height: 'calc(100vh - 70px)',
       flexGrow: 1,
     },
   })
@@ -421,40 +422,47 @@ export default function Bot() {
           selectTC={selectTC}
         />
         <Grid item xs={12} sm={10}>
-          <TopicSearchFrom
-            defaultValues={defaultValue}
-            currentValues={topicFilterInput}
-            searchAction={(values) => {
-              refetchTopic({ topicFilterInput: values });
+          <div
+            style={{
+              height: 'calc(100vh - 158px)',
+              width: '100%',
             }}
-          />
-          <DataGrid
-            localeText={gridLocaleTextMap.get(i18n.language)}
-            rows={rows}
-            columns={columns}
-            components={{
-              Toolbar: CustomerGridToolbarCreater({
-                newButtonClick,
-                deleteButtonClick,
-                refetch: () => {
-                  refetchTopic();
-                },
-              }),
-            }}
-            onRowClick={(param) => {
-              handleClickOpen(param.row as Topic);
-            }}
-            pagination
-            pageSize={20}
-            rowsPerPageOptions={[20]}
-            loading={loading}
-            disableSelectionOnClick
-            checkboxSelection
-            onSelectionModelChange={(gridRowId: GridRowId[]) => {
-              setSelectionModel(gridRowId);
-            }}
-            selectionModel={selectionModel}
-          />
+          >
+            <TopicSearchFrom
+              defaultValues={defaultValue}
+              currentValues={topicFilterInput}
+              searchAction={(values) => {
+                refetchTopic({ topicFilterInput: values });
+              }}
+            />
+            <DataGrid
+              localeText={gridLocaleTextMap.get(i18n.language)}
+              rows={rows}
+              columns={columns}
+              components={{
+                Toolbar: CustomerGridToolbarCreater({
+                  newButtonClick,
+                  deleteButtonClick,
+                  refetch: () => {
+                    refetchTopic();
+                  },
+                }),
+              }}
+              onRowClick={(param) => {
+                handleClickOpen(param.row as Topic);
+              }}
+              pagination
+              pageSize={20}
+              rowsPerPageOptions={[20]}
+              loading={loading}
+              disableSelectionOnClick
+              checkboxSelection
+              onSelectionModelChange={(gridRowId: GridRowId[]) => {
+                setSelectionModel(gridRowId);
+              }}
+              selectionModel={selectionModel}
+            />
+          </div>
         </Grid>
       </Grid>
     </>

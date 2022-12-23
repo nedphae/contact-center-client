@@ -8,13 +8,14 @@ const appStyle: any = (theme: {
   breakpoints: { up: (arg0: string) => any };
 }) => ({
   wrapper: {
-    position: 'relative',
+    position: 'sticky',
     top: '0',
     // 自定义标题栏时为 height: 'calc(100vh - 30px)',
     height: '100vh',
   },
   mainPanel: {
     [theme.breakpoints.up('md')]: {
+      height: '100vh',
       width: `calc(100% - ${drawerWidth}px)`,
     },
     overflow: 'auto',
@@ -27,12 +28,13 @@ const appStyle: any = (theme: {
   },
   content: {
     marginTop: '70px',
-    padding: '30px 15px',
-    minHeight: 'calc(100vh - 123px)',
+    // padding: '30px 15px',
+    height: `calc(100vh - 70px)`,
   },
   container,
   map: {
     marginTop: '70px',
+    height: `calc(100vh - 70px)`,
   },
 });
 

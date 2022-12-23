@@ -54,7 +54,7 @@ const useStyles = makeStyles(() =>
       flexGrow: 1,
     },
     list: {
-      height: 'calc(80vh - 108px)',
+      height: 'calc(100vh - 226px)',
       display: 'flex',
       overflow: 'auto',
     },

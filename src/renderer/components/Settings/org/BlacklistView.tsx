@@ -148,7 +148,7 @@ export default function BlacklistView() {
   }, [classes.button, deleteBlacklist, refetch, t]);
 
   return (
-    <div style={{ height: '80vh', width: '100%' }}>
+    <div style={{ height: 'calc(100vh - 70px)', width: '100%' }}>
       <DataGrid
         localeText={gridLocaleTextMap.get(i18n.language)}
         rows={rows}

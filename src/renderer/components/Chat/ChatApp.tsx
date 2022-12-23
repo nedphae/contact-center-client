@@ -6,7 +6,6 @@
 import { useDispatch } from 'react-redux';
 
 import { HotKeys } from 'react-hotkeys';
-import { makeStyles, createStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
 import { hideSelectedSessionAndSetToLast } from 'renderer/state/session/sessionAction';
@@ -14,16 +13,8 @@ import SessionList from './SessionList/SessionPanel';
 import Chat from './ChatBox/Chat';
 import DetailCard from './DetailCard/DetailCard';
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-    },
-  })
-);
 
 export default function ChatApp() {
-  const classes = useStyles();
   const dispatch = useDispatch();
 
   const escNode = () => {
@@ -37,12 +28,7 @@ export default function ChatApp() {
 
   return (
     <HotKeys handlers={handlers}>
-      <Grid
-        container
-        justifyContent="center"
-        className={classes.root}
-        spacing={0}
-      >
+      <Grid container justifyContent="center" spacing={0}>
         <Grid item xs={12} md={3} xl={2}>
           <SessionList />
         </Grid>
