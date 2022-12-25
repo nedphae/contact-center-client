@@ -158,6 +158,8 @@ app.commandLine.appendSwitch('--no-proxy-server');
 app
   .whenReady()
   .then(() => {
+    createWindow();
+
     screenshots = new Screenshots({
       singleWindow: true,
     });
@@ -194,7 +196,6 @@ app
       }
     });
 
-    createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
@@ -219,6 +220,7 @@ ipcMain.on('clear-all-cookies', async () => {
 });
 
 ipcMain.on('start-capture', () => {
+  console.info('start-capture: %o', screenshots);
   screenshots?.startCapture();
 });
 
