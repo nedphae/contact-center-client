@@ -189,12 +189,13 @@ app
       console.log('capture', buffer, bounds);
       mainWindow?.show();
     });
-    globalShortcut.register('esc', () => {
-      if (screenshots?.$win?.isFocused()) {
-        screenshots.endCapture();
-        mainWindow?.show();
-      }
-    });
+    // globalShortcut.register('esc', () => {
+    //   console.log('esc');
+    //   if (screenshots?.$win?.isFocused()) {
+    //     screenshots.endCapture();
+    //     mainWindow?.show();
+    //   }
+    // });
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

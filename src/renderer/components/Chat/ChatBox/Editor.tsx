@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { v4 as uuidv4 } from 'uuid';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import {
@@ -17,14 +18,17 @@ import SendIcon from '@material-ui/icons/Send';
 
 import {
   hideSelectedSessionAndSetToLast,
+  sendImageMessage,
   sendTextMessage,
   setStaffDraft,
+  switchToLast,
 } from 'renderer/state/session/sessionAction';
 import { Session } from 'renderer/domain/Session';
 import { getMyself } from 'renderer/state/staff/staffAction';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { useAppDispatch, useAppSelector } from 'renderer/store';
 import { debounceTime, Subject } from 'rxjs';
+import { getStrFromContent, QuickReplyContent } from 'renderer/domain/Chat';
 import EditorTool from './EditorTool';
 
 const style = {
@@ -72,9 +76,13 @@ export default function Editor(selected: SelectedProps) {
   const { t } = useTranslation();
 
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
-  const [tempTextMessage, setTempTextMessage] = useState<string>(
-    selectedSession?.staffDraft ?? ''
-  );
+  const [tempTextMessage, setTempTextMessage] = useState<string>('');
+
+  useEffect(() => {
+    if (selectedSession?.user) {
+      setTempTextMessage(selectedSession?.staffDraft ?? '');
+    }
+  }, [selectedSession?.staffDraft, selectedSession?.user]);
 
   const dispatch = useAppDispatch();
   // 展示 快捷回复
@@ -169,6 +177,10 @@ export default function Editor(selected: SelectedProps) {
     }
   };
 
+  const switchNode = () => {
+    dispatch(switchToLast());
+  };
+
   function setFocusToQuickReplyMenu(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
       escNode();
@@ -181,6 +193,8 @@ export default function Editor(selected: SelectedProps) {
     } else if (!event.shiftKey && event.key === 'Enter') {
       handleSendTextMessage();
       event.preventDefault();
+    } else if (event.ctrlKey && event.key === 'Tab') {
+      switchNode();
     }
   }
 
@@ -195,8 +209,44 @@ export default function Editor(selected: SelectedProps) {
   };
 
   const handleSelectItem =
-    (text: string) => (event: React.MouseEvent<EventTarget>) => {
-      setMessage(text);
+    (contentList: QuickReplyContent[]) =>
+    (event: React.MouseEvent<EventTarget>) => {
+      if (contentList.length === 1 && contentList[0].type === 'TEXT') {
+        const text = contentList[0].content;
+        setMessage(text);
+      } else if (contentList.length > 1) {
+        // 直接发送消息
+        contentList.forEach((content) => {
+          if (selectedSession) {
+            switch (content.type) {
+              case 'TEXT': {
+                dispatch(
+                  sendTextMessage(
+                    selectedSession.conversation.userId,
+                    content.content
+                  )
+                );
+                break;
+              }
+              case 'IMAGE': {
+                dispatch(
+                  sendImageMessage(selectedSession.conversation.userId, {
+                    mediaId: content.content,
+                    filename: uuidv4().substring(0, 8),
+                    picSize: 0,
+                    type: 'unknown',
+                  })
+                );
+                break;
+              }
+              default: {
+                break;
+              }
+            }
+          }
+        });
+        setMessage('');
+      }
       handleClose(event);
       textFieldRef.current?.focus();
     };
@@ -248,17 +298,23 @@ export default function Editor(selected: SelectedProps) {
                     )}
                   </MenuItem>
                   {quickReplyList &&
-                    quickReplyList.map((quickReply) => (
-                      <MenuItem
-                        key={quickReply.id}
-                        onClick={handleSelectItem(quickReply.content)}
-                      >
-                        <Typography variant="inherit" noWrap>
-                          <strong>{`[${quickReply.title}]: `}</strong>
-                          {quickReply.content}
-                        </Typography>
-                      </MenuItem>
-                    ))}
+                    quickReplyList.map((quickReply) => {
+                      const [contentStr, contentJson] = getStrFromContent(
+                        quickReply.content,
+                        t
+                      );
+                      return (
+                        <MenuItem
+                          key={quickReply.id}
+                          onClick={handleSelectItem(contentJson)}
+                        >
+                          <Typography variant="inherit" noWrap>
+                            <strong>{`[${quickReply.title}]: `}</strong>
+                            {contentStr}
+                          </Typography>
+                        </MenuItem>
+                      );
+                    })}
                 </MenuList>
               </ClickAwayListener>
             </Paper>

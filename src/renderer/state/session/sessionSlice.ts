@@ -35,7 +35,7 @@ const converSlice = createSlice({
     // 更新会话和用户信息
     updateConverAndCustomer: (
       converMap,
-      action: PayloadAction<UpdateConver>,
+      action: PayloadAction<UpdateConver>
     ) => {
       const { userId } = action.payload.conversation;
       if (userId && converMap[userId]) {
@@ -67,7 +67,7 @@ const converSlice = createSlice({
     },
     clearMessgeBadge: (
       converMap,
-      action: PayloadAction<number | undefined>,
+      action: PayloadAction<number | undefined>
     ) => {
       if (action.payload) {
         const conver = converMap[action.payload];
@@ -78,7 +78,7 @@ const converSlice = createSlice({
     },
     addNewMessgeBadge: (
       converMap,
-      action: PayloadAction<number | undefined>,
+      action: PayloadAction<number | undefined>
     ) => {
       if (action.payload) {
         const conver = converMap[action.payload];
@@ -98,7 +98,7 @@ const converSlice = createSlice({
     },
     updateCustomerStatus: (
       converMap,
-      action: PayloadAction<CustomerStatus>,
+      action: PayloadAction<CustomerStatus>
     ) => {
       if (action.payload.userId && converMap[action.payload.userId]) {
         converMap[action.payload.userId].user.status = action.payload;
@@ -132,13 +132,6 @@ const converSlice = createSlice({
         conver.massageList = _.defaults(conver.massageList, messageMap);
       });
     },
-    setHasMore: (
-      converMap,
-      action: PayloadAction<{ userId: number; hasMore: boolean }>,
-    ) => {
-      const conver = converMap[action.payload.userId];
-      conver.hasMore = action.payload.hasMore;
-    },
     newMessage: (converMap, action: PayloadAction<MessagesMap>) => {
       // 设置新消息
       of(action.payload)
@@ -151,7 +144,7 @@ const converSlice = createSlice({
               map((f) => converMap[f!]),
               filter((f) => f !== undefined && f !== null),
               defaultIfEmpty<Session | undefined, Session | undefined>(
-                to ? converMap[to] : undefined,
+                to ? converMap[to] : undefined
               ),
               filter(() => msg.creatorType !== CreatorType.SYS),
               map((c) => {
@@ -171,9 +164,9 @@ const converSlice = createSlice({
                     c.firstNeedReplyTime = undefined;
                   }
                 }
-              }),
+              })
             );
-          }),
+          })
         )
         .subscribe();
     },

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
@@ -10,6 +11,7 @@ import {
   GridColDef,
   GridValueGetterParams,
 } from '@material-ui/data-grid';
+import SwipeableViews from 'react-swipeable-views';
 
 import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import {
@@ -34,15 +36,15 @@ import {
   Divider,
   FormControlLabel,
   Grid,
-  Paper,
-  PaperProps,
   Slider,
+  Tab,
+  Tabs,
   Typography,
+  useTheme,
 } from '@material-ui/core';
 import { AllStaffInfo, STAFF_FIELD } from 'renderer/domain/graphql/Staff';
 import { SelectKeyValue } from 'renderer/components/Form/ChipSelect';
 import { PageParam } from 'renderer/domain/graphql/Query';
-import Draggable from 'react-draggable';
 import javaInstant2DateStr from 'renderer/utils/timeUtils';
 import { Control, Controller } from 'react-hook-form';
 import { LazyCustomerInfo } from 'renderer/components/Chat/DetailCard/panel/CustomerInfo';
@@ -53,9 +55,18 @@ import {
   DialogTitle,
   PaperComponent,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
+import TabPanel from 'renderer/components/Chat/Base/TabPanel';
+import UserTrackViewer from 'renderer/components/Chat/DetailCard/panel/UserTrackViewer';
 import DetailTitle from './DetailTitle';
 
 const dateFnsUtils = new DateFnsUtils();
+
+function a11yProps(index: number) {
+  return {
+    id: `scrollable-force-tab-${index}`,
+    'aria-controls': `scrollable-force-tabpanel-${index}`,
+  };
+}
 
 const getDefaultValue = () => {
   return {
@@ -109,12 +120,17 @@ const QUERY = gql`
 `;
 
 export default function ChatHistory() {
+  const theme = useTheme();
   const { t, i18n } = useTranslation();
 
   const [open, setOpen] = useState(false);
   const [conversationFilterInput, setConversationFilterInput] =
     useState<ConversationFilterInput>(getDefaultValue());
   const [selectConversation, setSelectConversation] = useState<Conversation>();
+  const [tabValue, setTabValue] = useState(0);
+  const style = {
+    minWidth: 'calc(100% / 2)',
+  };
 
   const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const { loading, data, refetch } = useQuery<Graphql>(QUERY, {
@@ -708,6 +724,17 @@ export default function ChatHistory() {
     },
   ];
 
+  const handleTabValueChange = (
+    event: React.ChangeEvent<unknown>,
+    newValue: number
+  ) => {
+    setTabValue(newValue);
+    event.preventDefault();
+  };
+  const handleChangeIndex = (index: number) => {
+    setTabValue(index);
+  };
+
   return (
     <div style={{ height: 'calc(100vh - 158px)', width: '100%' }}>
       <Dialog
@@ -739,11 +766,34 @@ export default function ChatHistory() {
                   <div
                     style={{ overflowY: 'auto', height: 'calc(100vh - 180px)' }}
                   >
-                    <Typography variant="h6" gutterBottom align="center">
-                      {t('Information')}
-                    </Typography>
-                    <Divider />
-                    <LazyCustomerInfo userId={selectConversation.userId} />
+                    <Tabs
+                      value={tabValue}
+                      onChange={handleTabValueChange}
+                      variant="scrollable"
+                      scrollButtons="auto"
+                      aria-label="scrollable prevent tabs example"
+                    >
+                      <Tab
+                        style={style}
+                        label={t('Information')}
+                        {...a11yProps(0)}
+                      />
+                      <Tab style={style} label={t('Track')} {...a11yProps(1)} />
+                    </Tabs>
+                    <SwipeableViews
+                      axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                      index={tabValue}
+                      onChangeIndex={handleChangeIndex}
+                    >
+                      <TabPanel value={tabValue} index={0}>
+                        <LazyCustomerInfo userId={selectConversation.userId} />
+                      </TabPanel>
+                      <TabPanel value={tabValue} index={1}>
+                        <UserTrackViewer
+                          userTrackList={selectConversation.userTrackList}
+                        />
+                      </TabPanel>
+                    </SwipeableViews>
                   </div>
                 </Grid>
               </Grid>

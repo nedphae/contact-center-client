@@ -6,7 +6,6 @@ import slice from './chatSlice';
 export const {
   setQuickReply,
   setMonitoredMessage,
-  setMonitoredHasMore,
   setMonitorSelectedSession,
   setSelectedSessionNumber,
   setSnackbarProp: oldSetSnackbarProp,

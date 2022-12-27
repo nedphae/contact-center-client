@@ -544,7 +544,7 @@ export default function TopicForm(props: FormProps) {
                   <Grid container alignItems="center">
                     <Upload {...imgUploadProps}>
                       <Button variant="contained" color="primary">
-                        {t('Add picture')}
+                        {picSrc ? t('Change picture') : t('Add picture')}
                       </Button>
                     </Upload>
                     <Divider orientation="vertical" />

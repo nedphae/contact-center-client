@@ -165,17 +165,6 @@ const chatSlice = createSlice({
         }
       });
     },
-    setMonitoredHasMore: (
-      chat,
-      action: PayloadAction<{ userId: number; hasMore: boolean }>
-    ) => {
-      if (
-        chat.monitored?.monitoredSession &&
-        action.payload.userId === chat.monitored.monitoredUserStatus.userId
-      ) {
-        chat.monitored.monitoredSession.hasMore = action.payload.hasMore;
-      }
-    },
     addImageToSend: (chat, action: PayloadAction<string[]>) => {
       const oldList = chat.imageListToSend ?? [];
       chat.imageListToSend = [...oldList, ...action.payload];

@@ -1165,7 +1165,6 @@ initXiaobaiChat(params);
                 alt="Message"
               />
             )}
-
             <Grid container alignItems="center">
               <Upload {...chatImgUploadProps}>
                 <Button

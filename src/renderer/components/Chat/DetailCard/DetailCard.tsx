@@ -18,7 +18,7 @@ import QuickReply from './panel/QuickReply/QuickReply';
 import ConvsationHistory from './panel/ConvsationHistory';
 import TabPanel from '../Base/TabPanel';
 import Erp from './panel/Erp';
-import UserTrack from './panel/UserTrack';
+import UserTrackContainer from './panel/UserTrackContainer';
 
 function a11yProps(index: number) {
   return {
@@ -76,7 +76,7 @@ export default function DetailCard() {
           <CustomerInfo />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          <UserTrack />
+          <UserTrackContainer />
         </TabPanel>
         <TabPanel value={value} index={2}>
           <ConvsationHistory />

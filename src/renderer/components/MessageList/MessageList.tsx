@@ -54,9 +54,9 @@ export default function MessageList(props: MessageListProps) {
     toggleShowImageViewerDialog(true);
   }
 
-  function closeImageViewerDialog() {
+  const closeImageViewerDialog = () => {
     toggleShowImageViewerDialog(false);
-  }
+  };
 
   return (
     <Paper

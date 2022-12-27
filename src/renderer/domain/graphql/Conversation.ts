@@ -192,6 +192,13 @@ const CONTENT_QUERY = gql`
       region
       country
       city
+      userTrackList {
+        url
+        title
+        enterTime
+        updateTime
+        awayTime
+      }
     }
     highlightFields
     id

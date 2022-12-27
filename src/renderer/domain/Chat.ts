@@ -2,6 +2,7 @@ import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 
 import { Color } from '@material-ui/lab/Alert';
+import { TFunction } from 'react-i18next';
 import {
   Conversation,
   TransferMessageRequest,
@@ -104,6 +105,11 @@ export interface QuickReplyGroup {
   quickReply: QuickReply[] | undefined;
 }
 
+export interface QuickReplyContent {
+  type: string;
+  content: string;
+}
+
 export interface QuickReply {
   id: number;
   /** 公司id */
@@ -114,6 +120,24 @@ export interface QuickReply {
   groupId?: number;
   title: string;
   content: string;
+  contentJson?: QuickReplyContent[];
   personal?: boolean;
   group: QuickReplyGroup | undefined;
+}
+
+export function getStrFromContent(
+  content: string,
+  t: TFunction<'translation', undefined>
+): [string, QuickReplyContent[]] {
+  const contentJson = JSON.parse(content) as QuickReplyContent[];
+  const contentStr = contentJson
+    .map((it) => {
+      if (it.type === 'TEXT') {
+        return it.content;
+      }
+      const previewText = `[${t(`message-type.${it.type}`)}]`;
+      return previewText;
+    })
+    .join(', ');
+  return [contentStr, contentJson];
 }

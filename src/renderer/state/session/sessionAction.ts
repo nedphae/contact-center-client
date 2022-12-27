@@ -74,7 +74,6 @@ export const {
   updateCustomer,
   addHistoryMessage,
   clearMessgeBadge,
-  setHasMore,
   setInteractionLogo,
   setTyping,
   updateSync,
@@ -127,7 +126,15 @@ const setToLastAndFilter =
     // 设置为等待时间最长的会话
     const last = list[list.length - 1];
     dispatch(setSelectedSession(last?.conversation?.userId));
+    dispatch(clearMessgeBadge(last.conversation.userId));
   };
+
+export const switchToLast = (): AppThunk => (dispatch, getState) => {
+  const userId = getSelectedSession(getState())?.conversation.userId;
+  if (userId) {
+    dispatch(setToLastAndFilter(userId));
+  }
+};
 
 export const hideSelectedSessionAndSetToLast =
   (): AppThunk => (dispatch, getState) => {
@@ -156,12 +163,7 @@ export const getSelectedMessageList = (state: RootState) => {
     }
   }
 
-  return messageList.sort(
-    (a, b) =>
-      // 默认 seqId 为最大
-      (a.seqId ?? Number.MAX_SAFE_INTEGER) -
-      (b.seqId ?? Number.MAX_SAFE_INTEGER)
-  );
+  return messageList;
 };
 
 /**

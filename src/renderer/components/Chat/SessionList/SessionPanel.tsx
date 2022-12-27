@@ -90,10 +90,6 @@ export default function SessionPanel() {
               <TabPanel value={value} index={1}>
                 <SessionList history />
               </TabPanel>
-              <TabPanel value={value} index={2}>
-                {/* 添加权限的Dom */}
-                <Monitor refreshInterval={2000} />
-              </TabPanel>
             </SwipeableViews>
           </>
         }

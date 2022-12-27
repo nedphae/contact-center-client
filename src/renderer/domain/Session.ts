@@ -25,7 +25,6 @@ export interface Session {
   sticky: boolean;
   /** 客服打的标签 */
   tag: Tag;
-  hasMore: boolean;
   userTypingText?: string;
   userTypingTime?: number;
   // 如果更新会话后，需要重新同步用户消息
@@ -62,7 +61,6 @@ export function createSession(
     interactionLogo: InteractionLogo.NEW,
     sticky: false,
     tag: undefined,
-    hasMore: true,
     shouldSync: false,
   };
 }

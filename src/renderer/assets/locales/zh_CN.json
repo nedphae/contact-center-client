@@ -231,6 +231,7 @@
     "Rich text": "富文本",
     "External answer": "问题的对外答案",
     "Add picture": "添加图片",
+    "Change picture": "修改图片",
     "Delete picture": "删除图片",
     "Internal answers": "问题的对内答案",
     "No matching questions": "没有匹配的问题",
@@ -570,7 +571,7 @@
     "Client setting": "客户端设置",
     "Organization ID": "企业ID",
     "Send image to": "发送图片至",
-    "": ""
+    "draft": "草稿"
   },
   "home": {
     "hot_recommended": "爆款推荐",

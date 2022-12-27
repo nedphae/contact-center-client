@@ -5,10 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { useLazyQuery } from '@apollo/client';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import StepContent from '@material-ui/core/StepContent';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { getSelectedConstomer } from 'renderer/state/chat/chatAction';
@@ -17,6 +13,7 @@ import {
   CustomerStatusGraphql,
   QUERY_CUSTOMER_STATUS,
 } from 'renderer/domain/graphql/Customer';
+import UserTrackViewer from './UserTrackViewer';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -82,7 +79,7 @@ const fakeUserTrack = {
   ],
 };
 
-export default function UserTrack() {
+export default function UserTrackContainer() {
   const classes = useStyles();
   const { t } = useTranslation();
 
@@ -110,25 +107,7 @@ export default function UserTrack() {
     <>
       {status && status.userTrackList && (
         <div className={classes.root}>
-          <Stepper nonLinear activeStep={activeStep} orientation="vertical">
-            {status.userTrackList.map((userTrack) => {
-              const time = userTrack.awayTime
-                ? `${t('Duration')}: ${Math.trunc(
-                    userTrack.awayTime - userTrack.enterTime
-                  )} ${t('Second')}`
-                : t('Being visiting');
-              return (
-                <Step key={`${userTrack.enterTime}-${userTrack.url}`}>
-                  <StepLabel>
-                    {`${time}, ${t('Being visiting')}: ${userTrack.url}`}
-                  </StepLabel>
-                  <StepContent>
-                    <Typography>{userTrack.title}</Typography>
-                  </StepContent>
-                </Step>
-              );
-            })}
-          </Stepper>
+          <UserTrackViewer userTrackList={status.userTrackList} />
           {activeStep === status.userTrackList.length && (
             <Paper square elevation={0} className={classes.resetContainer}>
               <Typography>{t('The user has left the webpage')}</Typography>

@@ -1,11 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { useLazyQuery } from '@apollo/client';
-import {
-  getMonitor,
-  setMonitoredMessage,
-} from 'renderer/state/chat/chatAction';
+import { getMonitor } from 'renderer/state/chat/chatAction';
 import { interval, Subscription } from 'rxjs';
 import {
   SyncMessageByUserGraphql,
@@ -13,14 +10,11 @@ import {
 } from 'renderer/domain/graphql/Monitor';
 
 const useMonitorUserAndMsg = (refreshInterval: number) => {
-  const dispatch = useDispatch();
   const monitorSession = useSelector(getMonitor);
   const lastSeqIdRef = useRef<number>();
   const subscription = useRef<Subscription>();
-  const [syncMessageByUser, { data, refetch }] =
-    useLazyQuery<SyncMessageByUserGraphql>(QUERY_SYNC_USER_MESSAGE, {
-      fetchPolicy: 'no-cache',
-    });
+  const [syncMessageByUser, { data, fetchMore }] =
+    useLazyQuery<SyncMessageByUserGraphql>(QUERY_SYNC_USER_MESSAGE);
 
   const userId = monitorSession?.monitoredUserStatus?.userId;
 
@@ -44,27 +38,39 @@ const useMonitorUserAndMsg = (refreshInterval: number) => {
       if (lastSeqIdRef.current !== messageList[0]?.seqId) {
         lastSeqIdRef.current = messageList[0]?.seqId;
       }
-      const userMessages = { [userId]: messageList };
-      dispatch(setMonitoredMessage(userMessages));
     }
-  }, [data, dispatch, userId]);
+  }, [data, userId]);
 
   // 同步消息
   useEffect(() => {
-    if (userId && refetch && !subscription.current) {
+    if (userId && fetchMore && !subscription.current) {
       subscription.current = interval(refreshInterval).subscribe(() => {
-        refetch({
-          variables: { userId, cursor: lastSeqIdRef.current },
+        const cursor = lastSeqIdRef.current
+          ? lastSeqIdRef.current + 1
+          : lastSeqIdRef.current;
+        fetchMore({
+          variables: { userId, cursor },
+          updateQuery(previousQueryResult, options) {
+            const newMessageList = [
+              ...options.fetchMoreResult.syncMessageByUser.content,
+              ...(previousQueryResult.syncMessageByUser?.content ?? []),
+            ];
+            options.fetchMoreResult.syncMessageByUser.content = newMessageList;
+            return options.fetchMoreResult;
+          },
         });
       });
     }
     return () => {
       if (subscription.current) {
         subscription.current.unsubscribe();
+        subscription.current = undefined;
       }
       lastSeqIdRef.current = undefined;
     };
-  }, [refetch, refreshInterval, userId]);
+  }, [fetchMore, refreshInterval, userId]);
+
+  return [data?.syncMessageByUser.content];
 };
 
 export default useMonitorUserAndMsg;

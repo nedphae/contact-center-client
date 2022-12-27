@@ -230,6 +230,7 @@
     "Rich text": "Rich text",
     "External answer": "External answer",
     "Add picture": "Add picture",
+    "Change picture": "Change picture",
     "Delete picture": "Delete picture",
     "Internal answers": "Internal answers",
     "No matching questions": "No matching questions",
@@ -568,7 +569,7 @@
     "Client setting": "Client setting",
     "Organization ID": "Organization ID",
     "Send image to": "Send image to",
-    "": ""
+    "draft": "Draft"
   },
   "home": {
     "hot_recommended": "",

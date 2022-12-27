@@ -11,6 +11,7 @@ import {
   TransferType,
 } from './constant/Conversation';
 import { CreatorType } from './constant/Message';
+import { UserTrack } from './Customer';
 import { Message } from './Message';
 import { SessionCategory } from './SessionCategory';
 
@@ -78,6 +79,7 @@ export interface Conversation {
   region: string | undefined;
   country: string | undefined;
   city: string | undefined;
+  userTrackList: UserTrack[] | undefined;
 }
 
 export interface SearchHit<T> {

@@ -15,6 +15,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ReplyIcon from '@material-ui/icons/Reply';
 import {
+  getStrFromContent,
   QuickReply,
   QuickReplyDto,
   QuickReplyGroup,
@@ -190,20 +191,23 @@ export default function NestedList(prop: NestedListProps) {
       dense
     >
       {quickReplyDto.noGroup &&
-        quickReplyDto.noGroup.map((qr) => (
-          <ListItem
-            key={qr.id}
-            button // 右键菜单
-            onContextMenu={(event) =>
-              handleContextMenu(event, { group: false, form: qr })
-            }
-          >
-            <ListItemIcon>
-              <ReplyIcon />
-            </ListItemIcon>
-            <ListItemText primary={qr.title} secondary={qr.content} />
-          </ListItem>
-        ))}
+        quickReplyDto.noGroup.map((qr) => {
+          const [contentStr] = getStrFromContent(qr.content, t);
+          return (
+            <ListItem
+              key={qr.id}
+              button // 右键菜单
+              onContextMenu={(event) =>
+                handleContextMenu(event, { group: false, form: qr })
+              }
+            >
+              <ListItemIcon>
+                <ReplyIcon />
+              </ListItemIcon>
+              <ListItemText primary={qr.title} secondary={contentStr} />
+            </ListItem>
+          );
+        })}
       {quickReplyDto.withGroup &&
         quickReplyDto.withGroup.map((group, index) => (
           <React.Fragment key={group.id}>
@@ -223,21 +227,27 @@ export default function NestedList(prop: NestedListProps) {
             <Collapse in={open === index} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 {group.quickReply &&
-                  group.quickReply.map((qr) => (
-                    <ListItem
-                      key={qr.id}
-                      button
-                      className={classes.nested}
-                      onContextMenu={(event) =>
-                        handleContextMenu(event, { group: false, form: qr })
-                      }
-                    >
-                      <ListItemIcon>
-                        <ReplyIcon />
-                      </ListItemIcon>
-                      <ListItemText primary={qr.title} secondary={qr.content} />
-                    </ListItem>
-                  ))}
+                  group.quickReply.map((qr) => {
+                    const [contentStr] = getStrFromContent(qr.content, t);
+                    return (
+                      <ListItem
+                        key={qr.id}
+                        button
+                        className={classes.nested}
+                        onContextMenu={(event) =>
+                          handleContextMenu(event, { group: false, form: qr })
+                        }
+                      >
+                        <ListItemIcon>
+                          <ReplyIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={qr.title}
+                          secondary={contentStr}
+                        />
+                      </ListItem>
+                    );
+                  })}
               </List>
             </Collapse>
           </React.Fragment>

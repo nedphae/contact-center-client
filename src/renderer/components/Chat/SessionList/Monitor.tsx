@@ -20,7 +20,6 @@ import { CustomerStatus } from 'renderer/domain/Customer';
 import Staff, { StaffGroup } from 'renderer/domain/StaffInfo';
 import { from, of, zip } from 'rxjs';
 import { groupBy, map, mergeMap, toArray } from 'rxjs/operators';
-import useMonitorUserAndMsg from 'renderer/hook/init/useMonitorUserAndMsg';
 import { setMonitorSelectedSession } from 'renderer/state/chat/chatAction';
 import {
   MonitorGraphql,
@@ -30,7 +29,7 @@ import {
   StoredMonitorGraphql,
 } from 'renderer/domain/graphql/Monitor';
 import { ConversationUserIdGraphql } from 'renderer/domain/graphql/Conversation';
-import { CustomerGraphql } from 'renderer/domain/graphql/customer';
+import { CustomerGraphql } from 'renderer/domain/graphql/Customer';
 import { Monitored } from 'renderer/domain/Chat';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,11 +57,6 @@ type CustomerAndConversationGraphql = Object.Merge<
   CustomerGraphql,
   ConversationUserIdGraphql
 >;
-
-function SyncUserMessage() {
-  useMonitorUserAndMsg(1000);
-  return <></>;
-}
 
 function Monitor(props: MonitorProps) {
   const { refreshInterval } = props;
@@ -168,7 +162,6 @@ function Monitor(props: MonitorProps) {
       aria-labelledby="nested-list-subheader"
       className={classes.root}
     >
-      <SyncUserMessage />
       {resultList &&
         resultList.map((group, index) => (
           <React.Fragment key={group.id}>
@@ -209,6 +202,10 @@ function Monitor(props: MonitorProps) {
                               <React.Fragment key={cs.userId}>
                                 <ListItem
                                   button
+                                  selected={
+                                    monitored?.monitoredUserStatus.userId ===
+                                    cs.userId
+                                  }
                                   className={classes.nestedDouble}
                                   onClick={() => handleClickCustomer(st, cs)}
                                 >

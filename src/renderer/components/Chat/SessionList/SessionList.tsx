@@ -252,6 +252,19 @@ function SessionList(props: SessionListProps) {
     return logo;
   }
 
+  const getDraftOrLastMessage = (
+    draft: string | undefined,
+    lastMessage: Message | undefined
+  ) => {
+    if (draft) {
+      return `[${t('draft')}] ${draft}`;
+    }
+    if (lastMessage) {
+      return getMessagePreview(lastMessage);
+    }
+    return <>&nbsp;</>;
+  };
+
   return (
     <div className={classes.root}>
       <List dense>
@@ -260,6 +273,7 @@ function SessionList(props: SessionListProps) {
             conversation,
             unread,
             lastMessage,
+            staffDraft,
             user,
             sticky,
             tag,
@@ -304,12 +318,8 @@ function SessionList(props: SessionListProps) {
                         color="textSecondary"
                         display="block"
                       >
-                        {/* &nbsp;  用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
-                        {lastMessage === undefined ? (
-                          <>&nbsp;</>
-                        ) : (
-                          getMessagePreview(lastMessage)
-                        )}
+                        {/* &nbsp; 用来充当占位符 如果没有消息时显示 TODO: 显示文本消息或者类型标注 */}
+                        {getDraftOrLastMessage(staffDraft, lastMessage)}
                       </Typography>
                     }
                   />
