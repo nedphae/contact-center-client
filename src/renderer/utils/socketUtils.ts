@@ -3,7 +3,7 @@ import { CallBack } from 'renderer/service/websocket/EventInterface';
 
 const withTimeout = (
   onSuccess: { apply: (thisArg: undefined, arg1: unknown[]) => void },
-  onTimeout: () => void,
+  onTimeout: () => Error,
   timeout: number
 ) => {
   let called = false;
@@ -11,14 +11,14 @@ const withTimeout = (
   const timer = setTimeout(() => {
     if (called) return;
     called = true;
-    onTimeout();
+    onSuccess.apply(this, [onTimeout()]);
   }, timeout);
 
   return (...args: unknown[]) => {
     if (called) return;
     called = true;
     clearTimeout(timer);
-    onSuccess.apply(this, args);
+    onSuccess.apply(this, [null, ...args]);
   };
 };
 
@@ -38,10 +38,10 @@ export const socketCallback = <T, R>(
   const cbWithTimeout = withTimeout(
     cb,
     () => {
-      throw new Error('request timeout');
+      return new Error('request timeout');
     },
-    // 15秒超时
-    15000
+    // 5秒超时
+    5000
   );
   window.socketRef?.emit(e, r, cbWithTimeout);
 };

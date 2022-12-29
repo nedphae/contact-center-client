@@ -12,7 +12,7 @@ import {
 import { AppDispatch } from 'renderer/store';
 import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { getTokenSource } from 'renderer/electron/jwtStorage';
-import EventInterface, { CallBack } from './EventInterface';
+import EventInterface, { SocketCallBack } from './EventInterface';
 
 export default class SocketHandler implements EventInterface {
   socket: SocketIOClient.Socket;
@@ -82,14 +82,14 @@ export default class SocketHandler implements EventInterface {
 
   onMessage = (
     messageRequest: WebSocketRequest<UpdateMessage>,
-    cb: CallBack<string>
+    cb: SocketCallBack<string>
   ) => {
     this.dispatch(setNewMessage(messageRequest, cb));
   };
 
   onAssignment = (
     conversationRequest: WebSocketRequest<Conversation>,
-    cb: CallBack<string>
+    cb: SocketCallBack<string>
   ) => {
     this.dispatch(assignmentConver(conversationRequest, cb));
   };

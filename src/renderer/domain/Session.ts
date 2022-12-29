@@ -13,7 +13,7 @@ export interface Session {
   /** 未读消息 */
   unread: number;
   /** 会话的聊天消息 */
-  massageList: MessagesMap;
+  messageList: MessagesMap;
   lastMessageTime: number;
   lastMessage: Message | undefined;
   // 客户需要回复消息的第一条的时间
@@ -53,7 +53,7 @@ export function createSession(
     conversation,
     user,
     unread: 0,
-    massageList: {},
+    messageList: {},
     lastMessageTime: conversation.startTime,
     lastMessage: undefined,
     firstNeedReplyTime: undefined,

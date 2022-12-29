@@ -230,12 +230,16 @@ export default function Editor(selected: SelectedProps) {
               }
               case 'IMAGE': {
                 dispatch(
-                  sendImageMessage(selectedSession.conversation.userId, {
-                    mediaId: content.content,
-                    filename: uuidv4().substring(0, 8),
-                    picSize: 0,
-                    type: 'unknown',
-                  })
+                  sendImageMessage(
+                    selectedSession.conversation.userId,
+                    uuidv4(),
+                    {
+                      mediaId: content.content,
+                      filename: uuidv4().substring(0, 8),
+                      picSize: 0,
+                      type: 'unknown',
+                    }
+                  )
                 );
                 break;
               }

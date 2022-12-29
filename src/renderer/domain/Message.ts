@@ -1,10 +1,25 @@
-import { CreatorType, MessageTypeKey, SysCode } from './constant/Message';
+import {
+  CreatorType,
+  MessageStatusKey,
+  MessageTypeKey,
+  SysCode,
+} from './constant/Message';
+
+/**
+ * 标记为本地消息
+ */
+export interface LocalMessage {
+  localType?: MessageTypeKey;
+  status?: MessageStatusKey;
+  file?: File;
+  fileId?: string;
+}
 
 /**
  * Chat messages are not stored locally, all get from the server
  * Sync messages by redis, Persistence by ElasticSearch
  */
-export interface Message extends MessageResponse {
+export interface Message extends MessageResponse, LocalMessage {
   uuid: string;
   /** Snowflake long */
   conversationId?: number;
@@ -50,6 +65,8 @@ export interface Attachments {
   size: number;
   /** 根据类型显示不同图标 */
   type: string;
+  /** 本地文件 */
+  file?: File;
 }
 
 export interface Content {
@@ -75,6 +92,4 @@ export interface MessageResponse {
   seqId?: number;
   /** 服务器接受时间 */
   createdAt?: number | string | Date;
-  /** 是否 发送到服务器 */
-  sync?: boolean;
 }

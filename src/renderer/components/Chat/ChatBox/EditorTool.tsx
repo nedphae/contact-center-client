@@ -2,7 +2,6 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { v4 as uuidv4 } from 'uuid';
 import { createStyles, makeStyles, useTheme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -16,23 +15,17 @@ import StarIcon from '@material-ui/icons/Star';
 import Tooltip from '@material-ui/core/Tooltip';
 import Popper, { PopperPlacementType } from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import { Dialog, Menu, MenuItem } from '@material-ui/core';
+import { Menu, MenuItem } from '@material-ui/core';
 import NestedMenuItem from 'material-ui-nested-menu-item';
 import { Icon } from '@iconify/react';
 import scissors2Line from '@iconify-icons/ri/scissors-2-line';
 
 import './emoji-mart.global.css';
 import { Picker, BaseEmoji } from 'emoji-mart';
-import Upload from 'rc-upload';
-import { RcFile } from 'rc-upload/lib/interface';
 
-import { getUploadS3ChatPath } from 'renderer/config/clientConfig';
-import { Attachments, PhotoContent } from 'renderer/domain/Message';
 import BlacklistForm from 'renderer/components/Blacklist/BlacklistForm';
 import DraggableDialog, {
-  DialogTitle,
   DraggableDialogRef,
-  PaperComponent,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
 import { BlacklistFormProp } from 'renderer/domain/Blacklist';
 import useInitData from 'renderer/hook/init/useInitData';
@@ -51,20 +44,14 @@ import {
 import useAlert from 'renderer/hook/alert/useAlert';
 import {
   sendEvaluationInvitedMsg,
-  sendFileMessage,
-  sendImageMessage,
   updateOrCreateConv,
 } from 'renderer/state/session/sessionAction';
-import { BatchItem, useItemFinalizeListener } from '@rpldy/uploady';
+import { useFileInput, useUploady } from '@rpldy/uploady';
 import { useAppDispatch, useAppSelector } from 'renderer/store';
-import {
-  addImageToSend,
-  clearImageToSend,
-  getImageListToSend,
-} from 'renderer/state/chat/chatAction';
-import SendImageForm from 'renderer/components/Form/SendImageForm';
+import { getImageListToSend } from 'renderer/state/chat/chatAction';
 import { emojiZh } from 'renderer/i18n/emojiI18n';
 import TransferForm from './transfer/TransferForm';
+import FilePreviewer from './preview/FilePreviewer';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -113,13 +100,38 @@ function createSessionCategory(
   });
 }
 
+function UploadyButton(props: { image: boolean }) {
+  const { image } = props;
+  const uploady = useUploady();
+  const inputRef = useFileInput();
+
+  return (
+    <IconButton
+      aria-label="upload"
+      size="small"
+      onClick={() => {
+        if (inputRef.current) {
+          inputRef.current.accept = image ? 'image/*' : '';
+        }
+        uploady.showFileUpload();
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.accept = '';
+          }
+        }, 100);
+      }}
+    >
+      {image ? <ImageOutlinedIcon /> : <AttachmentOutlinedIcon />}
+    </IconButton>
+  );
+}
+
 function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   const classes = useStyles();
   const theme = useTheme();
   const { setEmoji, selectedSession } = props;
   const dispatch = useAppDispatch();
   const { t, i18n } = useTranslation();
-  const imageListToSend = useAppSelector(getImageListToSend);
 
   const blacklistInfo: BlacklistFormProp = {
     preventStrategy: 'UID',
@@ -136,14 +148,12 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [open, setOpen] = useState(false);
-  const [openImageDialog, setOpenImageDialog] = useState(false);
   const [placement, setPlacement] = useState<PopperPlacementType>();
   const refOfDialog = useRef<DraggableDialogRef>(null);
   const refOfTransferDialog = useRef<DraggableDialogRef>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLButtonElement>();
 
-  const { onLoadding, onCompleted, onError, onCompletedMsg, onErrorMsg } =
-    useAlert();
+  const { onLoadding, onCompleted, onError, onCompletedMsg } = useAlert();
   const [updateCategory, { loading, data }] =
     useMutation<MutationConversationGraphql>(MUTATION_CONVERSATOIN, {
       onCompleted,
@@ -161,36 +171,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   }, [data, dispatch]);
 
   const { sessionCategoryTreeList } = useInitData(false);
-
-  function handleSendImageMessage(photoContent: PhotoContent) {
-    if (selectedSession) {
-      dispatch(
-        sendImageMessage(selectedSession.conversation.userId, photoContent)
-      );
-    }
-  }
-
-  function handleSendFileMessage(attachments: Attachments) {
-    if (selectedSession) {
-      dispatch(
-        sendFileMessage(selectedSession.conversation.userId, attachments)
-      );
-    }
-  }
-
-  useItemFinalizeListener((item: BatchItem) => {
-    const mediaId = (item.uploadResponse.data as string[])[0];
-    if (item.file.type.startsWith('image')) {
-      dispatch(addImageToSend([mediaId]));
-    } else {
-      handleSendFileMessage({
-        mediaId,
-        filename: item.file.name,
-        size: item.file.size,
-        type: item.file.type,
-      });
-    }
-  });
 
   function handleClickBlacklist() {
     refOfDialog.current?.setOpen(true);
@@ -214,52 +194,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     const emoji = emojiData.native;
     setEmoji(emoji);
     onClose();
-  };
-
-  const imgUploadProps = {
-    action: `${getUploadS3ChatPath()}`,
-    multiple: false,
-    accept: 'image/*',
-    onStart(file: RcFile) {
-      // console.log('onStart', file, file.name);
-    },
-    onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
-      // console.log('onSuccess', response);
-      // 发送图片消息
-      handleSendImageMessage({
-        mediaId: (response as string[])[0],
-        filename: file.name,
-        picSize: file.size,
-        type: file.type,
-      });
-    },
-    onError(error: Error, _ret: any, _file: RcFile) {
-      // console.log('onError', error);
-      onErrorMsg(t('Image upload failed'));
-    },
-  };
-
-  const fileUploadProps = {
-    action: `${getUploadS3ChatPath()}`,
-    multiple: false,
-    accept: '*',
-    onStart(file: RcFile) {
-      // console.log('onStart', file, file.name);
-    },
-    onSuccess(response: unknown, file: RcFile, _xhr: unknown) {
-      // console.log('onSuccess', response);
-      // 发送图片消息
-      handleSendFileMessage({
-        mediaId: (response as string[])[0],
-        filename: file.name,
-        size: file.size,
-        type: file.type,
-      });
-    },
-    onError(error: Error, _ret: any, _file: RcFile) {
-      // console.log('onError', error);
-      onErrorMsg(t('File upload failed'));
-    },
   };
 
   const handleMenuClose = () => {
@@ -292,36 +226,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
     onCompletedMsg(t('chat.editor.tool.Rate invitation has been sent'));
   }
 
-  if (imageListToSend && !openImageDialog) {
-    setOpenImageDialog(true);
-  }
-
-  const handleImageClose = () => {
-    setOpenImageDialog(false);
-    dispatch(clearImageToSend());
-  };
-
-  const sendImageList = (imgUrls: string[]) => {
-    handleImageClose();
-    imgUrls.forEach((url) => {
-      handleSendImageMessage({
-        mediaId: url,
-        filename: uuidv4().substring(0, 8),
-        picSize: 0,
-        type: 'unknown',
-      });
-    });
-  };
-
-  const handleImageDialogClose = (
-    _event: unknown,
-    reason: 'backdropClick' | 'escapeKeyDown'
-  ) => {
-    if (reason !== 'backdropClick') {
-      handleImageClose();
-    }
-  };
-
   const capture = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e.shiftKey) {
       window.electron.ipcRenderer.sendMessage('hide-main-window');
@@ -343,7 +247,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       >
         <BlacklistForm defaultValues={blacklistInfo} />
       </DraggableDialog>
-      <Dialog
+      {/* <Dialog
         disableEnforceFocus
         fullWidth
         maxWidth="md"
@@ -362,7 +266,8 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
         {imageListToSend && (
           <SendImageForm urls={imageListToSend} send={sendImageList} />
         )}
-      </Dialog>
+      </Dialog> */}
+      <FilePreviewer selectedSession={selectedSession} fileType="AUTO" />
       <TransferForm defaultValues={transferQuery} ref={refOfTransferDialog} />
       <Menu
         keepMounted
@@ -406,7 +311,6 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           // </Fade>
         )}
       </Popper>
-
       <Tooltip title={t('editor.tool.Emoji')} placement="top" arrow>
         <IconButton
           onClick={handleClick('top-start')}
@@ -417,21 +321,12 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
           <InsertEmoticonOutlinedIcon />
         </IconButton>
       </Tooltip>
-      <Upload {...fileUploadProps}>
-        <Tooltip title={t('editor.tool.File')} placement="top" arrow>
-          <IconButton aria-label="upload file" size="small">
-            <AttachmentOutlinedIcon />
-          </IconButton>
-        </Tooltip>
-      </Upload>
-
-      <Upload {...imgUploadProps}>
-        <Tooltip title={t('editor.tool.Image')} placement="top" arrow>
-          <IconButton aria-label="upload image" size="small">
-            <ImageOutlinedIcon />
-          </IconButton>
-        </Tooltip>
-      </Upload>
+      <Tooltip title={t('editor.tool.File')} placement="top" arrow>
+        <UploadyButton image={false} />
+      </Tooltip>
+      <Tooltip title={t('editor.tool.Image')} placement="top" arrow>
+        <UploadyButton image />
+      </Tooltip>
       <Tooltip title={t('editor.tool.Transfer')} placement="top" arrow>
         <IconButton
           aria-label="transfer"

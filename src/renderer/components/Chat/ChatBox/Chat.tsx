@@ -7,6 +7,7 @@ import Uploady, { FileFilterMethod } from '@rpldy/uploady';
 import createUploader from '@rpldy/uploader';
 import UploadDropZone from '@rpldy/upload-drop-zone';
 import withPasteUpload from '@rpldy/upload-paste';
+import retryEnhancer from '@rpldy/retry-hooks';
 
 import {
   createStyles,
@@ -119,8 +120,10 @@ export default function Chat() {
 
   return (
     <Uploady
+      autoUpload={false}
       destination={{ url: getUploadS3ChatPath() }}
       fileFilter={fileFilter}
+      enhancer={retryEnhancer}
     >
       <PasteUploadDropZone>
         <Grid container className={classes.root}>

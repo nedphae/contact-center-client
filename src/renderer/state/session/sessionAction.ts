@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import { WebSocketRequest, generateResponse } from 'renderer/domain/WebSocket';
-import { CallBack } from 'renderer/service/websocket/EventInterface';
+import { SocketCallBack } from 'renderer/service/websocket/EventInterface';
 import {
   Attachments,
   Content,
@@ -156,7 +156,7 @@ export const getSelectedMessageList = (state: RootState) => {
         userMessageMap = state.chat.monitored.monitoredMessageList;
       }
     } else {
-      userMessageMap = state.session[selected].massageList;
+      userMessageMap = state.session[selected].messageList;
     }
     if (userMessageMap) {
       messageList = _.values(userMessageMap);
@@ -216,7 +216,10 @@ export const updateOrCreateConv =
  * @returns
  */
 export const assignmentConver =
-  (request: WebSocketRequest<Conversation>, cb: CallBack<string>): AppThunk =>
+  (
+    request: WebSocketRequest<Conversation>,
+    cb: SocketCallBack<string>
+  ): AppThunk =>
   async (dispatch) => {
     const conversation = request.body;
     if (conversation !== undefined) {
@@ -237,14 +240,26 @@ export const assignmentConver =
  * @param message 消息结构
  * @returns callback
  */
-export function sendMessage(message: Message): AppThunk {
+export function sendMessage(
+  message: Message,
+  localMessage?: Message
+): AppThunk {
   return (dispatch, getState) => {
+    message.createdAt = new Date().getTime() / 1000;
     // 发送消息到服务器
     message.nickName = getState().staff.nickName;
     if (getState().chat.monitored) {
       // 如果是管理员插入的会话
       message.content.sysCode = 'STAFF_HELP';
     }
+    if (!getState().chat.monitored) {
+      // 先展示显示消息
+      if (!message.status) {
+        message.status = 'PENDDING';
+      }
+      dispatch(newMessage({ [message.uuid]: message }));
+    }
+    const updateMessage = localMessage ?? _.clone(message);
     emitMessage(message)
       .pipe(
         map((r) => r.body),
@@ -252,9 +267,9 @@ export function sendMessage(message: Message): AppThunk {
         map((mr) => {
           // 设置服务器返回的消息序列号和消息时间
           if (mr !== undefined) {
-            message.seqId = mr.seqId;
-            message.createdAt = mr.createdAt;
-            message.sync = true;
+            updateMessage.seqId = mr.seqId;
+            updateMessage.createdAt = mr.createdAt;
+            updateMessage.status = 'SENT';
             if (message.to) {
               // 设置 客服已回消息
               dispatch(
@@ -265,13 +280,14 @@ export function sendMessage(message: Message): AppThunk {
               );
             }
           }
-          return message;
+          return updateMessage;
         }),
         catchError(() => {
           // 如果有错误，设置消息发送失败，显示重发按钮, 并把消息设置到最后
-          message.sync = false;
-          message.seqId = Number.MAX_SAFE_INTEGER;
-          return of(message);
+          if (updateMessage.status !== 'FILE_SENT') {
+            updateMessage.status = 'ERROR';
+          }
+          return of(updateMessage);
         }),
         map((m) => {
           return { [m.uuid]: m } as MessagesMap;
@@ -545,7 +561,10 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
  * @param cb 回调
  */
 export const setNewMessage =
-  (request: WebSocketRequest<UpdateMessage>, cb: CallBack<string>): AppThunk =>
+  (
+    request: WebSocketRequest<UpdateMessage>,
+    cb: SocketCallBack<string>
+  ): AppThunk =>
   async (dispatch, getState) => {
     of(request)
       .pipe(
@@ -661,7 +680,7 @@ export const setNewMessage =
  * @returns
  */
 export function sendTextMessage(to: number, textContent: string): AppThunk {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     const content: Content = {
       contentType: 'TEXT',
       textContent: {
@@ -674,15 +693,23 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
-      nickName: getState().staff.nickName,
     };
     dispatch(sendMessage(message));
   };
 }
 
+export function addLocalMessage(message: Message): AppThunk {
+  return (dispatch, getState) => {
+    message.nickName = getState().staff.nickName;
+    dispatch(newMessage({ [message.uuid]: message } as MessagesMap));
+  };
+}
+
 export function sendImageMessage(
   to: number,
-  photoContent: PhotoContent
+  uuid: string,
+  photoContent: PhotoContent,
+  localMessage: Message
 ): AppThunk {
   return (dispatch, getState) => {
     const content: Content = {
@@ -690,35 +717,36 @@ export function sendImageMessage(
       photoContent,
     };
     const message: Message = {
-      uuid: uuidv4(),
+      uuid,
       to,
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
       nickName: getState().staff.nickName,
     };
-    dispatch(sendMessage(message));
+    dispatch(sendMessage(message, localMessage));
   };
 }
 
 export function sendFileMessage(
   to: number,
-  attachments: Attachments
+  uuid: string,
+  attachments: Attachments,
+  localMessage: Message
 ): AppThunk {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     const content: Content = {
       contentType: 'FILE',
       attachments,
     };
     const message: Message = {
-      uuid: uuidv4(),
+      uuid,
       to,
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
-      nickName: getState().staff.nickName,
     };
-    dispatch(sendMessage(message));
+    dispatch(sendMessage(message, localMessage));
   };
 }
 
@@ -729,3 +757,5 @@ export const getTotalUnreadCount = (state: RootState) => {
   }
   return 0;
 };
+
+export const resendMesssage = () => {};

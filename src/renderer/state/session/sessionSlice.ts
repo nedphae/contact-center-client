@@ -129,7 +129,7 @@ const converSlice = createSlice({
         const userId = parseInt(userIdStr, 10);
         const messageMap = userMessageMap[userId];
         const conver = converMap[userId];
-        conver.massageList = _.defaults(conver.massageList, messageMap);
+        conver.messageList = _.defaults(conver.messageList, messageMap);
       });
     },
     newMessage: (converMap, action: PayloadAction<MessagesMap>) => {
@@ -154,7 +154,7 @@ const converSlice = createSlice({
 
                   [c.lastMessage] = _.valuesIn(m);
                   // 消息如果存在了就不在设置 change from _.merge
-                  c.massageList = _.defaults(c.massageList, m);
+                  c.messageList = _.assign(c.messageList, m);
 
                   if (msg.creatorType === CreatorType.CUSTOMER) {
                     if (c.firstNeedReplyTime === undefined) {
@@ -188,7 +188,7 @@ const converSlice = createSlice({
       action: PayloadAction<{ userId: number; uuid: string }>
     ) => {
       const cover = converMap[action.payload.userId];
-      delete cover.massageList[action.payload.uuid];
+      delete cover.messageList[action.payload.uuid];
     },
   },
 });

@@ -1,11 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
 import Viewer from 'react-viewer';
 import clsx from 'clsx';
@@ -13,6 +7,7 @@ import PerfectScrollbar from 'perfect-scrollbar';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
+import ErrorIcon from '@material-ui/icons/Error';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { gql, useQuery } from '@apollo/client';
@@ -45,6 +40,9 @@ import {
 } from 'renderer/config/clientConfig';
 import {
   newMessage,
+  sendFileMessage,
+  sendImageMessage,
+  sendMessage,
   sendWithdrawMsg,
 } from 'renderer/state/session/sessionAction';
 import { ImageDecorator } from 'react-viewer/lib/ViewerProps';
@@ -53,9 +51,12 @@ import getPageQuery from 'renderer/domain/graphql/Page';
 import { PageResult } from 'renderer/domain/Page';
 import { CreatorType } from 'renderer/domain/constant/Message';
 import { useAppDispatch } from 'renderer/store';
+import { uploadFile } from 'renderer/service/fileService';
 import {
   Box,
   ButtonGroup,
+  CircularProgress,
+  CircularProgressProps,
   Fade,
   IconButton,
   Popper,
@@ -63,6 +64,7 @@ import {
   PopperProps,
   Tooltip,
 } from '@material-ui/core';
+import { useItemProgressListener } from '@rpldy/uploady';
 import FileCard from './FileCard';
 import RichTextStyle from './RichText.less';
 
@@ -133,10 +135,11 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
 );
 
 export function createContent(
-  content: Content,
+  message: Message,
   classes: ClassNameMap<'message'>,
   openImageViewer: (src: string, alt: string) => void
 ) {
+  const { content } = message;
   let element;
   switch (content.contentType) {
     case 'SYS': {
@@ -169,9 +172,16 @@ export function createContent(
       break;
     }
     case 'IMAGE': {
-      const imageUrl = `${getDownloadS3ChatImgPath()}${
-        content.photoContent?.mediaId
-      }`;
+      const isLocalImage = Boolean(message.localType);
+      let imageUrl: string;
+      if (isLocalImage) {
+        imageUrl = content.photoContent?.mediaId ?? '';
+      } else {
+        imageUrl = `${getDownloadS3ChatImgPath()}${
+          content.photoContent?.mediaId
+        }`;
+      }
+
       const filename = content.photoContent?.filename;
       element = (
         <TouchableOpacity
@@ -226,6 +236,175 @@ export function createContent(
     }
   }
   return element;
+}
+
+function CircularProgressWithLabel(
+  props: CircularProgressProps & { value: number }
+) {
+  const { value } = props;
+  return (
+    <Box position="relative" display="inline-flex">
+      <CircularProgress variant="determinate" {...props} />
+      <Box
+        top={0}
+        left={0}
+        bottom={0}
+        right={0}
+        position="absolute"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Typography
+          variant="caption"
+          component="div"
+          color="textSecondary"
+        >{`${Math.round(value)}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    root: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    wrapper: {
+      // margin: theme.spacing(1),
+      position: 'relative',
+      display: 'flex',
+      width: '24px',
+    },
+    fabProgress: {
+      position: 'absolute',
+      top: -6,
+      left: -6,
+      zIndex: 1,
+    },
+    buttonProgress: {
+      position: 'absolute',
+      bottom: 0,
+      // left: '50%',
+      marginTop: '50px',
+      // marginLeft: -12,
+    },
+  })
+);
+
+function ResendViewer(props: {
+  uuid: string;
+  message: Message;
+  children: React.ReactNode;
+}) {
+  const { uuid, message, children } = props;
+  const classes = useStyles();
+  const [progress, setProgress] = useState(0);
+  const dispatch = useAppDispatch();
+
+  const localMessage = window.localMessageMap.get(uuid);
+  useItemProgressListener((item) => {
+    if (item.completed > progress) {
+      setProgress(() => item.completed);
+    }
+  }, localMessage?.fileId);
+
+  useEffect(() => {
+    if (message.status === 'SENT') {
+      window.localMessageMap.delete(message.uuid);
+    }
+  }, [message]);
+
+  // 上传失败，重新上传
+  const resendFileMessage = async () => {
+    if (localMessage?.file) {
+      let mediaId;
+      if (message.status === 'FILE_SENT') {
+        if (localMessage.content.contentType === 'IMAGE') {
+          mediaId = message.content.photoContent?.mediaId;
+        } else {
+          mediaId = message.content.attachments?.mediaId;
+        }
+      }
+      if (!mediaId) {
+        const url = await uploadFile(localMessage?.file);
+        if (url && url[0]) {
+          [mediaId] = url;
+          localMessage.status = 'FILE_SENT';
+          window.localMessageMap.set(uuid, localMessage);
+        }
+      }
+      if (mediaId) {
+        if (localMessage && message.to) {
+          const updateLocalMessage = _.omit(localMessage, 'file');
+          if (localMessage.content.contentType === 'IMAGE') {
+            dispatch(
+              sendImageMessage(
+                message.to,
+                uuid,
+                {
+                  mediaId,
+                  filename: localMessage.file.name,
+                  picSize: localMessage.file.size,
+                  type: localMessage.file.type,
+                },
+                updateLocalMessage
+              )
+            );
+          } else {
+            dispatch(
+              sendFileMessage(
+                message.to,
+                uuid,
+                {
+                  mediaId,
+                  filename: localMessage.file.name,
+                  size: localMessage.file.size,
+                  type: localMessage.file.type,
+                },
+                updateLocalMessage
+              )
+            );
+          }
+        }
+      }
+    } else {
+      // 非文件，直接发送
+      dispatch(sendMessage(message));
+    }
+  };
+
+  return (
+    <>
+      {message &&
+        message.localType &&
+        message.status !== 'SENT' &&
+        message.status !== 'PENDDING' && (
+          <>
+            <div className={classes.wrapper}>
+              <div className={classes.buttonProgress}>
+                <ErrorIcon color="secondary" onClick={resendFileMessage} />
+              </div>
+            </div>
+          </>
+        )}
+      {message && message.localType && message.status === 'PENDDING' && (
+        <>
+          <div className={classes.wrapper}>
+            {(progress !== 0 && progress !== 100) ||
+              (message.status === 'PENDDING' && (
+                <CircularProgressWithLabel
+                  value={progress}
+                  className={classes.buttonProgress}
+                />
+              ))}
+          </div>
+        </>
+      )}
+      {children}
+    </>
+  );
 }
 
 interface MessageListProps {
@@ -342,12 +521,19 @@ const MessageList = (props: MessageListProps) => {
     })
   );
   const distinctMessage = _.values(distinctMessageMap) as Message[];
-  const sortedMessage = distinctMessage.sort(
-    (a, b) =>
-      // 默认 seqId 为最大
+  const sortedMessage = distinctMessage.sort((a, b) => {
+    if (!a.seqId || !b.seqId) {
+      return (
+        ((a.createdAt as number) ?? Number.MAX_SAFE_INTEGER) -
+        ((b.createdAt as number) ?? Number.MAX_SAFE_INTEGER)
+      );
+    }
+    // 默认 seqId 为最大
+    return (
       (a.seqId ?? Number.MAX_SAFE_INTEGER) -
       (b.seqId ?? Number.MAX_SAFE_INTEGER)
-  );
+    );
+  });
   const fetchMoreCursor = sortedMessage[0]?.seqId;
 
   useLayoutEffect(() => {
@@ -389,49 +575,49 @@ const MessageList = (props: MessageListProps) => {
     setHistoryMsg(true);
   };
 
-  const handleContentSizeChange = useCallback(
-    (_contentWidth: number, contentHeight: number) => {
-      // 检查是否是读取历史记录
-      if (refOfScrollView.current && user && user.userId) {
-        if (!historyMsg) {
-          // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
-          const scrollViewHeight = (
-            refOfScrollView.current as unknown as HTMLDivElement
-          ).clientHeight;
-          if (contentHeight > scrollViewHeight) {
-            // scrollTo 底部
-            refOfScrollView.current.scrollTo({
-              x: 0,
-              y: contentHeight - scrollViewHeight,
-              animated: animated && !firstIn,
-            });
-          } else {
-            refOfScrollView.current.scrollTo({
-              x: 0,
-              y: 0,
-              animated: animated && !firstIn,
-            });
-          }
-          // else {
-          //   // scrollTo 顶部
-          //   refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
-          // }
+  const handleContentSizeChange = (
+    _contentWidth: number,
+    contentHeight: number
+  ) => {
+    // 检查是否是读取历史记录
+    if (refOfScrollView.current && user && user.userId) {
+      if (!historyMsg) {
+        // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
+        const scrollViewHeight = (
+          refOfScrollView.current as unknown as HTMLDivElement
+        ).clientHeight;
+        if (contentHeight > scrollViewHeight) {
+          // scrollTo 底部
+          refOfScrollView.current.scrollTo({
+            x: 0,
+            y: contentHeight - scrollViewHeight,
+            animated: animated && !firstIn,
+          });
+        } else {
+          refOfScrollView.current.scrollTo({
+            x: 0,
+            y: 0,
+            animated: animated && !firstIn,
+          });
         }
-        setAnimated(false);
-        setFirstIn(false);
+        // else {
+        //   // scrollTo 顶部
+        //   refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
+        // }
       }
-    },
-    [animated, firstIn, historyMsg, user]
-  );
+      setAnimated(false);
+      setFirstIn(false);
+    }
+  };
 
   const closeImageViewerDialog = () => {
     toggleShowImageViewerDialog(false);
   };
 
-  function openImageViewer(src: string, alt: string) {
+  const openImageViewer = (src: string, alt: string) => {
     setImageViewer({ src, alt });
     toggleShowImageViewerDialog(true);
-  }
+  };
 
   const withdrawMsg = () => {
     if (user?.userId && withdrawUUID) {
@@ -526,8 +712,10 @@ const MessageList = (props: MessageListProps) => {
             </ListItem>
           )}
           {sortedMessage &&
-            sortedMessage.map(
-              ({ uuid, seqId, createdAt, content, creatorType, nickName }) => (
+            sortedMessage.map((msg) => {
+              const { uuid, seqId, createdAt, content, creatorType, nickName } =
+                msg;
+              return (
                 <React.Fragment key={uuid}>
                   {content.contentType === 'SYS_TEXT' ? (
                     <Grid container justifyContent="center">
@@ -586,24 +774,52 @@ const MessageList = (props: MessageListProps) => {
                             }
                           />
                         </Grid>
-                        <Paper
-                          onMouseEnter={handleMouseUp(
-                            creatorType === 1 &&
-                              now.getTime() - (createdAt as number) * 1000 <=
-                                2 * 60 * 1000,
-                            { uuid, seqId }
-                          )}
-                          onMouseLeave={handleClose}
-                          elevation={4}
-                          className={clsx(
-                            creatorType !== 1
-                              ? classes.fromMessagePaper
-                              : classes.toMessagePaper,
-                            classes.baseMessagePaper
-                          )}
-                        >
-                          {createContent(content, classes, openImageViewer)}
-                        </Paper>
+                        {/* 本地消息, 提示是否需要重发 */}
+                        {creatorType === 1 && (
+                          <ResendViewer uuid={uuid} message={msg}>
+                            <Paper
+                              onMouseEnter={handleMouseUp(
+                                creatorType === 1 &&
+                                  Boolean(seqId) &&
+                                  now.getTime() -
+                                    (createdAt as number) * 1000 <=
+                                    2 * 60 * 1000,
+                                { uuid, seqId }
+                              )}
+                              onMouseLeave={handleClose}
+                              elevation={4}
+                              className={clsx(
+                                creatorType !== 1
+                                  ? classes.fromMessagePaper
+                                  : classes.toMessagePaper,
+                                classes.baseMessagePaper
+                              )}
+                            >
+                              {createContent(msg, classes, openImageViewer)}
+                            </Paper>
+                          </ResendViewer>
+                        )}
+                        {creatorType !== 1 && (
+                          <Paper
+                            onMouseEnter={handleMouseUp(
+                              creatorType === 1 &&
+                                Boolean(seqId) &&
+                                now.getTime() - (createdAt as number) * 1000 <=
+                                  2 * 60 * 1000,
+                              { uuid, seqId }
+                            )}
+                            onMouseLeave={handleClose}
+                            elevation={4}
+                            className={clsx(
+                              creatorType !== 1
+                                ? classes.fromMessagePaper
+                                : classes.toMessagePaper,
+                              classes.baseMessagePaper
+                            )}
+                          >
+                            {createContent(msg, classes, openImageViewer)}
+                          </Paper>
+                        )}
                       </Grid>
                       {/* 发送的消息的头像 */}
                       {creatorType === CreatorType.STAFF && (
@@ -619,8 +835,8 @@ const MessageList = (props: MessageListProps) => {
                     </ListItem>
                   )}
                 </React.Fragment>
-              )
-            )}
+              );
+            })}
         </List>
       )}
       <Viewer

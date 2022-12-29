@@ -1,4 +1,4 @@
-import { bindCallback, Observable, of, TimeoutError, timer } from 'rxjs';
+import { bindNodeCallback, Observable, of, TimeoutError, timer } from 'rxjs';
 import { filter, mergeMap, retryWhen, delayWhen } from 'rxjs/operators';
 
 import {
@@ -11,14 +11,14 @@ import {
 import { StaffConfigData } from 'renderer/domain/StaffInfo';
 import { Message, MessageResponse } from 'renderer/domain/Message';
 import { socketCallback } from 'renderer/utils/socketUtils';
-import { CallBack } from './websocket/EventInterface';
+import { SocketCallBack } from './websocket/EventInterface';
 
 const filterCode = <T>() =>
   filter((response: WebSocketResponse<T>) => response.code === 200);
 
 export const filterUndefinedWithCb = <T>(
   header: Header,
-  cb: CallBack<string>
+  cb: SocketCallBack<string>
 ) =>
   filter((b: T) => {
     const result = b !== undefined && b !== null;
@@ -37,7 +37,7 @@ export default function fetch<T, R>(
   event: string,
   request: WebSocketRequest<T>
 ): Observable<WebSocketResponse<R>> {
-  const boundEmit = bindCallback(socketCallback);
+  const boundEmit = bindNodeCallback(socketCallback);
   return boundEmit<T, R>(event, request).pipe(filterCode());
 }
 
@@ -76,7 +76,7 @@ export function fetchWithRetry<T, R>(
   request: WebSocketRequest<T>,
   retry = 3
 ): Observable<WebSocketResponse<R>> {
-  const boundEmit = bindCallback(socketCallback);
+  const boundEmit = bindNodeCallback(socketCallback);
 
   const eventObservable = of(event).pipe(
     mergeMap((ev) => boundEmit<T, R>(ev, request)),

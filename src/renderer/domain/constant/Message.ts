@@ -22,6 +22,22 @@ export enum MessageType {
 export type MessageTypeKey = keyof typeof MessageType;
 
 /**
+ * 消息本地状态
+ */
+export enum MessageStatus {
+  /** 正在发送 */
+  PENDDING,
+  /** 已经发送文件 */
+  FILE_SENT,
+  /** 消息发送完成 */
+  SENT,
+  /** 发生错误 */
+  ERROR,
+}
+
+export type MessageStatusKey = keyof typeof MessageStatus;
+
+/**
  * 参考钉钉设计的创建者类型
  * 不同于钉钉的 普通消息/OA消息 区分
  * 这里区分不同的使用者类型 (客服/客户)

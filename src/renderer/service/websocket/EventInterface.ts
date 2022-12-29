@@ -10,4 +10,9 @@ export default interface EventInterface {
   init(): void;
 }
 
-export type CallBack<T> = (response: WebSocketResponse<T>) => void;
+export type CallBack<T> = (
+  error: Error | null,
+  response: WebSocketResponse<T>
+) => void;
+
+export type SocketCallBack<T> = (response: WebSocketResponse<T>) => void;

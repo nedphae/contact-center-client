@@ -65,84 +65,87 @@ export default function MessageList(props: MessageListProps) {
       style={{ overflowY: 'auto', height: 'calc(100vh - 220px)' }}
     >
       <List className={classes.list}>
-        {messages.map(({ uuid, createdAt, content, creatorType }) => (
-          <React.Fragment key={uuid}>
-            <ListItem alignItems="flex-start">
-              {/* 客户的消息的头像 */}
-              {creatorType === CreatorType.CUSTOMER && (
-                <ListItemAvatar className={classes.listItemAvatar}>
-                  <Avatar alt="Profile Picture" />
-                </ListItemAvatar>
-              )}
-              {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
-              <Grid
-                container
-                justifyContent={
-                  creatorType === CreatorType.CUSTOMER
-                    ? 'flex-start'
-                    : 'flex-end'
-                }
-              >
-                <Grid item xs={12}>
-                  <ListItemText
-                    primary={
-                      <Grid
-                        container
-                        alignItems="center"
-                        justifyContent={
-                          creatorType === CreatorType.CUSTOMER
-                            ? 'flex-start'
-                            : 'flex-end'
-                        }
-                      >
-                        {/* justifyContent="flex-end" */}
-                        <Typography
-                          variant="subtitle1"
-                          gutterBottom
-                          className={classes.inline}
-                        >
-                          {creatorType === CreatorType.CUSTOMER
-                            ? conversation.userName
-                            : conversation.nickName}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          gutterBottom
-                          className={classes.inline}
-                        >
-                          {createdAt && javaInstant2DateStr(createdAt)}
-                        </Typography>
-                      </Grid>
-                    }
-                  />
-                </Grid>
-                <Paper
-                  elevation={4}
-                  className={clsx(
+        {messages.map((message) => {
+          const { uuid, createdAt, content, creatorType } = message;
+          return (
+            <React.Fragment key={uuid}>
+              <ListItem alignItems="flex-start">
+                {/* 客户的消息的头像 */}
+                {creatorType === CreatorType.CUSTOMER && (
+                  <ListItemAvatar className={classes.listItemAvatar}>
+                    <Avatar alt="Profile Picture" />
+                  </ListItemAvatar>
+                )}
+                {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
+                <Grid
+                  container
+                  justifyContent={
                     creatorType === CreatorType.CUSTOMER
-                      ? classes.fromMessagePaper
-                      : classes.toMessagePaper,
-                    classes.baseMessagePaper
-                  )}
+                      ? 'flex-start'
+                      : 'flex-end'
+                  }
                 >
-                  {createContent(content, classes, openImageViewer)}
-                </Paper>
-              </Grid>
-              {/* 客服发送的消息的头像 */}
-              {creatorType === CreatorType.STAFF && (
-                <ListItemAvatar className={classes.listItemAvatar}>
-                  <Avatar
-                    src={
-                      staff &&
-                      staff.avatar &&
-                      `${getDownloadS3StaffImgPath()}${staff.avatar}`
-                    }
-                  />
-                </ListItemAvatar>
-              )}
-            </ListItem>
-          </React.Fragment>
-        ))}
+                  <Grid item xs={12}>
+                    <ListItemText
+                      primary={
+                        <Grid
+                          container
+                          alignItems="center"
+                          justifyContent={
+                            creatorType === CreatorType.CUSTOMER
+                              ? 'flex-start'
+                              : 'flex-end'
+                          }
+                        >
+                          {/* justifyContent="flex-end" */}
+                          <Typography
+                            variant="subtitle1"
+                            gutterBottom
+                            className={classes.inline}
+                          >
+                            {creatorType === CreatorType.CUSTOMER
+                              ? conversation.userName
+                              : conversation.nickName}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            gutterBottom
+                            className={classes.inline}
+                          >
+                            {createdAt && javaInstant2DateStr(createdAt)}
+                          </Typography>
+                        </Grid>
+                      }
+                    />
+                  </Grid>
+                  <Paper
+                    elevation={4}
+                    className={clsx(
+                      creatorType === CreatorType.CUSTOMER
+                        ? classes.fromMessagePaper
+                        : classes.toMessagePaper,
+                      classes.baseMessagePaper
+                    )}
+                  >
+                    {createContent(message, classes, openImageViewer)}
+                  </Paper>
+                </Grid>
+                {/* 客服发送的消息的头像 */}
+                {creatorType === CreatorType.STAFF && (
+                  <ListItemAvatar className={classes.listItemAvatar}>
+                    <Avatar
+                      src={
+                        staff &&
+                        staff.avatar &&
+                        `${getDownloadS3StaffImgPath()}${staff.avatar}`
+                      }
+                    />
+                  </ListItemAvatar>
+                )}
+              </ListItem>
+            </React.Fragment>
+          );
+        })}
       </List>
       <Viewer
         visible={showImageViewerDialog}

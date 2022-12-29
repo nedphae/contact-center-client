@@ -1838,6 +1838,25 @@
     "@rpldy/life-events" "^1.3.0"
     "@rpldy/shared" "^1.3.0"
 
+"@rpldy/retry-hooks@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@rpldy/retry-hooks/-/retry-hooks-1.3.0.tgz#30497639e0c2b85ac8509bdf465a7a44e1d8b25b"
+  integrity sha512-lX5IlctXTQXeTc7I4T4/nkNy9sXSE/Mh0uB/lsSXoaUk0L+LWpjV4BHJtN/XGr0iLwEJjB9vUw1uhdIz8bw3Rw==
+  dependencies:
+    "@rpldy/retry" "^1.3.0"
+    "@rpldy/shared" "^1.3.0"
+    "@rpldy/shared-ui" "^1.3.0"
+    "@rpldy/uploader" "^1.3.0"
+
+"@rpldy/retry@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@rpldy/retry/-/retry-1.3.0.tgz#03a33998178bfecf9471abeb17d1dcf73f282344"
+  integrity sha512-MzFadQ49xFUiow7fk/6QhxvKJCE9RoPUcM5wGW8XQKOPqcx7gOMzrJ2oNLfqtp44GvmZ4ggXepySeyDJGr+wzQ==
+  dependencies:
+    "@rpldy/shared" "^1.3.0"
+    "@rpldy/simple-state" "^1.3.0"
+    "@rpldy/uploader" "^1.3.0"
+
 "@rpldy/sender@^1.3.0":
   version "1.3.0"
   resolved "https://registry.npmmirror.com/@rpldy/sender/-/sender-1.3.0.tgz#f2da991d0b987ad1a30a06befe417909bf48b43a"
@@ -1867,6 +1886,13 @@
   integrity sha512-71cjumPT18RG4XwbwNR61FxTE61v50wRNar5XEDfxI0Og2/3HFJqFlXZHIAzLphyB6/LT3kzwShcw/ka4LqXJQ==
   dependencies:
     "@rpldy/shared" "^1.3.0"
+
+"@rpldy/upload-button@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@rpldy/upload-button/-/upload-button-1.3.0.tgz#9f6a7269761b9d3b4b7376876b0f42ecd65490cd"
+  integrity sha512-JHrRL1uaNT6H6S7UgF0kjdCmOukMI+WjyFCEKiitMoMMsj7/f9+XxJNaCxb7ouVtIX2Tfyv8Y0ZDDxoTkptfIg==
+  dependencies:
+    "@rpldy/shared-ui" "^1.3.0"
 
 "@rpldy/upload-drop-zone@^1.3.0":
   version "1.3.0"
