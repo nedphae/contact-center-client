@@ -65,8 +65,6 @@ export interface Attachments {
   size: number;
   /** 根据类型显示不同图标 */
   type: string;
-  /** 本地文件 */
-  file?: File;
 }
 
 export interface Content {

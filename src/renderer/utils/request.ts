@@ -23,7 +23,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     // do something with request error
-    console.error(error); // for debug
+    // console.error(error); // for debug
     return Promise.reject(error);
   }
 );
@@ -38,7 +38,7 @@ axios.interceptors.response.use(
   (error) => {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    console.error(error); // for debug
+    // console.error(error); // for debug
     return Promise.reject(error);
   }
 );

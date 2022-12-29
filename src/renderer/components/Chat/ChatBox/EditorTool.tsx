@@ -47,8 +47,7 @@ import {
   updateOrCreateConv,
 } from 'renderer/state/session/sessionAction';
 import { useFileInput, useUploady } from '@rpldy/uploady';
-import { useAppDispatch, useAppSelector } from 'renderer/store';
-import { getImageListToSend } from 'renderer/state/chat/chatAction';
+import { useAppDispatch } from 'renderer/store';
 import { emojiZh } from 'renderer/i18n/emojiI18n';
 import TransferForm from './transfer/TransferForm';
 import FilePreviewer from './preview/FilePreviewer';

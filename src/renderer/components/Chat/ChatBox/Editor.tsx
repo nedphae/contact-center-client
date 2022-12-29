@@ -154,7 +154,7 @@ export default function Editor(selected: SelectedProps) {
   }
 
   function handleSendTextMessage() {
-    if (mySelf.onlineStatus !== 'OFFLINE') {
+    if (true || mySelf.onlineStatus !== 'OFFLINE') {
       if (selectedSession && tempTextMessage !== '') {
         setMessage('');
         dispatch(

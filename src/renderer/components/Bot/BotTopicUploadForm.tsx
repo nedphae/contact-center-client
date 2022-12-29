@@ -29,20 +29,16 @@ export default function BotTopicUploadForm(props: FormProps) {
     },
     onStart: (file) => {
       onLoadding(true);
-      console.log('onStart', file.name);
     },
     onSuccess(file) {
-      console.log('onSuccess', file);
       onSuccess();
       onCompletedMsg('Import Success');
     },
     onProgress(step, file) {
       onLoadding(true);
-      console.log('onProgress', Math.round(step.percent!), file.name);
     },
     onError(err) {
       onErrorMsg('Import Error');
-      console.log('onError', err);
     },
   };
   return (

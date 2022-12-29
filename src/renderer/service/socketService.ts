@@ -79,8 +79,8 @@ export function fetchWithRetry<T, R>(
   const boundEmit = bindNodeCallback(socketCallback);
 
   const eventObservable = of(event).pipe(
-    mergeMap((ev) => boundEmit<T, R>(ev, request)),
-    retryWhen(genericRetryStrategy(retry))
+    mergeMap((ev) => boundEmit<T, R>(ev, request))
+    // retryWhen(genericRetryStrategy(retry))
   );
 
   return eventObservable.pipe(filterCode());

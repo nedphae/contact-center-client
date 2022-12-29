@@ -245,6 +245,36 @@ export default function FilePreviewer(props: FilePreviewerProps) {
     dispatch(addLocalMessage(_.omit(message, 'file')));
   };
 
+  const sendLocalFile = (id: string, batchItem: BatchItem) => {
+    const attachments = {
+      mediaId: URL.createObjectURL(batchItem.file as File),
+      filename: batchItem.file.name,
+      size: batchItem.file.size,
+      type: batchItem.file.type,
+    };
+    const uuid = uuidv4();
+    uuidMap.set(id, uuid);
+
+    const content: Content = {
+      contentType: 'FILE',
+      attachments,
+    };
+    const message: Message = {
+      uuid,
+      to: selectedSession.conversation.userId,
+      type: CreatorType.CUSTOMER,
+      creatorType: CreatorType.STAFF,
+      content,
+    };
+    message.file = batchItem.file as File;
+    message.localType = 'FILE';
+    message.status = 'PENDDING';
+
+    // 保存可能需要从新发送的消息
+    window.localMessageMap.set(uuid, _.cloneDeep(message));
+    dispatch(addLocalMessage(_.omit(message, 'file')));
+  };
+
   return (
     <Dialog
       disableEnforceFocus
@@ -262,13 +292,17 @@ export default function FilePreviewer(props: FilePreviewerProps) {
       </DialogTitle>
       <DialogContent>{getPreviewer()}</DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} variant="outlined">
+        <Button onClick={handleClose} autoFocus={false} variant="outlined">
           {t('Cancel')}
         </Button>
         <Button
           onClick={() => {
             items.forEach((it) => {
-              sendLocalImage(it.id, it);
+              if (it.file.type.startsWith('image')) {
+                sendLocalImage(it.id, it);
+              } else {
+                sendLocalFile(it.id, it);
+              }
             });
             handleClose();
             processPending();

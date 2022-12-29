@@ -254,9 +254,7 @@ export function sendMessage(
     }
     if (!getState().chat.monitored) {
       // 先展示显示消息
-      if (!message.status) {
-        message.status = 'PENDDING';
-      }
+      message.status = 'PENDDING';
       dispatch(newMessage({ [message.uuid]: message }));
     }
     const updateMessage = localMessage ?? _.clone(message);
@@ -693,6 +691,7 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
+      localType: 'TEXT',
     };
     dispatch(sendMessage(message));
   };
@@ -701,6 +700,7 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
 export function addLocalMessage(message: Message): AppThunk {
   return (dispatch, getState) => {
     message.nickName = getState().staff.nickName;
+    message.createdAt = new Date().getTime() / 1000;
     dispatch(newMessage({ [message.uuid]: message } as MessagesMap));
   };
 }

@@ -56,7 +56,6 @@ import {
   Box,
   ButtonGroup,
   CircularProgress,
-  CircularProgressProps,
   Fade,
   IconButton,
   Popper,
@@ -64,7 +63,7 @@ import {
   PopperProps,
   Tooltip,
 } from '@material-ui/core';
-import { useItemProgressListener } from '@rpldy/uploady';
+import useAlert from 'renderer/hook/alert/useAlert';
 import FileCard from './FileCard';
 import RichTextStyle from './RichText.less';
 
@@ -238,33 +237,6 @@ export function createContent(
   return element;
 }
 
-function CircularProgressWithLabel(
-  props: CircularProgressProps & { value: number }
-) {
-  const { value } = props;
-  return (
-    <Box position="relative" display="inline-flex">
-      <CircularProgress variant="determinate" {...props} />
-      <Box
-        top={0}
-        left={0}
-        bottom={0}
-        right={0}
-        position="absolute"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Typography
-          variant="caption"
-          component="div"
-          color="textSecondary"
-        >{`${Math.round(value)}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
-
 const useStyles = makeStyles(() =>
   createStyles({
     root: {
@@ -275,7 +247,7 @@ const useStyles = makeStyles(() =>
       // margin: theme.spacing(1),
       position: 'relative',
       display: 'flex',
-      width: '24px',
+      width: '30px',
     },
     fabProgress: {
       position: 'absolute',
@@ -300,15 +272,18 @@ function ResendViewer(props: {
 }) {
   const { uuid, message, children } = props;
   const classes = useStyles();
-  const [progress, setProgress] = useState(0);
+  // const [progress, setProgress] = useState<number>();
+  const [manualResend, setManualResend] = useState(false);
   const dispatch = useAppDispatch();
+  const { onErrorMsg } = useAlert();
+  const { t } = useTranslation();
 
   const localMessage = window.localMessageMap.get(uuid);
-  useItemProgressListener((item) => {
-    if (item.completed > progress) {
-      setProgress(() => item.completed);
-    }
-  }, localMessage?.fileId);
+  // useItemProgressListener((item) => {
+  //   if (item.completed > (progress ?? 0)) {
+  //     setProgress(() => item.completed);
+  //   }
+  // }, localMessage?.fileId);
 
   useEffect(() => {
     if (message.status === 'SENT') {
@@ -319,89 +294,84 @@ function ResendViewer(props: {
   // 上传失败，重新上传
   const resendFileMessage = async () => {
     if (localMessage?.file) {
-      let mediaId;
-      if (message.status === 'FILE_SENT') {
-        if (localMessage.content.contentType === 'IMAGE') {
-          mediaId = message.content.photoContent?.mediaId;
-        } else {
-          mediaId = message.content.attachments?.mediaId;
-        }
-      }
-      if (!mediaId) {
-        const url = await uploadFile(localMessage?.file);
-        if (url && url[0]) {
-          [mediaId] = url;
-          localMessage.status = 'FILE_SENT';
-          window.localMessageMap.set(uuid, localMessage);
-        }
-      }
-      if (mediaId) {
-        if (localMessage && message.to) {
-          const updateLocalMessage = _.omit(localMessage, 'file');
+      try {
+        setManualResend(true);
+        let mediaId;
+        if (message.status === 'FILE_SENT') {
           if (localMessage.content.contentType === 'IMAGE') {
-            dispatch(
-              sendImageMessage(
-                message.to,
-                uuid,
-                {
-                  mediaId,
-                  filename: localMessage.file.name,
-                  picSize: localMessage.file.size,
-                  type: localMessage.file.type,
-                },
-                updateLocalMessage
-              )
-            );
+            mediaId = message.content.photoContent?.mediaId;
           } else {
-            dispatch(
-              sendFileMessage(
-                message.to,
-                uuid,
-                {
-                  mediaId,
-                  filename: localMessage.file.name,
-                  size: localMessage.file.size,
-                  type: localMessage.file.type,
-                },
-                updateLocalMessage
-              )
-            );
+            mediaId = message.content.attachments?.mediaId;
           }
         }
+        if (!mediaId) {
+          const url = await uploadFile(localMessage?.file);
+          if (url && url[0]) {
+            [mediaId] = url;
+            localMessage.status = 'FILE_SENT';
+            window.localMessageMap.set(uuid, localMessage);
+          }
+        }
+        if (mediaId) {
+          if (localMessage && message.to) {
+            const updateLocalMessage = _.omit(localMessage, 'file');
+            if (localMessage.content.contentType === 'IMAGE') {
+              dispatch(
+                sendImageMessage(
+                  message.to,
+                  uuid,
+                  {
+                    mediaId,
+                    filename: localMessage.file.name,
+                    picSize: localMessage.file.size,
+                    type: localMessage.file.type,
+                  },
+                  updateLocalMessage
+                )
+              );
+            } else {
+              dispatch(
+                sendFileMessage(
+                  message.to,
+                  uuid,
+                  {
+                    mediaId,
+                    filename: localMessage.file.name,
+                    size: localMessage.file.size,
+                    type: localMessage.file.type,
+                  },
+                  updateLocalMessage
+                )
+              );
+            }
+          }
+        }
+      } catch (ex) {
+        onErrorMsg(t('Upload failed'));
+        setManualResend(false);
       }
     } else {
       // 非文件，直接发送
-      dispatch(sendMessage(message));
+      dispatch(sendMessage(_.clone(message)));
     }
   };
 
   return (
     <>
-      {message &&
-        message.localType &&
-        message.status !== 'SENT' &&
-        message.status !== 'PENDDING' && (
-          <>
-            <div className={classes.wrapper}>
-              <div className={classes.buttonProgress}>
-                <ErrorIcon color="secondary" onClick={resendFileMessage} />
-              </div>
-            </div>
-          </>
-        )}
-      {message && message.localType && message.status === 'PENDDING' && (
-        <>
-          <div className={classes.wrapper}>
-            {(progress !== 0 && progress !== 100) ||
-              (message.status === 'PENDDING' && (
-                <CircularProgressWithLabel
-                  value={progress}
-                  className={classes.buttonProgress}
-                />
-              ))}
-          </div>
-        </>
-      )}
+      <div className={classes.wrapper}>
+        <div className={classes.buttonProgress}>
+          {message &&
+            !manualResend &&
+            message.localType &&
+            message.status !== 'SENT' &&
+            message.status !== 'PENDDING' && (
+              <ErrorIcon color="secondary" onClick={resendFileMessage} />
+            )}
+          {message && message.status === 'PENDDING' && (
+            <CircularProgress size={24} />
+          )}
+        </div>
+      </div>
       {children}
     </>
   );
@@ -482,8 +452,7 @@ const MessageList = (props: MessageListProps) => {
 
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<PopperProps['anchorEl']>(null);
-  const [placement, setPlacement] =
-    useState<PopperPlacementType>('right-start');
+  const [placement, setPlacement] = useState<PopperPlacementType>('right-end');
 
   const [withdrawUUID, setWithdrawUUID] = useState<{
     uuid: string;
@@ -501,8 +470,7 @@ const MessageList = (props: MessageListProps) => {
   });
 
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
-  const [firstIn, setFirstIn] = useState<boolean>(true);
-  const [animated, setAnimated] = useState<boolean>(false);
+  const [animated, setAnimated] = useState<boolean>(true);
   const [historyMsg, setHistoryMsg] = useState<boolean>(false);
   const [imageViewer, setImageViewer] = useState<ImageDecorator>({
     src: '',
@@ -542,7 +510,6 @@ const MessageList = (props: MessageListProps) => {
   }, [messages]);
 
   useLayoutEffect(() => {
-    setFirstIn(true);
     setAnimated(false);
     setHistoryMsg(false);
   }, [user?.id]);
@@ -561,6 +528,8 @@ const MessageList = (props: MessageListProps) => {
   }, [refOfScrollView]);
 
   const handleLoadMore = () => {
+    setAnimated(false);
+    setHistoryMsg(true);
     fetchMore({
       variables: { userId: user?.userId, cursor: fetchMoreCursor, limit: 20 },
       updateQuery(previousQueryResult, options) {
@@ -572,7 +541,6 @@ const MessageList = (props: MessageListProps) => {
         return options.fetchMoreResult;
       },
     });
-    setHistoryMsg(true);
   };
 
   const handleContentSizeChange = (
@@ -581,6 +549,7 @@ const MessageList = (props: MessageListProps) => {
   ) => {
     // 检查是否是读取历史记录
     if (refOfScrollView.current && user && user.userId) {
+      console.info('滚动: %o', { animated });
       if (!historyMsg) {
         // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
         const scrollViewHeight = (
@@ -591,13 +560,13 @@ const MessageList = (props: MessageListProps) => {
           refOfScrollView.current.scrollTo({
             x: 0,
             y: contentHeight - scrollViewHeight,
-            animated: animated && !firstIn,
+            animated,
           });
         } else {
           refOfScrollView.current.scrollTo({
             x: 0,
             y: 0,
-            animated: animated && !firstIn,
+            animated,
           });
         }
         // else {
@@ -605,8 +574,6 @@ const MessageList = (props: MessageListProps) => {
         //   refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
         // }
       }
-      setAnimated(false);
-      setFirstIn(false);
     }
   };
 
@@ -654,7 +621,7 @@ const MessageList = (props: MessageListProps) => {
     uuidWithSeqId?: { uuid: string; seqId?: number }
   ) => {
     return (event: React.MouseEvent<HTMLDivElement>) => {
-      setPlacement(right ? 'left-start' : 'right-start');
+      setPlacement(right ? 'left-end' : 'right-end');
       setOpen(right);
       setAnchorEl(event.currentTarget);
       setWithdrawUUID(uuidWithSeqId);
