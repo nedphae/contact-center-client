@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
+// import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import Viewer from 'react-viewer';
 import clsx from 'clsx';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -549,7 +550,6 @@ const MessageList = (props: MessageListProps) => {
   ) => {
     // 检查是否是读取历史记录
     if (refOfScrollView.current && user && user.userId) {
-      console.info('滚动: %o', { animated });
       if (!historyMsg) {
         // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
         const scrollViewHeight = (
@@ -560,13 +560,13 @@ const MessageList = (props: MessageListProps) => {
           refOfScrollView.current.scrollTo({
             x: 0,
             y: contentHeight - scrollViewHeight,
-            animated,
+            animated: animated && !!window.electron,
           });
         } else {
           refOfScrollView.current.scrollTo({
             x: 0,
             y: 0,
-            animated,
+            animated: animated && !!window.electron,
           });
         }
         // else {
