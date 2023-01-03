@@ -451,6 +451,8 @@ const MessageList = (props: MessageListProps) => {
     },
   });
 
+  const lastSeqId = messages[0]?.seqId ?? null;
+
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<PopperProps['anchorEl']>(null);
   const [placement, setPlacement] = useState<PopperPlacementType>('right-end');
@@ -465,7 +467,6 @@ const MessageList = (props: MessageListProps) => {
 
   const refOfScrollView = useRef<ScrollView>(null);
 
-  const lastSeqId = messages[0]?.seqId ?? null;
   const { data, fetchMore } = useQuery<MessagePage>(QUERY, {
     variables: { userId: user?.userId, cursor: lastSeqId, limit: 20 },
   });
@@ -504,13 +505,14 @@ const MessageList = (props: MessageListProps) => {
     );
   });
   const fetchMoreCursor = sortedMessage[0]?.seqId;
+  const firstSeqId = messages[messages.length - 1]?.seqId ?? null;
 
   useLayoutEffect(() => {
     setAnimated(true);
     setHistoryMsg(false);
-  }, [messages]);
+  }, [firstSeqId]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setAnimated(false);
     setHistoryMsg(false);
   }, [user?.id]);

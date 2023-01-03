@@ -709,7 +709,7 @@ export function sendImageMessage(
   to: number,
   uuid: string,
   photoContent: PhotoContent,
-  localMessage: Message
+  localMessage?: Message
 ): AppThunk {
   return (dispatch, getState) => {
     const content: Content = {

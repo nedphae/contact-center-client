@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -27,7 +27,6 @@ import { Session } from 'renderer/domain/Session';
 import { getMyself } from 'renderer/state/staff/staffAction';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { useAppDispatch, useAppSelector } from 'renderer/store';
-import { debounceTime, Subject } from 'rxjs';
 import { getStrFromContent, QuickReplyContent } from 'renderer/domain/Chat';
 import EditorTool from './EditorTool';
 
@@ -69,7 +68,7 @@ const searchQuickReply = (searchText: string) => {
   return result;
 };
 
-const subjectSearchText = new Subject<string>();
+// const subjectSearchText = new Subject<string>();
 
 export default function Editor(selected: SelectedProps) {
   const { selectedSession } = selected;
@@ -77,12 +76,6 @@ export default function Editor(selected: SelectedProps) {
 
   // 状态提升 设置当天聊天的消息 TODO: 保存到当前用户session的草稿箱
   const [tempTextMessage, setTempTextMessage] = useState<string>('');
-
-  useEffect(() => {
-    if (selectedSession?.user) {
-      setTempTextMessage(selectedSession?.staffDraft ?? '');
-    }
-  }, [selectedSession?.staffDraft, selectedSession?.user]);
 
   const dispatch = useAppDispatch();
   // 展示 快捷回复
@@ -97,25 +90,27 @@ export default function Editor(selected: SelectedProps) {
 
   const quickReplyList = searchQuickReply(tempTextMessage);
 
-  const momeSubject = useMemo(() => {
-    return subjectSearchText.pipe(debounceTime(200)).subscribe({
-      next: (it) => {
-        if (selectedSession?.user.id) {
-          dispatch(
-            setStaffDraft({ userId: selectedSession.user.id, staffDraft: it })
-          );
-        }
-      },
-    });
-  }, [dispatch, selectedSession?.user]);
   useEffect(() => {
+    if (selectedSession?.user) {
+      setTempTextMessage(selectedSession?.staffDraft ?? '');
+    }
+  }, [dispatch, selectedSession?.staffDraft, selectedSession?.user]);
+
+  useEffect(() => {
+    const copyOfTextFieldRef = textFieldRef;
     return () => {
-      momeSubject.unsubscribe();
+      if (selectedSession?.user.id && copyOfTextFieldRef?.current) {
+        dispatch(
+          setStaffDraft({
+            userId: selectedSession.user.id,
+            staffDraft: copyOfTextFieldRef?.current.value,
+          })
+        );
+      }
     };
-  }, [momeSubject]);
+  }, [dispatch, selectedSession?.user]);
 
   function setMessage(message: string) {
-    subjectSearchText.next(message);
     setTempTextMessage(message);
   }
 
@@ -154,11 +149,17 @@ export default function Editor(selected: SelectedProps) {
   }
 
   function handleSendTextMessage() {
-    if (true || mySelf.onlineStatus !== 'OFFLINE') {
+    if (mySelf.onlineStatus !== 'OFFLINE') {
       if (selectedSession && tempTextMessage !== '') {
         setMessage('');
         dispatch(
           sendTextMessage(selectedSession.conversation.userId, tempTextMessage)
+        );
+        dispatch(
+          setStaffDraft({
+            userId: selectedSession.conversation.userId,
+            staffDraft: '',
+          })
         );
       }
     } else {
