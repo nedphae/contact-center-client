@@ -61,7 +61,7 @@ export interface TopicCategory {
   knowledgeBaseId?: number | undefined;
   pid?: number | undefined;
   children?: TopicCategory[] | undefined;
-  topicList?: Topic[] | undefined;
+  // topicList?: Topic[] | undefined;
 }
 
 export interface BotConfig {

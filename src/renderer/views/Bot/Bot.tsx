@@ -56,7 +56,7 @@ interface TopicFilterInputGraphql {
   topicFilterInput: TopicFilterInput;
 }
 
-const QUERY_TOPIC = gql`
+const SEARCH_TOPIC = gql`
   query Topic($topicFilterInput: TopicFilterInput!) {
     searchTopic(topicFilter: $topicFilterInput) {
       id
@@ -132,7 +132,7 @@ export default function Bot() {
     data: topicData,
     refetch: refetchTopic,
     variables,
-  } = useQuery<TopicGraphql, TopicFilterInputGraphql>(QUERY_TOPIC, {
+  } = useQuery<TopicGraphql, TopicFilterInputGraphql>(SEARCH_TOPIC, {
     variables: { topicFilterInput },
   });
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([]);
