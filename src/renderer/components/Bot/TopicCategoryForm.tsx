@@ -15,6 +15,7 @@ import DropdownTreeSelect from 'react-dropdown-tree-select';
 
 import { makeTreeNode, TopicCategory } from 'renderer/domain/Bot';
 import useAlert from 'renderer/hook/alert/useAlert';
+import _ from 'lodash';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles(() =>
@@ -84,16 +85,25 @@ export default function TopicCategoryForm(props: FormProps) {
     refetch();
   };
 
-  const treeData = useMemo(
-    () =>
-      makeTreeNode(
-        allTopicCategoryList.filter(
-          (it) => it.knowledgeBaseId === defaultValues?.knowledgeBaseId
-        ),
-        data?.saveTopicCategory.pid || defaultValues?.pid
+  const treeData = useMemo(() => {
+    const filterId = allTopicCategoryList.filter(
+      (it) => it.id !== defaultValues?.id
+    );
+    const topicCategoryPidGroup = _.groupBy(filterId, (it) => it.pid);
+    const topicCategoryList = filterId
+      ?.map((it) => {
+        const children = topicCategoryPidGroup[it.id ?? -1];
+        return _.defaults({ children }, it);
+      })
+      .filter((it) => it.pid === undefined || it.pid === null);
+
+    return makeTreeNode(
+      topicCategoryList.filter(
+        (it) => it.knowledgeBaseId === defaultValues?.knowledgeBaseId
       ),
-    [data, defaultValues, allTopicCategoryList]
-  );
+      data?.saveTopicCategory.pid || defaultValues?.pid
+    );
+  }, [data, defaultValues, allTopicCategoryList]);
 
   return (
     <div className={classes.paper}>

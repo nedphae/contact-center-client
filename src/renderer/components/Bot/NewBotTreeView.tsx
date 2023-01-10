@@ -272,7 +272,7 @@ export default React.memo(function NewBotTreeView(props: BotTreeViewProps) {
       >
         <TopicCategoryForm
           defaultValues={selectTCMenu}
-          allTopicCategoryList={topicCategoryList ?? []}
+          allTopicCategoryList={allTopicCategory ?? []}
           refetch={refetch}
         />
       </DraggableDialog>
