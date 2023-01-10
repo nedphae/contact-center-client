@@ -1,5 +1,4 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
@@ -51,7 +50,7 @@ type FormType = TopicFilterInput;
 
 interface FormProps {
   defaultValues: FormType;
-  currentValues: FormType;
+  currentValues: FormType | undefined;
   searchAction: (searchParams: FormType) => void;
 }
 
@@ -61,21 +60,11 @@ export default function TopicSearchFrom(props: FormProps) {
 
   const classes = useSearchFormStyles();
   const { handleSubmit, register, reset } = useForm<FormType>({
-    defaultValues: currentValues,
+    defaultValues: currentValues ?? defaultValues,
     shouldUnregister: true,
   });
-  const [expanded, setExpanded] = React.useState(false);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
 
   const onSubmit: SubmitHandler<FormType> = (form) => {
-    // if (form.time) {
-    //   searchAction(_.omit(form, 'time'));
-    // } else {
-    //   searchAction(_.omit(form, 'time', 'timeRange'));
-    // }
     searchAction(form);
   };
 

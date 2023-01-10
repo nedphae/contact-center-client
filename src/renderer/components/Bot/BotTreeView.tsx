@@ -145,8 +145,7 @@ export default React.memo(function BotTreeView(props: BotTreeViewProps) {
             </Box>
           </div>
         )}
-        {!loading &&
-          allKnowledgeBase &&
+        {allKnowledgeBase &&
           allKnowledgeBase.map((base: KnowledgeBase) => (
             <StyledTreeItem
               key={base.id?.toString()}

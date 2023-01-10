@@ -13,7 +13,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import { AppBar, Box, IconButton, Toolbar } from '@material-ui/core';
 import RefreshIcon from '@material-ui/icons/Refresh';
 
-import useInitData from 'renderer/hook/init/useInitData';
+import useInitData from 'renderer/hook/data/useInitData';
 import {
   getFilterQuickReply,
   getQuickReply,

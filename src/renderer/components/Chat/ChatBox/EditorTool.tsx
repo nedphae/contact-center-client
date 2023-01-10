@@ -28,7 +28,7 @@ import DraggableDialog, {
   DraggableDialogRef,
 } from 'renderer/components/DraggableDialog/DraggableDialog';
 import { BlacklistFormProp } from 'renderer/domain/Blacklist';
-import useInitData from 'renderer/hook/init/useInitData';
+import useInitData from 'renderer/hook/data/useInitData';
 import { SessionCategory } from 'renderer/domain/SessionCategory';
 import { useMutation } from '@apollo/client';
 import {

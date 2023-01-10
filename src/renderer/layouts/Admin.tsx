@@ -12,14 +12,14 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 
 import useWebSocket from 'renderer/hook/websocket/useWebSocket';
 // core components
-import useInitData from 'renderer/hook/init/useInitData';
+import useInitData from 'renderer/hook/data/useInitData';
 import DefaultSnackbar from 'renderer/components/Snackbar/DefaultSnackbar';
 import TransferSnackbar from 'renderer/components/Snackbar/TransferSnackbar';
 import {
   clearPlayNewMessageSound,
   getPlayNewMessageSound,
 } from 'renderer/state/chat/chatAction';
-import useAutoLoadConv from 'renderer/hook/init/useAutoLoadConv';
+import useAutoLoadConv from 'renderer/hook/data/useAutoLoadConv';
 import useRoutes from 'renderer/useRoutes';
 import styles from 'renderer/assets/jss/material-dashboard-react/layouts/adminStyle';
 

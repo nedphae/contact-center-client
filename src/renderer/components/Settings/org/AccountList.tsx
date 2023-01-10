@@ -15,7 +15,7 @@ import {
   QUERY_STAFF,
   StaffGroupList,
   AllStaffList,
-  MUTATION_STAFF,
+  MUTATION_DELETE_STAFF,
 } from 'renderer/domain/graphql/Staff';
 import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGridToolbar';
@@ -41,7 +41,7 @@ export default function ist() {
 
   const { onLoadding, onCompleted, onError, onErrorMsg } = useAlert();
   const [deleteStaffByIds, { loading: updateLoading }] = useMutation<unknown>(
-    MUTATION_STAFF,
+    MUTATION_DELETE_STAFF,
     {
       onCompleted,
       onError,

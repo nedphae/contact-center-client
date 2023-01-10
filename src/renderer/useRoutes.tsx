@@ -27,6 +27,8 @@ import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
 import CommentIcon from '@material-ui/icons/Comment';
 import SettingsIcon from '@material-ui/icons/Settings';
 import EventAvailableIcon from '@material-ui/icons/EventAvailable';
+import BotDetail from './components/Bot/BotDetail';
+// import BotView from './views/Bot/BotView';
 // core components/views for Admin layout
 // core components/views for RTL layout
 
@@ -42,10 +44,10 @@ function BotIcon(props: SvgIconTypeMap) {
 const Entertain = React.lazy(() => import('./views/Entertain/Entertain'));
 const DashboardPage = React.lazy(() => import('./views/Dashboard/Dashboard'));
 const OnlineVersion = React.lazy(
-  () => import('./views/Dashboard/OnlineVersion'),
+  () => import('./views/Dashboard/OnlineVersion')
 );
 const StaffAttendance = React.lazy(
-  () => import('./views/Dashboard/StaffAttendance'),
+  () => import('./views/Dashboard/StaffAttendance')
 );
 const ChatHistory = React.lazy(
   () => import('renderer/views/ChatHistory/ChatHistory')
@@ -57,7 +59,7 @@ const CommentManagement = React.lazy(
   () => import('./views/Comment/CommentManagement')
 );
 const Crm = React.lazy(() => import('renderer/views/Crm/Crm'));
-const Bot = React.lazy(() => import('renderer/views/Bot/Bot'));
+const BotView = React.lazy(() => import('renderer/views/Bot/BotView'));
 const Setting = React.lazy(() => import('renderer/views/Setting/Settings'));
 
 const useRoutes = () => {
@@ -72,6 +74,7 @@ const useRoutes = () => {
         icon: QuestionAnswerIcon,
         component: Entertain,
         layout: '/admin',
+        showInSidebar: true,
       },
       {
         path: '/dashboard',
@@ -81,6 +84,7 @@ const useRoutes = () => {
         component: window.electron ? DashboardPage : OnlineVersion, // OnlineVersion,
         layout: '/admin',
         authority: ['admin'],
+        showInSidebar: true,
       },
       {
         path: '/staff-attendance',
@@ -90,6 +94,7 @@ const useRoutes = () => {
         component: window.electron ? StaffAttendance : OnlineVersion, // OnlineVersion,
         layout: '/admin',
         authority: ['admin'],
+        showInSidebar: true,
       },
       {
         path: '/history',
@@ -98,6 +103,7 @@ const useRoutes = () => {
         icon: QueryBuilderIcon,
         component: ChatHistory,
         layout: '/admin',
+        showInSidebar: true,
       },
       {
         path: '/sa-data-grid',
@@ -107,6 +113,7 @@ const useRoutes = () => {
         component: StaffAttendanceDataGrid,
         layout: '/admin',
         authority: ['admin'],
+        showInSidebar: true,
       },
       {
         path: '/comment',
@@ -115,6 +122,7 @@ const useRoutes = () => {
         icon: CommentIcon,
         component: CommentManagement,
         layout: '/admin',
+        showInSidebar: true,
       },
       {
         path: '/crm',
@@ -123,15 +131,17 @@ const useRoutes = () => {
         icon: ContactPhoneIcon,
         component: Crm,
         layout: '/admin',
+        showInSidebar: true,
       },
       {
         path: '/bot',
         name: t('Bot'),
         rtlName: 'لوحة القيادة',
         icon: BotIcon,
-        component: Bot,
+        component: BotView,
         layout: '/admin',
         authority: ['admin'],
+        showInSidebar: true,
       },
       {
         path: '/setting',
@@ -140,6 +150,15 @@ const useRoutes = () => {
         icon: SettingsIcon,
         component: Setting,
         layout: '/admin',
+        showInSidebar: true,
+      },
+      {
+        path: '/bot/detail',
+        name: t('Knowledge base'),
+        component: BotDetail,
+        layout: '/admin',
+        showInSidebar: false,
+        parentPath: '/bot',
       },
       // {
       //   path: '/table',

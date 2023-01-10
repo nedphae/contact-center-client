@@ -7,7 +7,7 @@ import {
   getSelectedConstomer,
   getSelectedSession,
 } from 'renderer/state/chat/chatAction';
-import useMonitorUserAndMsg from 'renderer/hook/init/useMonitorUserAndMsg';
+import useMonitorUserAndMsg from 'renderer/hook/data/useMonitorUserAndMsg';
 import MessageList from './MessageList';
 
 const MessagePanel = () => {

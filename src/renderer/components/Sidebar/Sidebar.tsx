@@ -57,7 +57,7 @@ export default function Sidebar(props: {
     <List className={classes.list}>
       {routes &&
         routes
-          .filter((it) => checkPermissions(it.authority, CURRENT, true, false))
+          .filter((it) => checkPermissions(it.authority, CURRENT, true, false) && it.showInSidebar)
           .map(
             (
               prop: {

@@ -132,17 +132,6 @@ h6 {
   line-height: 1.5em;
 }
 
-a {
-  color: #50c168;
-  text-decoration: none;
-}
-
-a:hover,
-a:focus {
-  color: #3f9251;
-  text-decoration: none;
-}
-
 legend {
   border-bottom: 0;
 }

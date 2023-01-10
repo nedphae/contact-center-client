@@ -1,51 +1,47 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import _ from 'lodash';
+import _, { debounce } from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
-import {
-  createStyles,
-  makeStyles,
-  Theme,
-  useTheme,
-} from '@material-ui/core/styles';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
 
-import { BotConfig, Topic } from 'renderer/domain/Bot';
+import { BotConfig } from 'renderer/domain/Bot';
 import useAlert from 'renderer/hook/alert/useAlert';
 import {
-  Chip,
+  Checkbox,
   Divider,
-  FormControl,
   FormControlLabel,
   FormHelperText,
-  Input,
-  InputLabel,
-  MenuItem,
-  Select,
   Slider,
   Switch,
   Typography,
 } from '@material-ui/core';
+import {
+  BotMutationGraphql,
+  MUTATION_BOT_CONFIG,
+  QUERY_TOPIC_BY_IDS,
+  SEARCH_TOPIC,
+  TopicByIdsGraphql,
+  TopicFilterInput,
+  TopicFilterInputGraphql,
+  TopicPageGraphql,
+} from 'renderer/domain/graphql/Bot';
+import { Autocomplete } from '@material-ui/lab';
+import { PageParam } from 'renderer/domain/graphql/Query';
 import SubmitButton from '../Form/SubmitButton';
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
       // marginTop: theme.spacing(8),
@@ -67,48 +63,20 @@ const useStyles = makeStyles(() =>
     chip: {
       margin: 2,
     },
-  }),
+    alert: {
+      marginTop: theme.spacing(2),
+    },
+  })
 );
-
-function getStyles(name: string, keys: string[], theme: Theme) {
-  return {
-    fontWeight:
-      keys.indexOf(name) === -1
-        ? theme.typography.fontWeightLight
-        : theme.typography.fontWeightBold,
-  };
-}
 
 interface FormProps {
   defaultValues: BotConfig;
   afterMutationCallback: () => void | undefined;
-  allTopic: Topic[] | undefined;
 }
-
-interface Graphql {
-  saveBotConfig: BotConfig;
-}
-
-export const MUTATION_BOT_CONFIG = gql`
-  mutation BotConfig($botConfigInput: BotConfigInput!) {
-    saveBotConfig(botConfig: $botConfigInput) {
-      id
-      botId
-      knowledgeBaseId
-      noAnswerReply
-      questionPrecision
-      similarQuestionEnable
-      similarQuestionNotice
-      similarQuestionCount
-      hotQuestion
-    }
-  }
-`;
 
 export default function BotConfigForm(props: FormProps) {
-  const { defaultValues, afterMutationCallback, allTopic } = props;
+  const { defaultValues, afterMutationCallback } = props;
   const classes = useStyles();
-  const theme = useTheme();
   const { t } = useTranslation();
 
   const {
@@ -123,53 +91,75 @@ export default function BotConfigForm(props: FormProps) {
     shouldUnregister: true,
   });
 
-  const filterTopic = allTopic?.filter(
-    (it) => it.knowledgeBaseId === defaultValues.knowledgeBaseId,
+  const topicFilterInput: TopicFilterInput = {
+    keyword: '',
+    knowledgeBaseId: defaultValues.knowledgeBaseId,
+    // 只查询标准问题
+    type: 1,
+    page: new PageParam(0, 10, 'DESC', ['createdDate']),
+  };
+
+  const hotQuesionIds = defaultValues?.hotQuestion?.split(',') ?? [];
+
+  const { data: hotQuesions } = useQuery<TopicByIdsGraphql>(
+    QUERY_TOPIC_BY_IDS,
+    {
+      variables: {
+        ids: hotQuesionIds,
+      },
+    }
   );
 
+  const {
+    data: searchTopicData,
+    loading: loadingTopic,
+    refetch: refetchTopic,
+    variables,
+  } = useQuery<TopicPageGraphql, TopicFilterInputGraphql>(SEARCH_TOPIC, {
+    variables: { topicFilterInput },
+    fetchPolicy: 'no-cache',
+  });
+
+  const searchTopic = searchTopicData?.searchTopic;
+  const topicList =
+    searchTopic && searchTopic.content
+      ? searchTopic.content.map((it) => it.content)
+      : [];
+
   const { onLoadding, onCompleted, onError } = useAlert();
-  const [saveBotConfig, { loading, data }] = useMutation<Graphql>(
+  const [saveBotConfig, { loading, data }] = useMutation<BotMutationGraphql>(
     MUTATION_BOT_CONFIG,
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (loading) {
     onLoadding(loading);
   }
 
   const onSubmit: SubmitHandler<BotConfig> = async (form) => {
+    if (form.hotQuestionList) {
+      const tempHotQuestion = form.hotQuestionList.map((it) => it.id).join(',');
+      form.hotQuestion = tempHotQuestion;
+    }
     await saveBotConfig({
       variables: { botConfigInput: _.omit(form, '__typename') },
     });
     afterMutationCallback();
   };
 
-  const hotQuesion = watch('hotQuestion')?.split(',');
+  const fetchTopic = useMemo(
+    () =>
+      debounce((topicFilterInputParam: TopicFilterInput) => {
+        refetchTopic({
+          topicFilterInput: topicFilterInputParam,
+        });
+      }, 400),
+    [refetchTopic]
+  );
 
-  function handleHotQuestionChange(
-    event: React.ChangeEvent<{
-      name?: string | undefined;
-      value: unknown;
-    }>,
-  ) {
-    const hotQuesiontIds = event.target.value as string[];
-    const tempHotQuestion = hotQuesiontIds.join(',');
-    setValue('hotQuestion', tempHotQuestion);
-  }
-
-  function handleHotQuestionDelete(connectId: string) {
-    const tempIds = hotQuesion?.filter((it) => it !== connectId);
-    if (tempIds && tempIds.length > 0) {
-      const tempHotQuestion = hotQuesion
-        ?.filter((it) => it !== connectId)
-        .join(',');
-      setValue('hotQuestion', tempHotQuestion);
-    } else {
-      setValue('hotQuestion', undefined);
-    }
-  }
+  const hotQuestionList = hotQuesions?.getTopicByIds;
 
   return (
     <div className={classes.paper}>
@@ -202,7 +192,7 @@ export default function BotConfigForm(props: FormProps) {
                   value={value}
                   onChange={(
                     _event: React.ChangeEvent<unknown>,
-                    newValue: number | number[],
+                    newValue: number | number[]
                   ) => {
                     onChange(newValue);
                   }}
@@ -276,23 +266,20 @@ export default function BotConfigForm(props: FormProps) {
           control={control}
           name="similarQuestionEnable"
           defaultValue
-          render={({
-            field: { onChange, value },
-            fieldState: { invalid, error },
-          }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <>
               <FormControlLabel
-                control={(
+                control={
                   <Switch
                     checked={value}
                     onChange={onChange}
                     name="checkedB"
                     color="primary"
                   />
-                )}
+                }
                 label={t('Show similar questions')}
               />
-              {invalid && <FormHelperText>{error?.message}</FormHelperText>}
+              {error && <FormHelperText>{error?.message}</FormHelperText>}
             </>
           )}
         />
@@ -338,7 +325,7 @@ export default function BotConfigForm(props: FormProps) {
                   value={value}
                   onChange={(
                     _event: React.ChangeEvent<unknown>,
-                    newValue: number | number[],
+                    newValue: number | number[]
                   ) => {
                     onChange(newValue);
                   }}
@@ -354,53 +341,59 @@ export default function BotConfigForm(props: FormProps) {
             )}
           />
         </div>
-        <FormControl variant="outlined" margin="normal" fullWidth>
-          <InputLabel id="demo-mutiple-chip-label">
-            {t('Top Questions')}
-          </InputLabel>
-          <Select
-            labelId="demo-mutiple-chip-label"
-            id="demo-mutiple-chip"
-            multiple
-            input={<Input id="select-multiple-chip" />}
-            onChange={handleHotQuestionChange}
-            value={hotQuesion ?? []}
-            label={t('Top Questions')}
-            renderValue={(selected) => (
-              <div className={classes.chips}>
-                {(selected as string[]).map((id) => (
-                  <Chip
-                    key={id}
-                    label={
-                      filterTopic
-                        ?.filter((topic) => topic.id === id)
-                        ?.map((topic) => topic.question)[0] ?? ''
-                    }
-                    className={classes.chip}
-                    onDelete={() => {
-                      handleHotQuestionDelete(id);
-                    }}
-                    onMouseDown={(event) => {
-                      event.stopPropagation();
-                    }}
+        <Controller
+          control={control}
+          name="hotQuestionList"
+          defaultValue={hotQuestionList}
+          render={({ field: { onChange, value } }) => (
+            <Autocomplete
+              multiple
+              disableCloseOnSelect
+              id="tags-outlined"
+              options={topicList}
+              getOptionLabel={(option) => option.question}
+              getOptionSelected={(option, selectValue) =>
+                option.id === selectValue.id
+              }
+              value={value}
+              onChange={(_event, newValue) => {
+                onChange(newValue);
+              }}
+              renderOption={(option, { selected }) => (
+                <>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
                   />
-                ))}
-              </div>
-            )}
-            MenuProps={MenuProps}
-          >
-            {filterTopic &&
-              filterTopic.map((topic) => (
-                <MenuItem
-                  key={topic.id}
-                  value={topic.id}
-                  style={getStyles(topic.id ?? '', hotQuesion ?? [], theme)}
-                >
-                  {topic.question}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
+                  {option.question}
+                </>
+              )}
+              onInputChange={(_event, newInputValue) => {
+                // 根据用户输入的字符串，搜索问题
+                fetchTopic(
+                  _.defaults(
+                    { keyword: newInputValue },
+                    variables?.topicFilterInput ?? topicFilterInput
+                  )
+                );
+              }}
+              loading={loadingTopic}
+              className={classes.alert}
+              noOptionsText={t('No matching questions')}
+              // filterSelectedOptions
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  label={t('Hot Questions')}
+                  placeholder={t('Please select hot questions')}
+                />
+              )}
+            />
+          )}
+        />
         <SubmitButton />
       </form>
     </div>

@@ -5,18 +5,12 @@ export interface KnowledgeBase {
   id: number | undefined;
   name: string;
   description: string | undefined;
-  categoryList: TopicCategory[] | undefined;
   botConfig: BotConfig | undefined;
 }
 
 export interface Answer {
   type: string;
   content: string;
-}
-
-export interface RefQuestion {
-  id: string | undefined;
-  question: string;
 }
 
 export interface Topic {
@@ -38,10 +32,13 @@ export interface Topic {
   type: number;
   /** 相似问题(type=10)对应的标准问题id */
   refId: string | undefined;
-  refList: RefQuestion[] | undefined;
   refQuestionList: string[] | undefined;
+  /** 相似问题列表 */
+  refList: Topic[] | undefined;
   /** 关联的问题id列表 */
   connectIds: string[] | undefined;
+  /** 关联的问题列表 */
+  connectList: Topic[] | undefined;
   /** 是否有效标记位 */
   enabled: boolean;
   /** 问题的有效时间 */
@@ -74,34 +71,37 @@ export interface BotConfig {
   similarQuestionNotice: string;
   similarQuestionCount: number;
   hotQuestion?: string;
+  hotQuestionList?: Topic[];
 }
 
 export function makeTreeNode(
-  topicCategory: TopicCategory[],
+  topicCategory: TopicCategory[] | undefined,
   selectValue?: number,
   setExtraProperties?: (
     topicCategory: TopicCategory,
     node: TreeNodeProps
   ) => void
 ): TreeNodeProps[] {
-  return topicCategory.map((it) => {
-    const node: TreeNodeProps = {
-      label: it.name || i18n.t('Unnamed'),
-      value: it.id?.toString() ?? '',
-    };
-    if (selectValue && it.id === selectValue) {
-      node.checked = true;
-    }
-    if (it.children) {
-      node.children = makeTreeNode(
-        it.children,
-        selectValue,
-        setExtraProperties
-      );
-    }
-    if (setExtraProperties) {
-      setExtraProperties(it, node);
-    }
-    return node;
-  });
+  return (
+    topicCategory?.map((it) => {
+      const node: TreeNodeProps = {
+        label: it.name || i18n.t('Unnamed'),
+        value: it.id?.toString() ?? '',
+      };
+      if (selectValue && it.id === selectValue) {
+        node.checked = true;
+      }
+      if (it.children) {
+        node.children = makeTreeNode(
+          it.children,
+          selectValue,
+          setExtraProperties
+        );
+      }
+      if (setExtraProperties) {
+        setExtraProperties(it, node);
+      }
+      return node;
+    }) ?? []
+  );
 }

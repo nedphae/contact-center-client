@@ -13,7 +13,6 @@ import {
   KnowledgeBase,
   TopicCategory,
   Answer,
-  RefQuestion,
 } from 'renderer/domain/Bot';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -28,7 +27,6 @@ import { CustomerGridToolbarCreater } from 'renderer/components/Table/CustomerGr
 import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import TopicForm from 'renderer/components/Bot/TopicForm';
 import BotSidecar from 'renderer/components/Bot/BotSidecar';
-import 'renderer/assets/css/DropdownTreeSelect.global.css';
 import useAlert from 'renderer/hook/alert/useAlert';
 import { TopicFilterInput } from 'renderer/domain/graphql/Bot';
 import TopicSearchFrom from 'renderer/components/Bot/TopicSearchForm';
@@ -202,7 +200,6 @@ export default function Bot() {
       const pTopicCategory = allTopicCategory
         .map((it) => {
           it.children = topicCategoryPidGroup[it.id ?? -1];
-          it.topicList = topicCategoryGroup[it.id ?? -1];
           return it;
         })
         .filter((it) => it.pid === undefined || it.pid === null);

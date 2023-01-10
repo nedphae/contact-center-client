@@ -9,7 +9,7 @@ import {
   Controller,
   useFieldArray,
 } from 'react-hook-form';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import {
   createStyles,
@@ -30,6 +30,7 @@ import {
   Box,
   Button,
   Checkbox,
+  debounce,
   Divider,
   FormControl,
   FormControlLabel,
@@ -42,10 +43,13 @@ import {
   Tab,
   Tabs,
 } from '@material-ui/core';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import Upload from 'rc-upload';
 
 import { makeTreeNode, Topic, TopicCategory } from 'renderer/domain/Bot';
 import DropdownTreeSelect, { TreeNodeProps } from 'react-dropdown-tree-select';
+import 'renderer/assets/css/DropdownTreeSelect.global.css';
 import useAlert from 'renderer/hook/alert/useAlert';
 import {
   getDownloadS3ChatImgPath,
@@ -55,9 +59,20 @@ import { RcFile } from 'rc-upload/lib/interface';
 import SwipeableViews from 'react-swipeable-views';
 import { Autocomplete } from '@material-ui/lab';
 import { IDomEditor } from '@wangeditor/editor';
-import { SelectKeyValue } from '../Form/ChipSelect';
+import {
+  TopicCategoryGraphql,
+  QUERY_TOPIC_CATEGORY_BY_KNOWLEDGE_BASE_ID,
+  SEARCH_TOPIC,
+  TopicFilterInputGraphql,
+  TopicPageGraphql,
+  TopicFilterInput,
+} from 'renderer/domain/graphql/Bot';
+import { PageParam } from 'renderer/domain/graphql/Query';
 import SubmitButton from '../Form/SubmitButton';
 import RichText from './RichText';
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 interface TabPanelProps {
   children: React.ReactNode;
@@ -111,9 +126,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface FormProps {
-  defaultValues: Topic | undefined;
-  topicList: Topic[];
-  categoryList: TopicCategory[];
+  defaultValues: Topic;
   afterSubmit: () => void;
 }
 
@@ -122,7 +135,7 @@ interface Graphql {
 }
 
 const MUTATION_TOPIC = gql`
-  mutation Staff($topicInput: TopicInput!) {
+  mutation Topic($topicInput: TopicInput!) {
     saveTopic(topic: $topicInput) {
       id
       knowledgeBaseId
@@ -147,15 +160,39 @@ const MUTATION_TOPIC = gql`
 `;
 
 export default function TopicForm(props: FormProps) {
-  const {
-    defaultValues: defaultTopic,
-    topicList,
-    categoryList,
-    afterSubmit,
-  } = props;
+  const { defaultValues: defaultTopic, afterSubmit } = props;
   const theme = useTheme();
   const classes = useStyles();
   const { t } = useTranslation();
+  const { data: categoryData } = useQuery<TopicCategoryGraphql>(
+    QUERY_TOPIC_CATEGORY_BY_KNOWLEDGE_BASE_ID,
+    {
+      variables: { knowledgeBaseId: defaultTopic.knowledgeBaseId },
+    }
+  );
+
+  const topicFilterInput: TopicFilterInput = {
+    keyword: '',
+    knowledgeBaseId: defaultTopic.knowledgeBaseId,
+    // 只查询标准问题
+    type: 1,
+    page: new PageParam(0, 10, 'DESC', ['createdDate']),
+  };
+
+  const {
+    data: searchTopicData,
+    loading: loadingTopic,
+    refetch: refetchTopic,
+    variables,
+  } = useQuery<TopicPageGraphql, TopicFilterInputGraphql>(SEARCH_TOPIC, {
+    variables: { topicFilterInput },
+  });
+
+  const searchTopic = searchTopicData?.searchTopic;
+  const topicList =
+    searchTopic && searchTopic.content
+      ? searchTopic.content.map((it) => it.content)
+      : [];
 
   const [defaultValues, setDefaultValues] = useState(
     _.omitBy(defaultTopic, _.isNull)
@@ -193,6 +230,7 @@ export default function TopicForm(props: FormProps) {
   };
 
   const onSubmit: SubmitHandler<Topic> = async (form) => {
+    console.info('表单对象 %o', form);
     form.answer = form.answer?.map((answer) => {
       return {
         type: answer.type,
@@ -203,17 +241,11 @@ export default function TopicForm(props: FormProps) {
       form.refList
         ?.filter((it) => it.question !== '')
         ?.map((refQ) => refQ.question) ?? [];
-    await saveTopic({ variables: { topicInput: _.omit(form, 'refList') } });
+    form.connectIds = form.connectList?.map((it) => it.id) as string[];
+    await saveTopic({
+      variables: { topicInput: _.omit(form, 'refList', 'connectList') },
+    });
     afterSubmit();
-    // const filterObj = _.defaults(
-    //   { answer: form?.answer?.map((ans) => _.omit(ans, '__typename')) },
-    //   _.omit(form, '__typename', 'categoryName', 'knowledgeBaseName')
-    // );
-    // await saveTopic({
-    //   variables: {
-    //     topicInput: filterObj,
-    //   },
-    // });
   };
 
   const questionType = watch('type', defaultValues?.type ?? 1);
@@ -270,30 +302,21 @@ export default function TopicForm(props: FormProps) {
       it.id !== id && it.knowledgeBaseId === defaultValues?.knowledgeBaseId
   );
 
-  const selectKeyValueList: SelectKeyValue[] = [
-    {
-      label: '关联问题',
-      name: 'connectIds',
-      selectList: _.zipObject(
-        filterTopicList.map((it) => it.id ?? ''),
-        filterTopicList.map((it) => it.question)
-      ),
-      defaultValue: defaultValues?.connectIds ?? [],
-    },
-  ];
-
-  const handleDelete = (name: keyof Topic, value: string) => {
-    const values = getValues(name) as string[];
-    setValue(
-      name,
-      _.remove(values, (v) => v !== value)
-    );
-  };
-
   const dropdownTreeSelect = useMemo(() => {
+    const allTopicCategory = _.cloneDeep(
+      categoryData?.topicCategoryByKnowledgeBaseId ?? []
+    );
+    const topicCategoryPidGroup = _.groupBy(allTopicCategory, (it) => it.pid);
+    const pTopicCategory = allTopicCategory
+      .map((it) => {
+        it.children = topicCategoryPidGroup[it.id ?? -1];
+        return it;
+      })
+      .filter((it) => it.pid === undefined || it.pid === null);
+
     // 防止 DropdownTreeSelect 多次刷新
     const treeData = makeTreeNode(
-      categoryList,
+      pTopicCategory,
       data?.saveTopic.categoryId || defaultValues?.categoryId,
       (topicCategory: TopicCategory, node: TreeNodeProps) => {
         node.knowledgeBaseId = topicCategory.knowledgeBaseId;
@@ -329,7 +352,17 @@ export default function TopicForm(props: FormProps) {
       />
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, categoryList, defaultValues, setValue, setDefaultValues]);
+  }, [data, categoryData, defaultValues, setValue, setDefaultValues]);
+
+  const fetchTopic = useMemo(
+    () =>
+      debounce((topicFilterInputParam: TopicFilterInput) => {
+        refetchTopic({
+          topicFilterInput: topicFilterInputParam,
+        });
+      }, 400),
+    [refetchTopic]
+  );
 
   return (
     <div className={classes.root}>
@@ -563,6 +596,11 @@ export default function TopicForm(props: FormProps) {
                     defaultValue="html"
                     {...register('answer.2.type')}
                   />
+                  <TextField
+                    type="hidden"
+                    defaultValue=""
+                    {...register('answer.2.content')}
+                  />
                   <RichText html={html} setHtml={setHtml} />
                 </TabPanel>
               </SwipeableViews>
@@ -585,42 +623,49 @@ export default function TopicForm(props: FormProps) {
               }}
               {...register('innerAnswer')}
             />
-            {/* <ChipSelect
-              selectKeyValueList={selectKeyValueList}
-              control={
-                control as unknown as Control<Record<string, unknown>, unknown>
-              }
-              handleDelete={
-                handleDelete as (name: string, value: string) => void
-              }
-              CustomerFormControl={(formControlProps: FormControlProps) => (
-                <FormControl
-                  variant="outlined"
-                  margin="normal"
-                  fullWidth
-                  // eslint-disable-next-line react/jsx-props-no-spreading
-                  {...formControlProps}
-                />
-              )}
-            /> */}
             {/* 废弃上面的ChipSelect，改为使用 Autocomplete */}
             <Controller
               control={control}
-              name="connectIds"
+              name="connectList"
               defaultValue={undefined}
               render={({ field: { onChange, value } }) => (
                 <Autocomplete
                   multiple
+                  disableCloseOnSelect
                   id="tags-outlined"
                   options={topicList}
                   getOptionLabel={(option) => option.question}
-                  value={topicList.filter((it) => value?.includes(it.id ?? ''))}
+                  getOptionSelected={(option, selectValue) =>
+                    option.id === selectValue.id
+                  }
+                  value={value}
                   onChange={(_event, newValue) => {
-                    onChange(newValue.map((it) => it.id));
+                    onChange(newValue);
                   }}
+                  renderOption={(option, { selected }) => (
+                    <>
+                      <Checkbox
+                        icon={icon}
+                        checkedIcon={checkedIcon}
+                        style={{ marginRight: 8 }}
+                        checked={selected}
+                      />
+                      {option.question}
+                    </>
+                  )}
+                  onInputChange={(_event, newInputValue) => {
+                    // 根据用户输入的字符串，搜索问题
+                    fetchTopic(
+                      _.defaults(
+                        { keyword: newInputValue },
+                        variables?.topicFilterInput ?? topicFilterInput
+                      )
+                    );
+                  }}
+                  loading={loadingTopic}
                   className={classes.alert}
                   noOptionsText={t('No matching questions')}
-                  filterSelectedOptions
+                  // filterSelectedOptions
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -685,13 +730,13 @@ export default function TopicForm(props: FormProps) {
           name="enabled"
           render={({ field: { onChange, value } }) => (
             <FormControlLabel
-              control={(
+              control={
                 <Checkbox
                   checked={value}
                   onChange={(e) => onChange(e.target.checked)}
                   inputProps={{ 'aria-label': 'primary checkbox' }}
                 />
-              )}
+              }
               label={t('Enable?')}
             />
           )}

@@ -38,10 +38,15 @@ import { MousePoint, initialMousePoint } from 'renderer/domain/Client';
 import useAlert from 'renderer/hook/alert/useAlert';
 import {
   AllStaffList,
-  MUTATION_STAFF,
+  MUTATION_DELETE_STAFF,
   QUERY_STAFF,
 } from 'renderer/domain/graphql/Staff';
 import { getDownloadS3ChatFilePath } from 'renderer/config/clientConfig';
+import {
+  MutationExportKnowledgeBaseGraphql,
+  MUTATION_DELETE_KNOWLEDGE_BASE,
+  MUTATION_TOPIC_EXPORT,
+} from 'renderer/domain/graphql/Bot';
 import TreeToolbar from '../Header/TreeToolbar';
 import BotTreeView, {
   TopicOrKnowladge,
@@ -79,26 +84,6 @@ const MUTATION_DEL_BOT_CONFIG = gql`
     deleteBotConfigByIds(ids: $ids)
   }
 `;
-const MUTATION_KNOWLEDGE_BASE = gql`
-  mutation DeleteKnowledgeBase($ids: [Long!]!) {
-    deleteKnowledgeBaseByIds(ids: $ids)
-  }
-`;
-const MUTATION_TOPIC_CATEGORY = gql`
-  mutation DeleteTopicCategory($ids: [Long!]!) {
-    deleteTopicCategoryByIds(ids: $ids)
-  }
-`;
-
-const MUTATION_TOPIC_EXPORT = gql`
-  mutation ExportTopic($knowledgeBaseId: Long!) {
-    exportTopic(knowledgeBaseId: $knowledgeBaseId)
-  }
-`;
-
-export interface MutationExportGraphql {
-  exportTopic: string;
-}
 
 export default function BotSidecar(props: BotProps) {
   const {
@@ -139,7 +124,7 @@ export default function BotSidecar(props: BotProps) {
 
   // 导出知识库
   const [exportTopic, { loading: exporting }] =
-    useMutation<MutationExportGraphql>(MUTATION_TOPIC_EXPORT, {
+    useMutation<MutationExportKnowledgeBaseGraphql>(MUTATION_TOPIC_EXPORT, {
       onCompleted,
       onError,
     });
@@ -149,21 +134,21 @@ export default function BotSidecar(props: BotProps) {
 
   // 删除 Mutation
   const [deleteKnowledgeBaseById] = useMutation<unknown>(
-    MUTATION_KNOWLEDGE_BASE,
+    MUTATION_DELETE_KNOWLEDGE_BASE,
     {
       onCompleted,
       onError,
     }
   );
   const [deleteTopicCategoryById] = useMutation<unknown>(
-    MUTATION_TOPIC_CATEGORY,
+    MUTATION_DELETE_TOPIC_CATEGORY,
     {
       onCompleted,
       onError,
     }
   );
 
-  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_STAFF, {
+  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_DELETE_STAFF, {
     onCompleted,
     onError,
   });
