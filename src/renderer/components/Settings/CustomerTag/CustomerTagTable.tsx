@@ -67,7 +67,7 @@ export default function CustomerTagTable() {
   }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: t('tag.Id'), width: 90 },
+    // { field: 'id', headerName: t('tag.Id'), width: 90 },
     { field: 'name', headerName: t('tag.Name'), width: 150 },
     {
       field: 'color',

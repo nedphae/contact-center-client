@@ -265,7 +265,7 @@ export default function ChatHistory() {
   ];
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: t('Id'), width: 90 },
+    // { field: 'id', headerName: t('Id'), width: 90 },
     { field: 'staffId', headerName: t('Staff Id'), width: 150 },
     { field: 'realName', headerName: t('Real name'), width: 150 },
     { field: 'nickName', headerName: t('Nickname'), width: 150 },

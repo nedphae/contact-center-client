@@ -289,7 +289,7 @@ export default function Bot() {
     ) ?? [];
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: t('Id'), width: 200 },
+    // { field: 'id', headerName: t('Id'), width: 200 },
     {
       field: 'knowledgeBaseName',
       headerName: t('Affiliated Knowledge Base'),

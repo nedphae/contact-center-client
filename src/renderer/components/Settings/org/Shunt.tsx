@@ -88,7 +88,7 @@ export default function Shunt() {
   const { t, i18n } = useTranslation();
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    // { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: t('Shunt Name'), width: 250 },
     {
       field: 'shuntClassName',

@@ -94,7 +94,7 @@ export default function BotDataGrid(props: BotTreeViewProps) {
   }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: t('Id'), width: 200 },
+    // { field: 'id', headerName: t('Id'), width: 200 },
     {
       field: 'knowledgeBaseId',
       headerName: t('Affiliated Knowledge Base'),

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import _, { debounce } from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -83,8 +83,6 @@ export default function BotConfigForm(props: FormProps) {
     handleSubmit,
     register,
     control,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<BotConfig>({
     defaultValues,
@@ -144,7 +142,9 @@ export default function BotConfigForm(props: FormProps) {
       form.hotQuestion = tempHotQuestion;
     }
     await saveBotConfig({
-      variables: { botConfigInput: _.omit(form, '__typename') },
+      variables: {
+        botConfigInput: _.omit(form, '__typename', 'hotQuestionList'),
+      },
     });
     afterMutationCallback();
   };

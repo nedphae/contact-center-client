@@ -180,7 +180,7 @@ export default function Crm() {
   };
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: t('CustomerId'), width: 90 },
+    { field: 'id', headerName: t('CustomerId'), width: 150 },
     { field: 'uid', headerName: t('UID'), width: 150 },
     { field: 'name', headerName: t('Name'), width: 150 },
     {
