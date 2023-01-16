@@ -8,7 +8,11 @@ import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
-import { Conversation, getEvaluation, useEvalProp } from 'renderer/domain/Conversation';
+import {
+  Conversation,
+  getEvaluation,
+  useEvalProp,
+} from 'renderer/domain/Conversation';
 import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles(() =>

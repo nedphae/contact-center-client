@@ -763,9 +763,7 @@ export default function ChatHistory() {
                   <MessageList conversation={selectConversation} />
                 </Grid>
                 <Grid item xs={4}>
-                  <div
-                    style={{ overflowY: 'auto', height: 'calc(100vh - 180px)' }}
-                  >
+                  <div style={{ height: '100%' }}>
                     <Tabs
                       value={tabValue}
                       onChange={handleTabValueChange}
@@ -785,10 +783,18 @@ export default function ChatHistory() {
                       index={tabValue}
                       onChangeIndex={handleChangeIndex}
                     >
-                      <TabPanel value={tabValue} index={0}>
+                      <TabPanel
+                        style={{ height: 'calc(100vh - 220px)' }}
+                        value={tabValue}
+                        index={0}
+                      >
                         <LazyCustomerInfo userId={selectConversation.userId} />
                       </TabPanel>
-                      <TabPanel value={tabValue} index={1}>
+                      <TabPanel
+                        style={{ height: 'calc(100vh - 220px)' }}
+                        value={tabValue}
+                        index={1}
+                      >
                         <UserTrackViewer
                           userTrackList={selectConversation.userTrackList}
                         />

@@ -2,7 +2,7 @@
 import React from 'react';
 import { makeStyles, createStyles } from '@material-ui/core';
 
-interface TabPanelProps {
+interface TabPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode | undefined;
   index: number;
   value: number;

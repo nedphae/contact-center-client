@@ -7,11 +7,14 @@ import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import Typography from '@material-ui/core/Typography';
 import { UserTrack } from 'renderer/domain/Customer';
+import Link from '@material-ui/core/Link';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: '100%',
+      height: '100%',
     },
     button: {
       marginTop: theme.spacing(1),
@@ -51,10 +54,15 @@ export default function UserTrackViewer(prop: UserTrackProp) {
               return (
                 <Step key={`${userTrack.enterTime}-${userTrack.url}`}>
                   <StepLabel>
-                    {`${time}, ${t('Being visiting')}: ${userTrack.url}`}
+                    {`${time}, ${t('Being visiting')}: `}
+                    <Tooltip title={userTrack.url}>
+                      <Link href={userTrack.url} target="_blank">
+                        {userTrack.title}
+                      </Link>
+                    </Tooltip>
                   </StepLabel>
                   <StepContent>
-                    <Typography>{userTrack.title}</Typography>
+                    <Typography noWrap>{userTrack.url}</Typography>
                   </StepContent>
                 </Step>
               );
