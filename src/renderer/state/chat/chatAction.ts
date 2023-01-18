@@ -1,4 +1,3 @@
-import { SnackbarProp } from 'renderer/domain/Chat';
 import { AppThunk, RootState } from 'renderer/store';
 
 import slice from './chatSlice';
@@ -8,7 +7,6 @@ export const {
   setMonitoredMessage,
   setMonitorSelectedSession,
   setSelectedSessionNumber,
-  setSnackbarProp: oldSetSnackbarProp,
   setTransferMessageRecive,
   setTransferMessageToSend,
   removeTransferMessageToSend,
@@ -35,16 +33,6 @@ export const getSelectedSession = (state: RootState) => {
   return undefined;
 };
 
-export function setSnackbarProp(
-  snackbarProp: SnackbarProp | undefined
-): AppThunk {
-  return (dispatch, getState) => {
-    if (getState().staff.token) {
-      dispatch(oldSetSnackbarProp(snackbarProp));
-    }
-  };
-}
-
 export const getMonitor = (state: RootState) => state.chat.monitored;
 
 export const getQuickReply = (state: RootState) => state.chat.quickReply;
@@ -56,8 +44,6 @@ export const getSelectedConv = (state: RootState) =>
 
 export const getSelectedConstomer = (state: RootState) =>
   getSelectedSession(state)?.user;
-
-export const getSnackbarProp = (state: RootState) => state.chat.snackbarProp;
 
 export const getFirstTransferMessageRecive = (state: RootState) =>
   state.chat.transferMessageRecive && state.chat.transferMessageRecive[0];

@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(1),
       position: 'relative',
     },
-  }),
+  })
 );
 
 interface CommentAndEvaluateConfigType {
@@ -117,10 +117,10 @@ export default function CommentAndEvaluateConfig(
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<CommentAndEvaluateConfigType> = async (
@@ -135,7 +135,7 @@ export default function CommentAndEvaluateConfig(
               key: 'cae.configJson.comment',
               label: '留言配置',
             },
-            configJson?.comment ?? {},
+            configJson?.comment ?? {}
           ),
           _.defaults(
             {
@@ -143,7 +143,7 @@ export default function CommentAndEvaluateConfig(
               key: 'cae.configJson.evaluate',
               label: '评价配置',
             },
-            configJson?.evaluate ?? {},
+            configJson?.evaluate ?? {}
           ),
         ],
       },

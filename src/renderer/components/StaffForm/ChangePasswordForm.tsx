@@ -75,7 +75,7 @@ export default function ChangePasswordForm(props: FormProps) {
     }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<PasswordChanger> = (form) => {

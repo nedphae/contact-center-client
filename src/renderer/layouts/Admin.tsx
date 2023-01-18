@@ -6,14 +6,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { debounceTime, Subject } from 'rxjs';
 // creates a beautiful scrollbar
 import PerfectScrollbar from 'perfect-scrollbar';
+import { ToastContainer } from 'react-toastify';
+import './ReactToastify.global.css';
 // @material-ui/core components
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import useWebSocket from 'renderer/hook/websocket/useWebSocket';
 // core components
 import useInitData from 'renderer/hook/data/useInitData';
-import DefaultSnackbar from 'renderer/components/Snackbar/DefaultSnackbar';
 import TransferSnackbar from 'renderer/components/Snackbar/TransferSnackbar';
 import {
   clearPlayNewMessageSound,
@@ -45,6 +46,7 @@ const subjectMessage = new Subject<void>();
 export default function Admin({ ...rest }) {
   // styles
   const classes = useStyles();
+  const theme = useTheme();
   const dispatch = useDispatch();
   const routes = useRoutes();
   const { t } = useTranslation();
@@ -151,7 +153,19 @@ export default function Admin({ ...rest }) {
   return (
     <WebSocketContext.Provider value={webSocket}>
       <TransferSnackbar />
-      <DefaultSnackbar />
+      {/* <DefaultSnackbar /> */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        // pauseOnHover
+        theme={theme.palette.type}
+      />
       <div className={classes.wrapper}>
         {/* 修复样式错误 */}
         <CssBaseline />

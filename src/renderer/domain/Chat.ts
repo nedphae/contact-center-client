@@ -1,7 +1,6 @@
 import { Object } from 'ts-toolbelt';
 import _ from 'lodash';
 
-import { Color } from '@material-ui/lab/Alert';
 import { TFunction } from 'react-i18next';
 import {
   Conversation,
@@ -52,17 +51,8 @@ export interface Monitored {
   monitoredSession?: Session;
 }
 
-export interface SnackbarProp {
-  open: boolean;
-  loadding?: boolean;
-  severity?: Color;
-  message?: string;
-  autoHideDuration?: number;
-}
-
 export interface BaseChat {
   selectedSession?: number;
-  snackbarProp?: SnackbarProp;
 }
 
 export type SetMonitored = Object.Merge<MonitoredLazyData, Monitored>;

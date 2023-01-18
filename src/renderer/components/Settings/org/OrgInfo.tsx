@@ -64,7 +64,7 @@ export default function OrgInfo() {
       onError,
     });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<OrganizationInput> = async (form) => {

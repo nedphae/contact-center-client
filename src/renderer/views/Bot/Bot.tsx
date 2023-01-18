@@ -147,7 +147,7 @@ export default function Bot() {
     }
   );
   if (deleteLoading) {
-    onLoadding(deleteLoading);
+    onLoadding('Deleting');
   }
 
   const refetchAll = () => {

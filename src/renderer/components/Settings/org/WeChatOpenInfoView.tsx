@@ -92,7 +92,7 @@ export default function WeChatOpenInfoView() {
   const columns: GridColDef[] = useMemo(() => {
     async function toggleWeChatOpenInfo(
       value: WeChatOpenInfo,
-      isEnable = true,
+      isEnable = true
     ) {
       const tempWeChatOpenInfo = _.omit(value, '__typename', 'shuntName');
       if (isEnable) {
@@ -193,7 +193,7 @@ export default function WeChatOpenInfoView() {
             window.open(
               `${clientConfig.web.host}/wechat/api/auth/auth_url_page?org_id=${mySelf.organizationId}`,
               '_blank',
-              'electron:true',
+              'electron:true'
             );
           }}
         >

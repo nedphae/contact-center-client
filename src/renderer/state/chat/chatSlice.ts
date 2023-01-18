@@ -66,12 +66,6 @@ const chatSlice = createSlice({
         );
       }
     },
-    setSnackbarProp: (
-      chat,
-      action: PayloadAction<SnackbarProp | undefined>
-    ) => {
-      chat.snackbarProp = action.payload;
-    },
     setSelectedSessionNumber: (
       chat,
       action: PayloadAction<number | undefined>

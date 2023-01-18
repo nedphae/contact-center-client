@@ -495,7 +495,7 @@ initXiaobaiChat(params);
   });
   const loadingAll = loading || uiLoading || configLoading;
   if (loadingAll) {
-    onLoadding(loadingAll);
+    onLoadding('Saving');
   }
 
   useEffect(() => {

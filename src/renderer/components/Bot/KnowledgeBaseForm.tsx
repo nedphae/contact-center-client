@@ -70,7 +70,7 @@ export default function KnowledgeBaseForm(props: FormProps) {
     }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {

@@ -159,7 +159,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
       onError,
     });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   useEffect(() => {
@@ -222,7 +222,7 @@ function EditorTool(props: EditorProps, ref: React.Ref<HTMLDivElement>) {
   function sendEvaluationInvited() {
     const { userId } = selectedSession.conversation;
     dispatch(sendEvaluationInvitedMsg(userId));
-    onCompletedMsg(t('chat.editor.tool.Rate invitation has been sent'));
+    onCompletedMsg('chat.editor.tool.Rate invitation has been sent');
   }
 
   const capture = (e: React.MouseEvent<HTMLButtonElement>) => {

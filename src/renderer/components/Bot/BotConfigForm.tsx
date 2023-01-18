@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 import _, { debounce } from 'lodash';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -14,7 +15,6 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 
 import { BotConfig } from 'renderer/domain/Bot';
-import useAlert from 'renderer/hook/alert/useAlert';
 import {
   Checkbox,
   Divider,
@@ -124,28 +124,26 @@ export default function BotConfigForm(props: FormProps) {
       ? searchTopic.content.map((it) => it.content)
       : [];
 
-  const { onLoadding, onCompleted, onError } = useAlert();
-  const [saveBotConfig, { loading, data }] = useMutation<BotMutationGraphql>(
-    MUTATION_BOT_CONFIG,
-    {
-      onCompleted,
-      onError,
-    }
-  );
-  if (loading) {
-    onLoadding(loading);
-  }
+  const [saveBotConfig, { data }] =
+    useMutation<BotMutationGraphql>(MUTATION_BOT_CONFIG);
 
   const onSubmit: SubmitHandler<BotConfig> = async (form) => {
     if (form.hotQuestionList) {
       const tempHotQuestion = form.hotQuestionList.map((it) => it.id).join(',');
       form.hotQuestion = tempHotQuestion;
     }
-    await saveBotConfig({
-      variables: {
-        botConfigInput: _.omit(form, '__typename', 'hotQuestionList'),
-      },
-    });
+    await toast.promise(
+      saveBotConfig({
+        variables: {
+          botConfigInput: _.omit(form, '__typename', 'hotQuestionList'),
+        },
+      }),
+      {
+        pending: t('Saving'),
+        success: t('Success'),
+        error: t('Fail'),
+      }
+    );
     afterMutationCallback();
   };
 

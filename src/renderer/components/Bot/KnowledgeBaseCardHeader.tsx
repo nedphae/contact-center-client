@@ -55,7 +55,7 @@ const KnowledgeBaseCardHeader = (prop: KnowledgeBaseCardHeaderProp) => {
       onError,
     });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Exporting');
   }
 
   // 删除知识库

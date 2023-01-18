@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
@@ -41,7 +42,6 @@ import { OnlineStatus, OnlineStatusKey } from 'renderer/domain/constant/Staff';
 import Staff from 'renderer/domain/StaffInfo';
 import { gql, useMutation } from '@apollo/client';
 import { getDownloadS3StaffImgPath } from 'renderer/config/clientConfig';
-import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { ColorModeContext } from 'renderer/HomePage';
 import { useAppDispatch } from 'renderer/store';
 import Button from '../CustomButtons/Button';
@@ -178,14 +178,10 @@ export default function AdminNavbarLinks() {
             ) {
               // 在线状态设置失败，返回的状态不是设置的状态，则更新为离线状态
               // 并提示用户设置失败
-              dispatch(
-                setSnackbarProp({
-                  open: true,
-                  message:
-                    'The number of online customer service has reached the upper limit, please try again later',
-                  severity: 'warning',
-                })
+              const msg = t(
+                'The number of online customer service has reached the upper limit, please try again later'
               );
+              toast.warn(msg);
             } else if (
               returnOnlineStatus === 'ONLINE' &&
               !_.isEmpty(JSON.parse(staffStatus.priorityOfShunt))

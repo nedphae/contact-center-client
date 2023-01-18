@@ -169,11 +169,11 @@ const getDefaultValue = () => {
     timeRange: {
       from: dateFnsUtils.format(
         dateFnsUtils.startOfDay(new Date()),
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
       ),
       to: dateFnsUtils.format(
         dateFnsUtils.endOfDay(new Date()),
-        "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
       ),
     },
   };
@@ -191,7 +191,7 @@ export default function StaffAttendanceDataGrid() {
 
   const { loading, data, refetch, variables } = useQuery<
     StaffAttendanceGraphql,
-  { staffAttendanceFilter: StaffAttendanceFilterInput }
+    { staffAttendanceFilter: StaffAttendanceFilterInput }
   >(QUERY, {
     variables: { staffAttendanceFilter: defaultValue },
     onError,
@@ -204,7 +204,7 @@ export default function StaffAttendanceDataGrid() {
     });
 
   if (exporting) {
-    onLoadding(loading);
+    onLoadding('Exporting');
   }
 
   const staffList = staffInfo ? staffInfo?.allStaff : [];
@@ -381,13 +381,13 @@ export default function StaffAttendanceDataGrid() {
                   name="time"
                   render={({ field: { onChange, value } }) => (
                     <FormControlLabel
-                      control={(
+                      control={
                         <Checkbox
                           checked={value}
                           onChange={(e) => onChange(e.target.checked)}
                           inputProps={{ 'aria-label': 'primary checkbox' }}
                         />
-                      )}
+                      }
                       label={t('Time Range')}
                     />
                   )}
@@ -409,8 +409,8 @@ export default function StaffAttendanceDataGrid() {
                           onChange(
                             dateFnsUtils.format(
                               d,
-                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
-                            ),
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+                            )
                           );
                         }
                       }}
@@ -436,8 +436,8 @@ export default function StaffAttendanceDataGrid() {
                           onChange(
                             dateFnsUtils.format(
                               d,
-                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX",
-                            ),
+                              "yyyy-MM-dd'T'HH:mm:ss.SSSXX"
+                            )
                           );
                         }
                       }}

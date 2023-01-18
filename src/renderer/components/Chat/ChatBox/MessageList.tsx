@@ -348,7 +348,7 @@ function ResendViewer(props: {
           }
         }
       } catch (ex) {
-        onErrorMsg(t('Upload failed'));
+        onErrorMsg('Upload failed');
         setManualResend(false);
       }
     } else {

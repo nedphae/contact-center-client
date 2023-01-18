@@ -66,7 +66,7 @@ export default function StaffGroupForm(props: FormProps) {
     }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {

@@ -148,7 +148,7 @@ export default function ChatHistory() {
       onError,
     });
   if (exporting) {
-    onLoadding(loading);
+    onLoadding('Exporting');
   }
 
   const handleClickOpen = (conversation: Conversation) => {

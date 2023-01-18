@@ -1,3 +1,5 @@
+import { toast } from 'react-toastify';
+import i18n from 'renderer/i18n/i18n'; // 引用多语言配置文件
 import {
   configStaff,
   updateOnlineStatusBySocket,
@@ -10,7 +12,6 @@ import {
   setNewMessage,
 } from 'renderer/state/session/sessionAction';
 import { AppDispatch } from 'renderer/store';
-import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { getTokenSource } from 'renderer/electron/jwtStorage';
 import EventInterface, { SocketCallBack } from './EventInterface';
 
@@ -47,25 +48,13 @@ export default class SocketHandler implements EventInterface {
       this.socket.io.opts.query = `token=${accessToken}`;
 
       this.dispatch(updateOnlineStatusBySocket('OFFLINE'));
-      this.dispatch(
-        setSnackbarProp({
-          open: true,
-          message: 'websocket.error',
-          severity: 'error',
-          autoHideDuration: undefined,
-        })
-      );
+      const msg = i18n.t('websocket.error');
+      toast.error(msg);
     });
     this.socket.on('reconnect', () => {
       this.onReconnect();
-      this.dispatch(
-        setSnackbarProp({
-          open: true,
-          message: 'websocket.success',
-          severity: 'success',
-          autoHideDuration: 6000,
-        })
-      );
+      const msg = i18n.t('websocket.success');
+      toast.success(msg);
     });
   }
 

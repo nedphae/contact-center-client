@@ -1,75 +1,76 @@
-import { useMemo, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { debounceTime, Subject } from 'rxjs';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Id, toast } from 'react-toastify';
 
-import { setSnackbarProp } from 'renderer/state/chat/chatAction';
 import { ApolloError } from '@apollo/client';
-import { SnackbarProp } from 'renderer/domain/Chat';
 
 interface Result {
-  onLoadding: (loadding?: boolean) => void;
+  onLoadding: (message: string) => void;
   onCompleted: () => void;
   onCompletedMsg: (message: string) => void;
   onError: (error: ApolloError) => void;
   onErrorMsg: (message: string) => void;
 }
 
+const resetParams = {
+  isLoading: null,
+  autoClose: null,
+  closeOnClick: null,
+  closeButton: null,
+  draggable: null,
+  delay: 100,
+};
+
 /**
  * 提供统一的数据操作反馈
  *
  */
 const useAlert = (): Result => {
-  const dispatch = useDispatch();
+  const toastId = useRef<Id>();
   const { t } = useTranslation();
 
-  const subjectAlert = useMemo(() => {
-    // 提供一定的延迟，防止同时刷新不同 UI 组件
-    // see https://stackoverflow.com/questions/62336340/cannot-update-a-component-while-rendering-a-different-component-warning
-    return new Subject<SnackbarProp>();
-  }, []);
-
-  const momeSubject = useMemo(() => {
-    return subjectAlert.pipe(debounceTime(200)).subscribe({
-      next: (it) => {
-        dispatch(setSnackbarProp(it));
-      },
-    });
-  }, [dispatch, subjectAlert]);
-
-  const onLoadding = (loadding?: boolean) => {
-    subjectAlert.next({
-      open: Boolean(loadding),
-      loadding,
-      autoHideDuration: undefined,
-    });
+  const onLoadding = (message: string) => {
+    const msg = t(message);
+    if (toastId.current) {
+      toast.update(toastId.current, {
+        render: msg,
+        isLoading: true,
+        type: toast.TYPE.DEFAULT,
+      });
+    } else {
+      toastId.current = toast.loading(msg);
+    }
   };
   const onCompletedMsg = (message?: string) => {
-    subjectAlert.next({
-      open: true,
-      message: message ?? 'Success',
-      severity: 'success',
-      autoHideDuration: 6000,
-    });
+    const msg = t(message ?? 'Success');
+    if (toastId.current) {
+      toast.update(toastId.current, {
+        type: toast.TYPE.SUCCESS,
+        render: msg,
+        ...resetParams,
+        autoClose: 5000,
+      });
+    } else {
+      toastId.current = toast.success(msg);
+    }
   };
   const onCompleted = () => onCompletedMsg();
   const onErrorMsg = (message?: string) => {
-    subjectAlert.next({
-      open: true,
-      message: message ?? 'Fail',
-      severity: 'error',
-      autoHideDuration: 6000,
-    });
+    const msg = t(message ?? 'Fail');
+    if (toastId.current) {
+      toast.update(toastId.current, {
+        type: toast.TYPE.ERROR,
+        render: msg,
+        ...resetParams,
+        autoClose: 5000,
+      });
+    } else {
+      toastId.current = toast.error(msg);
+    }
   };
 
   const onError = (error: ApolloError) =>
     onErrorMsg(`${t('Error')}: ${error.message}`);
-
-  useEffect(() => {
-    return () => {
-      momeSubject.unsubscribe();
-    };
-  }, [momeSubject]);
 
   return {
     onLoadding,

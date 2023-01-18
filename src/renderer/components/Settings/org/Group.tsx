@@ -41,7 +41,7 @@ export default function Group() {
     }
   );
   if (deleteLoading) {
-    onLoadding(deleteLoading);
+    onLoadding('Deleting');
   }
 
   function newButtonClick() {

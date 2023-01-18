@@ -571,7 +571,12 @@
     "Organization ID": "Organization ID",
     "Send image": "Send image",
     "Send file": "Send file",
-    "draft": "Draft"
+    "draft": "Draft",
+    "Saving": "Saving...",
+    "Uploading": "Uploading...",
+    "Exporting": "Exporting...",
+    "Deleting": "Deleting...",
+    "Transferring": "Transferring..."
   },
   "home": {
     "hot_recommended": "",

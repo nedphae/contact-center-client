@@ -573,7 +573,12 @@
     "Organization ID": "企业ID",
     "Send image": "发送图片",
     "Send file": "发送文件",
-    "draft": "草稿"
+    "draft": "草稿",
+    "Saving": "保存中...",
+    "Uploading": "上传中...",
+    "Exporting": "导出中...",
+    "Deleting": "删除中...",
+    "Transferring": "转接中..."
   },
   "home": {
     "hot_recommended": "爆款推荐",

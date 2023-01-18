@@ -126,7 +126,7 @@ export default function Shunt() {
     }
   );
   if (deleteLoading) {
-    onLoadding(deleteLoading);
+    onLoadding('Deleting');
   }
 
   const [deleteClasByIds, { loading: deleteClassLoading }] =
@@ -135,7 +135,7 @@ export default function Shunt() {
       onError,
     });
   if (deleteClassLoading) {
-    onLoadding(deleteClassLoading);
+    onLoadding('Deleting');
   }
 
   function newButtonClick() {

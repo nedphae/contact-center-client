@@ -112,7 +112,7 @@ export default function SessionCategoryView() {
     onError,
   });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const sessionCategoryList = data?.getAllSessionCategory;

@@ -34,6 +34,7 @@ import {
   createStyles,
   makeStyles,
   Theme,
+  CardActionArea,
 } from '@material-ui/core';
 import { useMutation } from '@apollo/client';
 import {
@@ -51,7 +52,6 @@ import {
 } from 'renderer/config/clientConfig';
 import Upload from 'rc-upload';
 import { RcFile } from 'rc-upload/lib/interface';
-import { TouchableOpacity } from 'react-native-web';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -131,7 +131,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
     }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding(t('Saving'));
   }
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {
@@ -303,8 +303,8 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
                       </Grid>
                       <Grid item sm={3}>
                         {picSrc && (
-                          <TouchableOpacity
-                            onPress={() => {
+                          <CardActionArea
+                            onClick={() => {
                               openImageViewer(
                                 `${getDownloadS3ChatImgPath()}${picSrc}`,
                                 'img'
@@ -316,7 +316,7 @@ export function QuickReplyForm(props: QuickReplyFormProps) {
                               style={{ maxHeight: '48px', maxWidth: '60px' }}
                               alt="Message"
                             />
-                          </TouchableOpacity>
+                          </CardActionArea>
                         )}
                       </Grid>
                     </Grid>
@@ -478,7 +478,7 @@ export function QuickReplyGroupForm(props: QuickReplyGroupFormProps) {
     }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<QuickReplyGroupFormType> = async (form) => {

@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 import _ from 'lodash';
 import { Object } from 'ts-toolbelt';
@@ -46,7 +47,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import SubmitButton from 'renderer/components/Form/SubmitButton';
-import useAlert from 'renderer/hook/alert/useAlert';
 import javaInstant2DateStr from 'renderer/utils/timeUtils';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '1vw',
       userSelect: 'auto',
     },
-  }),
+  })
 );
 
 export type CustomerFormValues = Object.Readonly<Customer, 'uid'>;
@@ -109,22 +109,13 @@ export default function CustomerForm(props: CustomerFormProps) {
   const { data: allTags } = useQuery<CustomerTagGraphql>(QUERY_CUSTOMER_TAG);
 
   // 显示更新错误
-  const { onLoadding, onCompleted, onError } = useAlert();
-  const [editCustomer, { loading, data }] = useMutation<UpdateCustomerGraphql>(
-    MUTATION_CUSTOMER,
-    {
-      onCompleted,
-      onError,
-    },
-  );
-  if (loading) {
-    onLoadding(loading);
-  }
+  const [editCustomer, { data }] =
+    useMutation<UpdateCustomerGraphql>(MUTATION_CUSTOMER);
 
   const defaultValues = _.cloneDeep(tempDefaultValues);
   if (defaultValues) {
     defaultValues.tags = _.map(defaultValues?.tags ?? [], (tag) =>
-      _.omit(tag, '__typename'),
+      _.omit(tag, '__typename')
     );
   }
   const {
@@ -157,18 +148,25 @@ export default function CustomerForm(props: CustomerFormProps) {
       form.tags = _.map(form.tags, (tag) => _.omit(tag, '__typename'));
     }
     // 用户信息表单
-    editCustomer({
-      variables: {
-        customerInput: _.omit(form, '__typename', 'status', 'userId'),
-      },
-    });
+    toast.promise(
+      editCustomer({
+        variables: {
+          customerInput: _.omit(form, '__typename', 'status', 'userId'),
+        },
+      }),
+      {
+        pending: t('Saving'),
+        success: t('Success'),
+        error: t('Fail'),
+      }
+    );
   };
 
   const handleDelete = (name: string) => {
     const tags = getValues('tags') as CustomerTagView[];
     setValue(
       'tags',
-      _.remove(tags, (v) => v.name !== name),
+      _.remove(tags, (v) => v.name !== name)
     );
   };
   return (
@@ -228,7 +226,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                   onChange(currentValue.map((it) => JSON.parse(it)));
                 }}
                 value={((value as CustomerTagView[]) ?? []).map((it) =>
-                  JSON.stringify(it, ['name', 'color'].sort()),
+                  JSON.stringify(it, ['name', 'color'].sort())
                 )}
                 label={t('Customer Tag')}
                 renderValue={(selected) => (
@@ -266,7 +264,7 @@ export default function CustomerForm(props: CustomerFormProps) {
                         key={tag.id}
                         value={JSON.stringify(
                           _.pick(tag, 'name', 'color'),
-                          ['name', 'color'].sort(),
+                          ['name', 'color'].sort()
                         )}
                         style={getStyles(selected, theme, tag.color)}
                       >

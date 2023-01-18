@@ -1,4 +1,5 @@
 import { AppThunk, RootState } from 'renderer/store';
+import { toast } from 'react-toastify';
 import { getCurrentStaff } from 'renderer/service/infoService';
 import Staff, { configStatus } from 'renderer/domain/StaffInfo';
 import { AccessToken } from 'renderer/domain/OauthToken';
@@ -7,8 +8,8 @@ import { OnlineStatusKey } from 'renderer/domain/constant/Staff';
 import { filter, interval, map, Subscription } from 'rxjs';
 import { AxiosError } from 'axios';
 import { setAuthority } from 'renderer/utils/authority';
+import i18n from 'renderer/i18n/i18n'; // 引用多语言配置文件
 import slice from './staffSlice';
-import { setSnackbarProp } from '../chat/chatAction';
 
 export const {
   setStaff,
@@ -53,23 +54,13 @@ export const setUserAsync =
     } catch (error: unknown) {
       if ((error as AxiosError<Staff>)?.response?.status === 402) {
         // console.info('response: %o', error.response);
-        dispatch(
-          setSnackbarProp({
-            open: true,
-            message: 'Your account has expired, please use it after renewal',
-            severity: 'error',
-            autoHideDuration: undefined,
-          })
+        toast.error(
+          i18n.t(
+            'Your account has expired, please use it after renewal'
+          ) as string
         );
       } else {
-        dispatch(
-          setSnackbarProp({
-            open: true,
-            message: 'Failed to get user information',
-            severity: 'error',
-            autoHideDuration: undefined,
-          })
-        );
+        toast.error(i18n.t('Failed to get user information') as string);
       }
     }
   };
@@ -90,13 +81,10 @@ export const configBase = (runAfter?: AppThunk): AppThunk => {
           getState().staff.onlineStatus !== staffResponse.body.onlineStatus
         ) {
           // 在线人数超过限制
-          dispatch(
-            setSnackbarProp({
-              open: true,
-              message:
-                'The number of online customer service has reached the upper limit, please try again later',
-              severity: 'warning',
-            })
+          toast.warn(
+            i18n.t(
+              'The number of online customer service has reached the upper limit, please try again later'
+            ) as string
           );
         }
         // 注册成功, 设置状态同步成功

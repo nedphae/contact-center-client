@@ -1,5 +1,6 @@
 import { AppDispatch, AppThunk, RootState } from 'renderer/store';
 import { createSelector } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
 import { of } from 'rxjs';
 import { map, filter, tap, catchError } from 'rxjs/operators';
 import _ from 'lodash';
@@ -51,7 +52,6 @@ import {
   setPlayNewMessageSound,
   setPts,
   setSelectedSessionNumber,
-  setSnackbarProp,
   setTransferMessageRecive,
   setTransferMessageToSend,
 } from '../chat/chatAction';
@@ -317,13 +317,7 @@ export function transferTo(transferQuery: TransferQuery): AppThunk {
       // 获取转接用户对应的会话
       const { conversation } = getSessionByUserId(userId)(getState());
       // 提示转接成功
-      dispatch(
-        setSnackbarProp({
-          open: true,
-          message: i18n.t('Transfer succeed'),
-          severity: 'success',
-        })
-      );
+      toast.success(i18n.t('Transfer succeed') as string);
       // 延迟3秒更新，防止读取到服务器未更新的会话信息
       setTimeout(async () => {
         // 转接成功 更新会话
@@ -349,13 +343,7 @@ export function transferTo(transferQuery: TransferQuery): AppThunk {
       }, 2000);
     } else {
       // 转接失败
-      dispatch(
-        setSnackbarProp({
-          open: true,
-          message: i18n.t('Transfer failed, no staff online or idle'),
-          severity: 'error',
-        })
-      );
+      toast.error(i18n.t('Transfer failed, no staff online or idle') as string);
     }
   };
 }
@@ -426,13 +414,7 @@ export function sendTransferMsg(transferQuery: TransferQuery): AppThunk {
       };
 
       // 显示Loadding
-      dispatch(
-        setSnackbarProp({
-          open: true,
-          loadding: true,
-          autoHideDuration: 15000,
-        })
-      );
+      toast.info(i18n.t('Transferring') as string);
       dispatch(setTransferMessageToSend(transferQuery));
       dispatch(sendMessage(message));
     }
@@ -524,13 +506,7 @@ function runSysMsg(message: Message, dispatch: AppDispatch) {
             dispatch(transferToUserId(sysMsg.userId));
           } else {
             // 显示拒绝消息
-            dispatch(
-              setSnackbarProp({
-                open: true,
-                message: `${i18n.t('Transfer refuse')}: ${sysMsg.reason}`,
-                severity: 'error',
-              })
-            );
+            toast.error(`${i18n.t('Transfer refuse')}: ${sysMsg.reason}`);
           }
           // 清除转接列表
           dispatch(removeTransferMessageToSend(sysMsg.userId));

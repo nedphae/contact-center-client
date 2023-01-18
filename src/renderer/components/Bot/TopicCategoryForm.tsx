@@ -77,7 +77,7 @@ export default function TopicCategoryForm(props: FormProps) {
     }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<TopicCategory> = async (form) => {

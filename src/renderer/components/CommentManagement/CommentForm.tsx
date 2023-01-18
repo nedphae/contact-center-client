@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
     submit: {
       margin: theme.spacing(3, 0, 2),
     },
-  }),
+  })
 );
 
 interface CommentFormProps {
@@ -58,10 +58,10 @@ export default function CommentForm(props: CommentFormProps) {
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (loading) {
-    onLoadding(loading);
+    onLoadding(t('Saving'));
   }
 
   const [saveCommentWithIMAndSMS, { loading: smsLoading }] =
@@ -70,7 +70,7 @@ export default function CommentForm(props: CommentFormProps) {
       onError,
     });
   if (smsLoading) {
-    onLoadding(loading);
+    onLoadding(t('Saving'));
   }
 
   const { register, handleSubmit, control, watch } = useForm<CommentPojo>({
@@ -248,7 +248,7 @@ export default function CommentForm(props: CommentFormProps) {
             <Typography variant="caption" display="block" gutterBottom>
               (
               {t(
-                'Due to policy restrictions, the system will send the content of the message to the user through the chat message, and send a SMS notify the user to click the link to view',
+                'Due to policy restrictions, the system will send the content of the message to the user through the chat message, and send a SMS notify the user to click the link to view'
               )}
               )
             </Typography>

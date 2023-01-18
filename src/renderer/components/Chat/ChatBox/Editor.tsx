@@ -164,9 +164,7 @@ export default function Editor(selected: SelectedProps) {
       }
     } else {
       onErrorMsg(
-        t(
-          'editor.The current customer service is not online, and the message cannot be sent'
-        )
+        'editor.The current customer service is not online, and the message cannot be sent'
       );
     }
   }

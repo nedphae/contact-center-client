@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import _ from 'lodash';
 import { useMutation } from '@apollo/client';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -13,7 +14,6 @@ import {
   SaveBlacklistGraphql,
   MUTATION_SAVE_BLACKLIST,
 } from 'renderer/domain/graphql/Blacklist';
-import useAlert from 'renderer/hook/alert/useAlert';
 import SubmitButton from '../Form/SubmitButton';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -38,18 +38,9 @@ export default function BlacklistForm(props: BlacklistFormProps) {
   const classes = useStyles();
   const { t } = useTranslation();
 
-  const { onLoadding, onCompleted, onError } = useAlert();
-  const [saveBlacklist, { loading }] = useMutation<SaveBlacklistGraphql>(
-    MUTATION_SAVE_BLACKLIST,
-    {
-      onCompleted,
-      onError,
-    }
+  const [saveBlacklist] = useMutation<SaveBlacklistGraphql>(
+    MUTATION_SAVE_BLACKLIST
   );
-  if (loading) {
-    onLoadding(loading);
-  }
-
   const { register, handleSubmit, control, setValue } =
     useForm<BlacklistFormProp>({
       defaultValues,
@@ -59,7 +50,11 @@ export default function BlacklistForm(props: BlacklistFormProps) {
   const onSubmit: SubmitHandler<BlacklistFormProp> = (form) => {
     form.preventSource = form.preventStrategy === 'UID' ? form.uid : form.ip;
     const blacklist = _.omit(form, 'ip', 'uid', '__typename');
-    saveBlacklist({ variables: { blacklist: [blacklist] } });
+    toast.promise(saveBlacklist({ variables: { blacklist: [blacklist] } }), {
+      pending: t('Saving'),
+      success: t('Success'),
+      error: t('Fail'),
+    });
   };
   return (
     <div className={classes.paper}>

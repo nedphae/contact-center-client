@@ -35,7 +35,6 @@ import BotConfigForm, {
 } from 'renderer/components/Bot/BotConfigForm';
 import unimplemented from 'renderer/utils/Error';
 import { MousePoint, initialMousePoint } from 'renderer/domain/Client';
-import useAlert from 'renderer/hook/alert/useAlert';
 import {
   AllStaffList,
   MUTATION_DELETE_STAFF,
@@ -120,38 +119,20 @@ export default function BotSidecar(props: BotProps) {
     return _.keyBy(staffList, 'id');
   }, [data?.allStaff]);
 
-  const { onCompleted, onError, onLoadding, onErrorMsg } = useAlert();
-
   // 导出知识库
-  const [exportTopic, { loading: exporting }] =
-    useMutation<MutationExportKnowledgeBaseGraphql>(MUTATION_TOPIC_EXPORT, {
-      onCompleted,
-      onError,
-    });
-  if (exporting) {
-    onLoadding(loading);
-  }
+  const [exportTopic] = useMutation<MutationExportKnowledgeBaseGraphql>(
+    MUTATION_TOPIC_EXPORT
+  );
 
   // 删除 Mutation
   const [deleteKnowledgeBaseById] = useMutation<unknown>(
-    MUTATION_DELETE_KNOWLEDGE_BASE,
-    {
-      onCompleted,
-      onError,
-    }
+    MUTATION_DELETE_KNOWLEDGE_BASE
   );
   const [deleteTopicCategoryById] = useMutation<unknown>(
-    MUTATION_DELETE_TOPIC_CATEGORY,
-    {
-      onCompleted,
-      onError,
-    }
+    MUTATION_DELETE_TOPIC_CATEGORY
   );
 
-  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_DELETE_STAFF, {
-    onCompleted,
-    onError,
-  });
+  const [deleteStaffByIds] = useMutation<unknown>(MUTATION_DELETE_STAFF);
 
   const [saveBotConfig] = useMutation<Graphql>(MUTATION_BOT_CONFIG);
 

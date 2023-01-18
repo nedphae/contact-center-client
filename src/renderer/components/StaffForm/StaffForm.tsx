@@ -117,7 +117,7 @@ export default function StaffForm(props: FormProps) {
     onError,
   });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
   const { data: groupData } = useQuery<StaffGroupList>(QUERY_GROUP);
 

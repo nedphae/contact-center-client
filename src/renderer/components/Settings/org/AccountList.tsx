@@ -30,7 +30,7 @@ type Graphql = AllStaffList;
 
 const defaultStaff = { staffType: 1 } as Staff;
 
-export default function ist() {
+export default function AccountList() {
   const { t, i18n } = useTranslation();
 
   const { loading, data, refetch } = useQuery<Graphql>(QUERY_STAFF);
@@ -45,10 +45,10 @@ export default function ist() {
     {
       onCompleted,
       onError,
-    },
+    }
   );
   if (updateLoading) {
-    onLoadding(updateLoading);
+    onLoadding('Deleting');
   }
 
   const groupMap = _.groupBy(groupList?.allStaffGroup ?? [], (it) => it.id);
@@ -59,7 +59,7 @@ export default function ist() {
         {
           groupName: itGroup[0]?.groupName,
         },
-        it,
+        it
       );
     }
     return it;
@@ -78,7 +78,7 @@ export default function ist() {
   function deleteButtonClick() {
     const botMap = _.groupBy(
       rows.filter((it) => it.staffType === 0),
-      (it) => it.id,
+      (it) => it.id
     );
     const checkBot = selectionModel.flatMap((it) => botMap[it]).length > 0;
     if (checkBot) {

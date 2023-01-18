@@ -52,7 +52,7 @@ export default function CustomerTagForm(props: FormProps) {
     });
 
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<CustomerTag> = async (form) => {

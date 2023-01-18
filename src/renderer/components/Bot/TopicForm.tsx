@@ -216,7 +216,7 @@ export default function TopicForm(props: FormProps) {
     onError,
   });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const [tabIndex, setTabIndex] = useState(0);

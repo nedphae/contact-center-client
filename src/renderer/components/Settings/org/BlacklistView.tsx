@@ -51,7 +51,7 @@ export default function BlacklistView() {
       onError,
     });
   if (deleteLoading) {
-    onLoadding(deleteLoading);
+    onLoadding('Deleting');
   }
 
   useEffect(() => {

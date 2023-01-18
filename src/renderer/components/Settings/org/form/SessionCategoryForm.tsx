@@ -47,7 +47,7 @@ export default function SessionCategoryForm(props: SessionCategoryFormProps) {
       onError,
     });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<FormType> = async (form) => {

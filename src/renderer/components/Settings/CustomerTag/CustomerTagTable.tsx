@@ -44,7 +44,7 @@ export default function CustomerTagTable() {
     }
   );
   if (updateLoading) {
-    onLoadding(updateLoading);
+    onLoadding('Deleting');
   }
 
   const rows = data?.getAllCustomerTag ?? [];

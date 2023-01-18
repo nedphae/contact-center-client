@@ -124,7 +124,7 @@ export default function Crm() {
       onError,
     });
   if (deleteLoading) {
-    onLoadding(deleteLoading);
+    onLoadding('Deleting');
   }
 
   const [exportCustomer, { loading: exporting }] =

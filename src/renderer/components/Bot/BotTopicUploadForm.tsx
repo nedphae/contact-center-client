@@ -28,14 +28,14 @@ export default function BotTopicUploadForm(props: FormProps) {
       Authorization: `Bearer ${token}`,
     },
     onStart: (file) => {
-      onLoadding(true);
+      onLoadding('Uploading');
     },
     onSuccess(file) {
       onSuccess();
       onCompletedMsg('Import Success');
     },
     onProgress(step, file) {
-      onLoadding(true);
+      onLoadding('Uploading');
     },
     onError(err) {
       onErrorMsg('Import Error');

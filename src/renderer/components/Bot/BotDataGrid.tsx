@@ -24,7 +24,6 @@ import {
   TopicCategoryGraphql,
 } from 'renderer/domain/graphql/Bot';
 import { PageParam } from 'renderer/domain/graphql/Query';
-import useAlert from 'renderer/hook/alert/useAlert';
 import gridLocaleTextMap from 'renderer/variables/gridLocaleText';
 import DraggableDialog, {
   DraggableDialogRef,
@@ -81,17 +80,7 @@ export default function BotDataGrid(props: BotTreeViewProps) {
     fetchPolicy: 'no-cache',
   });
 
-  const { onLoadding, onCompleted, onError } = useAlert();
-  const [deleteTopicById, { loading: deleteLoading }] = useMutation<unknown>(
-    MUTATION_TOPIC,
-    {
-      onCompleted,
-      onError,
-    }
-  );
-  if (deleteLoading) {
-    onLoadding(deleteLoading);
-  }
+  const [deleteTopicById] = useMutation<unknown>(MUTATION_TOPIC);
 
   const columns: GridColDef[] = [
     // { field: 'id', headerName: t('Id'), width: 200 },

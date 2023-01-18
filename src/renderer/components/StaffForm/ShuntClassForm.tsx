@@ -53,7 +53,7 @@ export default function ShuntClassForm(props: FormProps) {
       onError,
     });
   if (loading) {
-    onLoadding(loading);
+    onLoadding('Saving');
   }
 
   const onSubmit: SubmitHandler<FormType> = (form) => {
