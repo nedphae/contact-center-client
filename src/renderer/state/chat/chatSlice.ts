@@ -8,7 +8,6 @@ import Chat, {
   UserMessages,
   SetMonitored,
   fromUserMessagesToMap,
-  SnackbarProp,
 } from 'renderer/domain/Chat';
 import { noGroupOptions } from 'renderer/utils/fuseUtils';
 import { createSession } from 'renderer/domain/Session';

@@ -135,8 +135,8 @@ const useStyles = makeStyles((theme: Theme) =>
 interface TabPanelProps {
   children: React.ReactNode;
   dir: string | undefined;
-  index: any;
-  value: any;
+  index: unknown;
+  value: unknown;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -157,7 +157,7 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-function a11yProps(index: any) {
+function a11yProps(index: unknown) {
   return {
     id: `full-width-tab-${index}`,
     'aria-controls': `full-width-tabpanel-${index}`,
@@ -265,7 +265,7 @@ export default function StaffShuntForm(props: FormProps) {
   const [error, setError] = useState<string>();
 
   const updateChatUIConfig = useCallback(
-    function updateChatUIConfig(newChatUIConfigObj: any) {
+    function updateChatUIConfig(newChatUIConfigObj: unknown) {
       jsoneditor?.update(newChatUIConfigObj);
       setChatUIConfigObj(newChatUIConfigObj);
     },
@@ -674,8 +674,11 @@ initXiaobaiChat(params);
     },
     onSuccess(response: unknown) {
       const imgId = (response as string[])[0];
-      let tempMsg = (chatUIConfigObj?.messages ?? []) as any[];
-      tempMsg = tempMsg.filter((it: any) => it.type !== 'image');
+      let tempMsg = (chatUIConfigObj?.messages ?? []) as Record<
+        string,
+        unknown
+      >[];
+      tempMsg = tempMsg.filter((it) => it.type !== 'image');
       tempMsg.splice(1, 0, {
         type: 'image',
         content: {
@@ -695,7 +698,7 @@ initXiaobaiChat(params);
   let picSrc;
   let html = '';
   let welcomeText;
-  (chatUIConfigObj?.messages as [])?.forEach((it: any) => {
+  (chatUIConfigObj?.messages as [])?.forEach((it: Record<string, any>) => {
     switch (it.type) {
       case 'image':
         picSrc = it.content.picUrl;

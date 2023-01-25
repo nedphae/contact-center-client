@@ -29,7 +29,14 @@ import { History } from 'history';
 import { ApolloProvider } from '@apollo/client';
 import { HotKeys } from 'react-hotkeys';
 
-import { createTheme, ThemeProvider } from '@material-ui/core';
+import {
+  createStyles,
+  createTheme,
+  CssBaseline,
+  makeStyles,
+  Theme,
+  ThemeProvider,
+} from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { blue } from '@material-ui/core/colors';
 import Authorized from 'renderer/utils/Authorized';
@@ -51,13 +58,39 @@ const keyMap = {
   SWITCH_NODE: 'ctrl+tab',
 };
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    '@global': {
+      '*::-webkit-scrollbar': {
+        backgroundColor: theme.palette.type === 'light' ? '#f1f1f1' : '#202022',
+        width: '12px',
+      },
+      '*::-webkit-scrollbar-corner': {
+        backgroundColor: theme.palette.type === 'light' ? '#f1f1f1' : '#202022',
+      },
+      '*::-webkit-scrollbar-thumb': {
+        border:
+          theme.palette.type === 'light'
+            ? '2px solid #f1f1f1'
+            : '2px solid #202022',
+        minHeight: '24px',
+        borderRadius: '8px',
+        backgroundColor: theme.palette.type === 'light' ? '#c1c1c1' : '#585859',
+      },
+    },
+  })
+);
+
 function AdminContainer() {
   // const [apolloClient] = useApolloClient();
+  const classes = useStyles();
+
   return (
     <>
       {apolloClient && (
         <HotKeys keyMap={keyMap}>
           <ApolloProvider client={apolloClient}>
+            <CssBaseline classes={classes} />
             <Admin />
           </ApolloProvider>
         </HotKeys>

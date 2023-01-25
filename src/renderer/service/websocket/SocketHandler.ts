@@ -49,12 +49,27 @@ export default class SocketHandler implements EventInterface {
 
       this.dispatch(updateOnlineStatusBySocket('OFFLINE'));
       const msg = i18n.t('websocket.error');
-      toast.error(msg);
+      toast.error(msg, {
+        toastId: 'websocketId',
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        draggable: false,
+      });
     });
     this.socket.on('reconnect', () => {
       this.onReconnect();
       const msg = i18n.t('websocket.success');
-      toast.success(msg);
+      // toast.dismiss('websocketId');
+      // toast.success(msg);
+      toast.update('websocketId', {
+        render: msg,
+        type: toast.TYPE.SUCCESS,
+        autoClose: 5000,
+        closeOnClick: null,
+        closeButton: null,
+        draggable: null,
+      });
     });
   }
 

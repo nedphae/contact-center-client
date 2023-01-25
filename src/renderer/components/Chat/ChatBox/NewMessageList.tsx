@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native-web';
-// import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import React, { useEffect, useRef, useState } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import Viewer from 'react-viewer';
 import clsx from 'clsx';
+import { TouchableOpacity } from 'react-native-web';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,17 +12,11 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import { gql, useQuery } from '@apollo/client';
 
-import {
-  createStyles,
-  Theme,
-  makeStyles,
-  useTheme,
-} from '@material-ui/core/styles';
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { ClassNameMap } from '@material-ui/styles/withStyles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -68,6 +62,11 @@ import RichTextStyle from './RichText.less';
 
 export const useMessageListStyles = makeStyles((theme: Theme) =>
   createStyles({
+    container: {
+      maxHeight: '100%',
+      width: '100%',
+      backgroundColor: theme.palette.background.paper,
+    },
     text: {
       padding: theme.spacing(2, 2, 0),
     },
@@ -94,9 +93,6 @@ export const useMessageListStyles = makeStyles((theme: Theme) =>
       marginBottom: 0,
       padding: 8,
       minWidth: 0,
-    },
-    list: {
-      marginBottom: theme.spacing(2),
     },
     appBar: {
       top: 'auto',
@@ -277,11 +273,6 @@ function ResendViewer(props: {
   const { onErrorMsg } = useAlert();
 
   const localMessage = window.localMessageMap.get(uuid);
-  // useItemProgressListener((item) => {
-  //   if (item.completed > (progress ?? 0)) {
-  //     setProgress(() => item.completed);
-  //   }
-  // }, localMessage?.fileId);
 
   useEffect(() => {
     if (message.status === 'SENT') {
@@ -434,18 +425,12 @@ interface MessagePage {
   loadHistoryMessage: PageResult<Message>;
 }
 
-const MessageList = (props: MessageListProps) => {
+const NewMessageList = (props: MessageListProps) => {
   const { messages, staff, user } = props;
-  const theme = useTheme();
+  const START_INDEX = 10000;
   const { t } = useTranslation();
-
-  const styles = StyleSheet.create({
-    container: {
-      maxHeight: '100%',
-      width: '100%',
-      backgroundColor: theme.palette.background.paper,
-    },
-  });
+  const [firstItemIndex, setFirstItemIndex] = useState(START_INDEX);
+  const refOfScrollView = useRef<VirtuosoHandle>(null);
 
   const lastSeqId = messages[0]?.seqId ?? null;
 
@@ -461,15 +446,11 @@ const MessageList = (props: MessageListProps) => {
   const classes = useMessageListStyles();
   const dispatch = useAppDispatch();
 
-  const refOfScrollView = useRef<ScrollView>(null);
-
   const { data, fetchMore } = useQuery<MessagePage>(QUERY, {
     variables: { userId: user?.userId, cursor: lastSeqId, limit: 20 },
   });
 
   const [showImageViewerDialog, toggleShowImageViewerDialog] = useState(false);
-  const [animated, setAnimated] = useState<boolean>(true);
-  const [historyMsg, setHistoryMsg] = useState<boolean>(false);
   const [imageViewer, setImageViewer] = useState<ImageDecorator>({
     src: '',
     alt: undefined,
@@ -501,65 +482,38 @@ const MessageList = (props: MessageListProps) => {
     );
   });
   const fetchMoreCursor = sortedMessage[0]?.seqId;
-  const firstSeqId = messages[messages.length - 1]?.seqId ?? null;
 
-  useLayoutEffect(() => {
-    setAnimated(true);
-    setHistoryMsg(false);
-  }, [firstSeqId]);
+  // useEffect(() => {
+  //   let ps: PerfectScrollbar;
+  //   if (refOfScrollView.current) {
+  //     ps = new PerfectScrollbar(refOfScrollView.current as unknown as Element, {
+  //       suppressScrollX: true,
+  //       suppressScrollY: false,
+  //     });
+  //   }
+  //   return () => {
+  //     if (ps) {
+  //       ps.destroy();
+  //     }
+  //   };
+  // }, [refOfScrollView]);
 
-  useEffect(() => {
-    setAnimated(false);
-    setHistoryMsg(false);
-  }, [user?.id]);
-
-  const handleLoadMore = () => {
-    setAnimated(false);
-    setHistoryMsg(true);
-    fetchMore({
+  const handleLoadMore = async () => {
+    const msgResult = await fetchMore({
       variables: { userId: user?.userId, cursor: fetchMoreCursor, limit: 20 },
       updateQuery(previousQueryResult, options) {
         const newMessageList = [
           ...options.fetchMoreResult.loadHistoryMessage.content,
           ...previousQueryResult.loadHistoryMessage.content,
         ];
-        options.fetchMoreResult.loadHistoryMessage.content = newMessageList;
-        return options.fetchMoreResult;
+        const newOptions = _.cloneDeep(options);
+        newOptions.fetchMoreResult.loadHistoryMessage.content = newMessageList;
+        return newOptions.fetchMoreResult;
       },
     });
-  };
-
-  const handleContentSizeChange = (
-    _contentWidth: number,
-    contentHeight: number
-  ) => {
-    // 检查是否是读取历史记录
-    if (refOfScrollView.current && user && user.userId) {
-      if (!historyMsg) {
-        // 判断是否消息列表长度是否小于屏幕高度，如果小于，则滚动到顶部，否则滚动到减去 scrollViewHeight 的位置
-        const scrollViewHeight = (
-          refOfScrollView.current as unknown as HTMLDivElement
-        ).clientHeight;
-        if (contentHeight > scrollViewHeight) {
-          // scrollTo 底部
-          refOfScrollView.current.scrollTo({
-            x: 0,
-            y: contentHeight - scrollViewHeight,
-            animated: animated && !!window.electron,
-          });
-        } else {
-          refOfScrollView.current.scrollTo({
-            x: 0,
-            y: 0,
-            animated: animated && !!window.electron,
-          });
-        }
-        // else {
-        //   // scrollTo 顶部
-        //   refOfScrollView.current.scrollTo({ x: 0, y: 0, animated: false });
-        // }
-      }
-    }
+    const usersToPrepend = msgResult.data.loadHistoryMessage.size;
+    const nextFirstItemIndex = firstItemIndex - usersToPrepend;
+    setFirstItemIndex(() => nextFirstItemIndex);
   };
 
   const closeImageViewerDialog = () => {
@@ -614,14 +568,160 @@ const MessageList = (props: MessageListProps) => {
   };
 
   const now = new Date();
-  // 使用 View + Map 精确跳转到置顶聊天消息
+
   return (
-    <ScrollView
-      style={styles.container}
-      ref={refOfScrollView}
-      onContentSizeChange={handleContentSizeChange}
-      scrollEventThrottle={50}
-    >
+    <>
+      {user && (
+        <Virtuoso
+          className={classes.container}
+          // components={{
+          //   List: React.forwardRef((listProps, listRef) => {
+          //     const { style, children } = listProps;
+          //     return (
+          //       <List
+          //         style={style}
+          //         component="div"
+          //         ref={listRef}
+          //         className={classes.list}
+          //       >
+          //         {children}
+          //       </List>
+          //     );
+          //   }),
+          // }}
+          firstItemIndex={firstItemIndex}
+          initialTopMostItemIndex={sortedMessage.length - 1}
+          followOutput="smooth"
+          data={sortedMessage}
+          startReached={hasMore ? handleLoadMore : undefined}
+          ref={refOfScrollView}
+          itemContent={(_index, msg) => {
+            const { uuid, seqId, createdAt, content, creatorType, nickName } =
+              msg;
+            return (
+              <React.Fragment key={uuid}>
+                {content.contentType === 'SYS_TEXT' ? (
+                  <Grid container justifyContent="center">
+                    {/* 展示系统消息 */}
+                    <Typography
+                      variant="caption"
+                      align="center"
+                      className={classes.sysMsg}
+                    >
+                      {content.textContent?.text}
+                    </Typography>
+                  </Grid>
+                ) : (
+                  <ListItem alignItems="flex-start">
+                    {/* 接受到的消息的头像 */}
+                    {creatorType !== 1 && (
+                      <ListItemAvatar className={classes.listItemAvatar}>
+                        <Avatar alt="Profile Picture" />
+                      </ListItemAvatar>
+                    )}
+                    {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
+                    <Grid
+                      container
+                      justifyContent={
+                        creatorType !== 1 ? 'flex-start' : 'flex-end'
+                      }
+                      style={{ width: 'calc(100% - 48px)' }}
+                    >
+                      <Grid item xs={12}>
+                        <ListItemText
+                          primary={
+                            <Grid
+                              container
+                              alignItems="center"
+                              justifyContent={
+                                creatorType !== 1 ? 'flex-start' : 'flex-end'
+                              }
+                            >
+                              {/* justifyContent="flex-end" */}
+                              <Typography
+                                variant="subtitle1"
+                                gutterBottom
+                                className={classes.inline}
+                              >
+                                {creatorType !== 1
+                                  ? user.name
+                                  : nickName ?? staff.nickName}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                gutterBottom
+                                className={classes.inline}
+                              >
+                                {createdAt && javaInstant2DateStr(createdAt)}
+                              </Typography>
+                            </Grid>
+                          }
+                        />
+                      </Grid>
+                      {/* 本地消息, 提示是否需要重发 */}
+                      {creatorType === 1 && (
+                        <ResendViewer uuid={uuid} message={msg}>
+                          <Paper
+                            onMouseEnter={handleMouseUp(
+                              creatorType === 1 &&
+                                Boolean(seqId) &&
+                                now.getTime() - (createdAt as number) * 1000 <=
+                                  2 * 60 * 1000,
+                              { uuid, seqId }
+                            )}
+                            onMouseLeave={handleClose}
+                            elevation={4}
+                            className={clsx(
+                              creatorType !== 1
+                                ? classes.fromMessagePaper
+                                : classes.toMessagePaper,
+                              classes.baseMessagePaper
+                            )}
+                          >
+                            {createContent(msg, classes, openImageViewer)}
+                          </Paper>
+                        </ResendViewer>
+                      )}
+                      {creatorType !== 1 && (
+                        <Paper
+                          onMouseEnter={handleMouseUp(
+                            creatorType === 1 &&
+                              Boolean(seqId) &&
+                              now.getTime() - (createdAt as number) * 1000 <=
+                                2 * 60 * 1000,
+                            { uuid, seqId }
+                          )}
+                          onMouseLeave={handleClose}
+                          elevation={4}
+                          className={clsx(
+                            creatorType !== 1
+                              ? classes.fromMessagePaper
+                              : classes.toMessagePaper,
+                            classes.baseMessagePaper
+                          )}
+                        >
+                          {createContent(msg, classes, openImageViewer)}
+                        </Paper>
+                      )}
+                    </Grid>
+                    {/* 发送的消息的头像 */}
+                    {creatorType === CreatorType.STAFF && (
+                      <ListItemAvatar className={classes.listItemAvatar}>
+                        <Avatar
+                          src={
+                            staff.avatar &&
+                            `${getDownloadS3StaffImgPath()}${staff.avatar}`
+                          }
+                        />
+                      </ListItemAvatar>
+                    )}
+                  </ListItem>
+                )}
+              </React.Fragment>
+            );
+          }}
+        />
+      )}
       <Popper
         onMouseEnter={() => {
           setOpen(true);
@@ -653,152 +753,14 @@ const MessageList = (props: MessageListProps) => {
           </Fade>
         )}
       </Popper>
-      {user && (
-        <List className={classes.list}>
-          {hasMore && (
-            <ListItem button onClick={handleLoadMore}>
-              <ListItemText
-                style={{ display: 'flex', justifyContent: 'center' }}
-                primary={t('Load More')}
-              />
-            </ListItem>
-          )}
-          {sortedMessage &&
-            sortedMessage.map((msg) => {
-              const { uuid, seqId, createdAt, content, creatorType, nickName } =
-                msg;
-              return (
-                <React.Fragment key={uuid}>
-                  {content.contentType === 'SYS_TEXT' ? (
-                    <Grid container justifyContent="center">
-                      {/* 展示系统消息 */}
-                      <Typography
-                        variant="caption"
-                        align="center"
-                        className={classes.sysMsg}
-                      >
-                        {content.textContent?.text}
-                      </Typography>
-                    </Grid>
-                  ) : (
-                    <ListItem alignItems="flex-start">
-                      {/* 接受到的消息的头像 */}
-                      {creatorType !== 1 && (
-                        <ListItemAvatar className={classes.listItemAvatar}>
-                          <Avatar alt="Profile Picture" />
-                        </ListItemAvatar>
-                      )}
-                      {/* justifyContent="flex-end" 如果是收到的消息就不设置这个 */}
-                      <Grid
-                        container
-                        justifyContent={
-                          creatorType !== 1 ? 'flex-start' : 'flex-end'
-                        }
-                      >
-                        <Grid item xs={12}>
-                          <ListItemText
-                            primary={
-                              <Grid
-                                container
-                                alignItems="center"
-                                justifyContent={
-                                  creatorType !== 1 ? 'flex-start' : 'flex-end'
-                                }
-                              >
-                                {/* justifyContent="flex-end" */}
-                                <Typography
-                                  variant="subtitle1"
-                                  gutterBottom
-                                  className={classes.inline}
-                                >
-                                  {creatorType !== 1
-                                    ? user.name
-                                    : nickName ?? staff.nickName}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  gutterBottom
-                                  className={classes.inline}
-                                >
-                                  {createdAt && javaInstant2DateStr(createdAt)}
-                                </Typography>
-                              </Grid>
-                            }
-                          />
-                        </Grid>
-                        {/* 本地消息, 提示是否需要重发 */}
-                        {creatorType === 1 && (
-                          <ResendViewer uuid={uuid} message={msg}>
-                            <Paper
-                              onMouseEnter={handleMouseUp(
-                                creatorType === 1 &&
-                                  Boolean(seqId) &&
-                                  now.getTime() -
-                                    (createdAt as number) * 1000 <=
-                                    2 * 60 * 1000,
-                                { uuid, seqId }
-                              )}
-                              onMouseLeave={handleClose}
-                              elevation={4}
-                              className={clsx(
-                                creatorType !== 1
-                                  ? classes.fromMessagePaper
-                                  : classes.toMessagePaper,
-                                classes.baseMessagePaper
-                              )}
-                            >
-                              {createContent(msg, classes, openImageViewer)}
-                            </Paper>
-                          </ResendViewer>
-                        )}
-                        {creatorType !== 1 && (
-                          <Paper
-                            onMouseEnter={handleMouseUp(
-                              creatorType === 1 &&
-                                Boolean(seqId) &&
-                                now.getTime() - (createdAt as number) * 1000 <=
-                                  2 * 60 * 1000,
-                              { uuid, seqId }
-                            )}
-                            onMouseLeave={handleClose}
-                            elevation={4}
-                            className={clsx(
-                              creatorType !== 1
-                                ? classes.fromMessagePaper
-                                : classes.toMessagePaper,
-                              classes.baseMessagePaper
-                            )}
-                          >
-                            {createContent(msg, classes, openImageViewer)}
-                          </Paper>
-                        )}
-                      </Grid>
-                      {/* 发送的消息的头像 */}
-                      {creatorType === CreatorType.STAFF && (
-                        <ListItemAvatar className={classes.listItemAvatar}>
-                          <Avatar
-                            src={
-                              staff.avatar &&
-                              `${getDownloadS3StaffImgPath()}${staff.avatar}`
-                            }
-                          />
-                        </ListItemAvatar>
-                      )}
-                    </ListItem>
-                  )}
-                </React.Fragment>
-              );
-            })}
-        </List>
-      )}
       <Viewer
         visible={showImageViewerDialog}
         onClose={closeImageViewerDialog}
         images={[imageViewer]}
         zIndex={2000}
       />
-    </ScrollView>
+    </>
   );
 };
 
-export default MessageList;
+export default NewMessageList;

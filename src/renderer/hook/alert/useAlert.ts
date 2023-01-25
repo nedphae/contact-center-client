@@ -35,6 +35,10 @@ const useAlert = (): Result => {
       toast.update(toastId.current, {
         render: msg,
         isLoading: true,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        draggable: false,
         type: toast.TYPE.DEFAULT,
       });
     } else {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 // creates a beautiful scrollbar
-import PerfectScrollbar from 'perfect-scrollbar';
 // @material-ui/core components
 import { makeStyles } from '@material-ui/core/styles';
 // core components
@@ -73,24 +72,7 @@ export default function RTL({ ...rest }) {
       setMobileOpen(false);
     }
   };
-  // initialize and destroy the PerfectScrollbar plugin
-  React.useEffect(() => {
-    if (navigator.platform.indexOf('Win') > -1 && mainPanel.current) {
-      ps = new PerfectScrollbar(mainPanel.current, {
-        suppressScrollX: true,
-        suppressScrollY: false,
-      });
-      document.body.style.overflow = 'hidden';
-    }
-    window.addEventListener('resize', resizeFunction);
-    // Specify how to clean up after this effect:
-    return function cleanup() {
-      if (navigator.platform.indexOf('Win') > -1) {
-        ps.destroy();
-      }
-      window.removeEventListener('resize', resizeFunction);
-    };
-  }, [mainPanel]);
+
   return (
     <div className={classes.wrapper}>
       <Sidebar
