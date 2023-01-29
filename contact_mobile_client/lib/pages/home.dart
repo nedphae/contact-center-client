@@ -20,7 +20,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:animations/animations.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:jpush_flutter/jpush_flutter.dart';
 
@@ -89,7 +89,6 @@ class XBCSHome extends StatefulHookConsumerWidget {
 
 class XBCSHomeState extends ConsumerState<XBCSHome>
     with RestorationMixin, WidgetsBindingObserver {
-  Staff? _staffInfo;
   Timer? _timer;
   bool connected = false;
   bool paused = false;
@@ -101,7 +100,6 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
     super.initState();
     () async {
       final staffInfo = await _getRemoteData();
-      _staffInfo = staffInfo;
       if (staffInfo != null) {
         Globals.orgId = staffInfo.organizationId;
         _initWS(staffInfo);
@@ -173,42 +171,40 @@ class XBCSHomeState extends ConsumerState<XBCSHome>
     if (Globals.socket == null) {
       final registrationId = await jPush.getRegistrationID();
 
-      final socket = IO.io(
+      final socket = socket_io.io(
           "$serverIp/im/staff",
           OptionBuilder()
               .setQuery({'token': token}).setTransports(['websocket']).build());
       socket.onConnect((_) {
         // 注册客服信息
-        final staffInfo = _staffInfo;
-        if (staffInfo != null) {
-          intervalConfigStaff(Timer? timer) {
-            socket.emitWithAck(
-                'register',
-                WebSocketRequest.generateRequest({
-                  'onlineStatus': 1,
-                  'groupId': staffInfo.groupId,
-                  'deviceType': 'ANDROID',
-                  // 手机客户端注册id，用于推送
-                  'registrationId': registrationId,
-                }), ack: (data) {
-              if (data != null) {
-                final response = WebSocketResponse.fromJson(data);
-                final staffStatus = StaffStatus.fromJson(response.body);
-                ref
-                    .read(staffProvider.notifier)
-                    .addStaffStatus(staffStatus: staffStatus);
-              }
-            });
-          }
-
-          _timer =
-              Timer.periodic(const Duration(minutes: 5), intervalConfigStaff);
-          intervalConfigStaff(_timer);
-          setState(() {
-            connected = true;
-            ref.read(staffProvider.notifier).updateConnectedStatus(true);
+        final staffInfo = staff;
+        intervalConfigStaff(Timer? timer) {
+          socket.emitWithAck(
+              'register',
+              WebSocketRequest.generateRequest({
+                'onlineStatus': 1,
+                'groupId': staffInfo.groupId,
+                'deviceType': 'ANDROID',
+                // 手机客户端注册id，用于推送
+                'registrationId': registrationId,
+              }), ack: (data) {
+            if (data != null) {
+              final response = WebSocketResponse.fromJson(data);
+              final staffStatus = StaffStatus.fromJson(response.body);
+              ref
+                  .read(staffProvider.notifier)
+                  .addStaffStatus(staffStatus: staffStatus);
+            }
           });
         }
+        _timer =
+            Timer.periodic(const Duration(minutes: 5), intervalConfigStaff);
+        intervalConfigStaff(_timer);
+
+        setState(() {
+          connected = true;
+          ref.read(staffProvider.notifier).updateConnectedStatus(true);
+        });
       });
       socket.on('msg/sync', (data) async {
         // 新消息

@@ -633,7 +633,7 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
                 onTap: () {
                   showImageViewer(context, imageProvider);
                 },
-                child: Image(image: imageProvider));
+                child: Image(image: imageProvider, fit: BoxFit.contain));
           },
           errorWidget: (context, object, stackTrace) {
             return Material(
@@ -649,8 +649,8 @@ class MessageBubbleState extends ConsumerState<MessageBubble> {
               ),
             );
           },
-          width: 200,
-          height: 200,
+          width: MediaQuery.of(context).size.width * 0.45,
+          // height: 200,
           fit: BoxFit.cover,
         );
         break;
