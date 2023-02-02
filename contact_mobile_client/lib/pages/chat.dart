@@ -55,10 +55,10 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
   //   }
   // }
 
-  sendTextMessage() {
-    if (messageText != null && messageText!.isNotEmpty) {
+  sendTextMessage(String text) {
+    if (text.isNotEmpty) {
       final content = Content(
-          contentType: "TEXT", textContent: TextContent(text: messageText!));
+          contentType: "TEXT", textContent: TextContent(text: text));
       sendMessage(content);
     }
   }
@@ -377,7 +377,9 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
                           onPressed: () {
                             if (_currentStaff?.connected == true) {
                               chatMsgTextController.clear();
-                              sendTextMessage();
+                              if (messageText != null) {
+                                sendTextMessage(messageText!);
+                              }
                               setState(() {
                                 messageText = null;
                               });

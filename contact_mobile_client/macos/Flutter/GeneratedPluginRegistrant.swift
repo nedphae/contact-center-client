@@ -7,7 +7,7 @@ import Foundation
 
 import connectivity_plus_macos
 import modal_progress_hud_nsn
-import path_provider_macos
+import path_provider_foundation
 import shared_preferences_macos
 import sqflite
 import url_launcher_macos

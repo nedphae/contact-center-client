@@ -63,6 +63,10 @@ dependencies:
   custom_pop_up_menu: ^1.2.4
   modal_bottom_sheet: ^2.1.2
   flutter_chat_ui: ^1.6.6
+  file_picker: ^4.6.1
+  flutter_chat_types: ^3.6.0
+  open_filex: ^3.4.0
+  path_provider: ^2.0.12
 
 dev_dependencies:
   flutter_test:

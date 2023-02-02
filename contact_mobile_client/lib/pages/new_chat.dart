@@ -1,18 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
 import 'package:contact_mobile_client/model/conversation.dart';
 import 'package:contact_mobile_client/model/customer.dart';
 import 'package:contact_mobile_client/model/message.dart';
 import 'package:contact_mobile_client/model/staff.dart';
-import 'package:contact_mobile_client/model/constants.dart';
 import 'package:contact_mobile_client/model/web_socket_request.dart';
 import 'package:contact_mobile_client/states/state.dart';
-import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
-import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:edge_alerts/edge_alerts.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
@@ -22,45 +20,36 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
 import '../model/item.dart';
 import '../widgets/blockuser.dart';
+import '../widgets/custom_pop_up_menu.dart';
 import '../widgets/transfer.dart';
 import 'customer_info.dart';
 
-class ChatterScreen extends StatefulHookConsumerWidget {
-  const ChatterScreen({super.key});
+class ChatterPage extends StatefulHookConsumerWidget {
+  const ChatterPage({super.key});
 
   @override
-  ChatterScreenState createState() => ChatterScreenState();
+  ChatterPageState createState() => ChatterPageState();
 }
 
-class ChatterScreenState extends ConsumerState<ChatterScreen> {
+class ChatterPageState extends ConsumerState<ChatterPage> {
   final chatMsgTextController = TextEditingController();
   Staff? _currentStaff;
   late Session _currentSession;
   late Customer _customer;
   String? messageText;
+  List<types.Message> _messages = [];
 
-  // void getMessages() async {
-  //   final messages=await _firestore.collection('messages').getDocuments();
-  //   for(var message in messages.documents){
-  //     print(message.data);
-  //   }
-  // }
-
-  // void messageStream() async {
-  //   await for (var snapshot in _firestore.collection('messages').snapshots()) {
-  //     snapshot.documents;
-  //   }
-  // }
-
-  sendTextMessage() {
-    if (messageText != null && messageText!.isNotEmpty) {
-      final content = Content(
-          contentType: "TEXT", textContent: TextContent(text: messageText!));
+  sendTextMessage(String text) {
+    if (text.isNotEmpty) {
+      final content =
+          Content(contentType: "TEXT", textContent: TextContent(text: text));
       sendMessage(content);
     }
   }
@@ -162,7 +151,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 
     int? fetchMoreCursor;
 
-    if (messageList.isNotEmpty) {
+    if (_currentStaff != null && messageList.isNotEmpty) {
       // 去重
       messageList = messageList
           .map((e) => {e.uuid: e})
@@ -176,6 +165,9 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       messageList.sort((a, b) =>
           (b.seqId ?? 0x7fffffffffffffff) - (a.seqId ?? 0x7fffffffffffffff));
       fetchMoreCursor = messageList.last.seqId;
+      _messages = messageList
+          .map((e) => e.toChatUIMessage(_currentStaff!, _customer))
+          .toList();
     }
 
     FetchMoreOptions opts = FetchMoreOptions(
@@ -336,19 +328,253 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
         ),
         body: flutter_chat_ui.Chat(
           messages: _messages,
+          customMessageBuilder: createCustomMessageBuilder(context),
           onEndReached: () {
             return historyMessageResult.fetchMore(opts);
           },
           onAttachmentPressed: _handleAttachmentPressed,
           onMessageTap: _handleMessageTap,
-          onPreviewDataFetched: _handlePreviewDataFetched,
+          onMessageLongPress: _handleMessageLongPress,
+          // 先不获取网页的预览
+          // onPreviewDataFetched: _handlePreviewDataFetched,
           onSendPressed: _handleSendPressed,
           showUserAvatars: true,
           showUserNames: true,
-          user: _user,
+          user: types.User(id: _currentStaff?.id.toString() ?? "unknown"),
         ),
       ),
     );
+  }
+
+  Widget Function(types.CustomMessage, {required int messageWidth})?
+      createCustomMessageBuilder(BuildContext context) {
+    return (types.CustomMessage customMessage, {required int messageWidth}) {
+      // 检查是否是富文本
+      final htmlText = customMessage.metadata?["RICH_TEXT"];
+      if (htmlText != null) {
+        return Html(
+          data: htmlText,
+          onLinkTap: (String? url, RenderContext context,
+              Map<String, String> attributes, dynamic element) async {
+            if (url != null && await canLaunchUrl(Uri.parse(url))) {
+              await launchUrl(Uri.parse(url));
+            } else {
+              // throw 'Could not launch $url';
+            }
+          },
+        );
+      }
+      return Text("[${AppLocalizations.of(context)!.messageTypeRichText}]");
+    };
+  }
+
+  void _handleAttachmentPressed() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) => SafeArea(
+        child: SizedBox(
+          height: 144,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _handleImageSelection();
+                },
+                child: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('Photo'),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _handleFileSelection();
+                },
+                child: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('File'),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('Cancel'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleFileSelection() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any,
+    );
+
+    // if (result != null && result.files.single.path != null) {
+    //   final message = types.FileMessage(
+    //     author: _user,
+    //     createdAt: DateTime.now().millisecondsSinceEpoch,
+    //     id: const Uuid().v4(),
+    //     mimeType: lookupMimeType(result.files.single.path!),
+    //     name: result.files.single.name,
+    //     size: result.files.single.size,
+    //     uri: result.files.single.path!,
+    //   );
+    //
+    //   _addMessage(message);
+    // }
+  }
+
+  void _handleImageSelection() async {
+    final XFile? image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (image != null) {
+      String url = "$serverIp/s3/chat/${Globals.orgId}";
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+      final filePart = await http.MultipartFile.fromPath('file', image.path);
+      request.files.add(filePart);
+      http.Response response =
+          await http.Response.fromStream(await request.send());
+      if (response.statusCode == 200) {
+        final imageUrl = jsonDecode(response.body) as List<dynamic>;
+        sendImageMessage(imageUrl[0], image);
+      } else {
+        if (!mounted) return;
+        edgeAlert(context,
+            title: AppLocalizations.of(context)!.failedToUploadImage,
+            description: AppLocalizations.of(context)!
+                .thereIsAProblemWithTheRemoteServerPleaseTryAgainLater,
+            gravity: Gravity.bottom,
+            icon: Icons.error,
+            duration: 5,
+            backgroundColor: Colors.redAccent);
+      }
+    }
+  }
+
+  void _handleSendPressed(types.PartialText message) {
+    sendTextMessage(message.text);
+  }
+
+  void _handleMessageLongPress(BuildContext context, types.Message message) {
+    CustomPopupMenuController controller = CustomPopupMenuController();
+    final metadata = message.metadata!;
+    final uuid = metadata["uuid"];
+    final seqId = metadata["seqId"];
+    final to = metadata["to"];
+    List<ItemModel> menuItems = [
+      // ItemModel(title: '复制', icon: Icons.content_copy),
+      // ItemModel(title: '转发', icon: Icons.send),
+      // ItemModel(title: '收藏', icon: Icons.collections),
+      // ItemModel(title: '删除', icon: Icons.delete),
+      ItemModel(
+          title: '撤回',
+          icon: Icons.undo,
+          onTap: () {
+            // 撤回消息
+            final content = Content(
+                contentType: 'SYS',
+                sysCode: 'WITHDRAW',
+                serviceContent: const JsonEncoder().convert({
+                  'uuid': uuid,
+                  'seqId': seqId,
+                }));
+            final withDrawMessage = Message(
+              uuid: uuid.v4(),
+              to: to,
+              type: CreatorType.customer,
+              creatorType: CreatorType.sys,
+              createdAt: message.createdAt! / 1000,
+              content: content,
+            );
+            final messageMap = withDrawMessage.toJson();
+            messageMap.removeWhere((key, value) => value == null);
+            final request = WebSocketRequest.generateRequest(messageMap);
+            Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
+              final content = Content(
+                  contentType: "SYS_TEXT",
+                  textContent: TextContent(
+                      text: AppLocalizations.of(context)!.withdrawShowStr));
+              final Message showMessage = Message(
+                  uuid: uuid.v4(),
+                  seqId: seqId,
+                  to: to!,
+                  type: CreatorType.customer,
+                  creatorType: CreatorType.staff,
+                  content: content);
+              ref
+                  .read(chatStateProvider.notifier)
+                  .deleteMessage(to!, uuid, showMessage);
+            });
+          }),
+      // ItemModel(title: '多选', icon: Icons.playlist_add_check),
+      // ItemModel(title: '引用', icon: Icons.format_quote),
+      // ItemModel(title: '提醒', icon: Icons.add_alert),
+      // ItemModel(title: '搜一搜',icon:  Icons.search),
+    ];
+    Widget buildLongPressMenu() {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: Container(
+          width: 60, // width: 220, for 5
+          color: const Color(0xFF4C4C4C),
+          child: GridView.count(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            crossAxisCount: 1,
+            // crossAxisCount: 5,
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 10,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: menuItems
+                .map(
+                  (item) => GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      if (item.onTap != null) {
+                        item.onTap!();
+                      }
+                      controller.hideMenu();
+                    },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(
+                          item.icon,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            item.title,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+    }
+
+    CustomPopupMenu customPopupMenu = CustomPopupMenu(
+        context: context,
+        menuBuilder: buildLongPressMenu,
+        controller: controller);
+    customPopupMenu.controller?.showMenu();
   }
 
   void _handleMessageTap(BuildContext context, types.Message message) async {
@@ -358,9 +584,9 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       if (message.uri.startsWith('http')) {
         try {
           final index =
-          _messages.indexWhere((element) => element.id == message.id);
+              _messages.indexWhere((element) => element.id == message.id);
           final updatedMessage =
-          (_messages[index] as types.FileMessage).copyWith(
+              (_messages[index] as types.FileMessage).copyWith(
             isLoading: true,
           );
 
@@ -380,9 +606,9 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
           }
         } finally {
           final index =
-          _messages.indexWhere((element) => element.id == message.id);
+              _messages.indexWhere((element) => element.id == message.id);
           final updatedMessage =
-          (_messages[index] as types.FileMessage).copyWith(
+              (_messages[index] as types.FileMessage).copyWith(
             isLoading: null,
           );
 
@@ -395,341 +621,19 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
       await OpenFilex.open(localPath);
     }
   }
-}
 
-class ChatStream extends StatelessWidget {
-  final List<Message> messageList;
-  final Staff staff;
-  final Customer customer;
-  final Future<void> Function() onRefresh;
-
-  const ChatStream(
-      {super.key,
-      required this.messageList,
-      required this.staff,
-      required this.customer,
-      required this.onRefresh});
-
-  @override
-  Widget build(BuildContext context) {
-    List<MessageBubble> messageWidgets = [];
-
-    final messageList = this.messageList;
-
-    if (messageList.isNotEmpty) {
-      for (var message in messageList) {
-        final isStaff = message.creatorType == CreatorType.staff;
-        final msgBubble = MessageBubble(
-          staffId: staff.id,
-          msgSender: isStaff ? staff.nickName : customer.name,
-          staff: isStaff,
-          message: message,
-        );
-        messageWidgets.add(msgBubble);
-      }
-
-      return Expanded(
-        child: RefreshIndicator(
-          onRefresh: onRefresh,
-          child: ListView(
-            reverse: true,
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-            children: messageWidgets,
-          ),
-        ),
-      );
-    } else {
-      return const Center(
-        child: CircularProgressIndicator(backgroundColor: Colors.deepPurple),
-      );
-    }
-  }
-}
-
-class MessageBubble extends StatefulHookConsumerWidget {
-  final int staffId;
-  final String msgSender;
-  final bool staff;
-  final Message message;
-
-  const MessageBubble(
-      {super.key,
-      required this.staffId,
-      required this.msgSender,
-      required this.staff,
-      required this.message});
-
-  @override
-  MessageBubbleState createState() => MessageBubbleState();
-}
-
-class MessageBubbleState extends ConsumerState<MessageBubble> {
-  late List<ItemModel> menuItems;
-  final CustomPopupMenuController _controller = CustomPopupMenuController();
-
-  @override
-  void initState() {
-    menuItems = [
-      // ItemModel(title: '复制', icon: Icons.content_copy),
-      // ItemModel(title: '转发', icon: Icons.send),
-      // ItemModel(title: '收藏', icon: Icons.collections),
-      // ItemModel(title: '删除', icon: Icons.delete),
-      ItemModel(
-          title: '撤回',
-          icon: Icons.undo,
-          onTap: () {
-            // 撤回消息
-            final content = Content(
-                contentType: 'SYS',
-                sysCode: 'WITHDRAW',
-                serviceContent: const JsonEncoder().convert({
-                  'uuid': widget.message.uuid,
-                  'seqId': widget.message.seqId,
-                }));
-            final message = Message(
-              uuid: uuid.v4(),
-              to: widget.message.to,
-              type: CreatorType.customer,
-              creatorType: CreatorType.sys,
-              createdAt: widget.message.createdAt,
-              content: content,
-            );
-            final messageMap = message.toJson();
-            messageMap.removeWhere((key, value) => value == null);
-            final request = WebSocketRequest.generateRequest(messageMap);
-            Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
-              final content = Content(
-                  contentType: "SYS_TEXT",
-                  textContent: TextContent(
-                      text: AppLocalizations.of(context)!.withdrawShowStr));
-              final Message showMessage = Message(
-                  uuid: uuid.v4(),
-                  seqId: widget.message.seqId,
-                  to: widget.message.to!,
-                  type: CreatorType.customer,
-                  creatorType: CreatorType.staff,
-                  content: content);
-              ref.read(chatStateProvider.notifier).deleteMessage(
-                  widget.message.to!, widget.message.uuid, showMessage);
-            });
-          }),
-      // ItemModel(title: '多选', icon: Icons.playlist_add_check),
-      // ItemModel(title: '引用', icon: Icons.format_quote),
-      // ItemModel(title: '提醒', icon: Icons.add_alert),
-      // ItemModel(title: '搜一搜',icon:  Icons.search),
-    ];
-    super.initState();
-  }
-
-  Widget createBubble(BuildContext context, Message message) {
-    Widget result = Text(
-      AppLocalizations.of(context)!.unsupportedMessageType,
-      style: TextStyle(
-        color: widget.staff ? Colors.white : Colors.blue,
-        fontFamily: 'Poppins',
-        fontSize: 15,
-      ),
+  /// 先不获取网页的预览
+  void _handlePreviewDataFetched(
+    types.TextMessage message,
+    types.PreviewData previewData,
+  ) {
+    final index = _messages.indexWhere((element) => element.id == message.id);
+    final updatedMessage = (_messages[index] as types.TextMessage).copyWith(
+      previewData: previewData,
     );
-    final content = message.content;
-    switch (message.content.contentType) {
-      case 'TEXT':
-        result = Text(
-          content.textContent?.text ?? '',
-          style: TextStyle(
-            color: widget.staff ? Colors.white : Colors.blue,
-            fontFamily: 'Poppins',
-            fontSize: 15,
-          ),
-        );
-        break;
-      case 'IMAGE':
-        final imageUrl = "$serverIp${content.photoContent?.mediaId}";
-        result = CachedNetworkImage(
-          imageUrl: imageUrl,
-          progressIndicatorBuilder: (context, url, progress) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Color(0xffE8E8E8),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8),
-                ),
-              ),
-              width: 200,
-              height: 200,
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: const Color(0xfff5a623),
-                  value: progress.progress,
-                ),
-              ),
-            );
-          },
-          imageBuilder: (context, imageProvider) {
-            return InkWell(
-                onTap: () {
-                  showImageViewer(context, imageProvider);
-                },
-                child: Image(image: imageProvider, fit: BoxFit.contain));
-          },
-          errorWidget: (context, object, stackTrace) {
-            return Material(
-              borderRadius: const BorderRadius.all(
-                Radius.circular(8),
-              ),
-              clipBehavior: Clip.hardEdge,
-              child: Image.asset(
-                'images/img_not_available.jpeg',
-                width: 200,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-            );
-          },
-          width: MediaQuery.of(context).size.width * 0.45,
-          // height: 200,
-          fit: BoxFit.cover,
-        );
-        break;
-      case 'RICH_TEXT':
-        final htmlText = content.textContent?.text;
-        if (htmlText != null) {
-          result = Html(
-            data: htmlText,
-            onLinkTap: (String? url, RenderContext context,
-                Map<String, String> attributes, dynamic element) async {
-              if (url != null && await canLaunchUrl(Uri.parse(url))) {
-                await launchUrl(Uri.parse(url));
-              } else {
-                throw 'Could not launch $url';
-              }
-            },
-          );
-        }
-        break;
-      default:
-        break;
-    }
-    return result;
-  }
 
-  Widget _buildLongPressMenu() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(5),
-      child: Container(
-        width: 60, // width: 220, for 5
-        color: const Color(0xFF4C4C4C),
-        child: GridView.count(
-          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-          crossAxisCount: 1,
-          // crossAxisCount: 5,
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 10,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: menuItems
-              .map(
-                (item) => GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () {
-                    if (item.onTap != null) {
-                      item.onTap!();
-                    }
-                    _controller.hideMenu();
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(
-                        item.icon,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          item.title,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final createdAt = widget.message.createdAt ?? 0;
-    final showWithdraw =
-        DateTime.now().millisecondsSinceEpoch - createdAt * 1000 <=
-            2 * 60 * 1000;
-    if (widget.message.content.contentType == 'SYS_TEXT') {
-      // 展示系统消息
-      return Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Text(
-                widget.message.content.textContent?.text ?? '',
-                style: const TextStyle(
-                    fontSize: 13, fontFamily: 'Poppins', color: Colors.black54),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Column(
-        crossAxisAlignment:
-            widget.staff ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              widget.msgSender,
-              style: const TextStyle(
-                  fontSize: 13, fontFamily: 'Poppins', color: Colors.black87),
-            ),
-          ),
-          Material(
-            borderRadius: BorderRadius.only(
-              bottomLeft: const Radius.circular(50),
-              topLeft: widget.staff
-                  ? const Radius.circular(50)
-                  : const Radius.circular(0),
-              bottomRight: const Radius.circular(50),
-              topRight: widget.staff
-                  ? const Radius.circular(0)
-                  : const Radius.circular(50),
-            ),
-            color: widget.staff ? Colors.green : Colors.white,
-            elevation: 5,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: widget.staff &&
-                      showWithdraw &&
-                      (widget.staffId == widget.message.from ||
-                          widget.message.from == null)
-                  ? CustomPopupMenu(
-                      menuBuilder: _buildLongPressMenu,
-                      pressType: PressType.longPress,
-                      controller: _controller,
-                      child: createBubble(context, widget.message))
-                  : createBubble(context, widget.message),
-            ),
-          ),
-        ],
-      ),
-    );
+    setState(() {
+      _messages[index] = updatedMessage;
+    });
   }
 }

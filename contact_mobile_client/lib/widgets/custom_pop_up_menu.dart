@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'platform/platform.dart';
 
 enum PressType {
   longPress,
@@ -34,11 +33,10 @@ class CustomPopupMenuController extends ChangeNotifier {
 
 Rect _menuRect = Rect.zero;
 
-class CustomPopupMenu extends StatefulWidget {
+class CustomPopupMenu {
   CustomPopupMenu({
-    required this.child,
+    required this.context,
     required this.menuBuilder,
-    required this.pressType,
     this.controller,
     this.arrowColor = const Color(0xFF4C4C4C),
     this.showArrow = true,
@@ -49,17 +47,17 @@ class CustomPopupMenu extends StatefulWidget {
     this.position,
     this.menuOnChange,
     this.enablePassEvent = true,
-  });
+  }) {
+    initState();
+  }
 
-  final Widget child;
-  final PressType pressType;
+  final BuildContext context;
   final bool showArrow;
   final Color arrowColor;
   final Color barrierColor;
   final double horizontalMargin;
   final double verticalMargin;
   final double arrowSize;
-  final CustomPopupMenuController? controller;
   final Widget Function() menuBuilder;
   final PreferredPosition? position;
   final void Function(bool)? menuOnChange;
@@ -68,25 +66,19 @@ class CustomPopupMenu extends StatefulWidget {
   /// It only works when [barrierColor] is transparent.
   final bool enablePassEvent;
 
-  @override
-  _CustomPopupMenuState createState() => _CustomPopupMenuState();
-}
-
-class _CustomPopupMenuState extends State<CustomPopupMenu> {
   RenderBox? _childBox;
   RenderBox? _parentBox;
   OverlayEntry? _overlayEntry;
-  CustomPopupMenuController? _controller;
-  bool _canResponse = true;
+  CustomPopupMenuController? controller;
 
   _showMenu() {
     Widget arrow = ClipPath(
-      child: Container(
-        width: widget.arrowSize,
-        height: widget.arrowSize,
-        color: widget.arrowColor,
-      ),
       clipper: _ArrowClipper(),
+      child: Container(
+        width: arrowSize,
+        height: arrowSize,
+        color: arrowColor,
+      ),
     );
 
     _overlayEntry = OverlayEntry(
@@ -94,25 +86,25 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
         Widget menu = Center(
           child: Container(
             constraints: BoxConstraints(
-              maxWidth: _parentBox!.size.width - 2 * widget.horizontalMargin,
+              maxWidth: _parentBox!.size.width - 2 * horizontalMargin,
               minWidth: 0,
             ),
             child: CustomMultiChildLayout(
               delegate: _MenuLayoutDelegate(
                 anchorSize: _childBox!.size,
                 anchorOffset: _childBox!.localToGlobal(
-                  Offset(-widget.horizontalMargin, 0),
+                  Offset(-horizontalMargin, 0),
                 ),
-                verticalMargin: widget.verticalMargin,
-                position: widget.position,
+                verticalMargin: verticalMargin,
+                position: position,
               ),
               children: <Widget>[
-                if (widget.showArrow)
+                if (showArrow)
                   LayoutId(
                     id: _MenuLayoutId.arrow,
                     child: arrow,
                   ),
-                if (widget.showArrow)
+                if (showArrow)
                   LayoutId(
                     id: _MenuLayoutId.downArrow,
                     child: Transform.rotate(
@@ -127,7 +119,7 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
                     children: <Widget>[
                       Material(
                         color: Colors.transparent,
-                        child: widget.menuBuilder(),
+                        child: menuBuilder(),
                       ),
                     ],
                   ),
@@ -137,30 +129,24 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
           ),
         );
         return Listener(
-          behavior: widget.enablePassEvent
+          behavior: enablePassEvent
               ? HitTestBehavior.translucent
               : HitTestBehavior.opaque,
           onPointerDown: (PointerDownEvent event) {
             Offset offset = event.localPosition;
             // If tap position in menu
-            if (_menuRect.contains(
-                Offset(offset.dx - widget.horizontalMargin, offset.dy))) {
+            if (_menuRect
+                .contains(Offset(offset.dx - horizontalMargin, offset.dy))) {
               return;
             }
-            _controller?.hideMenu();
-            // When [enablePassEvent] works and we tap the [child] to [hideMenu],
-            // but the passed event would trigger [showMenu] again.
-            // So, we use time threshold to solve this bug.
-            _canResponse = false;
-            Future.delayed(Duration(milliseconds: 300))
-                .then((_) => _canResponse = true);
+            controller?.hideMenu();
           },
-          child: widget.barrierColor == Colors.transparent
+          child: barrierColor == Colors.transparent
               ? menu
               : Container(
-            color: widget.barrierColor,
-            child: menu,
-          ),
+                  color: barrierColor,
+                  child: menu,
+                ),
         );
       },
     );
@@ -173,12 +159,13 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
     if (_overlayEntry != null) {
       _overlayEntry?.remove();
       _overlayEntry = null;
+      controller?.removeListener(_updateView);
     }
   }
 
   _updateView() {
-    bool menuIsShowing = _controller?.menuIsShowing ?? false;
-    widget.menuOnChange?.call(menuIsShowing);
+    bool menuIsShowing = controller?.menuIsShowing ?? false;
+    menuOnChange?.call(menuIsShowing);
     if (menuIsShowing) {
       _showMenu();
     } else {
@@ -186,61 +173,11 @@ class _CustomPopupMenuState extends State<CustomPopupMenu> {
     }
   }
 
-  @override
   void initState() {
-    super.initState();
-    _controller = widget.controller;
-    if (_controller == null) _controller = CustomPopupMenuController();
-    _controller?.addListener(_updateView);
-    WidgetsBinding.instance.addPostFrameCallback((call) {
-      if (mounted) {
-        _childBox = context.findRenderObject() as RenderBox?;
-        _parentBox =
-        Overlay.of(context)?.context.findRenderObject() as RenderBox?;
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _hideMenu();
-    _controller?.removeListener(_updateView);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var child = Material(
-      color: Colors.transparent,
-      child: InkWell(
-        hoverColor: Colors.transparent,
-        focusColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
-        child: widget.child,
-        onTap: () {
-          if (widget.pressType == PressType.singleClick && _canResponse) {
-            _controller?.showMenu();
-          }
-        },
-        onLongPress: () {
-          if (widget.pressType == PressType.longPress && _canResponse) {
-            _controller?.showMenu();
-          }
-        },
-      ),
-    );
-    if (Platform.isIOS) {
-      return child;
-    } else {
-      return WillPopScope(
-        onWillPop: () {
-          _hideMenu();
-          return Future.value(true);
-        },
-        child: child,
-      );
-    }
+    controller ??= CustomPopupMenuController();
+    controller?.addListener(_updateView);
+    _childBox = context.findRenderObject() as RenderBox?;
+    _parentBox = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
   }
 }
 
@@ -276,8 +213,8 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
   void performLayout(Size size) {
     Size contentSize = Size.zero;
     Size arrowSize = Size.zero;
-    Offset contentOffset = Offset(0, 0);
-    Offset arrowOffset = Offset(0, 0);
+    Offset contentOffset = const Offset(0, 0);
+    Offset arrowOffset = const Offset(0, 0);
 
     double anchorCenterX = anchorOffset.dx + anchorSize.width / 2;
     double anchorTopY = anchorOffset.dy;
@@ -316,7 +253,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
       menuPosition = isTop ? _MenuPosition.topRight : _MenuPosition.bottomRight;
     } else {
       menuPosition =
-      isTop ? _MenuPosition.topCenter : _MenuPosition.bottomCenter;
+          isTop ? _MenuPosition.topCenter : _MenuPosition.bottomCenter;
     }
 
     switch (menuPosition) {
@@ -397,7 +334,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
         _MenuLayoutId.arrow,
         isBottom
             ? Offset(arrowOffset.dx, arrowOffset.dy + 0.1)
-            : Offset(-100, 0),
+            : const Offset(-100, 0),
       );
     }
     if (hasChild(_MenuLayoutId.downArrow)) {
@@ -405,7 +342,7 @@ class _MenuLayoutDelegate extends MultiChildLayoutDelegate {
         _MenuLayoutId.downArrow,
         !isBottom
             ? Offset(arrowOffset.dx, arrowOffset.dy - 0.1)
-            : Offset(-100, 0),
+            : const Offset(-100, 0),
       );
     }
   }

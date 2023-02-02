@@ -84,5 +84,6 @@
   "transferReasonIsRequired": "转接原因必填",
   "transferReasonCannotBeGreaterThan500Characters": "转接原因不能大于500个字符",
   "transferRefuse": "转接被拒绝",
-  "transferSucceed": "转接成功"
+  "transferSucceed": "转接成功",
+  "unknown": "未知"
 }

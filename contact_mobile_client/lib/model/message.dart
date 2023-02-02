@@ -1,4 +1,9 @@
+import 'package:contact_mobile_client/model/customer.dart';
+import 'package:contact_mobile_client/model/staff.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:json_annotation/json_annotation.dart';
+
+import '../common/config.dart';
 
 part 'message.g.dart';
 
@@ -33,9 +38,7 @@ fragment pageOn$pageName on $pageName {
 """;
 }
 
-class MessageBuilder {
-
-}
+class MessageBuilder {}
 
 @JsonSerializable()
 class Message {
@@ -79,11 +82,73 @@ class Message {
       required this.content,
       this.nickName});
 
-  bool get isSys => creatorType == CreatorType.sys || content.contentType == 'SYS';
+  bool get isSys =>
+      creatorType == CreatorType.sys || content.contentType == 'SYS';
 
   factory Message.fromJson(Map<String, dynamic> json) =>
       _$MessageFromJson(json);
+
   Map<String, dynamic> toJson() => _$MessageToJson(this);
+
+  types.Message toChatUIMessage(Staff staff, Customer customer) {
+    types.Message result;
+    final author = creatorType == CreatorType.customer
+        ? types.User(
+            id: customer.id.toString(),
+            role: types.Role.user,
+            firstName: customer.name)
+        : types.User(
+            id: staff.id.toString(),
+            role: types.Role.agent,
+            firstName: staff.nickName);
+
+    final tempCreatedAt = createdAt == null
+        ? DateTime.now().millisecondsSinceEpoch
+        : (createdAt! * 1000).toInt();
+
+    switch (content.contentType) {
+      case 'TEXT':
+        result = types.TextMessage(
+          author: author,
+          id: uuid,
+          remoteId: seqId?.toString(),
+          text: content.textContent?.text ?? '',
+          createdAt: tempCreatedAt,
+        );
+        break;
+      case 'IMAGE':
+        final imageUrl = "$serverIp${content.photoContent?.mediaId}";
+        result = types.ImageMessage(
+          author: author,
+          id: uuid,
+          remoteId: seqId?.toString(),
+          uri: imageUrl,
+          name: content.photoContent?.filename ?? "",
+          size: content.photoContent?.picSize ?? 0,
+          createdAt: tempCreatedAt,
+        );
+        break;
+      case 'RICH_TEXT':
+        result = types.CustomMessage(
+          author: author,
+          id: uuid,
+          remoteId: seqId?.toString(),
+          metadata: { "RICH_TEXT": content.textContent?.text },
+          createdAt: tempCreatedAt,
+        );
+        break;
+      default:
+        result = types.TextMessage(
+          author: author,
+          id: uuid,
+          remoteId: seqId?.toString(),
+          text: '',
+          createdAt: tempCreatedAt,
+        );
+        break;
+    }
+    return result;
+  }
 
   static const contentQuery = """
 fragment myMessageContent on Message {
@@ -152,6 +217,7 @@ class Content {
   String? serviceContent;
   TextContent? textContent;
   PhotoContent? photoContent;
+
   // 后面再添加附件
   dynamic attachments;
 
@@ -165,6 +231,7 @@ class Content {
 
   factory Content.fromJson(Map<String, dynamic> json) =>
       _$ContentFromJson(json);
+
   Map<String, dynamic> toJson() => _$ContentToJson(this);
 }
 
@@ -176,6 +243,7 @@ class TextContent {
 
   factory TextContent.fromJson(Map<String, dynamic> json) =>
       _$TextContentFromJson(json);
+
   Map<String, dynamic> toJson() => _$TextContentToJson(this);
 }
 
@@ -195,6 +263,7 @@ class PhotoContent {
 
   factory PhotoContent.fromJson(Map<String, dynamic> json) =>
       _$PhotoContentFromJson(json);
+
   Map<String, dynamic> toJson() => _$PhotoContentToJson(this);
 }
 
@@ -211,6 +280,7 @@ class Sort {
   });
 
   factory Sort.fromJson(Map<String, dynamic> json) => _$SortFromJson(json);
+
   Map<String, dynamic> toJson() => _$SortToJson(this);
 }
 
@@ -234,6 +304,7 @@ class Pageable {
 
   factory Pageable.fromJson(Map<String, dynamic> json) =>
       _$PageableFromJson(json);
+
   Map<String, dynamic> toJson() => _$PageableToJson(this);
 }
 
@@ -267,6 +338,7 @@ class PageResult {
 
   factory PageResult.fromJson(Map<String, dynamic> json) =>
       _$PageResultFromJson(json);
+
   Map<String, dynamic> toJson() => _$PageResultToJson(this);
 }
 
@@ -284,5 +356,6 @@ class UpdateMessage {
 
   factory UpdateMessage.fromJson(Map<String, dynamic> json) =>
       _$UpdateMessageFromJson(json);
+
   Map<String, dynamic> toJson() => _$UpdateMessageToJson(this);
 }
