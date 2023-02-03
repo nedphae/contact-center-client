@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:contact_mobile_client/common/config.dart';
@@ -11,6 +12,7 @@ import 'package:contact_mobile_client/model/web_socket_request.dart';
 import 'package:contact_mobile_client/states/state.dart';
 import 'package:edge_alerts/edge_alerts.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
@@ -31,8 +33,50 @@ import '../widgets/custom_pop_up_menu.dart';
 import '../widgets/transfer.dart';
 import 'customer_info.dart';
 
+// 使用 Container 把 Graphql 调用提取到父组件
+class ChatterPageContainer extends HookConsumerWidget {
+  const ChatterPageContainer({super.key});
+
+  MessagePageGraphql _parserFn(Map<String, dynamic> data) {
+    final messageListMap = data['loadHistoryMessage'];
+    if (messageListMap != null) {
+      final messagePage = PageResult.fromJson(messageListMap);
+      final historyMsgList =
+          messagePage.content.map((e) => Message.fromJson(e)).toList();
+      messagePage.content = historyMsgList;
+      return MessagePageGraphql(loadHistoryMessage: messagePage);
+    }
+    return MessagePageGraphql();
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectUserId =
+        ref.watch(chatStateProvider.select((value) => value.chattingUserId));
+    final topMsgId = ref.read(chatStateProvider.select((value) {
+      final sessionMsgList =
+          value.sessionMap[value.chattingUserId]?.messageList;
+      return sessionMsgList?.isNotEmpty ?? false
+          ? sessionMsgList?.first.seqId
+          : null;
+    }));
+
+    final historyMessageResult = useQuery<MessagePageGraphql>(QueryOptions(
+        document: gql(Message.loadHistoryMsg),
+        variables: {'userId': selectUserId, 'cursor': topMsgId, 'limit': 20},
+        parserFn: _parserFn));
+
+    return ChatterPage(historyMessageResult: historyMessageResult);
+  }
+}
+
 class ChatterPage extends StatefulHookConsumerWidget {
-  const ChatterPage({super.key});
+  final QueryHookResult<MessagePageGraphql> historyMessageResult;
+
+  const ChatterPage({
+    Key? key,
+    required this.historyMessageResult,
+  }) : super(key: key);
 
   @override
   ChatterPageState createState() => ChatterPageState();
@@ -97,16 +141,10 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
     final selectSession = ref.watch(chatStateProvider
         .select((value) => value.sessionMap[value.chattingUserId]));
 
-    final sessionMsgList = selectSession?.messageList;
-    final topMsgId =
-        sessionMsgList?.isNotEmpty ?? false ? sessionMsgList?.last.seqId : null;
-
-    final historyMessageResult = useQuery(QueryOptions(
-      document: gql(Message.loadHistoryMsg),
-      variables: {'userId': selectUserId, 'cursor': topMsgId, 'limit': 20},
-    ));
-
-    List<Message> messageList = [];
+    final graphqlResult = widget.historyMessageResult.result.parsedData;
+    final messageListGraphql =
+        graphqlResult?.loadHistoryMessage?.content as List<Message>? ?? [];
+    List<Message> messageList = [...messageListGraphql];
 
     if (selectUserId != null && selectSession != null) {
       _currentSession = selectSession;
@@ -126,20 +164,11 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
 
       if (_currentSession.shouldSync) {
         Future.delayed(const Duration(seconds: 1), () {
-          historyMessageResult.refetch();
+          widget.historyMessageResult.refetch();
           ref
               .read(chatStateProvider.notifier)
               .setShouldSync(userId: _currentSession.conversation.userId);
         });
-      }
-
-      final messageListMap =
-          historyMessageResult.result.data?['loadHistoryMessage'];
-      if (messageListMap != null) {
-        final messagePage = PageResult.fromJson(messageListMap);
-        final historyMsgList =
-            messagePage.content.map((e) => Message.fromJson(e)).toList();
-        messageList.addAll(historyMsgList);
       }
       messageList.addAll(_currentSession.messageList ?? []);
     } else {
@@ -168,6 +197,10 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
       _messages = messageList
           .map((e) => e.toChatUIMessage(_currentStaff!, _customer))
           .toList();
+
+      if (kDebugMode) {
+        developer.log("消息长度: ${_messages.length}", name: 'chat.messageList');
+      }
     }
 
     FetchMoreOptions opts = FetchMoreOptions(
@@ -327,13 +360,28 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
           ],
         ),
         body: flutter_chat_ui.Chat(
+          l10n: flutter_chat_ui.ChatL10nEn(
+            attachmentButtonAccessibilityLabel: AppLocalizations.of(context)!
+                .attachmentButtonAccessibilityLabel,
+            emptyChatPlaceholder:
+                AppLocalizations.of(context)!.emptyChatPlaceholder,
+            fileButtonAccessibilityLabel:
+                AppLocalizations.of(context)!.fileButtonAccessibilityLabel,
+            inputPlaceholder: '',
+            sendButtonAccessibilityLabel:
+                AppLocalizations.of(context)!.sendButtonAccessibilityLabel,
+            unreadMessagesLabel:
+                AppLocalizations.of(context)!.unreadMessagesLabel,
+          ),
           messages: _messages,
-          customMessageBuilder: createCustomMessageBuilder(context),
+          customMessageBuilder: _customMessageBuilder,
           onEndReached: () {
-            return historyMessageResult.fetchMore(opts);
+            return widget.historyMessageResult.fetchMore(opts);
           },
           onAttachmentPressed: _handleAttachmentPressed,
           onMessageTap: _handleMessageTap,
+          textMessageOptions:
+              const flutter_chat_ui.TextMessageOptions(isTextSelectable: false),
           onMessageLongPress: _handleMessageLongPress,
           // 先不获取网页的预览
           // onPreviewDataFetched: _handlePreviewDataFetched,
@@ -346,26 +394,24 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
     );
   }
 
-  Widget Function(types.CustomMessage, {required int messageWidth})?
-      createCustomMessageBuilder(BuildContext context) {
-    return (types.CustomMessage customMessage, {required int messageWidth}) {
-      // 检查是否是富文本
-      final htmlText = customMessage.metadata?["RICH_TEXT"];
-      if (htmlText != null) {
-        return Html(
-          data: htmlText,
-          onLinkTap: (String? url, RenderContext context,
-              Map<String, String> attributes, dynamic element) async {
-            if (url != null && await canLaunchUrl(Uri.parse(url))) {
-              await launchUrl(Uri.parse(url));
-            } else {
-              // throw 'Could not launch $url';
-            }
-          },
-        );
-      }
-      return Text("[${AppLocalizations.of(context)!.messageTypeRichText}]");
-    };
+  Widget _customMessageBuilder(types.CustomMessage customMessage,
+      {required int messageWidth}) {
+    // 检查是否是富文本
+    final htmlText = customMessage.metadata?["RICH_TEXT"];
+    if (htmlText != null) {
+      return Html(
+        data: htmlText,
+        onLinkTap: (String? url, RenderContext context,
+            Map<String, String> attributes, dynamic element) async {
+          if (url != null && await canLaunchUrl(Uri.parse(url))) {
+            await launchUrl(Uri.parse(url));
+          } else {
+            // throw 'Could not launch $url';
+          }
+        },
+      );
+    }
+    return Text("[${AppLocalizations.of(context)!.messageTypeRichText}]");
   }
 
   void _handleAttachmentPressed() {
@@ -382,9 +428,9 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
                   Navigator.pop(context);
                   _handleImageSelection();
                 },
-                child: const Align(
+                child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text('Photo'),
+                  child: Text(AppLocalizations.of(context)!.messageTypeImage),
                 ),
               ),
               TextButton(
@@ -392,16 +438,16 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
                   Navigator.pop(context);
                   _handleFileSelection();
                 },
-                child: const Align(
+                child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text('File'),
+                  child: Text(AppLocalizations.of(context)!.messageTypeFile),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Align(
+                child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
               ),
             ],

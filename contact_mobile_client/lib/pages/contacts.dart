@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:contact_mobile_client/states/state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -71,6 +72,10 @@ class XBCSContactsState extends ConsumerState<XBCSContacts> {
         .values
         .where((element) => widget.hide == element.hide)
         .toList();
+
+    sessionList.sort((a, b) =>
+            (b.lastMessage?.seqId ?? 0x7fffffffffffffff) -
+            (a.lastMessage?.seqId ?? 0x7fffffffffffffff));
 
     if (sessionList.isEmpty) {
       return Text(AppLocalizations.of(context)!.thereIsNoSession);

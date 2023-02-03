@@ -176,6 +176,7 @@ class CustomPopupMenu {
   void initState() {
     controller ??= CustomPopupMenuController();
     controller?.addListener(_updateView);
+
     _childBox = context.findRenderObject() as RenderBox?;
     _parentBox = Overlay.of(context)?.context.findRenderObject() as RenderBox?;
   }

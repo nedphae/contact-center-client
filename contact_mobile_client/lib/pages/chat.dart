@@ -57,8 +57,8 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 
   sendTextMessage(String text) {
     if (text.isNotEmpty) {
-      final content = Content(
-          contentType: "TEXT", textContent: TextContent(text: text));
+      final content =
+          Content(contentType: "TEXT", textContent: TextContent(text: text));
       sendMessage(content);
     }
   }
@@ -95,6 +95,18 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     });
   }
 
+  MessagePageGraphql _parserFn(Map<String, dynamic> data) {
+    final messageListMap = data['loadHistoryMessage'];
+    if (messageListMap != null) {
+      final messagePage = PageResult.fromJson(messageListMap);
+      final historyMsgList =
+          messagePage.content.map((e) => Message.fromJson(e)).toList();
+      messagePage.content = historyMsgList;
+      return MessagePageGraphql(loadHistoryMessage: messagePage);
+    }
+    return MessagePageGraphql();
+  }
+
   @override
   Widget build(BuildContext context) {
     _currentStaff = ref.watch(staffProvider);
@@ -110,9 +122,10 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
     final topMsgId =
         sessionMsgList?.isNotEmpty ?? false ? sessionMsgList?.last.seqId : null;
 
-    final historyMessageResult = useQuery(QueryOptions(
+    final historyMessageResult = useQuery<MessagePageGraphql>(QueryOptions(
       document: gql(Message.loadHistoryMsg),
       variables: {'userId': selectUserId, 'cursor': topMsgId, 'limit': 20},
+      parserFn: _parserFn,
     ));
 
     List<Message> messageList = [];
@@ -142,13 +155,11 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
         });
       }
 
-      final messageListMap =
-          historyMessageResult.result.data?['loadHistoryMessage'];
-      if (messageListMap != null) {
-        final messagePage = PageResult.fromJson(messageListMap);
-        final historyMsgList =
-            messagePage.content.map((e) => Message.fromJson(e)).toList();
-        messageList.addAll(historyMsgList);
+      final messageListGraphql = historyMessageResult.result.parsedData;
+      if (messageListGraphql != null &&
+          messageListGraphql.loadHistoryMessage?.content != null) {
+        messageList.addAll(
+            messageListGraphql.loadHistoryMessage!.content as List<Message>);
       }
       messageList.addAll(_currentSession.messageList ?? []);
     } else {
@@ -160,7 +171,7 @@ class ChatterScreenState extends ConsumerState<ChatterScreen> {
 
     int? fetchMoreCursor;
 
-    if (messageList.isNotEmpty) {
+    if (_currentStaff != null && messageList.isNotEmpty) {
       // 去重
       messageList = messageList
           .map((e) => {e.uuid: e})

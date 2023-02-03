@@ -106,6 +106,8 @@ class Message {
         ? DateTime.now().millisecondsSinceEpoch
         : (createdAt! * 1000).toInt();
 
+    final metadata = {"uuid": uuid, "seqId": seqId, "to": to};
+
     switch (content.contentType) {
       case 'TEXT':
         result = types.TextMessage(
@@ -114,6 +116,7 @@ class Message {
           remoteId: seqId?.toString(),
           text: content.textContent?.text ?? '',
           createdAt: tempCreatedAt,
+          metadata: metadata,
         );
         break;
       case 'IMAGE':
@@ -126,6 +129,20 @@ class Message {
           name: content.photoContent?.filename ?? "",
           size: content.photoContent?.picSize ?? 0,
           createdAt: tempCreatedAt,
+          metadata: metadata,
+        );
+        break;
+      case 'FILE':
+        final fileUrl = "$serverIp${content.attachments?.mediaId}";
+        result = types.FileMessage(
+          author: author,
+          id: uuid,
+          remoteId: seqId?.toString(),
+          uri: fileUrl,
+          name: content.attachments?.filename ?? "",
+          size: content.attachments?.size ?? 0,
+          createdAt: tempCreatedAt,
+          metadata: metadata,
         );
         break;
       case 'RICH_TEXT':
@@ -133,8 +150,8 @@ class Message {
           author: author,
           id: uuid,
           remoteId: seqId?.toString(),
-          metadata: { "RICH_TEXT": content.textContent?.text },
           createdAt: tempCreatedAt,
+          metadata: {...metadata, "RICH_TEXT": content.textContent?.text},
         );
         break;
       default:
@@ -144,6 +161,7 @@ class Message {
           remoteId: seqId?.toString(),
           text: '',
           createdAt: tempCreatedAt,
+          metadata: metadata,
         );
         break;
     }
@@ -219,7 +237,7 @@ class Content {
   PhotoContent? photoContent;
 
   // 后面再添加附件
-  dynamic attachments;
+  Attachments? attachments;
 
   Content(
       {required this.contentType,
@@ -268,6 +286,26 @@ class PhotoContent {
 }
 
 @JsonSerializable()
+class Attachments {
+  String mediaId;
+  String filename;
+  int size;
+  String? type;
+
+  Attachments({
+    required this.mediaId,
+    required this.filename,
+    this.size = 0,
+    this.type,
+  });
+
+  factory Attachments.fromJson(Map<String, dynamic> json) =>
+      _$AttachmentsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AttachmentsToJson(this);
+}
+
+@JsonSerializable()
 class Sort {
   bool unsorted;
   bool sorted;
@@ -306,6 +344,14 @@ class Pageable {
       _$PageableFromJson(json);
 
   Map<String, dynamic> toJson() => _$PageableToJson(this);
+}
+
+class MessagePageGraphql {
+  PageResult? loadHistoryMessage;
+
+  MessagePageGraphql({
+    this.loadHistoryMessage,
+  });
 }
 
 @JsonSerializable()

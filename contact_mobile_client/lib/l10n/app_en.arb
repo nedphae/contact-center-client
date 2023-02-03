@@ -88,5 +88,10 @@
   "transferReasonCannotBeGreaterThan500Characters": "Transfer reason cannot be greater than 500 characters",
   "transferRefuse": "Transfer refuse",
   "transferSucceed": "Transfer succeed",
-  "unknown": "Unknown"
+  "unknown": "Unknown",
+  "attachmentButtonAccessibilityLabel": "Send media",
+  "emptyChatPlaceholder": "No messages here yet",
+  "fileButtonAccessibilityLabel": "File",
+  "sendButtonAccessibilityLabel": "Send",
+  "unreadMessagesLabel": "Unread messages"
 }

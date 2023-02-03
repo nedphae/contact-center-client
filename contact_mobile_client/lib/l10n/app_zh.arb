@@ -85,5 +85,10 @@
   "transferReasonCannotBeGreaterThan500Characters": "转接原因不能大于500个字符",
   "transferRefuse": "转接被拒绝",
   "transferSucceed": "转接成功",
-  "unknown": "未知"
+  "unknown": "未知",
+  "attachmentButtonAccessibilityLabel": "发送文件",
+  "emptyChatPlaceholder": "还没有消息",
+  "fileButtonAccessibilityLabel": "文件",
+  "sendButtonAccessibilityLabel": "发送",
+  "unreadMessagesLabel": "未读消息"
 }

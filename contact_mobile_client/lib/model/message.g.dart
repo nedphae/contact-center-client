@@ -51,7 +51,9 @@ Content _$ContentFromJson(Map<String, dynamic> json) => Content(
       photoContent: json['photoContent'] == null
           ? null
           : PhotoContent.fromJson(json['photoContent'] as Map<String, dynamic>),
-      attachments: json['attachments'],
+      attachments: json['attachments'] == null
+          ? null
+          : Attachments.fromJson(json['attachments'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ContentToJson(Content instance) => <String, dynamic>{
@@ -84,6 +86,21 @@ Map<String, dynamic> _$PhotoContentToJson(PhotoContent instance) =>
       'mediaId': instance.mediaId,
       'filename': instance.filename,
       'picSize': instance.picSize,
+      'type': instance.type,
+    };
+
+Attachments _$AttachmentsFromJson(Map<String, dynamic> json) => Attachments(
+      mediaId: json['mediaId'] as String,
+      filename: json['filename'] as String,
+      size: json['size'] as int? ?? 0,
+      type: json['type'] as String?,
+    );
+
+Map<String, dynamic> _$AttachmentsToJson(Attachments instance) =>
+    <String, dynamic>{
+      'mediaId': instance.mediaId,
+      'filename': instance.filename,
+      'size': instance.size,
       'type': instance.type,
     };
 

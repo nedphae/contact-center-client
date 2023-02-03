@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:contact_mobile_client/common/config.dart';
 import 'package:contact_mobile_client/common/globals.dart';
-import 'package:contact_mobile_client/pages/chat.dart';
 import 'package:contact_mobile_client/pages/home.dart';
 import 'package:contact_mobile_client/pages/login.dart';
 import 'package:contact_mobile_client/pages/new_chat.dart';
@@ -92,7 +91,7 @@ class MyAppState extends ConsumerState<MyApp> {
           routes: {
             '/home': (context) => const XBCSHomeContainer(),
             '/login': (context) => const XBCSLogin(),
-            '/chat': (context) => const ChatterPage(),
+            '/chat': (context) => const ChatterPageContainer(),
           },
           // home: const MyHomePage(title: 'Flutter Demo Home Page'),
           locale: _locale,

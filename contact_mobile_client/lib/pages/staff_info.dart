@@ -52,7 +52,7 @@ class StaffInfoPage extends HookConsumerWidget {
                       value: buildOnlineStatus(
                           context, staff.staffStatus?.onlineStatus),
                       onPressed: (context) async {
-                        showCupertinoModalBottomSheet<void>(
+                        showBarModalBottomSheet<void>(
                           context: context,
                           builder: (context) {
                             return const OnlineStatusBottomSheet();
@@ -65,7 +65,7 @@ class StaffInfoPage extends HookConsumerWidget {
                       title: Text(AppLocalizations.of(context)!.language),
                       value: Text(language.displayName),
                       onPressed: (context) async {
-                        showCupertinoModalBottomSheet<void>(
+                        showBarModalBottomSheet<void>(
                           expand: false,
                           context: context,
                           backgroundColor: Colors.transparent,
