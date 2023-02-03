@@ -109,6 +109,16 @@ class Message {
     final metadata = {"uuid": uuid, "seqId": seqId, "to": to};
 
     switch (content.contentType) {
+      case 'SYS_TEXT':
+        result = types.SystemMessage(
+          author: author,
+          id: uuid,
+          remoteId: seqId?.toString(),
+          text: content.textContent?.text ?? '',
+          createdAt: tempCreatedAt,
+          metadata: metadata,
+        );
+        break;
       case 'TEXT':
         result = types.TextMessage(
           author: author,

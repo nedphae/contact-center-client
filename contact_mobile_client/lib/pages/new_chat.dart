@@ -27,9 +27,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
-import '../model/item.dart';
 import '../widgets/blockuser.dart';
-import '../widgets/custom_pop_up_menu.dart';
 import '../widgets/transfer.dart';
 import 'customer_info.dart';
 
@@ -378,6 +376,7 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
           onEndReached: () {
             return widget.historyMessageResult.fetchMore(opts);
           },
+          isLastPage: graphqlResult?.loadHistoryMessage?.last ?? false,
           onAttachmentPressed: _handleAttachmentPressed,
           onMessageTap: _handleMessageTap,
           textMessageOptions:
@@ -511,116 +510,28 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
   }
 
   void _handleMessageLongPress(BuildContext context, types.Message message) {
-    CustomPopupMenuController controller = CustomPopupMenuController();
     final metadata = message.metadata!;
     final uuid = metadata["uuid"];
     final seqId = metadata["seqId"];
     final to = metadata["to"];
-    List<ItemModel> menuItems = [
-      // ItemModel(title: '复制', icon: Icons.content_copy),
-      // ItemModel(title: '转发', icon: Icons.send),
-      // ItemModel(title: '收藏', icon: Icons.collections),
-      // ItemModel(title: '删除', icon: Icons.delete),
-      ItemModel(
-          title: '撤回',
-          icon: Icons.undo,
-          onTap: () {
-            // 撤回消息
-            final content = Content(
-                contentType: 'SYS',
-                sysCode: 'WITHDRAW',
-                serviceContent: const JsonEncoder().convert({
-                  'uuid': uuid,
-                  'seqId': seqId,
-                }));
-            final withDrawMessage = Message(
-              uuid: uuid.v4(),
-              to: to,
-              type: CreatorType.customer,
-              creatorType: CreatorType.sys,
-              createdAt: message.createdAt! / 1000,
-              content: content,
-            );
-            final messageMap = withDrawMessage.toJson();
-            messageMap.removeWhere((key, value) => value == null);
-            final request = WebSocketRequest.generateRequest(messageMap);
-            Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
-              final content = Content(
-                  contentType: "SYS_TEXT",
-                  textContent: TextContent(
-                      text: AppLocalizations.of(context)!.withdrawShowStr));
-              final Message showMessage = Message(
-                  uuid: uuid.v4(),
-                  seqId: seqId,
-                  to: to!,
-                  type: CreatorType.customer,
-                  creatorType: CreatorType.staff,
-                  content: content);
-              ref
-                  .read(chatStateProvider.notifier)
-                  .deleteMessage(to!, uuid, showMessage);
-            });
-          }),
-      // ItemModel(title: '多选', icon: Icons.playlist_add_check),
-      // ItemModel(title: '引用', icon: Icons.format_quote),
-      // ItemModel(title: '提醒', icon: Icons.add_alert),
-      // ItemModel(title: '搜一搜',icon:  Icons.search),
-    ];
-    Widget buildLongPressMenu() {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: Container(
-          width: 60, // width: 220, for 5
-          color: const Color(0xFF4C4C4C),
-          child: GridView.count(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-            crossAxisCount: 1,
-            // crossAxisCount: 5,
-            crossAxisSpacing: 0,
-            mainAxisSpacing: 10,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: menuItems
-                .map(
-                  (item) => GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: () {
-                      if (item.onTap != null) {
-                        item.onTap!();
-                      }
-                      controller.hideMenu();
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Icon(
-                          item.icon,
-                          size: 20,
-                          color: Colors.white,
-                        ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            item.title,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
+    final showWithdraw = DateTime.now().millisecondsSinceEpoch -
+            (message.createdAt ?? DateTime.now().millisecondsSinceEpoch) <=
+        2 * 60 * 1000;
+    if (message.author.id == _currentStaff?.id.toString() && showWithdraw) {
+      showBarModalBottomSheet<void>(
+        expand: false,
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return MessageMenuBottomSheet(
+            msgUuid: uuid,
+            seqId: seqId,
+            to: to,
+            message: message,
+          );
+        },
       );
     }
-
-    CustomPopupMenu customPopupMenu = CustomPopupMenu(
-        context: context,
-        menuBuilder: buildLongPressMenu,
-        controller: controller);
-    customPopupMenu.controller?.showMenu();
   }
 
   void _handleMessageTap(BuildContext context, types.Message message) async {
@@ -681,5 +592,78 @@ class ChatterPageState extends ConsumerState<ChatterPage> {
     setState(() {
       _messages[index] = updatedMessage;
     });
+  }
+}
+
+class MessageMenuBottomSheet extends HookConsumerWidget {
+  final String msgUuid;
+  final int seqId;
+  final int to;
+  final types.Message message;
+
+  const MessageMenuBottomSheet({
+    Key? key,
+    required this.msgUuid,
+    required this.seqId,
+    required this.to,
+    required this.message,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsTileList = [
+      ListTile(
+        title: Text(AppLocalizations.of(context)!.withdraw),
+        onTap: () async {
+          final navigator = Navigator.of(context);
+          // 撤回消息
+          final content = Content(
+              contentType: 'SYS',
+              sysCode: 'WITHDRAW',
+              serviceContent: const JsonEncoder().convert({
+                'uuid': msgUuid,
+                'seqId': seqId,
+              }));
+          final withDrawMessage = Message(
+            uuid: uuid.v4(),
+            to: to,
+            type: CreatorType.customer,
+            creatorType: CreatorType.sys,
+            createdAt: message.createdAt! / 1000,
+            content: content,
+          );
+          final messageMap = withDrawMessage.toJson();
+          messageMap.removeWhere((key, value) => value == null);
+          final request = WebSocketRequest.generateRequest(messageMap);
+          Globals.socket?.emitWithAck('msg/send', request, ack: (data) {
+            final content = Content(
+                contentType: "SYS_TEXT",
+                textContent: TextContent(
+                    text: AppLocalizations.of(context)!.withdrawShowStr));
+            final Message showMessage = Message(
+                uuid: uuid.v4(),
+                seqId: seqId,
+                to: to,
+                type: CreatorType.customer,
+                creatorType: CreatorType.staff,
+                content: content);
+            ref
+                .read(chatStateProvider.notifier)
+                .deleteMessage(to, msgUuid, showMessage);
+          });
+          navigator.pop();
+        },
+      ),
+    ];
+
+    return Material(
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: settingsTileList,
+        ),
+      ),
+    );
   }
 }

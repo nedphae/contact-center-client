@@ -51,7 +51,7 @@ class StaffInfoPage extends HookConsumerWidget {
                       title: Text(AppLocalizations.of(context)!.onlineStatus),
                       value: buildOnlineStatus(
                           context, staff.staffStatus?.onlineStatus),
-                      onPressed: (context) async {
+                      onPressed: (context) {
                         showBarModalBottomSheet<void>(
                           context: context,
                           builder: (context) {
@@ -64,7 +64,7 @@ class StaffInfoPage extends HookConsumerWidget {
                       leading: const Icon(Icons.language),
                       title: Text(AppLocalizations.of(context)!.language),
                       value: Text(language.displayName),
-                      onPressed: (context) async {
+                      onPressed: (context) {
                         showBarModalBottomSheet<void>(
                           expand: false,
                           context: context,
