@@ -84,6 +84,13 @@ const MUTATION_DEL_BOT_CONFIG = gql`
   }
 `;
 
+/**
+ * 机器人侧边栏
+ *
+ * @deprecated
+ * @param props
+ * @returns
+ */
 export default function BotSidecar(props: BotProps) {
   const {
     loading,
