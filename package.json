@@ -129,6 +129,7 @@
     "@wangeditor/editor-for-react": "^1.0.2",
     "axios": "^0.21.1",
     "chartist": "^0.11.4",
+    "classnames": "^2.3.2",
     "cp-react-tree-table": "^1.0.0-beta.12",
     "custom-electron-titlebar": "^4.1.0",
     "electron-debug": "^3.2.0",
