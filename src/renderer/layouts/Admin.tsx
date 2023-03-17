@@ -32,8 +32,6 @@ import Navbar from '../components/Navbars/Navbar';
 // import Footer from "../components/Footer/Footer";
 import Sidebar from '../components/Sidebar/Sidebar';
 
-let ps: PerfectScrollbar;
-
 const useStyles = makeStyles(styles);
 
 export const WebSocketContext = createContext<
@@ -107,29 +105,11 @@ export default function Admin({ ...rest }) {
     };
   }, [momeSubject]);
 
-  const handleImageClick = (selectImage: React.SetStateAction<string>) => {
-    setImage(selectImage);
-  };
-  const handleColorClick = (selectColor: React.SetStateAction<string>) => {
-    setColor(selectColor);
-  };
-  const handleFixedClick = () => {
-    if (fixedClasses === 'dropdown') {
-      setFixedClasses('dropdown show');
-    } else {
-      setFixedClasses('dropdown');
-    }
-  };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
   const getRoute = () => {
     return !currentPath.includes('/admin/entertain');
-  };
-  const resizeFunction = () => {
-    if (window.innerWidth >= 960) {
-      setMobileOpen(false);
-    }
   };
 
   return (

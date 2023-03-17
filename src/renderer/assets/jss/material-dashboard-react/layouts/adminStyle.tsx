@@ -18,7 +18,7 @@ const appStyle: any = (theme: {
       height: '100vh',
       width: `calc(100% - ${drawerWidth}px)`,
     },
-    overflow: 'auto',
+    overflow: 'hidden !important',
     position: 'relative',
     float: 'right',
     ...transition,
