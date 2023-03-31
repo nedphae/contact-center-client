@@ -92,7 +92,7 @@ export default function Admin({ ...rest }) {
   useEffect(() => {
     if (
       playNewMessageSound &&
-      (!currentPath.includes('/entertain') || document.hidden)
+      (!currentPath.includes('/chat') || document.hidden)
     ) {
       // 延迟设置提示音，防止太多提示音
       subjectMessage.next();
@@ -109,7 +109,7 @@ export default function Admin({ ...rest }) {
     setMobileOpen(!mobileOpen);
   };
   const getRoute = () => {
-    return !currentPath.includes('/admin/entertain');
+    return !currentPath.includes('/admin/chat');
   };
 
   return (

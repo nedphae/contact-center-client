@@ -283,7 +283,7 @@ export default function AdminNavbarLinks() {
       </div>
       <NavLink
         className={(navData) => (navData.isActive ? 'active' : '')}
-        to="/admin/entertain"
+        to="/admin/chat"
       >
         <IconButton
           aria-label="Dashboard"

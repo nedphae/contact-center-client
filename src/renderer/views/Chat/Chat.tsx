@@ -13,7 +13,7 @@ const useStyles = makeStyles(() =>
   })
 );
 
-export default function Entertain() {
+export default function Chat() {
   const classes = useStyles();
 
   return (

@@ -35,9 +35,9 @@ class ClientConfig {
   };
 
   graphql = {
-    // webSocket 不在使用
+    // webSocket 不再使用
     webSocketLink: `${this.web.host}/subscriptions`,
-    graphql: '/graphql',
+    graphql: '/hasura/v1/graphql',
   };
 
   websocket = {

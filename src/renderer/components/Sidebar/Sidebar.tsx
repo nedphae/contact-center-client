@@ -114,7 +114,7 @@ export default function Sidebar(props: {
                     button
                     className={classes.itemLink + listItemClasses}
                   >
-                    {prop.path === '/entertain' ? (
+                    {prop.path === '/chat' ? (
                       <Badge
                         badgeContent={totalUnreadCount}
                         max={99}

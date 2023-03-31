@@ -41,7 +41,7 @@ function BotIcon(props: SvgIconTypeMap) {
   );
 }
 
-const Entertain = React.lazy(() => import('./views/Entertain/Entertain'));
+const Chat = React.lazy(() => import('./views/Chat/Chat'));
 const DashboardPage = React.lazy(() => import('./views/Dashboard/Dashboard'));
 const OnlineVersion = React.lazy(
   () => import('./views/Dashboard/OnlineVersion')
@@ -68,11 +68,11 @@ const useRoutes = () => {
   const dashboardRoutes = useMemo(
     () => [
       {
-        path: '/entertain',
+        path: '/chat',
         name: t('Online Chat'),
         rtlName: 'لوحة القيادة',
         icon: QuestionAnswerIcon,
-        component: Entertain,
+        component: Chat,
         layout: '/admin',
         showInSidebar: true,
       },

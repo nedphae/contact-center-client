@@ -226,7 +226,7 @@ export const assignmentConver =
       dispatch(updateOrCreateConv(conversation));
       // 设置提示音
       const currentPath = window.location.href;
-      if (!currentPath.includes('/entertain') || document.hidden) {
+      if (!currentPath.includes('/chat') || document.hidden) {
         dispatch(setPlayNewMessageSound());
       }
       cb(generateResponse(request.header, '"OK"'));
@@ -605,7 +605,7 @@ export const setNewMessage =
               if (userId) {
                 if (
                   userId !== selectedSession ||
-                  !currentPath.includes('/entertain')
+                  !currentPath.includes('/chat')
                 ) {
                   // 设置未读消息数
                   dispatch(addNewMessgeBadge(userId));
@@ -627,7 +627,7 @@ export const setNewMessage =
                 }
               }
               // 设置提示音
-              if (!currentPath.includes('/entertain') || document.hidden) {
+              if (!currentPath.includes('/chat') || document.hidden) {
                 dispatch(setPlayNewMessageSound());
               }
               dispatch(newMessage(end));

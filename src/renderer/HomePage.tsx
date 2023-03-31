@@ -179,7 +179,7 @@ const Root = ({ store, history }: Props) => {
               </Route>
               <Route
                 path="*"
-                element={<Navigate to="/admin/entertain" replace />}
+                element={<Navigate to="/admin/chat" replace />}
               />
             </Routes>
           </HistoryRouter>
