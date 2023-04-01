@@ -136,6 +136,18 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
+  const filter = {
+    urls: ['https://*.xbcs.top/*', 'http://localhost:*/*'],
+  };
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+    filter,
+    (details, callback) => {
+      const url = new URL(details.url);
+      details.requestHeaders.Referer = url.origin;
+      callback({ cancel: false, requestHeaders: details.requestHeaders });
+    }
+  );
+
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
