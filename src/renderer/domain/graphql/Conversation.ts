@@ -70,7 +70,7 @@ export const CONVERSATION_FIELD = gql`
     isEvaluationInvited
     isStaffInvited
     valid
-    nickName
+    nickname
     uid
     organizationId
     realName
@@ -130,7 +130,7 @@ const CONTENT_QUERY = gql`
         createdAt
         creatorType
         from
-        nickName
+        nickname
         organizationId
         seqId
         to
@@ -162,7 +162,7 @@ const CONTENT_QUERY = gql`
       interaction
       isEvaluationInvited
       isStaffInvited
-      nickName
+      nickname
       valid
       organizationId
       realName
@@ -240,7 +240,7 @@ export const MUTATION_CONV_TRANSFER = gql`
       staffId
       userId
       shuntId
-      nickName
+      nickname
       interaction
       endTime
       queue

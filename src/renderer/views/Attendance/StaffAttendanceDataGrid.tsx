@@ -216,7 +216,7 @@ export default function StaffAttendanceDataGrid() {
       name: 'staffIdList',
       selectList: _.zipObject(
         staffList.map((value) => value.id),
-        staffList.map((value) => value.nickName)
+        staffList.map((value) => value.nickname)
       ),
       defaultValue: [],
     },

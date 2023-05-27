@@ -105,7 +105,7 @@ export default function MessageList(props: MessageListProps) {
                           >
                             {creatorType === CreatorType.CUSTOMER
                               ? conversation.userName
-                              : conversation.nickName}
+                              : conversation.nickname}
                           </Typography>
                           <Typography
                             variant="body2"

@@ -109,7 +109,7 @@ export default function WeChatOpenInfoView() {
     return [
       // { field: 'id', headerName: 'ID', width: 90 },
       {
-        field: 'nickName',
+        field: 'nickname',
         headerName: t('WeChat Official Accounts'),
         width: 250,
       },

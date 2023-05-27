@@ -89,7 +89,7 @@ const StaffInfoCardHeader = (prop: StaffInfoCardHeaderProp) => {
               </Avatar>
             }
             title={staff?.realName ?? t('Not associate to robot account')}
-            subheader={staff?.nickName}
+            subheader={staff?.nickname}
           />
         </CardActionArea>
       )) ||

@@ -18,14 +18,18 @@ const MessagePanel = () => {
   const [monitorMsg] = useMonitorUserAndMsg(1000);
 
   const showMsg = (monitorSession ? monitorMsg : messages) ?? [];
-  return (
-    <MessageList
-      // session={session}
-      messages={showMsg}
-      staff={staff}
-      user={user}
-    />
-  );
+  if (user) {
+    return (
+      <MessageList
+        key={user.id}
+        // session={session}
+        messages={showMsg}
+        staff={staff}
+        user={user}
+      />
+    );
+  }
+  return <></>;
 };
 
 export default MessagePanel;

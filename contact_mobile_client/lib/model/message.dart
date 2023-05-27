@@ -67,7 +67,7 @@ class Message {
   /// Creator type */
   CreatorType creatorType;
   Content content;
-  String? nickName;
+  String? nickname;
 
   Message(
       {this.seqId,
@@ -80,7 +80,7 @@ class Message {
       required this.type,
       required this.creatorType,
       required this.content,
-      this.nickName});
+      this.nickname});
 
   bool get isSys =>
       creatorType == CreatorType.sys || content.contentType == 'SYS';
@@ -100,7 +100,7 @@ class Message {
         : types.User(
             id: staff.id.toString(),
             role: types.Role.agent,
-            firstName: staff.nickName);
+            firstName: staff.nickname);
 
     final tempCreatedAt = createdAt == null
         ? DateTime.now().millisecondsSinceEpoch
@@ -203,7 +203,7 @@ fragment myMessageContent on Message {
     createdAt
     creatorType
     from
-    nickName
+    nickname
     organizationId
     seqId
     to

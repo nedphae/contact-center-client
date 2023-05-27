@@ -415,7 +415,7 @@ export default function StaffForm(props: FormProps) {
           variant="outlined"
           margin="normal"
           fullWidth
-          id="nickName"
+          id="nickname"
           label={t('Nickname')}
           InputProps={{
             startAdornment: (
@@ -424,7 +424,7 @@ export default function StaffForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          {...register('nickName')}
+          {...register('nickname')}
         />
         <TextField
           variant="outlined"

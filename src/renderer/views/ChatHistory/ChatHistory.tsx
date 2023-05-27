@@ -203,7 +203,7 @@ export default function ChatHistory() {
       name: 'staffIdList',
       selectList: _.zipObject(
         staffList.map((value) => value.id),
-        staffList.map((value) => value.nickName)
+        staffList.map((value) => value.nickname)
       ),
       defaultValue: [],
     },
@@ -268,7 +268,7 @@ export default function ChatHistory() {
     // { field: 'id', headerName: t('Id'), width: 90 },
     { field: 'staffId', headerName: t('Staff Id'), width: 150 },
     { field: 'realName', headerName: t('Real name'), width: 150 },
-    { field: 'nickName', headerName: t('Nickname'), width: 150 },
+    { field: 'nickname', headerName: t('Nickname'), width: 150 },
     { field: 'userId', headerName: t('CustomerId'), width: 150 },
     { field: 'uid', headerName: t('UID'), width: 150 },
     { field: 'userName', headerName: t('Name'), width: 150 },

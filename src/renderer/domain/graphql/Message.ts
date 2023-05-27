@@ -28,7 +28,7 @@ export const MSG_CONTENT_QUERY = gql`
     createdAt
     creatorType
     from
-    nickName
+    nickname
     organizationId
     seqId
     to

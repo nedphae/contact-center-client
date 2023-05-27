@@ -93,7 +93,7 @@ export default function AccountList() {
   const columns: GridColDef[] = [
     // { field: 'id', headerName: t('Id'), width: 90 },
     { field: 'username', headerName: t('Username'), width: 150 },
-    { field: 'nickName', headerName: t('Nickname'), width: 150 },
+    { field: 'nickname', headerName: t('Nickname'), width: 150 },
     { field: 'realName', headerName: t('Real name'), width: 150 },
     {
       field: 'role',

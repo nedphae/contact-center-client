@@ -154,7 +154,7 @@ class StaffInfoPage extends HookConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            staff.nickName,
+            staff.nickname,
             style: const TextStyle(color: Colors.grey),
           )
         ],

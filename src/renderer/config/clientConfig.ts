@@ -11,8 +11,8 @@ class ClientConfig {
   kibanaBae = {
     baseUrl:
       process.env.NODE_ENV === 'production'
-        ? 'https:/kibana.xbcs.top:5601'
-        : 'http://192.168.50.105:5601',
+        ? 'https:/kibana.xbcs.top:5600'
+        : 'http://localhost:5600',
   };
 
   // jwt 配置
@@ -78,7 +78,7 @@ class ClientConfig {
   };
 
   kibana = {
-    loginUrl: `${this.kibanaBae.baseUrl}/internal/security/login`,
+    loginUrl: `${this.kibanaBae.baseUrl}/auto-login`,
     spaceUrl: `${this.kibanaBae.baseUrl}/api/spaces/space/$spaceId`,
     logoutUrl: `${this.kibanaBae.baseUrl}/logout`,
     dashboardUrl:

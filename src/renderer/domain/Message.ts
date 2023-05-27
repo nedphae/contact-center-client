@@ -32,7 +32,7 @@ export interface Message extends MessageResponse, LocalMessage {
   /** Creator type */
   creatorType: CreatorType;
   content: Content;
-  nickName?: string;
+  nickname?: string;
 }
 
 export interface UpdateMessage {

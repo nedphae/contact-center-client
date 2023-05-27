@@ -45,7 +45,7 @@ export const STAFF_FIELD = gql`
     # maxTicketAllTime
     # maxTicketPerDay
     mobilePhone
-    nickName
+    nickname
     organizationId
     password
     personalizedSignature

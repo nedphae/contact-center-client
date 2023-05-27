@@ -85,7 +85,7 @@ export default function WeChatOpenInfoForm(props: FormProps) {
           variant="outlined"
           margin="normal"
           fullWidth
-          id="nickName"
+          id="nickname"
           label={t('Wechat nickname')}
           InputProps={{
             readOnly: true,
@@ -95,7 +95,7 @@ export default function WeChatOpenInfoForm(props: FormProps) {
               </InputAdornment>
             ),
           }}
-          {...register('nickName')}
+          {...register('nickname')}
         />
 
         <Controller

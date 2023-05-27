@@ -397,7 +397,7 @@ const CONTENT_QUERY = gql`
     createdAt
     creatorType
     from
-    nickName
+    nickname
     organizationId
     seqId
     to
@@ -542,7 +542,7 @@ const NewMessageList = (props: MessageListProps) => {
         type: CreatorType.CUSTOMER,
         creatorType: CreatorType.STAFF,
         content,
-        nickName: staff.nickName,
+        nickname: staff.nickname,
       };
       dispatch(newMessage({ [message.uuid]: message }));
     }
@@ -596,7 +596,7 @@ const NewMessageList = (props: MessageListProps) => {
           startReached={hasMore ? handleLoadMore : undefined}
           ref={refOfScrollView}
           itemContent={(_index, msg) => {
-            const { uuid, seqId, createdAt, content, creatorType, nickName } =
+            const { uuid, seqId, createdAt, content, creatorType, nickname } =
               msg;
             return (
               <React.Fragment key={uuid}>
@@ -645,7 +645,7 @@ const NewMessageList = (props: MessageListProps) => {
                               >
                                 {creatorType !== 1
                                   ? user.name
-                                  : nickName ?? staff.nickName}
+                                  : nickname ?? staff.nickname}
                               </Typography>
                               <Typography
                                 variant="body2"

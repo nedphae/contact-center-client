@@ -247,7 +247,7 @@ export function sendMessage(
   return (dispatch, getState) => {
     message.createdAt = new Date().getTime() / 1000;
     // 发送消息到服务器
-    message.nickName = getState().staff.nickName;
+    message.nickname = getState().staff.nickname;
     if (getState().chat.monitored) {
       // 如果是管理员插入的会话
       message.content.sysCode = 'STAFF_HELP';
@@ -675,7 +675,7 @@ export function sendTextMessage(to: number, textContent: string): AppThunk {
 
 export function addLocalMessage(message: Message): AppThunk {
   return (dispatch, getState) => {
-    message.nickName = getState().staff.nickName;
+    message.nickname = getState().staff.nickname;
     message.createdAt = new Date().getTime() / 1000;
     dispatch(newMessage({ [message.uuid]: message } as MessagesMap));
   };
@@ -698,7 +698,7 @@ export function sendImageMessage(
       type: CreatorType.CUSTOMER,
       creatorType: CreatorType.STAFF,
       content,
-      nickName: getState().staff.nickName,
+      nickname: getState().staff.nickname,
     };
     dispatch(sendMessage(message, localMessage));
   };

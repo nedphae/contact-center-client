@@ -187,7 +187,7 @@ function Monitor(props: MonitorProps) {
                         </ListItemIcon>
                         <ListItemText
                           primary={st.realName}
-                          secondary={st.nickName}
+                          secondary={st.nickname}
                         />
                         {staffOpen === sIndex ? <ExpandLess /> : <ExpandMore />}
                       </ListItem>

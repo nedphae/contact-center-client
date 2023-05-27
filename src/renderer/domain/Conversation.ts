@@ -39,7 +39,7 @@ export interface Conversation {
   cType: ConversationType;
   staffId: number;
   realName: string;
-  nickName: string;
+  nickname: string;
   startTime: number;
   userId: number;
   uid: string;
@@ -144,7 +144,7 @@ export interface ConversationView {
   staffId?: number;
   userId: number;
   shuntId: number;
-  nickName?: string;
+  nickname?: string;
   /** 0=机器人会话 1=客服正常会话 */
   interaction?: number;
   /** 会话结束时间 */

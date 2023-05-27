@@ -4,7 +4,7 @@ import { gql } from '@apollo/client';
 export interface WeChatOpenInfo {
   id?: number;
   authorizerAppid?: string;
-  nickName?: string;
+  nickname?: string;
   headImg?: string;
   serviceTypeInfo?: number;
   verifyTypeInfo?: number;
@@ -28,7 +28,7 @@ export const QUERY_WECHAT_INFO = gql`
     getAllWeChatOpenInfo {
       id
       authorizerAppid
-      nickName
+      nickname
       headImg
       serviceTypeInfo
       verifyTypeInfo
@@ -55,7 +55,7 @@ export const MUTATION_WECHAT_INFO = gql`
     updateWeChatOpenInfo(weChatOpenInfo: $weChatOpenInfo) {
       id
       authorizerAppid
-      nickName
+      nickname
       headImg
       serviceTypeInfo
       verifyTypeInfo

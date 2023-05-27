@@ -17,7 +17,7 @@ Message _$MessageFromJson(Map<String, dynamic> json) => Message(
       type: $enumDecode(_$CreatorTypeEnumMap, json['type']),
       creatorType: $enumDecode(_$CreatorTypeEnumMap, json['creatorType']),
       content: Content.fromJson(json['content'] as Map<String, dynamic>),
-      nickName: json['nickName'] as String?,
+      nickname: json['nickname'] as String?,
     );
 
 Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
@@ -31,7 +31,7 @@ Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
       'type': _$CreatorTypeEnumMap[instance.type]!,
       'creatorType': _$CreatorTypeEnumMap[instance.creatorType]!,
       'content': instance.content,
-      'nickName': instance.nickName,
+      'nickname': instance.nickname,
     };
 
 const _$CreatorTypeEnumMap = {

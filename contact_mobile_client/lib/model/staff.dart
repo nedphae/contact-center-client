@@ -62,7 +62,7 @@ class Staff {
   int staffType;
   String realName;
   String username;
-  String nickName;
+  String nickname;
   int? gender;
   String? avatar;
   String? personalizedSignature;
@@ -83,7 +83,7 @@ class Staff {
     required this.staffType,
     required this.realName,
     required this.username,
-    required this.nickName,
+    required this.nickname,
     this.gender,
     required this.avatar,
     required this.personalizedSignature,
@@ -107,7 +107,7 @@ class Staff {
     int? staffType,
     String? realName,
     String? username,
-    String? nickName,
+    String? nickname,
     int? gender,
     String? avatar,
     String? personalizedSignature,
@@ -127,7 +127,7 @@ class Staff {
         staffType: staffType ?? this.staffType,
         realName: realName ?? this.realName,
         username: username ?? this.username,
-        nickName: nickName ?? this.nickName,
+        nickname: nickname ?? this.nickname,
         gender: gender ?? this.gender,
         avatar: avatar ?? this.avatar,
         personalizedSignature:
@@ -150,7 +150,7 @@ class Staff {
     # maxTicketAllTime
     # maxTicketPerDay
     mobilePhone
-    nickName
+    nickname
     organizationId
     password
     personalizedSignature
@@ -204,7 +204,6 @@ query AllStaffStatus {
     }
   }
 """;
-
 
   static const offlineClientMutation = """
 mutation Staff(\$staffChangeStatus: StaffChangeStatusInput!) {

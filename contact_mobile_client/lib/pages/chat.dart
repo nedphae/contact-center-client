@@ -498,7 +498,7 @@ class ChatStream extends StatelessWidget {
         final isStaff = message.creatorType == CreatorType.staff;
         final msgBubble = MessageBubble(
           staffId: staff.id,
-          msgSender: isStaff ? staff.nickName : customer.name,
+          msgSender: isStaff ? staff.nickname : customer.name,
           staff: isStaff,
           message: message,
         );

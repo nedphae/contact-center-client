@@ -205,7 +205,7 @@ function TransferForm(
                           <StyledTreeItem
                             key={staff.id.toString()}
                             nodeId={`staff-${staff.id}`}
-                            label={`${staff.realName}[${staff.nickName}] ${t(
+                            label={`${staff.realName}[${staff.nickname}] ${t(
                               'Count of reception'
                             )}: ${staff.currentServiceCount}/${
                               staff.maxServiceCount
@@ -237,7 +237,7 @@ function TransferForm(
                           <StyledTreeItem
                             key={staff.id.toString()}
                             nodeId={`staff-${staff.id}`}
-                            label={`${staff.realName}[${staff.nickName}] ${t(
+                            label={`${staff.realName}[${staff.nickname}] ${t(
                               'Count of reception'
                             )}: ${staff.currentServiceCount}/${
                               staff.maxServiceCount

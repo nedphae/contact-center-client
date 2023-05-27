@@ -22,7 +22,7 @@ export default interface Staff {
   staffType: number;
   realName: string;
   username: string;
-  nickName: string;
+  nickname: string;
   gender: number | undefined;
   createTime: Date;
   avatar: string | undefined;

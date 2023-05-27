@@ -25,7 +25,7 @@ class Conversation {
 // ConversationType? cType;
   int staffId;
   String realName;
-  String nickName;
+  String nickname;
   double startTime;
   int userId;
   String uid;
@@ -80,7 +80,7 @@ class Conversation {
       this.interaction,
       required this.staffId,
       required this.realName,
-      required this.nickName,
+      required this.nickname,
       required this.startTime,
       required this.userId,
       required this.uid,
@@ -138,7 +138,7 @@ class Conversation {
   //     interaction: json['interaction'] as int?,
   //     staffId: json['staffId'] as int,
   //     realName: json['realName'] as String,
-  //     nickName: json['nickName'] as String,
+  //     nickname: json['nickname'] as String,
   //     startTime: json['startTime'] as int,
   //     userId: json['userId'] as int,
   //     uid: json['uid'] as String,
@@ -211,7 +211,7 @@ class Conversation {
     isEvaluationInvited
     isStaffInvited
     valid
-    nickName
+    nickname
     uid
     organizationId
     realName
@@ -355,7 +355,7 @@ class ConversationView {
   int? staffId;
   int? userId;
   int? shuntId;
-  String? nickName;
+  String? nickname;
 
   /// 0=机器人会话 1=客服正常会话 */
   int? interaction;
@@ -373,7 +373,7 @@ class ConversationView {
     this.staffId,
     this.userId,
     this.shuntId,
-    this.nickName,
+    this.nickname,
     this.interaction,
     this.endTime,
     this.queue,

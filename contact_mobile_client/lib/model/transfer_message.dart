@@ -77,7 +77,7 @@ class TransferQuery {
       staffId
       userId
       shuntId
-      nickName
+      nickname
       interaction
       endTime
       queue

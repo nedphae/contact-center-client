@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
 // @material-ui/icons
@@ -12,6 +11,7 @@ import clientConfig, {
   getDashboardUrlById,
   getKibanaSpaceUrl,
 } from 'renderer/config/clientConfig';
+import { kinbanaAxios } from 'renderer/utils/request';
 import SpeedDials from 'renderer/components/SpeedDials/SpeedDials';
 
 interface KibanaUrl {
@@ -61,7 +61,7 @@ export default function StaffAttendance() {
         const currentUrl = getKibanaSpaceUrl(tempKibanaUrl.spaceId);
 
         try {
-          await axios.get<void>(currentUrl);
+          await kinbanaAxios.get<void>(currentUrl);
         } catch (ex) {
           // 需要登陆
           const kibanaLoginBody = {
@@ -73,17 +73,17 @@ export default function StaffAttendance() {
               password: kibanaData?.kibanaPassword,
             },
           };
-          const result = await axios.post<void>(
+          const result = await kinbanaAxios.get<void>(
             kibanaLoginUrl,
-            kibanaLoginBody,
+            // kibanaLoginBody,
             {
               headers: {
-                'Content-Type': 'application/json',
-                'kbn-version': '7.16.1',
+                // 'Content-Type': 'application/json',
+                // 'kbn-version': '7.16.1',
               },
             }
           );
-          if (result.status !== 200) {
+          if (result.status !== 200 && result.status !== 301) {
             onErrorMsg(
               'Failed to log in to Kibana, please contact the administrator'
             );

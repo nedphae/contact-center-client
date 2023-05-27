@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
 // react plugin for creating charts
 // @material-ui/core
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,6 +27,7 @@ import clientConfig, {
   getKibanaSpaceUrl,
 } from 'renderer/config/clientConfig';
 import SpeedDials from 'renderer/components/SpeedDials/SpeedDials';
+import { kinbanaAxios } from 'renderer/utils/request';
 import GridItem from '../../components/Grid/GridItem';
 import GridContainer from '../../components/Grid/GridContainer';
 import Danger from '../../components/Typography/Danger';
@@ -89,7 +89,7 @@ export default function Dashboard() {
         const currentUrl = getKibanaSpaceUrl(tempKibanaUrl.spaceId);
 
         try {
-          await axios.get<void>(currentUrl);
+          await kinbanaAxios.get<void>(currentUrl);
         } catch (ex) {
           // 需要登陆
           const kibanaLoginBody = {
@@ -101,18 +101,18 @@ export default function Dashboard() {
               password: kibanaData?.kibanaPassword,
             },
           };
-          const result = await axios.post<void>(
+          const result = await kinbanaAxios.get<void>(
             kibanaLoginUrl,
-            kibanaLoginBody,
+            // kibanaLoginBody,
             {
               headers: {
-                'Content-Type': 'application/json',
-                'kbn-version': '7.16.1',
-                'kbn-xsrf': true,
+                // 'Content-Type': 'application/json',
+                // 'kbn-version': '7.16.1',
+                // 'kbn-xsrf': true,
               },
             }
           );
-          if (result.status !== 200) {
+          if (result.status !== 200 && result.status !== 301) {
             onErrorMsg(
               'Failed to log in to Kibana, please contact the administrator'
             );
