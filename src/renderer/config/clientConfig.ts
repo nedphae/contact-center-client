@@ -11,7 +11,7 @@ class ClientConfig {
   kibanaBae = {
     baseUrl:
       process.env.NODE_ENV === 'production'
-        ? 'https:/kibana.xbcs.top:5600'
+        ? 'https://kibana.xbcs.top:5600'
         : 'http://localhost:5600',
   };
 

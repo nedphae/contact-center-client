@@ -49,6 +49,7 @@ const kinbanaAxiosInstance = axios.create({
   // baseURL: tokenConfig.web.host, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000, // request timeout
+  withCredentials: true,
 });
 
 kinbanaAxiosInstance.interceptors.request.use(
