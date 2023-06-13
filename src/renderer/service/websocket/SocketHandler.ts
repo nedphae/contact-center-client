@@ -13,17 +13,18 @@ import {
 } from 'renderer/state/session/sessionAction';
 import { AppDispatch } from 'renderer/store';
 import { getTokenSource } from 'renderer/electron/jwtStorage';
+import { Socket } from 'socket.io-client';
 import EventInterface, { SocketCallBack } from './EventInterface';
 
 export default class SocketHandler implements EventInterface {
-  socket: SocketIOClient.Socket;
+  socket: Socket;
 
   dispatch: AppDispatch;
 
   onReconnect: () => void;
 
   constructor(
-    $socket: SocketIOClient.Socket,
+    $socket: Socket,
     $dispatch: AppDispatch,
     $onReconnect: () => void
   ) {
@@ -45,7 +46,9 @@ export default class SocketHandler implements EventInterface {
     // this.socket.connect();
     this.socket.on('disconnect', async () => {
       const accessToken = await getTokenSource();
-      this.socket.io.opts.query = `token=${accessToken}`;
+      if (accessToken && this.socket.io.opts.query) {
+        this.socket.io.opts.query.token = accessToken;
+      }
 
       this.dispatch(updateOnlineStatusBySocket('OFFLINE'));
       const msg = i18n.t('websocket.error');

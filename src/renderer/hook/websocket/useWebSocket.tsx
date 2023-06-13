@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
 
 import IO from 'socket.io-client';
 
@@ -15,11 +14,10 @@ import { getStaffToken } from 'renderer/state/staff/staffAction';
 const useWebSocket = (onReconnect: () => void) => {
   const dispatch = useDispatch();
   const token = useSelector(getStaffToken);
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (token && !window.socketRef) {
-      const options: SocketIOClient.ConnectOpts = {
+      const options = {
         // reconnectionDelay: 1000,
         // 传递 JWT Token
         // 使用 连接参数 可以方便的保存的握手数据中
