@@ -53,7 +53,7 @@ export interface TopicFilterInput {
   categoryIds?: number[];
 
   // 分页参数，先不分页
-  page?: PageParam;
+  page: PageParam;
 
   // 时间区间
   timeRange?: RangeQuery<number | string>;
