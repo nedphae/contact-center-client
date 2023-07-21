@@ -226,13 +226,14 @@ export default function BotDataGrid(props: BotTreeViewProps) {
   };
 
   const handlePageChange = (params: number) => {
-    // {page: 0, pageCount: 1, pageSize: 25, paginationMode: "server", rowCount: 9}
-    topicFilterInput.page.page = params;
-    refetchTopic({ topicFilterInput });
+    const currentVariables = variables?.topicFilterInput ?? topicFilterInput;
+    currentVariables.page.page = params;
+    refetchTopic({ topicFilterInput: currentVariables });
   };
   const handlePageSizeChange = (params: number) => {
-    topicFilterInput.page.size = params;
-    refetchTopic({ topicFilterInput });
+    const currentVariables = variables?.topicFilterInput ?? topicFilterInput;
+    currentVariables.page.size = params;
+    refetchTopic({ topicFilterInput: currentVariables });
   };
 
   return (
