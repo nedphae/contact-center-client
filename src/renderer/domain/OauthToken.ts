@@ -10,7 +10,7 @@ export interface OauthToken {
 }
 
 export interface AccessToken {
-  user_name: string;
+  sub: string;
   scope: string[];
   oid: number;
   exp: number;

@@ -142,7 +142,7 @@ export default function Auth() {
     if (savedToken && !signing) {
       reset({
         org_id: savedToken.oid,
-        username: savedToken.user_name,
+        username: savedToken.sub,
         password: '**********',
         remember: true,
       });
