@@ -225,6 +225,17 @@ export default function BotDataGrid(props: BotTreeViewProps) {
     refOfTopicDialog.current?.setOpen(true);
   };
 
+  const handlePageChange = (params: number) => {
+    const currentVariables = variables?.topicFilterInput ?? topicFilterInput;
+    currentVariables.page.page = params;
+    refetchTopic({ topicFilterInput: currentVariables });
+  };
+  const handlePageSizeChange = (params: number) => {
+    const currentVariables = variables?.topicFilterInput ?? topicFilterInput;
+    currentVariables.page.size = params;
+    refetchTopic({ topicFilterInput: currentVariables });
+  };
+
   return (
     <div
       style={{
@@ -261,6 +272,9 @@ export default function BotDataGrid(props: BotTreeViewProps) {
         pageSize={pageSize}
         rowCount={rowCount}
         rowsPerPageOptions={[10, 20, 30]}
+        paginationMode="server"
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
         loading={loading}
         disableSelectionOnClick
         checkboxSelection

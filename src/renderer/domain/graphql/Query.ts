@@ -1,7 +1,5 @@
 export interface RangeQuery<T> {
   from?: T;
-  includeLower?: boolean;
-  includeUpper?: boolean;
   to?: T;
 }
 type Direction = 'ASC' | 'DESC';
