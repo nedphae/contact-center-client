@@ -45,7 +45,7 @@ dependencies:
   hooks_riverpod: ^2.0.0
   graphql_flutter: ^5.1.0
   json_annotation: ^4.7.0
-  socket_io_client: 1.0.2
+  socket_io_client: 2.0.0
   uuid: ^3.0.6
   animations: ^2.0.5
   badges: ^2.0.3

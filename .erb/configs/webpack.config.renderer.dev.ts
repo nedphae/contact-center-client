@@ -75,7 +75,6 @@ const configuration: webpack.Configuration = {
               importLoaders: 1,
             },
           },
-          'sass-loader',
         ],
         include: /\.module\.s?(c|a)ss$/,
       },
@@ -95,7 +94,7 @@ const configuration: webpack.Configuration = {
       // },
       {
         test: /\.s?css$/,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        use: ['style-loader', 'css-loader'],
         exclude: /\.module\.s?(c|a)ss$/,
       },
       // Fonts
