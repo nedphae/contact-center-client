@@ -14,7 +14,8 @@ export interface AccessToken {
   scope: string[];
   oid: number;
   exp: number;
-  authorities: string[];
+  // authorities: string[]
+  auth: string
   jti: string;
   client_id: string;
   sid: number;
